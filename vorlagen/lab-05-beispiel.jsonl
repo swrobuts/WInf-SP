@@ -1,0 +1,5 @@
+{"fahrt_id":1,"rad_id":"R-057","kunde_id":13,"start":{"station_id":6,"zeit":"2025-10-05T07:58:00"},"ziel":{"station_id":3},"dauer_min":7,"preis_eur":1.2}
+{"fahrt_id":2,"rad_id":"R-035","kunde_id":194,"start":{"station_id":5,"zeit":"2026-07-04T16:29:00"},"ziel":{"station_id":6},"dauer_min":6,"preis_eur":1.1}
+{"fahrt_id":3,"rad_id":"R-049","kunde_id":82,"start":{"station_id":7,"zeit":"2025-12-25T18:26:00"},"ziel":{"station_id":1},"dauer_min":22,"preis_eur":4.08}
+{"fahrt_id":4,"rad_id":"R-030","kunde_id":128,"start":{"station_id":9,"zeit":"2025-11-15T16:59:00"},"ziel":{"station_id":3},"dauer_min":5,"preis_eur":2.4}
+{"fahrt_id":5,"rad_id":"R-057","kunde_id":157,"start":{"station_id":1,"zeit":"2025-11-06T16:35:00"},"ziel":{"station_id":8},"dauer_min":12,"preis_eur":1.7}

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WInf-SP-Lab · Modul Wirtschaftsinformatik Schwerpunkt · THWS Business School</title>
+  <meta name="winf:titel-en" content="WInf-SP-Lab · Business informatics specialisation module · THWS Business School" />
+  <meta name="description" content="Interaktive Lernumgebung zur Werkzeugkette eines Datenprojekts: Terminal, Git und GitHub, PyCharm und WebStorm, Colab, JSON, SQLite, Docker, Supabase, DataGrip, ETL/ELT, Render, Power BI und Tableau – zum Ausprobieren im Browser, ohne Anmeldung und ohne Installation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html"><span class="mark">WInf-SP</span>-Lab</a>
+    <span class="header-back">
+      <span lang="de">THWS Business School · Modul Wirtschaftsinformatik Schwerpunkt</span>
+      <span lang="en">THWS Business School · Business informatics specialisation module</span>
+    </span>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-inner">
+    <span class="hero-tag">
+      <span lang="de">Lernumgebung · Werkzeugkette eines Datenprojekts</span>
+      <span lang="en">Learning environment · The tool chain of a data project</span>
+    </span>
+    <h1 class="hero-title">WInf-SP</h1>
+    <p class="hero-subtitle">
+      <span lang="de">Von der Rohdatei zum Dashboard – jedes Glied der Kette selbst in Betrieb nehmen</span>
+      <span lang="en">From raw file to dashboard – putting every link of the chain into operation yourself</span>
+    </p>
+    <p class="hero-desc">
+      <span lang="de">Dreizehn Labs folgen dem Weg der Daten: Kommandozeile, Versionsverwaltung, Entwicklungsumgebung
+        und Notebook; JSON als Austauschformat, SQLite als Datei-Datenbank, Docker als Verpackung, Supabase als
+        gehostetes Postgres und DataGrip als Werkzeug darauf; ETL/ELT als Übergang ins Auswertungsmodell, Render als
+        Bühne für den eigenen Dienst, Power BI und Tableau als Fenster auf das Ergebnis. Konsole, Deploy und BI-Regal
+        sind nachgebildet – die Datenbanken sind echt: PostgreSQL und SQLite laufen in Ihrem Browser.</span>
+      <span lang="en">Thirteen labs follow the path of the data: command line, version control, development environment
+        and notebook; JSON as the exchange format, SQLite as the file database, Docker as the packaging, Supabase as
+        hosted Postgres and DataGrip as the tool on top; ETL/ELT as the passage into the analytical model, Render as the
+        stage for your own service, Power BI and Tableau as the window on the result. Console, deploy and BI shelf are
+        modelled – the databases are real: PostgreSQL and SQLite run in your browser.</span>
+    </p>
+    <div class="hero-badges">
+      <span class="hero-badge">Terminal · PowerShell</span>
+      <span class="hero-badge">Git · GitHub</span>
+      <span class="hero-badge">PyCharm · WebStorm</span>
+      <span class="hero-badge">Colab</span>
+      <span class="hero-badge">JSON</span>
+      <span class="hero-badge">SQLite</span>
+      <span class="hero-badge">Docker</span>
+      <span class="hero-badge">Supabase</span>
+      <span class="hero-badge">DataGrip</span>
+      <span class="hero-badge">ETL · ELT</span>
+      <span class="hero-badge">Render</span>
+      <span class="hero-badge">Power BI</span>
+      <span class="hero-badge">Tableau</span>
+      <span class="hero-badge"><span lang="de">Ohne Anmeldung</span><span lang="en">No sign-up</span></span>
+      <span class="hero-badge"><span lang="de">Ohne Installation</span><span lang="en">No installation</span></span>
+    </div>
+    <div class="cta-row">
+      <a class="btn solid" href="lab-01-terminal.html" data-lab-link>
+        <span lang="de">Mit Lab 01 beginnen</span><span lang="en">Start with lab 01</span>
+      </a>
+      <a class="btn" href="#labs">
+        <span lang="de">Alle Labs ansehen</span><span lang="en">See all labs</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat-item"><div class="stat-value">13</div><div class="stat-label">Labs</div></div>
+    <div class="stat-item"><div class="stat-value">74</div><div class="stat-label"><span lang="de">Übungen</span><span lang="en">Exercises</span></div></div>
+    <div class="stat-item"><div class="stat-value">2</div><div class="stat-label"><span lang="de">Datenbanken im Browser</span><span lang="en">Databases in the browser</span></div></div>
+    <div class="stat-item"><div class="stat-value">0 €</div><div class="stat-label"><span lang="de">Kosten</span><span lang="en">Cost</span></div></div>
+  </div>
+</div>
+
+<main>
+
+<section class="section" id="labs">
+  <div class="section-head">
+    <span class="badge"><span lang="de">Die dreizehn Labs</span><span lang="en">The thirteen labs</span></span>
+    <div class="accent-line"></div>
+    <h2>
+      <span lang="de">Eine Kette, dreizehn Glieder</span>
+      <span lang="en">One chain, thirteen links</span>
+    </h2>
+    <p>
+      <span lang="de">Die Labs sind so geordnet, wie die Daten laufen: erst die Grundwerkzeuge, dann Format und
+        Speicher, dann Verpackung, Hosting und Werkzeug darauf, zuletzt Pipeline, Bereitstellung und Auswertung. Jedes
+        Lab erklärt zuerst, wozu das Werkzeug da ist, führt dann durch die Inbetriebnahme und lässt Sie zuletzt
+        ausprobieren, was Sie gelesen haben. Alle Labs arbeiten mit derselben Fallstudie: dem Leihradsystem Velo City
+        in Würzburg, mit 1.500 synthetischen Fahrten, die als JSON, in SQLite und in PostgreSQL identisch
+        vorliegen.</span>
+      <span lang="en">The labs are ordered the way the data flows: first the basic tools, then format and storage, then
+        packaging, hosting and the tool on top, finally pipeline, deployment and analysis. Every lab first explains what
+        the tool is for, then walks through setting it up, and finally lets you try out what you have read. All labs
+        work with the same case study: the Velo City bike-sharing system in Würzburg, with 1,500 synthetic rides that
+        exist identically as JSON, in SQLite and in PostgreSQL.</span>
+    </p>
+  </div>
+  <div class="kette">
+    <div class="glied hell"><span class="titel">01–04</span><span class="was"><span lang="de">Grundwerkzeuge: Terminal, Git, IDE, Notebook</span><span lang="en">Basic tools: terminal, Git, IDE, notebook</span></span></div>
+    <span class="pfeil">→</span>
+    <div class="glied hell"><span class="titel">05–06</span><span class="was"><span lang="de">Format und Datei-Datenbank: JSON, SQLite</span><span lang="en">Format and file database: JSON, SQLite</span></span></div>
+    <span class="pfeil">→</span>
+    <div class="glied hell"><span class="titel">07–09</span><span class="was"><span lang="de">Container, gehostetes Postgres, Datenbankwerkzeug</span><span lang="en">Container, hosted Postgres, database tool</span></span></div>
+    <span class="pfeil">→</span>
+    <div class="glied betont"><span class="titel">10–11</span><span class="was"><span lang="de">Pipeline und Bereitstellung: ETL/ELT, Render</span><span lang="en">Pipeline and deployment: ETL/ELT, Render</span></span></div>
+    <span class="pfeil">→</span>
+    <div class="glied betont"><span class="titel">12–13</span><span class="was"><span lang="de">Auswertung: Power BI, Tableau</span><span lang="en">Analysis: Power BI, Tableau</span></span></div>
+  </div>
+  <div data-fortschritt></div>
+  <div class="labs-grid">
+
+    <a class="lab-card" href="lab-01-terminal.html" data-lab-link>
+      <div class="lab-num">01</div>
+      <h3><span lang="de">Terminal und PowerShell</span><span lang="en">Terminal and PowerShell</span></h3>
+      <div class="sub">zsh · PowerShell · cmd.exe</div>
+      <div class="desc"><span lang="de">Der gemeinsame Nenner aller folgenden Labs: sich im Dateisystem bewegen, Dateien anlegen, lesen, verschieben – auf dem Mac wie unter Windows, in einer nachgebildeten Konsole.</span><span lang="en">The common denominator of all following labs: moving around the file system, creating, reading and moving files – on a Mac as on Windows, in a simulated console.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">90 Min</span><span lang="en">90 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-02-github.html" data-lab-link>
+      <div class="lab-num">02</div>
+      <h3><span lang="de">Git und GitHub</span><span lang="en">Git and GitHub</span></h3>
+      <div class="sub">Commit, branch, pull request</div>
+      <div class="desc"><span lang="de">Schluss mit <em>analyse_final_v3_wirklich_final.ipynb</em>. Stände festhalten, zurückholen, zusammenführen – und die zwei Dinge, die niemals ins Repository gehören.</span><span lang="en">An end to <em>analysis_final_v3_really_final.ipynb</em>. Record, recover and merge states – and the two things that must never enter a repository.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">120 Min</span><span lang="en">120 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-03-ide.html" data-lab-link>
+      <div class="lab-num">03</div>
+      <h3><span lang="de">PyCharm und WebStorm</span><span lang="en">PyCharm and WebStorm</span></h3>
+      <div class="sub">Project, interpreter, run configuration</div>
+      <div class="desc"><span lang="de">Eine Entwicklungsumgebung, die das Projekt kennt. Die häufigste Fehlermeldung des Semesters – <code>ModuleNotFoundError</code> – hat fast immer dieselbe Ursache: den falschen Interpreter.</span><span lang="en">A development environment that knows the project. The most common error message of the semester – <code>ModuleNotFoundError</code> – almost always has the same cause: the wrong interpreter.</span></div>
+      <div class="meta">5 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">90 Min</span><span lang="en">90 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-04-colab.html" data-lab-link>
+      <div class="lab-num">04</div>
+      <h3>Google Colab</h3>
+      <div class="sub">Notebook, runtime, state</div>
+      <div class="desc"><span lang="de">Notebooks im Browser ohne Installation. Der eigentliche Stoff ist nicht die Oberfläche, sondern der Zustand: Was überlebt einen Neustart, was nicht – und warum ein Notebook von oben nach unten laufen muss.</span><span lang="en">Notebooks in the browser without installation. The real subject is not the interface but the state: what survives a restart, what does not – and why a notebook has to run from top to bottom.</span></div>
+      <div class="meta">5 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">75 Min</span><span lang="en">75 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-05-json.html" data-lab-link>
+      <div class="lab-num">05</div>
+      <h3><span lang="de">JSON-Datenstrukturen</span><span lang="en">JSON data structures</span></h3>
+      <div class="sub">Object, array, nesting, JSON Lines</div>
+      <div class="desc"><span lang="de">Das Format, in dem Schnittstellen antworten und Konfigurationen stehen. Sechs Werttypen, zwei Klammern, keine Kommentare – und die Frage, wie aus einem verschachtelten Dokument eine Tabelle wird.</span><span lang="en">The format APIs answer in and configurations are written in. Six value types, two brackets, no comments – and the question of how a nested document becomes a table.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">90 Min</span><span lang="en">90 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-06-sqlite.html" data-lab-link>
+      <div class="lab-num">06</div>
+      <h3>SQLite</h3>
+      <div class="sub">One file, one database</div>
+      <div class="desc"><span lang="de">Eine Datenbank ohne Server: eine Datei, die jede Sprache öffnen kann. Echtes SQLite läuft hier im Browser – und zeigt, wo die Datei aufhört und ein Server anfängt.</span><span lang="en">A database without a server: one file any language can open. Real SQLite runs in the browser here – and shows where the file ends and a server begins.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">105 Min</span><span lang="en">105 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-07-docker.html" data-lab-link>
+      <div class="lab-num">07</div>
+      <h3>Docker</h3>
+      <div class="sub">Image, container, volume</div>
+      <div class="desc"><span lang="de">Eine Anwendung samt Bibliotheken in ein Abbild verpacken, das überall gleich startet. Eine Datenbank in einer Minute – und die Frage, wovon ihre Daten das Löschen des Containers überleben.</span><span lang="en">Packing an application with its libraries into an image that starts the same everywhere. A database in one minute – and the question of what makes its data survive the container's deletion.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">120 Min</span><span lang="en">120 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-08-supabase.html" data-lab-link>
+      <div class="lab-num">08</div>
+      <h3>Supabase</h3>
+      <div class="sub">Hosted Postgres, RLS, keys</div>
+      <div class="desc"><span lang="de">Eine verwaltete PostgreSQL-Datenbank mit erzeugter Schnittstelle. Darunter arbeitet gewöhnliches Postgres – die Rechte aber liegen in der Datenbank selbst, und wer das übersieht, stellt seine Tabelle ins offene Netz.</span><span lang="en">A managed PostgreSQL database with a generated interface. Underneath sits ordinary Postgres – but the permissions live in the database itself, and whoever overlooks that puts their table on the open internet.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">105 Min</span><span lang="en">105 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-09-datagrip.html" data-lab-link>
+      <div class="lab-num">09</div>
+      <h3>DataGrip</h3>
+      <div class="sub">Data source, console, transaction</div>
+      <div class="desc"><span lang="de">Ein Datenbankwerkzeug, das das Schema kennt und deshalb mitdenkt – für die SQLite-Datei wie für Supabase. Der wichtigste Schalter ist unscheinbar: Er entscheidet, ob eine Änderung im Raster sofort dauerhaft ist.</span><span lang="en">A database tool that knows the schema and therefore thinks along – for the SQLite file as for Supabase. The most important switch is inconspicuous: it decides whether a change in the grid is immediately permanent.</span></div>
+      <div class="meta">5 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">75 Min</span><span lang="en">75 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-10-etl.html" data-lab-link>
+      <div class="lab-num">10</div>
+      <h3><span lang="de">ETL und ELT</span><span lang="en">ETL and ELT</span></h3>
+      <div class="sub">Extract, load, transform, star schema</div>
+      <div class="desc"><span lang="de">Rohdaten wiederholbar in ein Auswertungsmodell überführen. Der Unterschied zwischen ETL und ELT ist ein einziges Wort: <em>wo</em> die Umformung stattfindet – und was das für Wiederholbarkeit, Tests und Datenschutz heißt.</span><span lang="en">Turning raw data into an analytical model repeatably. The difference between ETL and ELT is a single word: <em>where</em> the transformation takes place – and what that means for repeatability, tests and data protection.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">120 Min</span><span lang="en">120 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-11-render.html" data-lab-link>
+      <div class="lab-num">11</div>
+      <h3>Render</h3>
+      <div class="sub">Web service, build, start, $PORT</div>
+      <div class="desc"><span lang="de">Einen Dienst aus dem Repository ins Netz bringen, ohne einen Server zu verwalten. Drei Einstellungen entscheiden über jeden Deploy – und ein nachgebildetes Protokoll zeigt, woran er scheitert, bevor es draußen passiert.</span><span lang="en">Bringing a service from the repository online without managing a server. Three settings decide every deploy – and a simulated log shows what it fails on before it happens outside.</span></div>
+      <div class="meta">5 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">90 Min</span><span lang="en">90 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-12-powerbi.html" data-lab-link>
+      <div class="lab-num">12</div>
+      <h3>Power BI</h3>
+      <div class="sub">Power Query, model, DAX measure</div>
+      <div class="desc"><span lang="de">Erst das Modell, dann der Bericht: Tabellen verbinden, Kennzahlen als Measures schreiben, veröffentlichen. Und die Falle, in die jeder einmal tappt – die Summe einer Kennung.</span><span lang="en">Model first, report second: relate tables, write metrics as measures, publish. And the trap everyone falls into once – the sum of an identifier.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">120 Min</span><span lang="en">120 min</span></div>
+    </a>
+
+    <a class="lab-card" href="lab-13-tableau.html" data-lab-link>
+      <div class="lab-num">13</div>
+      <h3>Tableau</h3>
+      <div class="sub">Dimension, measure, discrete, continuous</div>
+      <div class="desc"><span lang="de">Felder auf Regale legen und zusehen, wie daraus eine Abfrage wird. Blau ist nicht Dimension und Grün nicht Kennzahl – wer das auseinanderhält, versteht, warum ein Balken zur Achse wird.</span><span lang="en">Putting fields on shelves and watching a query emerge. Blue is not dimension and green is not measure – whoever keeps that apart understands why a bar becomes an axis.</span></div>
+      <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">105 Min</span><span lang="en">105 min</span></div>
+    </a>
+
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="inner">
+    <div class="section-head">
+      <span class="badge dark"><span lang="de">Wie das hier funktioniert</span><span lang="en">How this works</span></span>
+      <div class="accent-line"></div>
+      <h2><span lang="de">Ausprobieren, nicht nachlesen</span><span lang="en">Try it, don't just read it</span></h2>
+    </div>
+    <div class="labs-grid">
+      <div class="concept-box">
+        <h3><span lang="de">Eine Konsole, die nichts kaputt macht</span><span lang="en">A console that breaks nothing</span></h3>
+        <p><span lang="de">Die Kommandozeile in diesen Seiten ist nachgebildet: ein Dateibaum im Arbeitsspeicher, ein
+          Satz nachgebauter Befehle, Ausgaben nach dem Vorbild der echten. <code>git commit</code> ohne vorheriges
+          <code>git add</code> wird hier genauso zurückgewiesen wie draußen – nur dass hier nichts verloren geht.
+          Zwischen macOS, PowerShell und Eingabeaufforderung schalten Sie oben um.</span>
+        <span lang="en">The command line in these pages is a model: a file tree in memory, a set of rebuilt commands,
+          output modelled on the real thing. <code>git commit</code> without a prior <code>git add</code> is rejected
+          here just as it is outside – except that nothing is lost here. Switch between macOS, PowerShell and Command
+          Prompt at the top.</span></p>
+      </div>
+      <div class="concept-box">
+        <h3><span lang="de">Zwei Datenbanken, die wirklich rechnen</span><span lang="en">Two databases that really compute</span></h3>
+        <p><span lang="de">SQLite und PostgreSQL laufen als WebAssembly in Ihrem Browser. Das ist kein Simulator:
+          dieselben Datentypen, dieselben Fehlermeldungen, dieselben Eigenheiten – etwa dass SQLite eine Zeichenkette
+          in eine Ganzzahlspalte schreibt, ohne zu murren. Der Bestand ist die Fallstudie Velo City, synthetisch
+          erzeugt und ohne Personenbezug.</span>
+        <span lang="en">SQLite and PostgreSQL run as WebAssembly in your browser. That is not a simulator: same data
+          types, same error messages, same quirks – such as SQLite writing a string into an integer column without
+          complaint. The data is the Velo City case study, synthetically generated and without personal data.</span></p>
+      </div>
+      <div class="concept-box">
+        <h3><span lang="de">Simulatoren für das, was man nicht einbetten kann</span><span lang="en">Simulators for what cannot be embedded</span></h3>
+        <p><span lang="de">Ein Deploy bei Render, ein Regal in Tableau, das Feldfenster in Power BI: Diese Oberflächen
+          gehören anderen. Die Labs bilden den Mechanismus nach – Build Command, Start Command und das Protokoll;
+          Felder, Regale und das Diagramm, das daraus entsteht. Was hier klappt, klappt draußen aus demselben
+          Grund.</span>
+        <span lang="en">A deploy on Render, a shelf in Tableau, the field pane in Power BI: these interfaces belong to
+          others. The labs model the mechanism – build command, start command and the log; fields, shelves and the
+          chart that emerges. What works here works outside for the same reason.</span></p>
+      </div>
+      <div class="concept-box">
+        <h3><span lang="de">Befehle und Dateien zum Mitnehmen</span><span lang="en">Commands and files to take away</span></h3>
+        <p><span lang="de">Jeder Befehl steht auf einer Karte mit Kopierknopf – und darunter jedes Zeichen einzeln
+          erklärt. Dazu kommen Kopiervorlagen: <code>requirements.txt</code>, <code>render.yaml</code>,
+          <code>compose.yaml</code>, ein ETL-Skript, ein Sternschema. Herunterladen, anpassen, weiterarbeiten.</span>
+        <span lang="en">Every command sits on a card with a copy button – and below it, every character explained. Plus
+          templates to copy: <code>requirements.txt</code>, <code>render.yaml</code>, <code>compose.yaml</code>, an ETL
+          script, a star schema. Download, adapt, carry on.</span></p>
+      </div>
+      <div class="concept-box">
+        <h3><span lang="de">Ihr Stand bleibt im Browser</span><span lang="en">Your progress stays in the browser</span></h3>
+        <p><span lang="de">Gelöste Übungen werden lokal vermerkt, damit Sie beim nächsten Besuch sehen, wo Sie
+          stehen. Es gibt keine Anmeldung, keinen Server und keine Auswertung: Der Vermerk liegt in Ihrem Browser
+          und nirgendwo sonst. Zurücksetzen können Sie ihn oben in der Fortschrittskarte.</span>
+        <span lang="en">Solved exercises are noted locally so you can see where you stand next time. There is no
+          sign-in, no server and no tracking: the note lives in your browser and nowhere else. You can reset it in
+          the progress card above.</span></p>
+      </div>
+      <div class="concept-box">
+        <h3><span lang="de">Zwei Sprachen, englische Fachbegriffe</span><span lang="en">Two languages, English terms</span></h3>
+        <p><span lang="de">Jede Seite gibt es auf Deutsch und Englisch; der Schalter oben rechts merkt sich Ihre Wahl.
+          Die Fachbegriffe bleiben in beiden Fassungen englisch – Commit, Volume, Measure, Pipeline –, weil die
+          Werkzeuge, ihre Dokumentation und die Fehlermeldungen englisch sind. Wer die Begriffe kennt, findet die
+          Antwort.</span>
+        <span lang="en">Every page exists in German and English; the switch at the top right remembers your choice.
+          The technical terms stay English in both versions – commit, volume, measure, pipeline – because the tools,
+          their documentation and their error messages are English. Whoever knows the terms finds the answer.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <span class="badge"><span lang="de">Einordnung</span><span lang="en">Context</span></span>
+    <div class="accent-line"></div>
+    <h2><span lang="de">Werkzeuge sind Mittel, nicht Inhalt</span><span lang="en">Tools are means, not content</span></h2>
+  </div>
+  <p>
+    <span lang="de">Diese Umgebung ergänzt die Vorlesung, sie ersetzt sie nicht. Der fachliche Kern – Datenmodellierung,
+      Kennzahlen, die Fallstudie – steht in den Foliensätzen und in der Präsenzveranstaltung. Hier geht es um die
+      Handwerkszeuge, mit denen dieser Kern bearbeitet wird, und um ihre Reihenfolge: Ein Dashboard ist nur so gut wie
+      die Pipeline dahinter, und eine Pipeline nur so gut wie die Datei, aus der sie liest. Wer die Kette einmal
+      selbst durchlaufen hat, weiß, an welchem Glied es hakt, wenn eine Zahl im Bericht nicht stimmt.</span>
+    <span lang="en">This environment complements the lecture, it does not replace it. The subject matter itself – data
+      modelling, metrics, the case study – lives in the slide sets and in class. What this is about is the craft tools
+      that subject matter is worked with, and their order: a dashboard is only as good as the pipeline behind it, and a
+      pipeline only as good as the file it reads from. Whoever has walked the chain once knows which link is stuck when
+      a number in the report is wrong.</span>
+  </p>
+  <div class="auswahl-hinweis">
+    <p>
+      <span lang="de"><strong>Hinweis zur Werkzeugauswahl.</strong> Bei den in dieser Lernumgebung gezeigten Tools
+        handelt es sich um eine Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Sie folgt dem
+        Modul und dem Kriterium, dass sich jedes Werkzeug ohne Kosten und ohne Zwang zu einem kostenpflichtigen Vertrag
+        ausprobieren lässt. Zu jedem gezeigten Werkzeug gibt es Alternativen; die jeweiligen Labs benennen sie. Angaben
+        zu Lizenzen, Preisen und kostenlosen Kontingenten geben den Stand 09/2026 wieder und ändern sich
+        erfahrungsgemäß schneller als Lehrmaterial – prüfen Sie sie vor einer Entscheidung beim Anbieter nach.</span>
+      <span lang="en"><strong>Note on the selection of tools.</strong> The tools shown in this learning environment are
+        a selection – it is meant neither as a recommendation nor as advertising. It follows the module and the
+        criterion that every tool can be tried out at no cost and without being forced into a paid contract. There are
+        alternatives to every tool shown; the individual labs name them. Statements about licences, prices and free
+        allowances reflect the situation in 09/2026 and, in experience, change faster than teaching material – check
+        them with the provider before making a decision.</span>
+    </p>
+  </div>
+  <div class="karten">
+    <div class="karte">
+      <div class="kopfzeile"><span lang="de">Verwandte Umgebungen</span><span lang="en">Related environments</span></div>
+      <p><span lang="de">Für Projekt- und IT-Management gibt es das PITM-Lab, für Datenbanken und SQL das DABA-Lab, für
+        Prozessmodellierung das PROM-Lab, für Business Intelligence das BINT-Lab. Sie folgen derselben Formsprache und
+        unterscheiden sich in der Leitfarbe. Die Labs zu Kommandozeile, Colab und Docker teilen sich WInf-SP und PITM
+        wörtlich – dieselben Werkzeuge, dieselben Stolpersteine.</span>
+      <span lang="en">For project and IT management there is the PITM lab, for databases and SQL the DABA lab, for
+        process modelling the PROM lab, for business intelligence the BINT lab. They follow the same design language
+        and differ in their lead colour. The labs on the command line, Colab and Docker are shared word for word between
+        WInf-SP and PITM – the same tools, the same stumbling blocks.</span></p>
+    </div>
+    <div class="karte">
+      <div class="kopfzeile"><span lang="de">Keine echten Daten</span><span lang="en">No real data</span></div>
+      <p><span lang="de">Alle Beispiele arbeiten mit synthetischen Daten. Das ist keine Bequemlichkeit, sondern eine
+        Entwurfsentscheidung: Personenbezogene Daten gehören weder in ein Notebook bei einem Anbieter im Drittland noch
+        in eine kostenfreie Datenbank, die nach dreißig Tagen gelöscht wird, noch in ein Repository, dessen Geschichte
+        sich praktisch nicht löschen lässt.</span>
+      <span lang="en">All examples work with synthetic data. That is not convenience but a design decision: personal
+        data belongs neither in a notebook at a provider in a third country, nor in a free database deleted after thirty
+        days, nor in a repository whose history is practically impossible to erase.</span></p>
+    </div>
+    <div class="karte">
+      <div class="kopfzeile"><span lang="de">Rückmeldung</span><span lang="en">Feedback</span></div>
+      <p><span lang="de">Fehler, veraltete Angaben und Wünsche gern in der Veranstaltung oder per Nachricht. Die
+        Umgebung wird semesterweise fortgeschrieben.</span>
+      <span lang="en">Mistakes, outdated statements and suggestions are welcome in class or by message. The
+        environment is updated each semester.</span></p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Prof. Dr. Robert Butscher · THWS Business School · Technische Hochschule
+      Würzburg-Schweinfurt · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Prof. Dr. Robert Butscher · THWS Business School · Technische Hochschule
+      Würzburg-Schweinfurt · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

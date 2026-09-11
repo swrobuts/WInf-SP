@@ -1,0 +1,288 @@
+{
+  "quelle": "Velo City Betreiberportal",
+  "exportiert_am": "2026-09-01T06:00:00+02:00",
+  "waehrung": "EUR",
+  "stationen": [
+    {
+      "station_id": 1,
+      "name": "Juliuspromenade",
+      "bezirk": "Altstadt",
+      "plaetze": 18,
+      "eroeffnet": "2024-04-02",
+      "raeder": [
+        {
+          "rad_id": "R-010",
+          "typ": "CARGO",
+          "baujahr": 2024,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-020",
+          "typ": "CARGO",
+          "baujahr": 2025,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-030",
+          "typ": "CARGO",
+          "baujahr": 2023,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-040",
+          "typ": "CARGO",
+          "baujahr": 2024,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-050",
+          "typ": "CARGO",
+          "baujahr": 2025,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-060",
+          "typ": "CARGO",
+          "baujahr": 2023,
+          "status": "aktiv"
+        }
+      ]
+    },
+    {
+      "station_id": 2,
+      "name": "Hauptbahnhof",
+      "bezirk": "Altstadt",
+      "plaetze": 24,
+      "eroeffnet": "2024-04-02",
+      "raeder": [
+        {
+          "rad_id": "R-001",
+          "typ": "CITY",
+          "baujahr": 2024,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-011",
+          "typ": "CITY",
+          "baujahr": 2025,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-021",
+          "typ": "CITY",
+          "baujahr": 2023,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-031",
+          "typ": "CITY",
+          "baujahr": 2024,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-041",
+          "typ": "CITY",
+          "baujahr": 2025,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-051",
+          "typ": "CITY",
+          "baujahr": 2023,
+          "status": "werkstatt"
+        }
+      ]
+    },
+    {
+      "station_id": 3,
+      "name": "Residenz",
+      "bezirk": "Altstadt",
+      "plaetze": 16,
+      "eroeffnet": "2024-04-02",
+      "raeder": [
+        {
+          "rad_id": "R-002",
+          "typ": "CITY",
+          "baujahr": 2025,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-012",
+          "typ": "CITY",
+          "baujahr": 2023,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-022",
+          "typ": "CITY",
+          "baujahr": 2024,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-032",
+          "typ": "CITY",
+          "baujahr": 2025,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-042",
+          "typ": "CITY",
+          "baujahr": 2023,
+          "status": "aktiv"
+        },
+        {
+          "rad_id": "R-052",
+          "typ": "CITY",
+          "baujahr": 2024,
+          "status": "aktiv"
+        }
+      ]
+    }
+  ],
+  "kunden": [
+    {
+      "kunde_id": 1,
+      "tarif": "Basis",
+      "registriert": "2024-04-04",
+      "bezirk": "Sanderau"
+    },
+    {
+      "kunde_id": 2,
+      "tarif": "Basis",
+      "registriert": "2024-04-07",
+      "bezirk": "Grombuehl"
+    },
+    {
+      "kunde_id": 3,
+      "tarif": "Plus",
+      "registriert": "2024-04-10",
+      "bezirk": "Frauenland"
+    },
+    {
+      "kunde_id": 4,
+      "tarif": "Basis",
+      "registriert": "2024-04-13",
+      "bezirk": "Zellerau"
+    },
+    {
+      "kunde_id": 5,
+      "tarif": "Basis",
+      "registriert": "2024-04-16",
+      "bezirk": "Heuchelhof"
+    }
+  ],
+  "fahrten": [
+    {
+      "fahrt_id": 1,
+      "rad_id": "R-057",
+      "kunde_id": 13,
+      "start": {
+        "station_id": 6,
+        "zeit": "2025-10-05T07:58:00"
+      },
+      "ziel": {
+        "station_id": 3
+      },
+      "dauer_min": 7,
+      "preis_eur": 1.2
+    },
+    {
+      "fahrt_id": 2,
+      "rad_id": "R-035",
+      "kunde_id": 194,
+      "start": {
+        "station_id": 5,
+        "zeit": "2026-07-04T16:29:00"
+      },
+      "ziel": {
+        "station_id": 6
+      },
+      "dauer_min": 6,
+      "preis_eur": 1.1
+    },
+    {
+      "fahrt_id": 3,
+      "rad_id": "R-049",
+      "kunde_id": 82,
+      "start": {
+        "station_id": 7,
+        "zeit": "2025-12-25T18:26:00"
+      },
+      "ziel": {
+        "station_id": 1
+      },
+      "dauer_min": 22,
+      "preis_eur": 4.08
+    },
+    {
+      "fahrt_id": 4,
+      "rad_id": "R-030",
+      "kunde_id": 128,
+      "start": {
+        "station_id": 9,
+        "zeit": "2025-11-15T16:59:00"
+      },
+      "ziel": {
+        "station_id": 3
+      },
+      "dauer_min": 5,
+      "preis_eur": 2.4
+    },
+    {
+      "fahrt_id": 5,
+      "rad_id": "R-057",
+      "kunde_id": 157,
+      "start": {
+        "station_id": 1,
+        "zeit": "2025-11-06T16:35:00"
+      },
+      "ziel": {
+        "station_id": 8
+      },
+      "dauer_min": 12,
+      "preis_eur": 1.7
+    },
+    {
+      "fahrt_id": 6,
+      "rad_id": "R-008",
+      "kunde_id": 23,
+      "start": {
+        "station_id": 8,
+        "zeit": "2025-12-24T07:22:00"
+      },
+      "ziel": {
+        "station_id": 1
+      },
+      "dauer_min": 29,
+      "preis_eur": 3.4
+    },
+    {
+      "fahrt_id": 7,
+      "rad_id": "R-038",
+      "kunde_id": 34,
+      "start": {
+        "station_id": 1,
+        "zeit": "2025-09-11T16:43:00"
+      },
+      "ziel": {
+        "station_id": 3
+      },
+      "dauer_min": 8,
+      "preis_eur": 1.3
+    },
+    {
+      "fahrt_id": 8,
+      "rad_id": "R-054",
+      "kunde_id": 5,
+      "start": {
+        "station_id": 2,
+        "zeit": "2026-01-11T08:05:00"
+      },
+      "ziel": {
+        "station_id": 1
+      },
+      "dauer_min": 47,
+      "preis_eur": 5.2
+    }
+  ]
+}

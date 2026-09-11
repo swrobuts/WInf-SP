@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 04 · Google Colab · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 04 · Google Colab · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-04">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#was"><span lang="de">Was ein Notebook ist</span><span lang="en">What a notebook is</span></a>
+  <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme</span><span lang="en">Setting it up</span></a>
+  <a class="sidebar-link" href="#zustand"><span lang="de">Zustand: der eigentliche Stoff</span><span lang="en">State: the real subject</span></a>
+  <a class="sidebar-link" href="#reihenfolge"><span lang="de">Die Reihenfolge der Zellen</span><span lang="en">The order of the cells</span></a>
+  <a class="sidebar-link" href="#daten"><span lang="de">Daten hineinbekommen</span><span lang="en">Getting data in</span></a>
+  <a class="sidebar-link" href="#geheim"><span lang="de">Zugangsdaten</span><span lang="en">Credentials</span></a>
+  <a class="sidebar-link" href="#github"><span lang="de">Notebook und Repository</span><span lang="en">Notebook and repository</span></a>
+  <a class="sidebar-link" href="#grenzen"><span lang="de">Grenzen, Kosten, Datenschutz</span><span lang="en">Limits, costs, data protection</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">04</div>
+  <h1 class="lab-title">Google Colab</h1>
+  <p class="lab-intro">
+    <span lang="de">Ein Notebook im Browser, ohne Installation, mit einem Rechner von Google dahinter: Damit ist in
+      fünf Minuten eine Auswertung begonnen. Der Stoff dieses Labs ist trotzdem nicht die Oberfläche – die erklärt
+      sich selbst –, sondern der <em>Zustand</em>. Wer nicht sagen kann, was nach einem Neustart noch da ist und was
+      nicht, verliert irgendwann eine Stunde Arbeit. Und wer nicht erklären kann, warum ein Notebook von oben nach
+      unten laufen muss, gibt Auswertungen ab, die niemand nachvollziehen kann – auch er selbst nicht.</span>
+    <span lang="en">A notebook in the browser, no installation, with a machine from Google behind it: an analysis is
+      started in five minutes. The subject of this lab is nevertheless not the interface – that explains itself – but
+      <em>state</em>. Whoever cannot say what is still there after a restart and what is not will eventually lose an
+      hour of work. And whoever cannot explain why a notebook has to run from top to bottom hands in analyses nobody
+      can follow – themselves included.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">Jupyter · .ipynb</span>
+    <span class="lernziel-chip"><span lang="de">Laufzeit und Kernel</span><span lang="en">Runtime and kernel</span></span>
+    <span class="lernziel-chip"><span lang="de">Reproduzierbarkeit</span><span lang="en">Reproducibility</span></span>
+    <span class="lernziel-chip">Secrets</span>
+    <span class="lernziel-chip">Drive · GitHub</span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="was">
+    <h2><span lang="de">Was ein Notebook ist</span><span lang="en">What a notebook is</span></h2>
+    <p>
+      <span lang="de">Ein <strong>Jupyter-Notebook</strong> ist ein Dokument, das Code, dessen Ausgabe und
+        erläuternden Text in einer Datei zusammenhält und zellenweise ausgeführt wird. Die Datei trägt die Endung
+        <code>.ipynb</code> und enthält beides: Eingabe und die zuletzt erzeugte Ausgabe. Genau darin liegt der Nutzen
+        für Analytics – eine Auswertung und ihre Begründung stehen nebeneinander – und genau daraus folgen zwei
+        Probleme, auf die dieses Lab hinausläuft.</span>
+      <span lang="en">A <strong>Jupyter notebook</strong> is a document that holds code, its output and explanatory
+        text together in one file and is executed cell by cell. The file carries the extension <code>.ipynb</code> and
+        contains both: input and the most recently produced output. That is precisely where its value for analytics
+        lies – an analysis and its justification stand side by side – and precisely from that follow the two problems
+        this lab is heading for.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Drei Begriffe, die auseinandergehalten werden müssen</span><span lang="en">Three terms that must be kept apart</span></h3>
+      <ul>
+        <li><span lang="de"><strong>Notebook</strong> – die Datei. Sie liegt bei Colab in Google Drive und enthält Zellen und deren letzte Ausgabe.</span><span lang="en"><strong>Notebook</strong> – the file. With Colab it lives in Google Drive and contains cells and their last output.</span></li>
+        <li><span lang="de"><strong>Laufzeit</strong> (englisch <em>runtime</em>) – die virtuelle Maschine, auf der der Code ausgeführt wird. Sie gehört Google, wird zugeteilt und wieder eingezogen.</span><span lang="en"><strong>Runtime</strong> – the virtual machine the code is executed on. It belongs to Google, is allocated and taken back.</span></li>
+        <li><span lang="de"><strong>Kernel</strong> – der Python-Prozess in dieser Laufzeit, der die Variablen im Arbeitsspeicher hält. Er ist es, den ein „Sitzung neu starten“ beendet.</span><span lang="en"><strong>Kernel</strong> – the Python process inside that runtime, holding the variables in memory. It is what “restart session” terminates.</span></li>
+      </ul>
+      <p><span lang="de">Wer diese drei verwechselt, kann die Fehlermeldungen nicht deuten, die entstehen, wenn eines
+        von ihnen verschwindet.</span>
+      <span lang="en">Whoever confuses these three cannot interpret the error messages that appear when one of them
+        disappears.</span></p>
+    </div>
+    <p>
+      <span lang="de">Colab ist eine von Google gehostete Jupyter-Umgebung. Die Notebooks liegen in Google Drive, die
+        Rechenleistung stellt Google. Es gibt Alternativen mit demselben Dateiformat: Jupyter lokal installiert,
+        Deepnote, Kaggle Notebooks, ein hochschuleigener JupyterHub. Ein <code>.ipynb</code> wechselt zwischen ihnen
+        ohne Umbau – die Datei ist der gemeinsame Nenner, nicht die Plattform.</span>
+      <span lang="en">Colab is a Jupyter environment hosted by Google. The notebooks live in Google Drive, Google
+        provides the compute. There are alternatives with the same file format: Jupyter installed locally, Deepnote,
+        Kaggle Notebooks, a university-run JupyterHub. An <code>.ipynb</code> moves between them without rework – the
+        file is the common denominator, not the platform.</span>
+    </p>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Colab steht hier, weil es ohne
+        Installation und ohne Kosten auskommt; alles Gelernte gilt gleichermaßen für jede andere
+        Jupyter-Umgebung.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. Colab appears here because it needs no installation and no
+        money; everything learned applies equally to any other Jupyter environment.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="inbetrieb">
+    <h2><span lang="de">Inbetriebnahme</span><span lang="en">Setting it up</span></h2>
+    <p>
+      <span lang="de">Voraussetzung ist ein Google-Konto; installiert wird nichts. Prüfen Sie zuerst, ob Ihr
+        Hochschulkonto Colab freigibt – das entscheidet die Konfiguration der Hochschule, nicht Google. Ist der Dienst
+        dort gesperrt, lesen Sie vor dem Ausweichen auf ein privates Konto den Abschnitt zum Datenschutz weiter
+        unten.</span>
+      <span lang="en">A Google account is the prerequisite; nothing gets installed. Check first whether your university
+        account has Colab enabled – that is decided by the university's configuration, not by Google. If the service is
+        blocked there, read the data protection section below before falling back on a private account.</span>
+    </p>
+    <div class="code-block">1  colab.research.google.com aufrufen und anmelden
+2  Datei → Neues Notebook      (das Notebook landet in Drive unter „Colab Notebooks“)
+3  Oben links auf „Untitled0.ipynb“ klicken und umbenennen
+4  In die erste Zelle  print("Hallo")  schreiben, Strg+Enter
+5  Laufzeit → Laufzeittyp ändern → CPU (für Tabellenauswertungen genügt das)</div>
+    <p>
+      <span lang="de">Schritt 5 verdient eine Bemerkung: Der Hardwarebeschleuniger ist verlockend, aber für
+        <code>pandas</code> nutzlos. Eine Grafikkarte beschleunigt das Training neuronaler Netze, nicht das Gruppieren
+        einer Tabelle. Wer sie „vorsichtshalber“ anfordert, verbraucht ein knappes Kontingent für nichts.</span>
+      <span lang="en">Step 5 deserves a remark: the hardware accelerator is tempting but useless for
+        <code>pandas</code>. A graphics card speeds up training neural networks, not grouping a table. Whoever requests
+        one “just in case” consumes a scarce allowance for nothing.</span>
+    </p>
+    <div data-befehl="B01"></div>
+  </section>
+
+  <section class="section-block" id="zustand">
+    <h2><span lang="de">Zustand: der eigentliche Stoff</span><span lang="en">State: the real subject</span></h2>
+    <p>
+      <span lang="de">Die Laufzeit ist eine virtuelle Maschine, die Ihnen geliehen wird. Sie endet – bei Untätigkeit
+        nach etwa neunzig Minuten, spätestens nach bis zu zwölf Stunden, und sofort, wenn Sie den Browser-Tab
+        schließen. Dabei verschwindet alles, was in ihr lag. Was das genau heißt, zeigt die Tabelle.</span>
+      <span lang="en">The runtime is a virtual machine lent to you. It ends – after roughly ninety minutes of
+        inactivity, at the latest after up to twelve hours, and immediately when you close the browser tab. Everything
+        that was inside it disappears. What exactly that means is shown in the table.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Was</span><span lang="en">What</span></th>
+            <th><span lang="de">Sitzung neu starten</span><span lang="en">Restart session</span></th>
+            <th><span lang="de">Laufzeit trennen und löschen</span><span lang="en">Disconnect and delete runtime</span></th>
+            <th><span lang="de">Tab schließen, morgen wieder öffnen</span><span lang="en">Close the tab, reopen tomorrow</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span lang="de">Das Notebook (Code und Text)</span><span lang="en">The notebook (code and text)</span></td>
+            <td><span lang="de">bleibt</span><span lang="en">stays</span></td>
+            <td><span lang="de">bleibt</span><span lang="en">stays</span></td>
+            <td><span lang="de">bleibt (liegt in Drive)</span><span lang="en">stays (it lives in Drive)</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Variablen im Arbeitsspeicher</span><span lang="en">Variables in memory</span></td>
+            <td><span lang="de"><strong>weg</strong></span><span lang="en"><strong>gone</strong></span></td>
+            <td><span lang="de"><strong>weg</strong></span><span lang="en"><strong>gone</strong></span></td>
+            <td><span lang="de"><strong>weg</strong></span><span lang="en"><strong>gone</strong></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Dateien unter <code>/content/</code></span><span lang="en">Files under <code>/content/</code></span></td>
+            <td><span lang="de">bleiben</span><span lang="en">stay</span></td>
+            <td><span lang="de"><strong>weg</strong></span><span lang="en"><strong>gone</strong></span></td>
+            <td><span lang="de"><strong>weg</strong></span><span lang="en"><strong>gone</strong></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Mit <code>pip</code> installierte Pakete</span><span lang="en">Packages installed with <code>pip</code></span></td>
+            <td><span lang="de">bleiben</span><span lang="en">stay</span></td>
+            <td><span lang="de"><strong>weg</strong></span><span lang="en"><strong>gone</strong></span></td>
+            <td><span lang="de"><strong>weg</strong></span><span lang="en"><strong>gone</strong></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Dateien unter <code>/content/drive/MyDrive/</code></span><span lang="en">Files under <code>/content/drive/MyDrive/</code></span></td>
+            <td><span lang="de">bleiben</span><span lang="en">stay</span></td>
+            <td><span lang="de">bleiben</span><span lang="en">stay</span></td>
+            <td><span lang="de">bleiben</span><span lang="en">stay</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Die im Notebook gespeicherten Ausgaben</span><span lang="en">The outputs stored in the notebook</span></td>
+            <td><span lang="de">bleiben sichtbar, sind aber nicht mehr „lebend“</span><span lang="en">stay visible but are no longer “live”</span></td>
+            <td><span lang="de">bleiben sichtbar</span><span lang="en">stay visible</span></td>
+            <td><span lang="de">bleiben sichtbar</span><span lang="en">stay visible</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn-box">
+      <h3><span lang="de">Die Falle: sichtbare Ausgabe ohne lebende Variable</span><span lang="en">The trap: visible output without a live variable</span></h3>
+      <p><span lang="de">Wenn Sie ein Notebook morgen wieder öffnen, sehen Sie alle Tabellen und Diagramme von
+        gestern – sie stehen in der Datei. Der <code>DataFrame</code>, aus dem sie entstanden sind, existiert
+        allerdings nicht mehr. Die nächste Zelle, die <code>df</code> benutzt, scheitert mit
+        <code>NameError: name 'df' is not defined</code>, obwohl <code>df</code> zwei Zellen weiter oben scheinbar
+        gefüllt ist. Genau hier setzt der Reflex an, den dieses Lab einüben will: <strong>Laufzeit → Alle
+        ausführen</strong>, bevor irgendetwas anderes versucht wird.</span>
+      <span lang="en">When you reopen a notebook tomorrow, you see all of yesterday's tables and charts – they are in
+        the file. The <code>DataFrame</code> they came from, however, no longer exists. The next cell that uses
+        <code>df</code> fails with <code>NameError: name 'df' is not defined</code>, even though <code>df</code>
+        appears to be filled two cells above. This is exactly where the reflex this lab wants to drill applies:
+        <strong>Runtime → Run all</strong>, before trying anything else.</span></p>
+    </div>
+    <div data-befehl="B02"></div>
+  </section>
+
+  <section class="section-block" id="reihenfolge">
+    <h2><span lang="de">Die Reihenfolge der Zellen</span><span lang="en">The order of the cells</span></h2>
+    <p>
+      <span lang="de">Ein Notebook hat zwei Reihenfolgen: die, in der die Zellen im Dokument stehen, und die, in der
+        sie ausgeführt wurden. Die zweite steht in den eckigen Klammern links neben jeder Code-Zelle:
+        <code>[1]</code>, <code>[2]</code>, <code>[17]</code>. Weichen die beiden voneinander ab, ist das Ergebnis
+        von einer Vorgeschichte abhängig, die im Dokument nicht steht.</span>
+      <span lang="en">A notebook has two orders: the one the cells appear in, and the one they were executed in. The
+        second is in the square brackets to the left of every code cell: <code>[1]</code>, <code>[2]</code>,
+        <code>[17]</code>. When the two diverge, the result depends on a history that is not written in the
+        document.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Der Prüfsatz</span><span lang="en">The test</span></h3>
+      <p><span lang="de">Ein Notebook ist genau dann brauchbar, wenn es nach <em>Sitzung neu starten</em> und
+        <em>Alle ausführen</em> fehlerfrei von oben nach unten durchläuft und dasselbe Ergebnis liefert. Alles andere
+        ist ein Arbeitsstand, kein Ergebnis. Diese Prüfung dauert eine Minute und gehört vor jede Abgabe – sie ist
+        das Analogon zur Frage aus der Vorlesung, ob ein Untersuchungsdesign
+        <em>nachvollziehbar, transparent und reproduzierbar</em> ist.</span>
+      <span lang="en">A notebook is usable exactly when, after <em>restart session</em> and <em>run all</em>, it runs
+        through from top to bottom without error and produces the same result. Anything else is a working state, not a
+        result. This check takes a minute and belongs before every submission – it is the counterpart to the lecture's
+        question of whether a study design is <em>traceable, transparent and reproducible</em>.</span></p>
+    </div>
+    <p>
+      <span lang="de">Zwei Gewohnheiten, die das erleichtern: Alle <code>import</code>-Anweisungen und
+        <code>%pip install</code>-Zeilen stehen in der ersten Zelle. Und Zellen, die etwas verändern – Spalten
+        umbenennen, Werte ersetzen, Zeilen entfernen –, sind so geschrieben, dass ein zweiter Durchlauf nichts kaputt
+        macht. <code>df = df.drop(columns=["x"])</code> scheitert beim zweiten Mal;
+        <code>df = df.drop(columns=["x"], errors="ignore")</code> nicht.</span>
+      <span lang="en">Two habits that help: all <code>import</code> statements and <code>%pip install</code> lines go in
+        the first cell. And cells that change something – rename columns, replace values, drop rows – are written so
+        that a second run breaks nothing. <code>df = df.drop(columns=["x"])</code> fails the second time;
+        <code>df = df.drop(columns=["x"], errors="ignore")</code> does not.</span>
+    </p>
+    <div data-befehl="B03"></div>
+  </section>
+
+  <section class="section-block" id="daten">
+    <h2><span lang="de">Daten hineinbekommen</span><span lang="en">Getting data in</span></h2>
+    <p>
+      <span lang="de">Drei Wege, mit sehr unterschiedlichen Eigenschaften. Der erste ist für die Lehre der beste,
+        weil er ohne Zutun reproduzierbar ist: Wer das Notebook öffnet, hat auch die Daten.</span>
+      <span lang="en">Three routes, with very different properties. The first is the best for teaching, because it is
+        reproducible without any action: whoever opens the notebook has the data too.</span>
+    </p>
+    <div data-befehl="B04"></div>
+    <div data-befehl="B05"></div>
+    <div data-befehl="B06"></div>
+    <div class="info-box">
+      <h3><span lang="de">Was beim Einbinden von Drive tatsächlich passiert</span><span lang="en">What actually happens when you mount Drive</span></h3>
+      <p><span lang="de">Der Bestätigungsdialog gibt Colab Zugriff auf <em>das gesamte</em> Drive des angemeldeten
+        Kontos, nicht nur auf einen Ordner. Für eine Übung mit synthetischen Daten ist das unproblematisch. Für ein
+        privates Konto mit Steuerunterlagen und Bewerbungsschreiben ist es eine Entscheidung, die man bewusst treffen
+        sollte – und die man umgehen kann, indem man die Datei einfach hochlädt.</span>
+      <span lang="en">The confirmation dialogue gives Colab access to <em>the entire</em> Drive of the signed-in
+        account, not just one folder. For an exercise with synthetic data that is harmless. For a private account
+        holding tax documents and job applications it is a decision to make deliberately – and one that can be avoided
+        by simply uploading the file.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="geheim">
+    <h2><span lang="de">Zugangsdaten</span><span lang="en">Credentials</span></h2>
+    <p>
+      <span lang="de">Ab Lab 08 haben Sie Datenbankpasswörter und Zugriffsschlüssel. Sie gehören nicht in eine
+        Code-Zelle. Der Grund ist nicht theoretisch: Ein Notebook, das Sie nach GitHub speichern, nimmt seinen
+        Inhalt mit – und der Schlüssel steht dann dauerhaft in der Versionsgeschichte, wo ihn Suchmaschinen und
+        automatische Prüfwerkzeuge finden.</span>
+      <span lang="en">From lab 08 on you will have database passwords and access keys. They do not belong in a code
+        cell. The reason is not theoretical: a notebook you save to GitHub takes its content along – and the key then
+        sits permanently in the version history, where search engines and automated scanners find it.</span>
+    </p>
+    <div data-befehl="B07"></div>
+    <div class="challenge-box">
+      <p><span lang="de">Die Regel für den ganzen Kurs, in einem Satz: <strong>Kein Geheimnis in einer Datei, die
+        weitergegeben wird.</strong> Bei Colab heißt das Secrets-Panel, bei einem lokalen Projekt eine
+        <code>.env</code>-Datei, die in <code>.gitignore</code> steht, bei einem Container eine Umgebungsvariable.
+        Drei Werkzeuge, ein Grundsatz.</span>
+      <span lang="en">The rule for the whole course, in one sentence: <strong>no secret in a file that gets passed
+        on.</strong> In Colab that means the secrets panel, in a local project a <code>.env</code> file listed in
+        <code>.gitignore</code>, in a container an environment variable. Three tools, one principle.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="github">
+    <h2><span lang="de">Notebook und Repository</span><span lang="en">Notebook and repository</span></h2>
+    <p>
+      <span lang="de">Colab kann ein Notebook direkt aus einem GitHub-Repository öffnen und auch dorthin
+        zurückspeichern. Der Weg hinein läuft über eine URL, die man sich merken kann, weil sie nur den Anfang der
+        GitHub-Adresse ersetzt.</span>
+      <span lang="en">Colab can open a notebook straight from a GitHub repository and save it back there too. The way
+        in runs through a URL you can remember, because it only replaces the beginning of the GitHub address.</span>
+    </p>
+    <div data-befehl="B08"></div>
+    <div data-befehl="B09"></div>
+    <div class="warn-box">
+      <p><span lang="de">Ein Colab-Speichervorgang nach GitHub erzeugt einen gewöhnlichen Commit – <strong>samt
+        allen Zellausgaben</strong>. Das bläht das Repository auf, macht jeden Unterschied unlesbar und kann Daten
+        preisgeben, die in einer <code>df.head()</code>-Ausgabe stehen. In Lab 02 lernen Sie das Gegenmittel; hier
+        genügt das Wissen, dass die Ausgabe mitgeht.</span>
+      <span lang="en">A Colab save to GitHub creates an ordinary commit – <strong>including all cell
+        outputs</strong>. That inflates the repository, makes every diff unreadable and can expose data sitting in a
+        <code>df.head()</code> output. Lab 02 teaches the remedy; here it is enough to know that the output goes
+        along.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="grenzen">
+    <h2><span lang="de">Grenzen, Kosten, Datenschutz</span><span lang="en">Limits, costs, data protection</span></h2>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Kostenlose Nutzung</span><span lang="en">Free use</span></div>
+        <p><span lang="de">Kostet nichts und garantiert nichts. Es gibt keinen Anspruch auf eine bestimmte Hardware;
+          der Zugang zu Grafikkarten ist ausdrücklich stark eingeschränkt. Die Laufzeit endet bei Untätigkeit und
+          spätestens nach bis zu zwölf Stunden. Wer eine Rechnung braucht, die zu einem bestimmten Zeitpunkt fertig
+          ist, plant nicht mit dem kostenlosen Kontingent.</span>
+        <span lang="en">Costs nothing and guarantees nothing. There is no entitlement to particular hardware; access
+          to graphics cards is expressly heavily restricted. The runtime ends on inactivity and after up to twelve
+          hours at the latest. Whoever needs a computation finished at a particular time does not plan with the free
+          allowance.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Bezahlte Stufen</span><span lang="en">Paid tiers</span></div>
+        <p><span lang="de">Die bezahlten Stufen rechnen mit einem Guthaben aus Recheneinheiten; ist es verbraucht,
+          gelten wieder die Regeln der kostenlosen Nutzung. Für die Übungen dieses Kurses ist keine bezahlte Stufe
+          nötig. Das befristete kostenlose Hochschulangebot von Google gilt ausdrücklich nur für Einrichtungen in
+          den USA und steht deutschen Hochschulen nicht offen.</span>
+        <span lang="en">The paid tiers work with an allowance of compute units; once it is used up, the free rules
+          apply again. None of this course's exercises need a paid tier. Google's time-limited free offer for higher
+          education applies expressly only to institutions in the United States and is not open to German
+          universities.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Wo die Daten liegen</span><span lang="en">Where the data sits</span></div>
+        <p><span lang="de">Laufzeiten und Drive liegen bei Google in den USA. Jede hochgeladene Datei mit
+          Personenbezug ist damit eine Übermittlung in ein Drittland. Für die Übungen dieses Kurses ist das ohne
+          Belang, weil ausschließlich synthetische Daten verwendet werden – und genau deshalb wird das so
+          gehandhabt.</span>
+        <span lang="en">Runtimes and Drive sit with Google in the United States. Every uploaded file with personal
+          data is therefore a transfer to a third country. For this course's exercises that is irrelevant, because
+          only synthetic data is used – and that is precisely why it is handled that way.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Was nicht hineingehört</span><span lang="en">What does not belong in it</span></div>
+        <p><span lang="de">Echte Kunden-, Personal- oder Studierendendaten, auch aus Praxisprojekten und
+          Abschlussarbeiten. Wer für eine Arbeit mit Unternehmensdaten rechnen muss, klärt das vorab mit dem
+          Unternehmen und weicht auf eine lokale Installation oder eine hochschuleigene Umgebung aus. Das ist keine
+          Formalie: Der Betrieb einer Auswertung ist eine Verarbeitung, und die braucht eine
+          Rechtsgrundlage.</span>
+        <span lang="en">Real customer, HR or student data, including from practical projects and theses. Anyone who
+          has to compute with company data for a thesis clears it with the company beforehand and falls back on a
+          local installation or a university environment. This is not a formality: running an analysis is a
+          processing operation, and that needs a legal basis.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">KI-Vervollständigung</span><span lang="en">AI completion</span></div>
+        <p><span lang="de">Colab schlägt Code vor und sendet dazu Kontext an Google. In Grundlagenveranstaltungen
+          lässt sich das je Notebook abschalten – aus demselben Grund, aus dem man in einer Klausur keinen
+          Taschenrechner mit gespeicherten Formeln zulässt: Der Übungsgewinn liegt im Selbstschreiben.</span>
+        <span lang="en">Colab suggests code and sends context to Google to do so. In introductory courses this can be
+          switched off per notebook – for the same reason one does not allow a calculator with stored formulas in an
+          exam: the learning value lies in writing it yourself.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Arbeitsspeicher</span><span lang="en">Memory</span></div>
+        <p><span lang="de">„Sitzung abgestürzt nach Verwendung des gesamten RAM“ ist keine Fehlfunktion, sondern eine
+          Größenangabe. Gegenmittel in dieser Reihenfolge: nur benötigte Spalten lesen
+          (<code>usecols=</code>), Datentypen setzen (<code>dtype=</code>), in Abschnitten lesen
+          (<code>chunksize=</code>). Erst danach lohnt der Gedanke an mehr Hardware.</span>
+        <span lang="en">“Session crashed after using all available RAM” is not a malfunction but a size statement.
+          Remedies, in this order: read only the columns you need (<code>usecols=</code>), set data types
+          (<code>dtype=</code>), read in chunks (<code>chunksize=</code>). Only after that is more hardware worth
+          thinking about.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Fünf Übungen. Zwei davon sind Checklisten, die Sie in Colab selbst abarbeiten – dafür brauchen
+        Sie ein zweites Browserfenster. Die drei anderen prüfen, ob das Modell von Laufzeit und Zustand sitzt.</span>
+      <span lang="en">Five exercises. Two of them are checklists you work through in Colab itself – for those you need
+        a second browser window. The other three test whether the model of runtime and state has taken hold.</span>
+    </p>
+    <div data-uebung="W04-01"></div>
+    <div data-uebung="W04-02"></div>
+    <div data-uebung="W04-03"></div>
+    <div data-uebung="W04-04"></div>
+    <div data-uebung="W04-05"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Notebook, Laufzeit und Kernel sind drei verschiedene Dinge. Die Datei bleibt, die Maschine wird eingezogen, der Prozess mit den Variablen endet.</span><span lang="en">Notebook, runtime and kernel are three different things. The file stays, the machine is taken back, the process holding the variables ends.</span></li>
+      <li><span lang="de">Sichtbare Ausgabe ist kein Beweis für eine lebende Variable. Der erste Handgriff nach dem Öffnen eines alten Notebooks ist <em>Alle ausführen</em>.</span><span lang="en">Visible output is no proof of a live variable. The first action after opening an old notebook is <em>run all</em>.</span></li>
+      <li><span lang="de">Ein Notebook ist brauchbar, wenn es nach einem Neustart von oben nach unten fehlerfrei durchläuft. Diese Prüfung dauert eine Minute und gehört vor jede Abgabe.</span><span lang="en">A notebook is usable if it runs from top to bottom without error after a restart. That check takes a minute and belongs before every submission.</span></li>
+      <li><span lang="de">Was überleben soll, gehört nicht nach <code>/content/</code>, sondern nach Drive – oder wird gar nicht erst hochgeladen, sondern über eine URL gelesen.</span><span lang="en">What should survive does not belong in <code>/content/</code> but in Drive – or is not uploaded at all but read from a URL.</span></li>
+      <li><span lang="de">Zugangsdaten gehören ins Secrets-Panel, nie in eine Code-Zelle. Ein Speichern nach GitHub nimmt den Inhalt des Notebooks samt Ausgaben mit.</span><span lang="en">Credentials belong in the secrets panel, never in a code cell. A save to GitHub takes the notebook's content along, outputs included.</span></li>
+      <li><span lang="de">Kostenlose Nutzung heißt: keine garantierte Hardware, keine garantierte Laufzeit. Für Rechnungen mit Termin ist das keine Grundlage.</span><span lang="en">Free use means: no guaranteed hardware, no guaranteed runtime. For computations with a deadline that is no basis.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 04 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 04 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

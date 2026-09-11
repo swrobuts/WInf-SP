@@ -1,0 +1,69 @@
+// Lab 12 – Datumstabelle dim_datum als Calculated Table (Power BI Desktop)
+//
+// WANN DIESE VORLAGE NÖTIG IST – und wann nicht:
+//   Wer das Sternschema aus Lab 10 per PostgreSQL database aus Supabase lädt,
+//   bekommt mart.dim_datum fertig mit (datum_key, datum, jahr, quartal, monat,
+//   monat_name, kw_iso, wochentag, wochentag_name, wochenende). Dann ist KEINE
+//   Calculated Table nötig – nur der Schritt am Ende:
+//     Table tools → Mark as date table → Date column: datum → OK
+//   Diese Vorlage ist die Alternative für den Fall „nur fact_fahrt als CSV
+//   geladen, keine dim_datum vorhanden“.
+//
+// Anlegen: Modeling → New table, eine der beiden Varianten in die Formelleiste
+// einfügen, Ctrl+Enter. Danach zwingend:
+//   Table tools → Mark as date table → Date column: datum → OK
+// Erst dann funktionieren DATEADD, SAMEPERIODLASTYEAR, TOTALYTD usw. korrekt,
+// und Power BI hört auf, für jede Datumsspalte eine versteckte Auto-date/time-
+// Hierarchie anzulegen (File → Options and settings → Options → Data Load →
+// Auto date/time – nach dem Markieren abschalten).
+//
+// Zeitraum: 2025-09-01 bis 2026-08-31 – genau die 1.500 Fahrten der Fallstudie.
+// Eine Datumstabelle muss lückenlos sein (jeder Tag, auch ohne Fahrt) und darf
+// keine doppelten Tage enthalten – sonst scheitert „Mark as date table“.
+
+// ---------------------------------------------------------------------------
+// Variante 1: nur die Datumsspalte. CALENDAR erzeugt eine Spalte namens „Date“;
+// SELECTCOLUMNS benennt sie in „datum“ um, damit die Measures aus
+// lab-12-measures.dax unverändert passen.
+// ---------------------------------------------------------------------------
+dim_datum =
+SELECTCOLUMNS (
+    CALENDAR ( DATE ( 2025, 9, 1 ), DATE ( 2026, 8, 31 ) ),
+    "datum", [Date]
+)
+
+// ---------------------------------------------------------------------------
+// Variante 2: mit datum_key und denselben Spalten wie mart.dim_datum aus Lab 10 –
+// ADDCOLUMNS hängt berechnete Spalten an. Jede Zeile ist ein Tag; die Ausdrücke
+// laufen im Row Context dieser Zeile. datum_key (YYYYMMDD als ganze Zahl) ist
+// der Schlüssel, über den fact_fahrt[datum_key] verbunden wird.
+// ---------------------------------------------------------------------------
+dim_datum =
+ADDCOLUMNS (
+    SELECTCOLUMNS (
+        CALENDAR ( DATE ( 2025, 9, 1 ), DATE ( 2026, 8, 31 ) ),
+        "datum", [Date]
+    ),
+    "datum_key", INT ( FORMAT ( [datum], "yyyyMMdd" ) ),   // 20250901 … 20260831
+    "jahr", YEAR ( [datum] ),
+    "quartal", QUARTER ( [datum] ),
+    "monat", MONTH ( [datum] ),
+    "monat_name", FORMAT ( [datum], "MMMM" ),               // Sprache der Windows-Ländereinstellung
+    "kw_iso", WEEKNUM ( [datum], 21 ),                      // 21 = ISO-8601-Kalenderwoche
+    "wochentag", WEEKDAY ( [datum], 2 ),                    // 1 = Montag … 7 = Sonntag
+    "wochentag_name", FORMAT ( [datum], "dddd" ),
+    "wochenende", WEEKDAY ( [datum], 2 ) >= 6
+)
+
+// Nacharbeit im Modell (gilt auch für die aus Supabase geladene dim_datum):
+//   1. Column tools → wochentag_name markieren → Sort by column → wochentag
+//      (sonst sortiert ein Balkendiagramm die Wochentage alphabetisch).
+//      Ebenso monat_name → Sort by column → monat.
+//   2. Model view: fact_fahrt[datum_key] auf dim_datum[datum_key] ziehen.
+//      Cardinality: Many to one (*:1), Cross filter direction: Single, aktiv.
+//   3. Table tools → Mark as date table → datum. Die Zeile datum_key = -1
+//      („unbekannt“) aus Lab 10 hat kein Datum; stört sie die Markierung, in
+//      Power Query mit Remove Rows herausfiltern.
+//   Das Rollenspiel-Beispiel dieses Labs (zweite, inaktive Beziehung +
+//   USERELATIONSHIP) ist die Station: start_station_sk und ziel_station_sk auf
+//   dim_station[station_sk] – siehe lab-12-measures.dax, Measure „Ankünfte“.

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 09 · DataGrip · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 09 · DataGrip · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-09">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#was"><span lang="de">Ein Werkzeug, das das Schema kennt</span><span lang="en">A tool that knows the schema</span></a>
+  <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme und Lizenz</span><span lang="en">Setting it up, and the licence</span></a>
+  <a class="sidebar-link" href="#verbinden"><span lang="de">Datenquelle anlegen</span><span lang="en">Create a data source</span></a>
+  <a class="sidebar-link" href="#sqlite"><span lang="de">Die SQLite-Datei anbinden</span><span lang="en">Connect the SQLite file</span></a>
+  <a class="sidebar-link" href="#schema"><span lang="de">Sichtbare Schemata</span><span lang="en">Visible schemas</span></a>
+  <a class="sidebar-link" href="#konsole"><span lang="de">Die Konsole</span><span lang="en">The console</span></a>
+  <a class="sidebar-link" href="#transaktion"><span lang="de">Der Schalter, auf den es ankommt</span><span lang="en">The switch that matters</span></a>
+  <a class="sidebar-link" href="#export"><span lang="de">Import und Export</span><span lang="en">Import and export</span></a>
+  <a class="sidebar-link" href="#finden"><span lang="de">Finden und verstehen</span><span lang="en">Finding and understanding</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">09</div>
+  <h1 class="lab-title">DataGrip</h1>
+  <p class="lab-intro">
+    <span lang="de">Bis hierhin haben Sie SQL im Browser geschrieben – im SQL-Editor von Supabase oder in der Konsole
+      dieser Seiten. Für ernsthafte Arbeit fehlt dort einiges: Vervollständigung aus dem Schema, ein Diagramm der
+      Beziehungen, eine Abfragehistorie und eine kontrollierte Ausführung. Genau das leistet ein Datenbankwerkzeug. Der
+      wichtigste Schalter darin ist unscheinbar und trägt drei Buchstaben – er entscheidet, ob eine Änderung im
+      Datenraster sofort und unwiderruflich gilt.</span>
+    <span lang="en">Up to here you have written SQL in the browser – in Supabase's SQL editor or in this site's console.
+      For serious work a few things are missing there: completion from the schema, a diagram of the relationships, a query
+      history and controlled execution. That is exactly what a database tool provides. The most important switch in it is
+      inconspicuous and carries three letters – it decides whether a change in the data grid applies immediately and
+      irreversibly.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip"><span lang="de">Datenquelle und Treiber</span><span lang="en">Data source and driver</span></span>
+    <span class="lernziel-chip"><span lang="de">Sichtbare Schemata</span><span lang="en">Visible schemas</span></span>
+    <span class="lernziel-chip">Tx:Auto vs. Tx:Manual</span>
+    <span class="lernziel-chip">Read-only</span>
+    <span class="lernziel-chip"><span lang="de">Import und Export</span><span lang="en">Import and export</span></span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="was">
+    <h2><span lang="de">Ein Werkzeug, das das Schema kennt</span><span lang="en">A tool that knows the schema</span></h2>
+    <p>
+      <span lang="de">DataGrip ist die auf Datenbanken ausgerichtete Entwicklungsumgebung von JetBrains. Sie liest das
+        Schema der verbundenen Datenbank ein – man nennt das <strong>Introspektion</strong> – und nutzt es für
+        Vervollständigung, Sprungmarken zwischen Tabellen und Warnungen, bevor eine Abfrage überhaupt läuft. Wer einen
+        Spaltennamen falsch schreibt, sieht es hier vor dem Ausführen und nicht danach in einer Fehlermeldung.</span>
+      <span lang="en">DataGrip is JetBrains' database-oriented development environment. It reads the connected database's
+        schema – this is called <strong>introspection</strong> – and uses it for completion, jumping between tables and
+        warnings before a query even runs. Whoever misspells a column name sees it here before executing and not
+        afterwards in an error message.</span>
+    </p>
+    <div class="info-box">
+      <p><span lang="de">Das erklärt auch die wichtigste Bedienhürde, die weiter unten kommt: Introspiziert wird nur,
+        was als <em>sichtbar</em> geschaltet ist. Eine Tabelle, die existiert, aber nicht ausgewählt wurde, taucht im
+        Baum nicht auf und ist der Vervollständigung unbekannt – und dann sucht man den Fehler in der Abfrage, statt in
+        einer Anzeigeeinstellung.</span>
+      <span lang="en">That also explains the most important operating hurdle, which comes further down: only what is set
+        to <em>visible</em> gets introspected. A table that exists but was not selected does not appear in the tree and
+        is unknown to the completion – and then you look for the bug in the query rather than in a display
+        setting.</span></p>
+    </div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Kostenlose Alternativen auf derselben
+        Ebene: <strong>DBeaver Community</strong> (Apache 2.0, breite Systemabdeckung), <strong>pgAdmin 4</strong>
+        (quelloffen, nur PostgreSQL) und <strong>VS Code mit einer SQL-Erweiterung</strong> – Microsoft verweist seit
+        der Einstellung von Azure Data Studio im Februar 2026 ausdrücklich auf diesen Weg. Alles, was Sie hier über
+        Transaktionsmodus und Schema-Sichtbarkeit lernen, gilt dort ebenso.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. Free alternatives on the same layer: <strong>DBeaver
+        Community</strong> (Apache 2.0, broad system coverage), <strong>pgAdmin 4</strong> (open source, PostgreSQL only)
+        and <strong>VS Code with a SQL extension</strong> – since the retirement of Azure Data Studio in February 2026
+        Microsoft expressly points to this route. Everything you learn here about transaction mode and schema visibility
+        applies there too.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="inbetrieb">
+    <h2><span lang="de">Inbetriebnahme und Lizenz</span><span lang="en">Setting it up, and the licence</span></h2>
+    <p>
+      <span lang="de">Installiert wird entweder über die <strong>JetBrains Toolbox App</strong> – sie verwaltet
+        Versionen und Aktualisierungen – oder über den Installer von der Herstellerseite. Nach dem Start folgt der
+        Lizenzdialog. Für Studierende sind zwei Wege kostenfrei, und sie unterscheiden sich in einem Punkt, der über
+        den Preis hinausgeht.</span>
+      <span lang="en">Installation is either through the <strong>JetBrains Toolbox App</strong> – it manages versions and
+        updates – or through the installer from the vendor's site. The licence dialogue follows on first start. Two routes
+        are free for students, and they differ in one respect that goes beyond price.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Weg</span><span lang="en">Route</span></th>
+            <th><span lang="de">Voraussetzung</span><span lang="en">Requirement</span></th>
+            <th><span lang="de">Laufzeit</span><span lang="en">Duration</span></th>
+            <th><span lang="de">Telemetrie</span><span lang="en">Telemetry</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong><span lang="de">Bildungslizenz</span><span lang="en">Educational licence</span></strong></td>
+            <td><span lang="de">Nachweis: Hochschul-E-Mail, ISIC-Karte oder GitHub Student Developer Pack</span><span lang="en">Proof: university email, ISIC card or GitHub Student Developer Pack</span></td>
+            <td><span lang="de">1 Jahr, verlängerbar mit erneutem Nachweis</span><span lang="en">1 year, renewable with fresh proof</span></td>
+            <td><span lang="de">Erhebung erst nach ausdrücklicher Zustimmung</span><span lang="en">Collection only after explicit consent</span></td>
+          </tr>
+          <tr>
+            <td><strong>Free Non-Commercial</strong></td>
+            <td><span lang="de">Kein Nachweis; nur für Einzelpersonen, nicht für Organisationen</span><span lang="en">No proof; individuals only, not organisations</span></td>
+            <td><span lang="de">1 Jahr, verlängert sich bei Nutzung</span><span lang="en">1 year, renews on use</span></td>
+            <td><span lang="de"><strong>verpflichtend</strong>, kein Abschalten möglich</span><span lang="en"><strong>mandatory</strong>, cannot be switched off</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box">
+      <p><span lang="de">Für die Arbeit mit Hochschul-Datenbanken ist die <strong>Bildungslizenz</strong> die bessere
+        Wahl – nicht wegen des Preises, sondern weil die Free-Non-Commercial-Lizenz anonyme Telemetrie zur Bedingung
+        macht, die sich nicht abschalten lässt. Sie beantragen sie unter
+        <code>jetbrains.com/shop/eform/students</code>; in Lab 03 haben Sie sie für PyCharm schon beantragt – sie gilt
+        für DataGrip mit. Zusätzlich
+        lohnt ein Blick in <code>Settings → Appearance &amp; Behavior → System Settings → Data Sharing</code>: Die
+        ausführliche, code-bezogene Datenerhebung ist unter manchen Lizenzarten voreingestellt aktiv.</span>
+      <span lang="en">For working with university databases the <strong>educational licence</strong> is the better choice –
+        not because of the price but because the free non-commercial licence makes anonymous telemetry a condition that
+        cannot be switched off. You apply at <code>jetbrains.com/shop/eform/students</code>; the step was already on the
+        in lab 03 you already applied for it for PyCharm – it covers DataGrip too. It is also worth looking into <code>Settings → Appearance &amp; Behavior → System Settings → Data
+        Sharing</code>: the detailed, code-related collection is on by default under some licence types.</span></p>
+    </div>
+    <p>
+      <span lang="de">Für Rechnerpools gibt es die <strong>Classroom-Lizenz</strong>: institutionsbezogen statt
+        personenbezogen, mit eigener Dokumentation für die Installation auf Pool- und Privatrechnern. Anders als bei
+        den persönlichen Lizenzen ist der Poolbetrieb hier ausdrücklich vorgesehen.</span>
+      <span lang="en">For computer pools there is the <strong>classroom licence</strong>: institution-based rather than
+        person-based, with its own documentation for installation on pool and private machines. Unlike the personal licences, pool
+        operation is expressly provided for here.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="verbinden">
+    <h2><span lang="de">Datenquelle anlegen</span><span lang="en">Create a data source</span></h2>
+    <p>
+      <span lang="de">Eine <strong>Datenquelle</strong> ist eine gespeicherte Verbindung: System, Adresse, Zugangsdaten,
+        Treiber. Seit Version 2026.2 sind fünf Treiber mitgeliefert – darunter PostgreSQL –, sodass der frühere
+        Zwischenschritt „fehlende Treiberdateien herunterladen“ für diesen Kurs entfällt.</span>
+      <span lang="en">A <strong>data source</strong> is a stored connection: system, address, credentials, driver. Since
+        version 2026.2 five drivers are bundled – PostgreSQL among them – so the former intermediate step “download
+        missing driver files” does not apply to this course.</span>
+    </p>
+    <div data-befehl="B01"></div>
+    <div data-befehl="B02"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Das Passwort gehört nicht in das URL-Feld</span><span lang="en">The password does not belong in the URL field</span></h3>
+      <p><span lang="de">Der Dialog hat ein Feld <code>URL</code> und ein Feld <code>Password</code>. Wer die
+        vollständige Verbindungszeichenkette samt Passwort in das URL-Feld einträgt – naheliegend, weil Supabase sie
+        genau so anzeigt –, hat das Passwort danach im Klartext in den Protokolldateien und Konfigurationsdateien der
+        Umgebung. Passwort ins Passwortfeld, und in der URL steht es nicht.</span>
+      <span lang="en">The dialogue has a <code>URL</code> field and a <code>Password</code> field. Whoever enters the full
+        connection string including the password into the URL field – tempting, because Supabase displays it exactly like
+        that – then has the password in plain text in the environment's log and configuration files. Password into the
+        password field, and it is not in the URL.</span></p>
+      <p><span lang="de">Für Rechnerpools mit wechselnden Nutzern: <code>Settings → System Settings → Passwords</code>
+        auf <code>Do not save</code> – dann fragt DataGrip jedes Mal neu. Die Alternativen sind der Schlüsselbund des
+        Systems oder eine KeePass-Datei mit eigenem Hauptpasswort.</span>
+      <span lang="en">For computer pools with changing users: <code>Settings → System Settings → Passwords</code> to
+        <code>Do not save</code> – then DataGrip asks every time. The alternatives are the system keychain or a KeePass
+        file with its own master password.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="sqlite">
+    <h2><span lang="de">Die SQLite-Datei anbinden</span><span lang="en">Connect the SQLite file</span></h2>
+    <p>
+      <span lang="de">Dieselbe Oberfläche, eine andere Quelle: Die <code>velocity.db</code> aus Lab 06 ist keine
+        Adresse, sondern eine Datei. Für sie gilt der eine Zwischenschritt, der bei PostgreSQL entfällt – der
+        SQLite-Treiber ist auch in 2026.2 nicht mitgeliefert und wird beim ersten Mal nachgeladen.</span>
+      <span lang="en">Same interface, a different source: the <code>velocity.db</code> from lab 06 is not an address
+        but a file. For it, the one intermediate step that does not apply to PostgreSQL does apply – the SQLite driver
+        is not bundled even in 2026.2 and is downloaded the first time.</span>
+    </p>
+    <div data-befehl="B10"></div>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Data Sources and Drivers</span><span class="spacer"></span>DataGrip 2026.2</div>
+      <div class="shot-body">
+        <div class="shot-side">
+          <h5>Project Data Sources</h5>
+          <ul class="baum">
+            <li>🐘 velocity (Supabase)</li>
+            <li class="aktiv">🗎 velocity.db <span class="callout">1</span></li>
+          </ul>
+        </div>
+        <div class="shot-main">
+          <div class="zeile"><span class="tab aktiv">General</span><span class="tab">Options</span><span class="tab">SSH/SSL</span><span class="tab">Schemas</span><span class="tab">Advanced</span></div>
+          <div class="zeile"><span class="beschriftung">Name:</span><span class="feld">velocity.db</span></div>
+          <div class="zeile"><span class="beschriftung">File:</span><span class="feld breit">~/dev/velocity/velocity.db</span><span class="callout">2</span></div>
+          <div class="zeile"><span class="beschriftung">URL:</span><span class="feld breit">jdbc:sqlite:/Users/studi/dev/velocity/velocity.db</span></div>
+          <div class="warnzeile">Driver files are missing. &nbsp;<b>Download missing driver files</b> <span class="callout">3</span></div>
+          <div class="zeile"><span class="knopf">Test Connection</span><span class="callout">4</span><span class="spacer"></span><span class="knopf">Cancel</span><span class="knopf primaer">OK</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Zwei Datenquellen nebeneinander: der Server aus Lab 08 und die Datei aus Lab 06. Beide erscheinen im Database Explorer, beide bekommen eine Konsole.</span><span lang="en">Two data sources side by side: the server from lab 08 and the file from lab 06. Both appear in the Database Explorer, both get a console.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Das Feld <code>File</code> zeigt auf die Datei. Ein Pfad zu einer Datei, die es noch nicht gibt, legt sie beim Verbinden an – ein Tippfehler erzeugt also still eine leere Datenbank, genau wie <code>sqlite3.connect()</code> in Lab 06.</span><span lang="en">The <code>File</code> field points to the file. A path to a file that does not exist yet creates it on connecting – so a typo silently produces an empty database, exactly like <code>sqlite3.connect()</code> in lab 06.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Der Treiber (Xerial sqlite-jdbc) wird einmalig geladen und im Konfigurationsordner abgelegt. Ohne Netz beim ersten Versuch bleibt der Verweis stehen.</span><span lang="en">The driver (Xerial sqlite-jdbc) is loaded once and stored in the configuration folder. Without network on the first attempt the link stays.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Erst testen, dann OK. Ein grüner Haken heißt: Datei gefunden, Treiber geladen. Kein Passwort, keine Schemata – SQLite kennt beides nicht.</span><span lang="en">Test first, then OK. A green tick means: file found, driver loaded. No password, no schemas – SQLite knows neither.</span></span></li>
+    </ol>
+    <div class="info-box">
+      <p><span lang="de">Was in der Datei-Datenquelle anders ist: Es gibt kein Schema-Register (Lab 06: eine Datei ist
+        ein Schema), <code>Tx:Manual</code> funktioniert wie bei Postgres – nur dass eine zweite Verbindung auf dieselbe
+        Datei mit <code>database is locked</code> antwortet, solange die erste eine offene Transaktion hält. Genau
+        deshalb steht <code>Read-only</code> bei der zweiten Datenquelle nicht nur zur Zierde.</span>
+      <span lang="en">What differs in the file data source: there is no schema register (lab 06: one file is one
+        schema), <code>Tx:Manual</code> works as with Postgres – except that a second connection to the same file answers
+        <code>database is locked</code> as long as the first holds an open transaction. That is precisely why
+        <code>Read-only</code> on the second data source is not just decoration.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="schema">
+    <h2><span lang="de">Sichtbare Schemata</span><span lang="en">Visible schemas</span></h2>
+    <p>
+      <span lang="de">Der Klassiker unter den Bedienhürden. Neben dem Namen der Datenquelle steht ein Verweis wie
+        <code>1 of 5</code> – er sagt, wie viele Schemata von wie vielen eingelesen werden. Was nicht ausgewählt ist,
+        erscheint nicht im Baum und ist der Vervollständigung unbekannt. Die Tabelle existiert, das Werkzeug sieht sie
+        nur nicht an.</span>
+      <span lang="en">The classic among operating hurdles. Beside the data source's name stands a link like
+        <code>1 of 5</code> – it says how many schemas of how many are being read. What is not selected does not appear in
+        the tree and is unknown to the completion. The table exists, the tool merely does not look at it.</span>
+    </p>
+    <div data-befehl="B03"></div>
+    <p>
+      <span lang="de">Bei Supabase ist das besonders auffällig: Neben <code>public</code> gibt es Schemata für
+        Authentifizierung, Dateiablage und interne Verwaltung. Sinnvoll ist, <code>public</code> sichtbar zu schalten
+        und die übrigen weggeschaltet zu lassen – dann bleibt der Baum lesbar und die Vervollständigung schlägt keine
+        internen Tabellen vor.</span>
+      <span lang="en">With Supabase this is particularly noticeable: besides <code>public</code> there are schemas for
+        authentication, file storage and internal administration. It makes sense to set <code>public</code> visible and
+        leave the rest switched off – then the tree stays readable and the completion does not suggest internal
+        tables.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="konsole">
+    <h2><span lang="de">Die Konsole</span><span lang="en">The console</span></h2>
+    <p>
+      <span lang="de">Eine <strong>Abfragekonsole</strong> ist ein Editor, der an eine Datenquelle gebunden ist.
+        <code>F4</code> auf der markierten Datenquelle öffnet die Standardkonsole, <code>Strg+Shift+Q</code> eine neue.
+        Der entscheidende Handgriff ist die Ausführung – und die verhält sich anders, als man erwartet.</span>
+      <span lang="en">A <strong>query console</strong> is an editor bound to a data source. <code>F4</code> on the
+        selected data source opens the default console, <code>Strg+Shift+Q</code> a new one. The decisive action is
+        execution – and it behaves differently from what you expect.</span>
+    </p>
+    <div data-befehl="B04"></div>
+    <div class="info-box">
+      <p><span lang="de">Stehen mehrere Anweisungen in der Konsole, erscheint bei <code>Strg+Enter</code> eine
+        Auswahlliste: die Anweisung unter dem Cursor – oder <em>run all statements</em>. Diese Liste wird gern
+        weggeklickt, und dann läuft ein ganzes Skript, von dem nur eine Zeile gemeint war. Zwei Gewohnheiten, die das
+        verhindern: die Liste lesen, und für eine einzelne Ausführung den Text vorher markieren – dann wird genau die
+        Markierung ausgeführt, ohne Rückfrage.</span>
+      <span lang="en">If several statements sit in the console, <code>Strg+Enter</code> brings up a picker: the statement
+        under the cursor – or <em>run all statements</em>. That picker gets clicked away, and then a whole script runs when
+        only one line was meant. Two habits that prevent it: read the picker, and for a single execution select the text
+        beforehand – then exactly the selection runs, without a question.</span></p>
+    </div>
+    <p>
+      <span lang="de">Zum Ausprobieren brauchen Sie DataGrip nicht: Die Datenbank unten ist ein vollständiges
+        PostgreSQL im Browser, mit dem Bestand aus Lab 08. Die Abfragen, die Sie hier schreiben, funktionieren in
+        DataGrip Zeichen für Zeichen genauso.</span>
+      <span lang="en">You do not need DataGrip to try things out: the database below is a complete PostgreSQL in the
+        browser, with the data from lab 08. The queries you write here work in DataGrip character for character the
+        same way.</span>
+    </p>
+    <div data-datenbank></div>
+    <div data-sql-konsole data-start="SELECT s.name AS station,&#10;       count(*) AS abfahrten,&#10;       round(avg(f.dauer_min), 1) AS dauer_mittel&#10;FROM fahrt f&#10;JOIN station s ON s.station_id = f.start_station&#10;GROUP BY s.name&#10;ORDER BY abfahrten DESC;"></div>
+  </section>
+
+  <section class="section-block" id="transaktion">
+    <h2><span lang="de">Der Schalter, auf den es ankommt</span><span lang="en">The switch that matters</span></h2>
+    <p>
+      <span lang="de">In der Werkzeugleiste der Konsole und des Datenrasters steht ein Auswahlfeld mit zwei Buchstaben
+        und einem Doppelpunkt: <code>Tx:</code>. Es entscheidet, was mit einer Änderung passiert, die Sie im
+        Datenraster vornehmen – und es ist der Grund, warum ein unbeabsichtigter Klick in einer Zelle eine
+        Produktionsdatenbank ändern kann.</span>
+      <span lang="en">In the toolbar of the console and the data grid sits a dropdown with two letters and a colon:
+        <code>Tx:</code>. It decides what happens to a change you make in the data grid – and it is the reason an
+        unintended click in a cell can change a production database.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th><code>Tx:Auto</code></th>
+            <th><code>Tx:Manual</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span lang="de">Nach dem Abschicken einer Änderung</span><span lang="en">After submitting a change</span></td>
+            <td><span lang="de">sofort dauerhaft</span><span lang="en">immediately permanent</span></td>
+            <td><span lang="de">vorgemerkt, noch nicht festgeschrieben</span><span lang="en">pending, not yet committed</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Rückgängig möglich</span><span lang="en">Undo possible</span></td>
+            <td><span lang="de"><strong>nein</strong> – die Knöpfe sind ausgegraut</span><span lang="en"><strong>no</strong> – the buttons are greyed out</span></td>
+            <td><span lang="de">ja, mit <code>Roll Back</code></span><span lang="en">yes, with <code>Roll Back</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Für andere Sitzungen sichtbar</span><span lang="en">Visible to other sessions</span></td>
+            <td><span lang="de">sofort</span><span lang="en">immediately</span></td>
+            <td><span lang="de">erst nach <code>Submit and Commit</code></span><span lang="en">only after <code>Submit and Commit</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Bei Verbindungsabbruch</span><span lang="en">On connection loss</span></td>
+            <td><span lang="de">Änderung bleibt</span><span lang="en">the change stays</span></td>
+            <td><span lang="de">Änderung verfällt</span><span lang="en">the change is lost</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-befehl="B05"></div>
+    <div class="challenge-box">
+      <h3><span lang="de">Drei Gewohnheiten, die eine Datenbank retten</span><span lang="en">Three habits that save a database</span></h3>
+      <ol>
+        <li><span lang="de"><strong><code>Tx:Manual</code> als Voreinstellung</strong> – je Datenquelle im Reiter
+          <code>Options</code>. Dann ist jede Änderung im Raster zunächst nur vorgemerkt.</span>
+        <span lang="en"><strong><code>Tx:Manual</code> as the default</strong> – per data source in the
+          <code>Options</code> tab. Then every change in the grid is initially only pending.</span></li>
+        <li><span lang="de"><strong><code>Preview Pending Changes</code> vor jedem <code>Submit</code></strong> – es
+          zeigt das <code>UPDATE</code>, das DataGrip erzeugen würde. Zwei Sekunden Lesen, und ein fehlendes
+          <code>WHERE</code> fällt auf, bevor es wirkt.</span>
+        <span lang="en"><strong><code>Preview Pending Changes</code> before every <code>Submit</code></strong> – it shows
+          the <code>UPDATE</code> DataGrip would generate. Two seconds of reading, and a missing <code>WHERE</code> is
+          noticed before it takes effect.</span></li>
+        <li><span lang="de"><strong><code>Read-only</code> für alles, was Sie nicht ändern dürfen</strong> – im Reiter
+          <code>Options</code> der Datenquelle. Für eine Produktionsdatenbank ist das keine Vorsicht, sondern
+          Pflicht: Ein Haken verhindert die ganze Klasse von Unfällen.</span>
+        <span lang="en"><strong><code>Read-only</code> for everything you may not change</strong> – in the data source's
+          <code>Options</code> tab. For a production database that is not caution but duty: one checkbox prevents the
+          whole class of accidents.</span></li>
+      </ol>
+    </div>
+    <div class="warn-box">
+      <p><span lang="de">Und die Regel, die unabhängig vom Werkzeug gilt: <strong>Ein <code>UPDATE</code> oder
+        <code>DELETE</code> wird zuerst als <code>SELECT</code> mit demselben <code>WHERE</code> geschrieben.</strong>
+        Die Trefferzahl notieren, dann umschreiben. Wer das tut, hat noch nie versehentlich eine ganze Tabelle
+        überschrieben – dieselbe Disziplin wie das <code>ls</code> vor dem <code>rm</code> in Lab 01.</span>
+      <span lang="en">And the rule that applies regardless of the tool: <strong>an <code>UPDATE</code> or
+        <code>DELETE</code> is first written as a <code>SELECT</code> with the same <code>WHERE</code>.</strong> Note the
+        row count, then rewrite it. Whoever does that has never accidentally overwritten a whole table – the same
+        discipline as the <code>ls</code> before the <code>rm</code> in lab 01.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="export">
+    <h2><span lang="de">Import und Export</span><span lang="en">Import and export</span></h2>
+    <p>
+      <span lang="de">Ein Ergebnis in eine CSV-Datei zu bekommen ist der häufigste Handgriff im Berichtsalltag – und
+        die Stelle, an der zwei Häkchen über die Brauchbarkeit entscheiden.</span>
+      <span lang="en">Getting a result into a CSV file is the most common action in day-to-day reporting – and the place
+        where two checkboxes decide usability.</span>
+    </p>
+    <div data-befehl="B06"></div>
+    <div data-befehl="B07"></div>
+  </section>
+
+  <section class="section-block" id="finden">
+    <h2><span lang="de">Finden und verstehen</span><span lang="en">Finding and understanding</span></h2>
+    <p>
+      <span lang="de">Vor einer Auswertung steht die Frage, wie die Daten zusammenhängen. Ein Schemadiagramm beantwortet
+        sie in zehn Sekunden – und ist die Brücke zu dem, was in DABA als Entity-Relationship-Modell behandelt
+        wird.</span>
+      <span lang="en">Before an analysis comes the question of how the data hangs together. A schema diagram answers it in
+        ten seconds – and is the bridge to what DABA treats as the entity-relationship model.</span>
+    </p>
+    <div data-befehl="B08"></div>
+    <div data-befehl="B09"></div>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Große Ergebnismengen</span><span lang="en">Large result sets</span></div>
+        <p><span lang="de">Die Seitengröße ist voreingestellt begrenzt – zu finden unter <code>Settings → Tools →
+          Database → Data Views</code>. Nimmt man den Haken weg und fragt zwei Millionen Zeilen ab, friert die Umgebung
+          ein. In der Abfrage gehört ein <code>LIMIT</code> dazu, und für Massendaten wird exportiert statt
+          angezeigt.</span>
+        <span lang="en">The page size is limited by default – found under <code>Settings → Tools → Database → Data
+          Views</code>. Remove the checkbox and query two million rows, and the environment freezes. A <code>LIMIT</code>
+          belongs in the query, and for bulk data you export rather than display.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">SSL</div>
+        <p><span lang="de">Im Reiter <code>SSH/SSL</code>: <code>Use SSL</code> einschalten, Verifikationsmodus wählen.
+          Bei Supabase ist Verschlüsselung Pflicht und in der Verbindungszeichenkette enthalten. Bei einer
+          Hochschul-Datenbank lohnt der Modus <code>Verify CA</code> mit hinterlegtem Zertifikat – und ein SSH-Tunnel
+          statt eines offenen Ports.</span>
+        <span lang="en">In the <code>SSH/SSL</code> tab: enable <code>Use SSL</code>, choose a verification mode. With
+          Supabase encryption is mandatory and contained in the connection string. With a university database the
+          <code>Verify CA</code> mode with a stored certificate is worth using – and an SSH tunnel instead of an open
+          port.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">KI-Funktionen</span><span lang="en">AI features</span></div>
+        <p><span lang="de">DataGrip 2026 bringt einen KI-Chat mit Agenten, die das Schema erkunden und SQL erzeugen
+          können. Das heißt: Schemainformationen und gegebenenfalls Daten verlassen den Rechner. Bei einer
+          Hochschul-Datenbank mit Personenbezug ist das vor der Freigabe zu klären; im Zweifel im Kursbild
+          abschalten.</span>
+        <span lang="en">DataGrip 2026 brings an AI chat with agents that can explore the schema and generate SQL. That
+          means: schema information and possibly data leave the machine. With a university database holding personal data
+          that has to be cleared before release; when in doubt, switch it off in the course image.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Einstellungen in der Cloud</span><span lang="en">Settings in the cloud</span></div>
+        <p><span lang="de">Settings Sync synchronisiert Einstellungen über das JetBrains-Konto, seit 2026.1 auch
+          Vorlagen für Datenquellen. Prüfen, welche Verbindungsangaben dadurch die Maschine verlassen – für dienstliche
+          Datenbanken besser abschalten. Dieselbe Frage wie bei <code>settings.json</code> in Lab 03.</span>
+        <span lang="en">Settings Sync synchronises settings through the JetBrains account, and since 2026.1 data source
+          templates too. Check which connection details leave the machine as a result – for work databases better switch
+          it off. The same question as with <code>settings.json</code> in lab 03.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Fünf Übungen: eine Checkliste für die Verbindung zu Ihrer eigenen Datenbank, eine SQL-Aufgabe in
+        der Datenbank dieser Seite, eine Zuordnung der Handgriffe und zwei Verständnisfragen – die vierte ist die, die
+        eine Datenbank retten kann.</span>
+      <span lang="en">Five exercises: a checklist for connecting to your own database, a SQL task in this page's database,
+        a matching exercise on the actions, and two comprehension questions – the fourth is the one that can save a
+        database.</span>
+    </p>
+    <div data-uebung="W09-01"></div>
+    <div data-uebung="W09-02"></div>
+    <div data-uebung="W09-03"></div>
+    <div data-uebung="W09-04"></div>
+    <div data-uebung="W09-05"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">DataGrip liest das Schema ein und nutzt es für Vervollständigung und Warnungen. Eingelesen wird nur, was als sichtbar geschaltet ist – der Verweis <code>N of M</code> neben der Datenquelle sagt, wie viel das ist.</span><span lang="en">DataGrip reads the schema and uses it for completion and warnings. Only what is set visible is read – the <code>N of M</code> link beside the data source says how much that is.</span></li>
+      <li><span lang="de">Das Passwort gehört in das Passwortfeld, nicht in die URL. Auf Poolrechnern <code>Do not save</code>.</span><span lang="en">The password belongs in the password field, not in the URL. On pool machines, <code>Do not save</code>.</span></li>
+      <li><span lang="de"><code>Tx:Auto</code> macht jede Rasteränderung sofort dauerhaft, <code>Tx:Manual</code> merkt sie vor. Mit <code>Preview Pending Changes</code> sehen Sie das erzeugte <code>UPDATE</code>, bevor es läuft.</span><span lang="en"><code>Tx:Auto</code> makes every grid change immediately permanent, <code>Tx:Manual</code> holds it pending. With <code>Preview Pending Changes</code> you see the generated <code>UPDATE</code> before it runs.</span></li>
+      <li><span lang="de">Ein <code>UPDATE</code> wird zuerst als <code>SELECT</code> mit demselben <code>WHERE</code> geschrieben. Datenquellen, die Sie nicht ändern dürfen, werden auf <code>Read-only</code> gestellt.</span><span lang="en">An <code>UPDATE</code> is first written as a <code>SELECT</code> with the same <code>WHERE</code>. Data sources you may not change are set to <code>Read-only</code>.</span></li>
+      <li><span lang="de">Bei mehreren Anweisungen fragt <code>Strg+Enter</code>, welche laufen soll. Wer die Frage wegklickt, führt das ganze Skript aus. Markieren heißt: genau das läuft.</span><span lang="en">With several statements <code>Strg+Enter</code> asks which one should run. Whoever clicks the question away runs the whole script. Selecting means: exactly that runs.</span></li>
+      <li><span lang="de">Die Bildungslizenz ist der bessere der beiden kostenfreien Wege – nicht wegen des Preises, sondern weil die Free-Non-Commercial-Lizenz Telemetrie zur Bedingung macht.</span><span lang="en">The educational licence is the better of the two free routes – not because of the price but because the free non-commercial licence makes telemetry a condition.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 09 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 09 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

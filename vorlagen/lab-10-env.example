@@ -1,0 +1,40 @@
+# ===========================================================================
+# WInf-SP-Lab · Lab 10 · Vorlage für die Datei .env
+#
+# So verwenden:
+#   1. Diese Datei als ".env" in den Projektordner kopieren (ohne ".example").
+#   2. Die Platzhalter [REF] und [PASSWORT] ersetzen.
+#   3. ".env" in die .gitignore eintragen (Lab 02) – sie darf NIE in ein
+#      Repository. Diese Vorlage hier darf es, weil sie keine Geheimnisse
+#      enthält.
+#
+# Das Skript lab-10-etl.py liest die Datei mit load_dotenv() ein; die
+# Werte landen in der Umgebung (os.environ) und nicht im Quelltext.
+# Dieselben Namen werden in Lab 11 (Render) als Environment Variables
+# im Dashboard eingetragen – dort gibt es keine .env-Datei.
+# ===========================================================================
+
+# Verbindung zur Zieldatenbank (Supabase, Lab 08) als SQLAlchemy-URL.
+#
+#   postgresql+psycopg   Dialekt (PostgreSQL) + Treiber (psycopg 3).
+#                        Ohne "+psycopg" nimmt SQLAlchemy psycopg2.
+#   postgres.[REF]       Benutzername beim Pooler: "postgres." plus die
+#                        Projektkennung – nicht nur "postgres".
+#   [PASSWORT]           Das Datenbankpasswort aus der Projektanlage.
+#                        Sonderzeichen darin (z. B. @, #, /) müssen
+#                        URL-kodiert werden: @ → %40, # → %23, / → %2F.
+#   aws-0-eu-central-1.pooler.supabase.com:5432
+#                        Session Pooler, Port 5432, erreichbar über IPv4.
+#                        Die genaue Adresse steht im Dashboard unter
+#                        "Connect" → "Session pooler"; Region Frankfurt
+#                        ist eu-central-1. Port 6543 (Transaction Pooler)
+#                        ist für dieses Skript nicht geeignet.
+#   /postgres            Name der Datenbank.
+#   ?sslmode=require     Verschlüsselte Verbindung erzwingen.
+DATABASE_URL=postgresql+psycopg://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require
+
+# Quelle des Exports: ein lokaler Pfad oder eine http(s)-Adresse.
+VELOCITY_QUELLE=data/velocity.json
+
+# Staging auf dem Laptop (Lab 06): eine SQLite-Datei, wird bei Bedarf angelegt.
+STAGING_DB=sqlite:///velocity-staging.db

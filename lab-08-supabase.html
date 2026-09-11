@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 08 · Supabase · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 08 · Supabase · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-08">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#was"><span lang="de">Postgres, gehostet</span><span lang="en">Postgres, hosted</span></a>
+  <a class="sidebar-link" href="#inbetrieb"><span lang="de">Projekt anlegen</span><span lang="en">Create a project</span></a>
+  <a class="sidebar-link" href="#sql"><span lang="de">Der SQL-Editor</span><span lang="en">The SQL editor</span></a>
+  <a class="sidebar-link" href="#import"><span lang="de">Daten hineinbekommen</span><span lang="en">Getting data in</span></a>
+  <a class="sidebar-link" href="#rls"><span lang="de">Row Level Security</span><span lang="en">Row level security</span></a>
+  <a class="sidebar-link" href="#keys"><span lang="de">Die zwei Schlüsselarten</span><span lang="en">The two kinds of key</span></a>
+  <a class="sidebar-link" href="#verbinden"><span lang="de">Verbinden – drei Wege</span><span lang="en">Connecting – three routes</span></a>
+  <a class="sidebar-link" href="#grenzen"><span lang="de">Grenzen und Datenschutz</span><span lang="en">Limits and data protection</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">08</div>
+  <h1 class="lab-title">Supabase</h1>
+  <p class="lab-intro">
+    <span lang="de">In Lab 07 haben Sie eine Datenbank selbst betrieben. Hier betreibt sie jemand anderes – und
+      darunter arbeitet dasselbe PostgreSQL: dieselben Datentypen, dieselben Sichten, dieselben Erweiterungen. Das
+      Neue ist nicht SQL, sondern die Zugriffskontrolle: Sie liegt in der Datenbank selbst, und wer das übersieht,
+      stellt seine Tabelle ins offene Netz. Dieses Lab führt durch die Inbetriebnahme, die zwei Schlüsselarten und die
+      Regel, mit der eine Tabelle abgesichert wird.</span>
+    <span lang="en">In lab 07 you ran a database yourself. Here somebody else runs it – and underneath sits the same
+      PostgreSQL: same data types, same views, same extensions. What is new is not SQL but access control: it lives in
+      the database itself, and whoever overlooks that puts their table on the open internet. This lab walks through
+      setting it up, the two kinds of key and the rule that secures a table.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">PostgreSQL</span>
+    <span class="lernziel-chip">Row Level Security</span>
+    <span class="lernziel-chip"><span lang="de">publishable vs. secret</span><span lang="en">publishable vs. secret</span></span>
+    <span class="lernziel-chip">Pooler · IPv4</span>
+    <span class="lernziel-chip">pgvector</span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="was">
+    <h2><span lang="de">Postgres, gehostet</span><span lang="en">Postgres, hosted</span></h2>
+    <p>
+      <span lang="de">Supabase ist eine quelloffene Entwicklungsplattform, die eine verwaltete PostgreSQL-Datenbank mit
+        den Diensten bündelt, die Anwendungen darum herum brauchen: Benutzerverwaltung, aus dem Schema erzeugte
+        Schnittstellen, Dateiablage, Benachrichtigungen über Änderungen. Für diesen Kurs ist vor allem eines wichtig:
+        Der SQL-Zugang bleibt offen, weil darunter ein vollständiges PostgreSQL arbeitet. Was Sie in DABA über SQL
+        gelernt haben, gilt hier unverändert.</span>
+      <span lang="en">Supabase is an open-source development platform bundling a managed PostgreSQL database with the
+        services applications need around it: user management, interfaces generated from the schema, file storage,
+        change notifications. For this course one thing matters above all: the SQL access stays open, because a complete
+        PostgreSQL works underneath. What you learned about SQL in DABA applies here unchanged.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Was Lab 07 und Lab 08 unterscheidet</span><span lang="en">What separates labs 07 and 08</span></h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th></th><th><span lang="de">Container (Lab 07)</span><span lang="en">Container (lab 07)</span></th><th>Supabase</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span lang="de">Wer betreibt</span><span lang="en">Who runs it</span></td>
+              <td><span lang="de">Sie – auf Ihrem Rechner</span><span lang="en">You – on your machine</span></td>
+              <td><span lang="de">Supabase – auf Amazon-Infrastruktur</span><span lang="en">Supabase – on Amazon infrastructure</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Erreichbar von</span><span lang="en">Reachable from</span></td>
+              <td><span lang="de">nur Ihrem Rechner (bei Bindung an localhost)</span><span lang="en">your machine only (when bound to localhost)</span></td>
+              <td><span lang="de">überall im Internet</span><span lang="en">everywhere on the internet</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Zugriffsschutz</span><span lang="en">Access protection</span></td>
+              <td><span lang="de">Passwort und Netzgrenze</span><span lang="en">password and the network boundary</span></td>
+              <td><span lang="de">Passwort, Schlüssel <strong>und Regeln in der Datenbank</strong></span><span lang="en">password, keys <strong>and rules inside the database</strong></span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Bei Untätigkeit</span><span lang="en">On inactivity</span></td>
+              <td><span lang="de">läuft weiter</span><span lang="en">keeps running</span></td>
+              <td><span lang="de">pausiert nach etwa einer Woche</span><span lang="en">pauses after roughly a week</span></td>
+            </tr>
+            <tr>
+              <td><span lang="de">Personenbezogene Daten</span><span lang="en">Personal data</span></td>
+              <td><span lang="de">verlassen den Rechner nicht</span><span lang="en">do not leave the machine</span></td>
+              <td><span lang="de">Auftragsverarbeitung, Region entscheidet</span><span lang="en">processing on your behalf, the region matters</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p><span lang="de">Die dritte Zeile ist der Stoff dieses Labs. In Lab 07 schützte die Netzgrenze: Was auf
+        <code>127.0.0.1</code> hört, erreicht niemand von außen. Diese Grenze fällt hier weg – die Datenbank ist über
+        das Internet erreichbar, und der Schutz muss von innen kommen.</span>
+      <span lang="en">The third row is this lab's subject. In lab 07 the network boundary protected you: nobody reaches
+        from outside what listens on <code>127.0.0.1</code>. That boundary is gone here – the database is reachable over
+        the internet, and the protection has to come from within.</span></p>
+    </div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Alternativen auf derselben Ebene:
+        PostgreSQL im Selbstbetrieb (Lab 07), Neon, sowie Supabase im Selbst-Hosting – die Plattform steht unter freien
+        Lizenzen und lässt sich per Docker Compose auf eigener Infrastruktur betreiben.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. Alternatives on the same layer: PostgreSQL run yourself (lab 07),
+        Neon, and Supabase self-hosted – the platform is under free licences and can be run on your own infrastructure
+        with Docker Compose.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="inbetrieb">
+    <h2><span lang="de">Projekt anlegen</span><span lang="en">Create a project</span></h2>
+    <p>
+      <span lang="de">Voraussetzung ist ein Browser und eine E-Mail-Adresse; keine Kreditkarte, keine Installation. Zwei
+        Angaben im Anlagedialog sind allerdings <strong>nachträglich nicht mehr zu ändern</strong> beziehungsweise nur
+        einmal sichtbar – lesen Sie den Kasten, bevor Sie klicken.</span>
+      <span lang="en">A browser and an email address are the prerequisites; no credit card, no installation. Two entries
+        in the creation dialogue, though, <strong>cannot be changed afterwards</strong> or are shown only once – read the
+        box before clicking.</span>
+    </p>
+    <div class="warn-box">
+      <h3><span lang="de">Zwei Angaben, die nur einmal kommen</span><span lang="en">Two entries that come only once</span></h3>
+      <p><span lang="de"><strong>Das Datenbankpasswort</strong> wird bei der Anlage einmal angezeigt und danach nie
+        wieder. Sofort in den Passwortmanager – ohne dieses Passwort ist keine Direktverbindung möglich, und ein
+        Zurücksetzen ändert alle Verbindungszeichenketten.</span>
+      <span lang="en"><strong>The database password</strong> is shown once at creation and never again. Straight into the
+        password manager – without it no direct connection is possible, and a reset changes every connection
+        string.</span></p>
+      <p><span lang="de"><strong>Die Region</strong> legt fest, wo die Daten liegen, und ist bei der Anlage zu wählen.
+        Für eine deutsche Hochschule ist <code>Central EU (Frankfurt)</code> die naheliegende Wahl. Achtung: Die
+        Sammelbezeichnung „Europe“ im Auswahlfeld umfasst auch London und Zürich – beide liegen <em>nicht</em> in der
+        EU und sind datenschutzrechtlich Drittländer.</span>
+      <span lang="en"><strong>The region</strong> determines where the data sits and is chosen at creation. For a German
+        university <code>Central EU (Frankfurt)</code> is the obvious choice. Careful: the collective label “Europe” in
+        the picker also covers London and Zurich – neither is in the EU, and in data protection terms both are third
+        countries.</span></p>
+    </div>
+    <div class="code-block">1  supabase.com → Anmelden (E-Mail oder GitHub)
+2  Organisation anlegen (Plan: Free)
+3  New project:
+     Name              winf-lab
+     Database Password  → erzeugen und SOFORT sichern
+     Region             Central EU (Frankfurt) · eu-central-1
+4  1–2 Minuten warten
+5  Oben der Knopf „Connect“ → dort liegen alle Verbindungszeichenketten</div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Bereich in der Navigation</span><span lang="en">Area in the navigation</span></th>
+            <th><span lang="de">Wozu</span><span lang="en">What for</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Table Editor</code></td><td><span lang="de">Tabellen anlegen und ansehen, CSV-Import</span><span lang="en">Create and view tables, CSV import</span></td></tr>
+          <tr><td><code>SQL Editor</code></td><td><span lang="de">Freie SQL-Ausführung, gespeicherte Abfragen</span><span lang="en">Free SQL execution, saved queries</span></td></tr>
+          <tr><td><code>Database → Extensions</code></td><td><span lang="de">Erweiterungen einschalten, etwa <code>vector</code> oder <code>postgis</code></span><span lang="en">Enable extensions, e.g. <code>vector</code> or <code>postgis</code></span></td></tr>
+          <tr><td><code>Authentication → Policies</code></td><td><span lang="de">Zugriffsregeln je Tabelle</span><span lang="en">Access rules per table</span></td></tr>
+          <tr><td><code>Advisors → Security Advisor</code></td><td><span lang="de">Meldet ungeschützte Tabellen – der wichtigste Bildschirm dieses Labs</span><span lang="en">Reports unprotected tables – this lab's most important screen</span></td></tr>
+          <tr><td><code>Project Settings → API Keys</code></td><td><span lang="de">Die zwei Schlüsselarten</span><span lang="en">The two kinds of key</span></td></tr>
+          <tr><td><code>Logs</code></td><td><span lang="de">Wer hat wann worauf zugegriffen</span><span lang="en">Who accessed what and when</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section-block" id="sql">
+    <h2><span lang="de">Der SQL-Editor</span><span lang="en">The SQL editor</span></h2>
+    <p>
+      <span lang="de">Alles Weitere in diesem Lab geschieht in SQL – und Sie können es hier ausprobieren, ohne ein
+        Konto anzulegen. In dieser Seite läuft ein vollständiges PostgreSQL als WebAssembly, mit dem Beispielbestand der
+        Fallstudie Velo City: Stationen, Räder, Kundschaft und 1.500 Fahrten. Es ist kein Simulator – dieselben
+        Datentypen, dieselben Fehlermeldungen, dieselben Fensterfunktionen.</span>
+      <span lang="en">Everything else in this lab happens in SQL – and you can try it here without creating an account.
+        A complete PostgreSQL runs in this page as WebAssembly, with the sample data of the Velo City case study:
+        stations, bikes, customers and 1,500 rides. It is not a simulator – same data types, same error messages, same
+        window functions.</span>
+    </p>
+    <div data-datenbank></div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Tabelle</span><span lang="en">Table</span></th>
+            <th><span lang="de">Spalten</span><span lang="en">Columns</span></th>
+            <th><span lang="de">Zeilen</span><span lang="en">Rows</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>station</code></td><td><code>station_id · name · bezirk · plaetze · eroeffnet</code></td><td>10</td></tr>
+          <tr><td><code>rad</code></td><td><code>rad_id · typ · baujahr · heimstation · status</code></td><td>60</td></tr>
+          <tr><td><code>kunde</code></td><td><code>kunde_id · tarif · registriert · bezirk</code></td><td>200</td></tr>
+          <tr><td><code>fahrt</code></td><td><code>fahrt_id · rad_id · kunde_id · start_station · ziel_station · start_zeit · dauer_min · preis_eur</code></td><td>1.500</td></tr>
+          <tr><td><code>fahrt_mit_typ</code></td><td><span lang="de">Sicht: <code>fahrt</code> mit <code>rad_typ</code>, <code>start_name</code>, <code>ziel_name</code></span><span lang="en">View: <code>fahrt</code> with <code>rad_typ</code>, <code>start_name</code>, <code>ziel_name</code></span></td><td>1.500</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <span lang="de">Probieren Sie aus. Was Sie hier schreiben, wirkt nur in diesem Browserfenster; mit dem Knopf
+        <em>Datenbank zurücksetzen</em> oben stellen Sie den Ausgangsbestand wieder her.</span>
+      <span lang="en">Try things out. What you write here has effect only in this browser window; the <em>reset
+        database</em> button above restores the initial state.</span>
+    </p>
+    <div data-sql-konsole data-start="SELECT bezirk, count(*) AS stationen, sum(plaetze) AS plaetze&#10;FROM station&#10;GROUP BY bezirk&#10;ORDER BY plaetze DESC;"></div>
+    <div data-befehl="B01"></div>
+  </section>
+
+  <section class="section-block" id="import">
+    <h2><span lang="de">Daten hineinbekommen</span><span lang="en">Getting data in</span></h2>
+    <p>
+      <span lang="de">Drei Wege, mit einer Grenze und einer Falle. Die Grenze: Der Import über die Weboberfläche endet
+        bei 100 MB. Die Falle: Nach einem CSV-Import stehen die Spaltentypen oft auf <code>text</code>, auch wo Zahlen
+        oder Datumsangaben stehen – und dann scheitert jede Aggregation, ohne dass die Ursache offensichtlich
+        ist.</span>
+      <span lang="en">Three routes, with one limit and one trap. The limit: import through the web interface stops at
+        100 MB. The trap: after a CSV import the column types are often <code>text</code>, even where numbers or dates
+        stand – and then every aggregation fails without the cause being obvious.</span>
+    </p>
+    <div data-befehl="B02"></div>
+    <div class="tip-box">
+      <p><span lang="de">Der verlässliche Weg ist der umgekehrte: <strong>zuerst die Tabelle mit richtigen Typen
+        anlegen, dann importieren.</strong> Zwanzig Sekunden mehr Arbeit, und die Prüfung
+        <code>SELECT pg_typeof(preis_eur) FROM fahrt LIMIT 1;</code> bestätigt es in einer Zeile. Dieselbe Sorgfalt, die
+        die Vorlesung unter „Empfehlungen für den Aufbau von Datentabellen“ verlangt: einheitliche Formate, keine
+        Sonderzeichen, kurze Bezeichnungen.</span>
+      <span lang="en">The reliable route is the reverse: <strong>first create the table with the right types, then
+        import.</strong> Twenty seconds more work, and the check
+        <code>SELECT pg_typeof(preis_eur) FROM fahrt LIMIT 1;</code> confirms it in one line. The same care the lecture
+        demands under “recommendations for building data tables”: uniform formats, no special characters, short
+        names.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="rls">
+    <h2><span lang="de">Row Level Security</span><span lang="en">Row level security</span></h2>
+    <p>
+      <span lang="de">Das ist der Abschnitt, der über Lab 07 hinausgeht. Supabase erzeugt aus Ihrem Schema eine
+        Schnittstelle, über die jede Tabelle über das Internet ansprechbar ist. Ob eine Anfrage Zeilen zurückbekommt,
+        entscheidet nicht die Anwendung und nicht der Schlüssel, sondern eine <strong>Regel in der Datenbank</strong>.
+        Neue Tabellen im Schema <code>public</code> starten dabei mit Rechten für die Rollen, die von außen
+        zugreifen – solange <em>Row Level Security</em> nicht eingeschaltet ist.</span>
+      <span lang="en">This is the section that goes beyond lab 07. Supabase generates an interface from your schema
+        through which every table is addressable over the internet. Whether a request gets rows back is decided not by
+        the application and not by the key but by a <strong>rule inside the database</strong>. New tables in the
+        <code>public</code> schema start with permissions for the roles that access from outside – as long as <em>row
+        level security</em> is not switched on.</span>
+    </p>
+    <div class="challenge-box">
+      <h3><span lang="de">Die Regel in einer Zeile</span><span lang="en">The rule in one line</span></h3>
+      <p><span lang="de">Nach <strong>jedem</strong> <code>CREATE TABLE</code> folgt
+        <code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code>. Danach liefert die Schnittstelle <em>keine</em> Zeile
+        mehr, bis Sie eine Regel schreiben. Das wirkt wie ein Fehler und ist die richtige Voreinstellung: Standardmäßig
+        verweigern, ausdrücklich erlauben.</span>
+      <span lang="en">After <strong>every</strong> <code>CREATE TABLE</code> comes
+        <code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code>. Afterwards the interface returns <em>no</em> row until you
+        write a rule. That looks like an error and is the right default: deny by default, permit explicitly.</span></p>
+    </div>
+    <div data-befehl="B03"></div>
+    <div data-befehl="B04"></div>
+    <div class="info-box">
+      <p><span lang="de"><code>USING</code> filtert <strong>vorhandene</strong> Zeilen – für <code>SELECT</code>,
+        <code>UPDATE</code> und <code>DELETE</code>. <code>WITH CHECK</code> prüft <strong>neue oder geänderte</strong>
+        Zeilen – für <code>INSERT</code> und <code>UPDATE</code>. Wer die beiden verwechselt, schreibt eine Regel, die
+        alles lesen lässt und nichts einfügen – oder umgekehrt.</span>
+      <span lang="en"><code>USING</code> filters <strong>existing</strong> rows – for <code>SELECT</code>,
+        <code>UPDATE</code> and <code>DELETE</code>. <code>WITH CHECK</code> checks <strong>new or changed</strong>
+        rows – for <code>INSERT</code> and <code>UPDATE</code>. Whoever confuses the two writes a rule that lets
+        everything be read and nothing inserted – or the reverse.</span></p>
+    </div>
+    <p>
+      <span lang="de">Prüfen lässt sich der Zustand ohne SQL: <code>Advisors → Security Advisor</code> listet jede
+        Tabelle, für die <em>Row Level Security</em> nicht eingeschaltet ist. Diese Liste sollte leer sein, bevor ein
+        Projekt jemandem gezeigt wird.</span>
+      <span lang="en">The state can be checked without SQL: <code>Advisors → Security Advisor</code> lists every table for
+        which row level security is not switched on. That list should be empty before a project is shown to
+        anyone.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="keys">
+    <h2><span lang="de">Die zwei Schlüsselarten</span><span lang="en">The two kinds of key</span></h2>
+    <p>
+      <span lang="de">Unter <code>Project Settings → API Keys</code> liegen zwei Schlüssel, die sich in einem Punkt
+        unterscheiden – und dieser Punkt entscheidet über die Sicherheit des ganzen Projekts.</span>
+      <span lang="en">Under <code>Project Settings → API Keys</code> sit two keys differing in one respect – and that
+        respect decides the security of the whole project.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Schlüssel</span><span lang="en">Key</span></th>
+            <th><span lang="de">Früher</span><span lang="en">Formerly</span></th>
+            <th><span lang="de">Wohin er darf</span><span lang="en">Where it may go</span></th>
+            <th><span lang="de">Verhältnis zu RLS</span><span lang="en">Relation to RLS</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>sb_publishable_…</code></td>
+            <td><code>anon</code></td>
+            <td><span lang="de">Webseite, App, Quellcode, GitHub Actions – öffentlich unbedenklich</span><span lang="en">web page, app, source code, GitHub Actions – safe to expose</span></td>
+            <td><span lang="de"><strong>unterliegt</strong> den Regeln</span><span lang="en"><strong>subject to</strong> the rules</span></td>
+          </tr>
+          <tr>
+            <td><code>sb_secret_…</code></td>
+            <td><code>service_role</code></td>
+            <td><span lang="de">nur Server und Hintergrunddienste</span><span lang="en">servers and background services only</span></td>
+            <td><span lang="de"><strong>umgeht</strong> die Regeln vollständig</span><span lang="en"><strong>bypasses</strong> the rules entirely</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn-box">
+      <p><span lang="de">Der geheime Schlüssel im Browser, in einem Notebook auf GitHub oder in einer
+        <code>settings.json</code> bedeutet: Vollzugriff auf alle Daten für jeden, der ihn findet – ungeachtet aller
+        Regeln. Das ist der einzige Fehler dieses Labs, der nicht nur Zeit kostet. Deshalb gilt die Regel aus Lab 04
+        und Lab 02 hier unverändert: kein Geheimnis in einer Datei, die weitergegeben wird.</span>
+      <span lang="en">The secret key in the browser, in a notebook on GitHub or in a <code>settings.json</code> means:
+        full access to all data for anyone who finds it – regardless of every rule. That is the one mistake in this lab
+        that costs more than time. Hence the rule from labs 04 and 02 applies here unchanged: no secret in a file that
+        gets passed on.</span></p>
+    </div>
+    <p>
+      <span lang="de">Zum Stand 09/2026 laufen die alte und die neue Benennung parallel; Supabase hat angekündigt, die
+        Schlüssel <code>anon</code> und <code>service_role</code> bis Ende 2026 auslaufen zu lassen. Für neue Projekte
+        also die neuen Bauformen verwenden – und in älteren Anleitungen die alten Namen als dasselbe lesen.</span>
+      <span lang="en">As of 09/2026 the old and new naming run in parallel; Supabase has announced it will deprecate the
+        <code>anon</code> and <code>service_role</code> keys by the end of 2026. So for new projects use the new forms –
+        and in older guides read the old names as the same thing.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="verbinden">
+    <h2><span lang="de">Verbinden – drei Wege</span><span lang="en">Connecting – three routes</span></h2>
+    <p>
+      <span lang="de">Der Knopf <code>Connect</code> zeigt drei Verbindungszeichenketten, und die Wahl ist keine
+        Geschmacksfrage: In vielen Hochschulnetzen funktioniert genau eine davon.</span>
+      <span lang="en">The <code>Connect</code> button shows three connection strings, and the choice is not a matter of
+        taste: in many university networks exactly one of them works.</span>
+    </p>
+    <div data-befehl="B05"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Die IPv6-Falle</span><span lang="en">The IPv6 trap</span></h3>
+      <p><span lang="de">Die Direktverbindung <code>db.[REF].supabase.co</code> löst nur über IPv6 auf. In einem Netz
+        ohne IPv6 – viele Hochschul-WLANs, viele VPN-Zugänge – scheitert sie mit einer Zeitüberschreitung, ohne dass die
+        Meldung die Ursache nennt. Das kostet regelmäßig eine halbe Übungsstunde mit der falschen Vermutung, das
+        Passwort sei falsch.</span>
+      <span lang="en">The direct connection <code>db.[REF].supabase.co</code> resolves over IPv6 only. In a network
+        without IPv6 – many university networks, many VPN accesses – it fails with a timeout without the message naming
+        the cause. That regularly costs half a practical session with the wrong guess that the password is wrong.</span></p>
+      <p><span lang="de">Der Ausweg ist der <strong>Session Pooler</strong> auf Port <code>5432</code>: Er ist über IPv4
+        erreichbar, in allen Plänen enthalten und für Werkzeuge wie DataGrip der richtige Weg. Zwei Fallen dabei: Der
+        Benutzername enthält die Projektkennung (<code>postgres.[REF]</code>, nicht <code>postgres</code>), und Port
+        <code>6543</code> ist der <em>Transaction</em> Pooler – der eignet sich nicht für Datenbankwerkzeuge, weil er
+        keinen Sitzungszustand hält.</span>
+      <span lang="en">The way out is the <strong>session pooler</strong> on port <code>5432</code>: it is reachable over
+        IPv4, included in all plans, and the right route for tools such as DataGrip. Two traps here: the user name
+        contains the project reference (<code>postgres.[REF]</code>, not <code>postgres</code>), and port
+        <code>6543</code> is the <em>transaction</em> pooler – unsuitable for database tools because it keeps no session
+        state.</span></p>
+    </div>
+    <div data-befehl="B06"></div>
+  </section>
+
+  <section class="section-block" id="grenzen">
+    <h2><span lang="de">Grenzen und Datenschutz</span><span lang="en">Limits and data protection</span></h2>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Kostenloser Plan</span><span lang="en">Free plan</span></div>
+        <p><span lang="de">Zwei aktive Projekte je Organisation, 500 MB Datenbank, 1 GB Dateiablage, 5 GB
+          Datenabfluss. Kein Kreditkarteneintrag. Für die Übungen dieses Kurses reichlich – die Beispieldatenbank
+          dieses Labs belegt unter einem Megabyte.</span>
+        <span lang="en">Two active projects per organisation, 500 MB of database, 1 GB of file storage, 5 GB of egress.
+          No credit card. Ample for this course's exercises – this lab's sample database occupies under a
+          megabyte.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Pausieren</span><span lang="en">Pausing</span></div>
+        <p><span lang="de">Projekte im kostenlosen Plan werden nach etwa einer Woche ohne Zugriff pausiert. Nichts ist
+          verloren, aber die Datenbank antwortet nicht mehr, bis Sie sie im Dashboard wiederherstellen. Vor einem
+          Übungstermin nach den Ferien also einmal aufwecken.</span>
+        <span lang="en">Free-plan projects are paused after roughly a week without access. Nothing is lost, but the
+          database stops answering until you restore it in the dashboard. So wake it up once before a session after a
+          break.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Verbindungen</span><span lang="en">Connections</span></div>
+        <p><span lang="de">Die kleinste Instanz erlaubt 60 direkte Verbindungen und 200 über den Pooler. Ein
+          Datenbankwerkzeug öffnet oft mehrere gleichzeitig – dreißig Studierende auf demselben Projekt kommen der
+          Grenze nahe. Ausweg: je Person ein eigenes Projekt, oder der Pooler.</span>
+        <span lang="en">The smallest instance allows 60 direct connections and 200 through the pooler. A database tool
+          often opens several at once – thirty students on the same project come close to the limit. Way out: one project
+          per person, or the pooler.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Sicherung</span><span lang="en">Backup</span></div>
+        <p><span lang="de">Im kostenlosen Plan gibt es keine automatische Wiederherstellung auf einen Zeitpunkt. Eine
+          eigene Sicherung ist ein Befehl: <code>pg_dump</code> gegen die Verbindungszeichenkette. Vor Semesterende
+          einmal ausführen und die Datei aufbewahren.</span>
+        <span lang="en">The free plan has no automatic point-in-time restore. Your own backup is one command:
+          <code>pg_dump</code> against the connection string. Run it once before the end of the semester and keep the
+          file.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Region ist nicht alles</span><span lang="en">The region is not everything</span></div>
+        <p><span lang="de">Supabase weist selbst darauf hin, dass die Regionswahl allein keine DSGVO-Konformität
+          herstellt: Sicherungen, Protokolle, ausgeleitete Daten, die Ausführung von Edge Functions und
+          Unterauftragnehmer können den Speicherort berühren. Für Übungen mit synthetischen Daten ist das ohne
+          Belang – und genau deshalb wird es so gehandhabt.</span>
+        <span lang="en">Supabase itself points out that the choice of region alone does not create GDPR compliance:
+          backups, logs, exported data, edge function execution and sub-processors can affect where data resides. For
+          exercises with synthetic data that is irrelevant – and that is exactly why it is handled that way.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Selbst-Hosting</span><span lang="en">Self-hosting</span></div>
+        <p><span lang="de">Die Plattform ist quelloffen und läuft per Docker Compose auf eigener Infrastruktur – damit
+          entfallen Grenzen, Pausieren und die Frage des Speicherorts vollständig. Der Preis: Betrieb, Aktualisierungen,
+          Sicherungen und Überwachung liegen bei Ihnen. Bemerkenswert dabei: Selbst gehostetes Supabase ist selbst ein
+          Compose-Stapel – Lab 07 und Lab 08 treffen sich hier.</span>
+        <span lang="en">The platform is open source and runs on your own infrastructure via Docker Compose – which
+          removes limits, pausing and the residency question entirely. The price: operation, updates, backups and
+          monitoring are yours. Notably: self-hosted Supabase is itself a Compose stack – labs 07 and 08 meet
+          here.</span></p>
+      </div>
+    </div>
+    <div class="info-box">
+      <p><span lang="de">Die Verantwortung ist geteilt: Supabase sichert die Infrastruktur, für die Verarbeitung in
+        Ihrer Anwendung, für Einwilligungen und für die Zugriffskontrolle sind Sie zuständig. Eine Hochschule, die den
+        Dienst mit personenbezogenen Daten einsetzt, ist Verantwortliche und braucht einen Auftragsverarbeitungsvertrag.
+        Für die Übungen dieses Kurses gilt die einfachere Regel: nur synthetische oder offene Daten – dann entfällt die
+        Frage.</span>
+      <span lang="en">Responsibility is shared: Supabase secures the infrastructure; the processing in your application,
+        the consent flows and the access controls are yours. A university using the service with personal data is the
+        controller and needs a data processing agreement. For this course's exercises the simpler rule applies: only
+        synthetic or open data – then the question does not arise.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: eine Checkliste für das eigene Projekt, zwei SQL-Aufgaben in der Datenbank dieser
+        Seite, eine Zuordnung zu Schlüsseln und Verbindungen, und zwei Verständnisfragen zu Zugriffsregeln und
+        Grenzen.</span>
+      <span lang="en">Six exercises: a checklist for your own project, two SQL tasks in this page's database, a matching
+        exercise on keys and connections, and two comprehension questions on access rules and limits.</span>
+    </p>
+    <div data-uebung="W08-01"></div>
+    <div data-uebung="W08-02"></div>
+    <div data-uebung="W08-03"></div>
+    <div data-uebung="W08-04"></div>
+    <div data-uebung="W08-05"></div>
+    <div data-uebung="W08-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Unter Supabase arbeitet ein vollständiges PostgreSQL. SQL-Kenntnisse übertragen sich unverändert; neu ist die Zugriffskontrolle.</span><span lang="en">A complete PostgreSQL works underneath Supabase. SQL knowledge carries over unchanged; what is new is access control.</span></li>
+      <li><span lang="de">Zwei Angaben bei der Projektanlage sind endgültig: das Datenbankpasswort (nur einmal sichtbar) und die Region. „Europe“ umfasst auch London und Zürich – beide außerhalb der EU.</span><span lang="en">Two entries at project creation are final: the database password (shown only once) and the region. “Europe” also covers London and Zurich – both outside the EU.</span></li>
+      <li><span lang="de">Nach jedem <code>CREATE TABLE</code> folgt <code>ENABLE ROW LEVEL SECURITY</code>. Danach liefert die Schnittstelle nichts mehr, bis eine Regel es erlaubt – das ist die richtige Voreinstellung, kein Fehler.</span><span lang="en">After every <code>CREATE TABLE</code> comes <code>ENABLE ROW LEVEL SECURITY</code>. Afterwards the interface returns nothing until a rule permits it – that is the right default, not an error.</span></li>
+      <li><span lang="de">Der öffentliche Schlüssel unterliegt den Regeln und darf im Quellcode stehen. Der geheime umgeht sie vollständig und gehört ausschließlich auf einen Server.</span><span lang="en">The publishable key is subject to the rules and may sit in source code. The secret one bypasses them entirely and belongs on a server only.</span></li>
+      <li><span lang="de">Die Direktverbindung löst nur über IPv6 auf. In Hochschulnetzen ist der Session Pooler auf Port 5432 der Weg – mit Benutzernamen <code>postgres.[REF]</code>.</span><span lang="en">The direct connection resolves over IPv6 only. In university networks the session pooler on port 5432 is the route – with user name <code>postgres.[REF]</code>.</span></li>
+      <li><span lang="de">Der kostenlose Plan pausiert nach etwa einer Woche, erlaubt zwei Projekte und 500 MB und sichert nicht automatisch. Wer mehr braucht oder personenbezogene Daten verarbeitet, kommt zum Selbst-Hosting – und damit zurück zu Lab 07.</span><span lang="en">The free plan pauses after roughly a week, allows two projects and 500 MB and does not back up automatically. Whoever needs more, or processes personal data, arrives at self-hosting – and thus back at lab 07.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 08 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 08 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

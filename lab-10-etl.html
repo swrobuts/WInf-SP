@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 10 · ETL und ELT · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 10 · ETL and ELT · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-10">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Das Problem</span><span lang="en">The problem</span></a>
+  <a class="sidebar-link" href="#etl-elt"><span lang="de">ETL und ELT</span><span lang="en">ETL and ELT</span></a>
+  <a class="sidebar-link" href="#anatomie"><span lang="de">Anatomie einer Pipeline</span><span lang="en">Anatomy of a pipeline</span></a>
+  <a class="sidebar-link" href="#katalog"><span lang="de">Umformungskatalog</span><span lang="en">Transformation catalogue</span></a>
+  <a class="sidebar-link" href="#stern"><span lang="de">Das Sternschema</span><span lang="en">The star schema</span></a>
+  <a class="sidebar-link" href="#sql"><span lang="de">ELT in SQL</span><span lang="en">ELT in SQL</span></a>
+  <a class="sidebar-link" href="#python"><span lang="de">Der Python-Werkzeugkasten</span><span lang="en">The Python toolkit</span></a>
+  <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Pitfalls</span></a>
+  <a class="sidebar-link" href="#spielplatz"><span lang="de">Spielplatz</span><span lang="en">Playground</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">10</div>
+  <h1 class="lab-title"><span lang="de">ETL und ELT</span><span lang="en">ETL and ELT</span></h1>
+  <p class="lab-intro">
+    <span lang="de">In Lab 05 haben Sie den Velo-City-Export als verschachteltes JSON gelesen, in Lab 06 eine
+      SQLite-Datei auf dem Laptop gefüllt, in Lab 08 eine Postgres-Datenbank bei Supabase eingerichtet. Was noch fehlt,
+      ist der Weg dazwischen – und zwar nicht einmal, sondern jede Nacht, ohne dass jemand daran denkt. Dieses Lab
+      baut diesen Weg: Rohdaten in eine Staging-Schicht, Umformung in SQL, Ziel ein Sternschema, aus dem in Lab 12
+      und 13 ein Dashboard entsteht. Die beiden Buchstabenfolgen ETL und ELT unterscheiden sich nur darin, <em>wo</em>
+      die Umformung stattfindet – und genau diese Entscheidung lernen Sie hier zu begründen.</span>
+    <span lang="en">In lab 05 you read the Velo City export as nested JSON, in lab 06 you filled an SQLite file on
+      the laptop, in lab 08 you set up a Postgres database on Supabase. What is still missing is the route in between –
+      and not once, but every night, without anyone having to remember. This lab builds that route: raw data into a
+      staging layer, transformation in SQL, target a star schema from which a dashboard emerges in labs 12 and 13. The
+      two letter sequences ETL and ELT differ only in <em>where</em> the transformation takes place – and it is
+      precisely that decision you learn to justify here.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">Pipeline</span>
+    <span class="lernziel-chip">ETL vs. ELT</span>
+    <span class="lernziel-chip">Staging · Mart</span>
+    <span class="lernziel-chip"><span lang="de">Idempotenz · Upsert</span><span lang="en">Idempotency · Upsert</span></span>
+    <span class="lernziel-chip"><span lang="de">Sternschema · Grain</span><span lang="en">Star schema · Grain</span></span>
+    <span class="lernziel-chip">Materialized View</span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <!-- ============================================================ 1 -->
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Das Problem: Zwischen Rohdatei und Dashboard liegt Arbeit</span><span lang="en">The problem: between raw file and dashboard lies work</span></h2>
+    <p>
+      <span lang="de">Der Betreiber von Velo City exportiert jeden Morgen um sechs Uhr eine JSON-Datei: Stationen mit
+        ihren Rädern, Kundschaft, alle Fahrten des Vortags. Das Controlling möchte ein Dashboard mit Fahrten je Station
+        und Tag, Umsatz je Radtyp, Auslastung je Stunde. Zwischen der Datei und dem Dashboard liegen Handgriffe, die Sie
+        aus Lab 04 und Lab 05 kennen: Datei laden, verschachtelte Objekte aufklappen, Zeitstempel parsen, Duplikate
+        entfernen, Tabellen verbinden, verdichten, speichern. Einmal im Notebook ist das eine halbe Stunde. Das Problem
+        beginnt am zweiten Tag.</span>
+      <span lang="en">The operator of Velo City exports a JSON file every morning at six: stations with their bikes,
+        customers, all rides of the previous day. Controlling wants a dashboard with rides per station and day, revenue
+        per bike type, utilisation per hour. Between the file and the dashboard lie steps you know from labs 04 and 05:
+        load the file, flatten nested objects, parse timestamps, remove duplicates, join tables, aggregate, store. Once
+        in a notebook that is half an hour. The problem begins on day two.</span>
+    </p>
+    <p>
+      <span lang="de">Und es hat eine zweite Seite. Wenn im Bericht eine Zahl nicht stimmt – 3.200 Fahrten statt 1.500 –
+        wo suchen Sie? Im Export? Beim Aufklappen? Beim Verbinden? In der Formel im Dashboard? Eine Verarbeitung, die
+        in einem Notebook von oben nach unten läuft, gibt darauf keine Antwort. Eine Pipeline mit benannten Schichten
+        schon: Man prüft die Zeilenzahl an jedem Glied und findet das eine, an dem sie sich verdoppelt.</span>
+      <span lang="en">And it has a second side. When a figure in the report is wrong – 3,200 rides instead of 1,500 –
+        where do you look? In the export? In the flattening? In the join? In the formula in the dashboard? A process
+        that runs top to bottom in a notebook gives no answer. A pipeline with named layers does: you check the row
+        count at every link and find the one where it doubles.</span>
+    </p>
+    <div class="kette">
+      <div class="glied hell"><span class="titel"><span lang="de">Quelle</span><span lang="en">Source</span></span><span class="was">JSON · CSV · API</span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Staging</span><span class="was"><span lang="de">raw / bronze – unverändert, mit <code>loaded_at</code></span><span lang="en">raw / bronze – unchanged, with <code>loaded_at</code></span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel"><span lang="de">Bereinigt</span><span lang="en">Cleaned</span></span><span class="was"><span lang="de">silver – typisiert, dedupliziert</span><span lang="en">silver – typed, deduplicated</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">Mart</span><span class="was"><span lang="de">gold – Sternschema, Kennzahlen</span><span lang="en">gold – star schema, measures</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied hell"><span class="titel">BI</span><span class="was">Power BI · Tableau (Lab 12/13)</span></div>
+    </div>
+    <div class="concept-box">
+      <h3><span lang="de">Was eine Pipeline ist</span><span lang="en">What a pipeline is</span></h3>
+      <p><span lang="de">Eine Pipeline ist Code, der Daten wiederholbar von A nach B bringt – nicht ein Notebook, das
+        man einmal ausgeführt hat. Drei Eigenschaften machen den Unterschied: Sie läuft ohne Zutun (Scheduler), sie
+        liefert beim zweiten Lauf dasselbe Ergebnis wie beim ersten (Idempotenz), und sie hinterlässt eine Spur, an der
+        man Fehler findet (Logging, Tests). Alles Weitere in diesem Lab sind Techniken, um diese drei Eigenschaften
+        herzustellen.</span>
+      <span lang="en">A pipeline is code that moves data from A to B repeatably – not a notebook that was run once.
+        Three properties make the difference: it runs without intervention (scheduler), it yields the same result on the
+        second run as on the first (idempotency), and it leaves a trail along which errors can be found (logging,
+        tests). Everything else in this lab is technique for establishing those three properties.</span></p>
+    </div>
+    <p>
+      <span lang="de">Die Kette oben ist der rote Faden. Die Quelle ist der Export aus Lab 05. Staging auf dem Laptop
+        ist die SQLite-Datei aus Lab 06, Staging und Mart im Netz sind Schemata in der Supabase-Datenbank aus Lab 08.
+        Nachsehen können Sie in beiden mit DataGrip (Lab 09). Den Dienst, der die Pipeline nachts ausführt, betreibt
+        Lab 11. Und die BI-Werkzeuge in Lab 12 und 13 lesen das Sternschema – deshalb ist es das Ziel.</span>
+      <span lang="en">The chain above is the thread. The source is the export from lab 05. Staging on the laptop is the
+        SQLite file from lab 06, staging and mart online are schemas in the Supabase database from lab 08. You can
+        inspect both with DataGrip (lab 09). The service that runs the pipeline at night is operated in lab 11. And the
+        BI tools in labs 12 and 13 read the star schema – which is why it is the target.</span>
+    </p>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section class="section-block" id="etl-elt">
+    <h2><span lang="de">ETL und ELT</span><span lang="en">ETL and ELT</span></h2>
+    <p>
+      <span lang="de">Drei Schritte hat jede Pipeline: <strong>Extract</strong> (Daten aus Quellsystemen lesen: Datei,
+        API, operative Datenbank), <strong>Transform</strong> (Geschäftsregeln anwenden – Microsoft zählt auf:
+        „filtering, sorting, aggregating, joining data, cleaning data, deduplicating, and validating data“) und
+        <strong>Load</strong> (in das Ziel schreiben). Die Reihenfolge der Buchstaben sagt, wo das T passiert. Microsofts
+        Definition von ELT ist die knappste: Es „differs from ETL solely in where the transformation takes place“ –
+        beim ELT in der Zieldatenbank, mit deren eigenen Mitteln, also SQL.</span>
+      <span lang="en">Every pipeline has three steps: <strong>Extract</strong> (read data from source systems: file,
+        API, operational database), <strong>Transform</strong> (apply business rules – Microsoft lists: “filtering,
+        sorting, aggregating, joining data, cleaning data, deduplicating, and validating data”) and <strong>Load</strong>
+        (write into the target). The order of the letters says where the T happens. Microsoft's definition of ELT is
+        the tersest: it “differs from ETL solely in where the transformation takes place” – in ELT inside the target
+        database, with its own means, that is SQL.</span>
+    </p>
+    <div class="vergleich">
+      <div>
+        <h3>ETL – Extract, Transform, Load</h3>
+        <p><span lang="de"><strong>Wo das T stattfindet:</strong> in einer eigenen Maschine, bevor die Daten das Ziel
+          erreichen – ein Python-Skript mit pandas, ein grafisches Werkzeug.</span>
+        <span lang="en"><strong>Where the T happens:</strong> in a separate engine, before the data reaches the target –
+          a Python script with pandas, a graphical tool.</span></p>
+        <p><span lang="de"><strong>Werkzeuge:</strong> SSIS (Microsoft), Informatica PowerCenter, Talend, KNIME, Python
+          (requests → pandas → <code>to_sql</code>).</span>
+        <span lang="en"><strong>Tools:</strong> SSIS (Microsoft), Informatica PowerCenter, Talend, KNIME, Python (requests
+          → pandas → <code>to_sql</code>).</span></p>
+        <p><span lang="de"><strong>Herkunft:</strong> die 1970er, als Speicher und Rechenleistung „expensive and scarce“
+          waren (Fivetran). Umformen vor dem Laden sparte Platz im teuren Warehouse.</span>
+        <span lang="en"><strong>Origin:</strong> the 1970s, when storage and compute were “expensive and scarce”
+          (Fivetran). Transforming before loading saved space in the expensive warehouse.</span></p>
+        <p><span lang="de"><strong>Ins Ziel gelangt:</strong> nur das fertige Ergebnis. Die Rohdaten bleiben draußen –
+          oder gehen verloren.</span>
+        <span lang="en"><strong>What reaches the target:</strong> only the finished result. The raw data stays outside –
+          or is lost.</span></p>
+      </div>
+      <div>
+        <h3>ELT – Extract, Load, Transform</h3>
+        <p><span lang="de"><strong>Wo das T stattfindet:</strong> im Ziel selbst, nachdem die Rohdaten geladen sind –
+          als SQL in Postgres, im Warehouse, in DuckDB.</span>
+        <span lang="en"><strong>Where the T happens:</strong> in the target itself, after the raw data is loaded – as
+          SQL in Postgres, in the warehouse, in DuckDB.</span></p>
+        <p><span lang="de"><strong>Werkzeuge:</strong> Fivetran oder Airbyte für E und L, dbt für das T, darunter
+          Snowflake, BigQuery, Databricks – oder ein Postgres wie Supabase.</span>
+        <span lang="en"><strong>Tools:</strong> Fivetran or Airbyte for E and L, dbt for the T, underneath Snowflake,
+          BigQuery, Databricks – or a Postgres such as Supabase.</span></p>
+        <p><span lang="de"><strong>Herkunft:</strong> die 2010er, als Cloud-Speicher billig wurde und Warehouses mit den
+          Daten mitwachsen. Microsoft: Wer das Ziel skaliert, skaliert die Pipeline gleich mit.</span>
+        <span lang="en"><strong>Origin:</strong> the 2010s, when cloud storage became cheap and warehouses scale with the
+          data. Microsoft: scaling the target scales the pipeline with it.</span></p>
+        <p><span lang="de"><strong>Ins Ziel gelangt:</strong> alles, roh. Die Umformung ist eine Abfrage, die man ändern
+          und wiederholen kann, ohne neu zu extrahieren.</span>
+        <span lang="en"><strong>What reaches the target:</strong> everything, raw. The transformation is a query you can
+          change and repeat without extracting again.</span></p>
+      </div>
+    </div>
+    <p>
+      <span lang="de">ELT hat eine Bedingung, die Microsoft im selben Satz nennt: Es „only works well when the target
+        system is powerful enough to transform the data efficiently“. Daraus folgen die Fälle, in denen ETL weiterhin
+        richtig ist – und sie sind in einem Kurs mit Laptop, SQLite und einem kostenlosen Supabase-Projekt nicht
+        exotisch:</span>
+      <span lang="en">ELT has a condition Microsoft names in the same sentence: it “only works well when the target
+        system is powerful enough to transform the data efficiently”. From that follow the cases in which ETL remains
+        right – and in a course with a laptop, SQLite and a free Supabase project they are not exotic:</span>
+    </p>
+    <ul>
+      <li><span lang="de"><strong>Personenbezogene Daten</strong> müssen entfernt oder pseudonymisiert werden, <em>bevor</em>
+        sie das eigene System verlassen (Datenminimierung, Lab 08). Was nie bei Supabase ankommt, muss dort nicht
+        geschützt werden – das ist ETL per Definition.</span>
+        <span lang="en"><strong>Personal data</strong> must be removed or pseudonymised <em>before</em> it leaves your own
+        system (data minimisation, lab 08). What never arrives at Supabase need not be protected there – that is ETL by
+        definition.</span></li>
+      <li><span lang="de"><strong>Kleine Daten, kein Warehouse:</strong> Ein Skript, das eine CSV mit pandas liest und in
+        SQLite schreibt, ist ETL und völlig in Ordnung. Der Vorteil von ELT – die Rechenleistung des Ziels – existiert
+        ohne leistungsfähiges Ziel nicht.</span>
+        <span lang="en"><strong>Small data, no warehouse:</strong> a script that reads a CSV with pandas and writes to
+        SQLite is ETL and perfectly fine. ELT's advantage – the target's compute – does not exist without a capable
+        target.</span></li>
+      <li><span lang="de"><strong>Schwaches Ziel:</strong> SQLite (Lab 06) hat keine parallele Abfrageausführung. Schwere
+        Umformungen sind in pandas oder DuckDB billiger als dort – Microsofts „constrained target system“.</span>
+        <span lang="en"><strong>Weak target:</strong> SQLite (lab 06) has no parallel query execution. Heavy
+        transformations are cheaper in pandas or DuckDB than there – Microsoft's “constrained target system”.</span></li>
+    </ul>
+    <p>
+      <span lang="de">In der Praxis ist die Mischform die Regel, oft <strong>EtLT</strong> genannt (kein Normbegriff,
+        aber verbreitet): ein kleines t vor dem Laden – Typen, Zeichensatz, Zeitzone, personenbezogene Felder – und
+        das große T mit der Fachlogik danach, in SQL. Genau so ist das Skript in diesem Lab gebaut.</span>
+      <span lang="en">In practice the hybrid is the rule, often called <strong>EtLT</strong> (not a standard term, but
+        widespread): a small t before loading – types, encoding, time zone, personal fields – and the big T with the
+        business logic afterwards, in SQL. That is exactly how the script in this lab is built.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Muster</span><span lang="en">Pattern</span></th>
+            <th><span lang="de">Beispiel aus Velo City</span><span lang="en">Velo City example</span></th>
+            <th><span lang="de">Wo das T läuft</span><span lang="en">Where the T runs</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>ETL</strong></td>
+            <td><span lang="de">Export lesen, mit pandas aufklappen, Kundennamen entfernen, fertige Tabellen in SQLite schreiben (Lab 06)</span><span lang="en">Read export, flatten with pandas, drop customer names, write finished tables to SQLite (lab 06)</span></td>
+            <td><span lang="de">im Python-Skript, vor dem Laden</span><span lang="en">in the Python script, before loading</span></td>
+          </tr>
+          <tr>
+            <td><strong>ELT</strong></td>
+            <td><span lang="de">Export als <code>jsonb</code> in <code>staging.export_roh</code> laden; Entpacken, Dimensionen, Fakten, Materialized View – alles als SQL in Supabase (Lab 08)</span><span lang="en">Load export as <code>jsonb</code> into <code>staging.export_roh</code>; unpacking, dimensions, facts, materialized view – all as SQL in Supabase (lab 08)</span></td>
+            <td><span lang="de">in Postgres, nach dem Laden</span><span lang="en">in Postgres, after loading</span></td>
+          </tr>
+          <tr>
+            <td><strong>EtLT</strong></td>
+            <td><span lang="de">Skript klappt auf, setzt Typen und Zeitzone, lädt vier flache Tabellen nach <code>staging</code>; Sternschema und Kennzahlen entstehen in SQL (die Vorlagen dieses Labs)</span><span lang="en">Script flattens, sets types and time zone, loads four flat tables into <code>staging</code>; star schema and measures are built in SQL (this lab's templates)</span></td>
+            <td><span lang="de">leicht im Skript, schwer in Postgres</span><span lang="en">light in the script, heavy in Postgres</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box">
+      <p><span lang="de"><strong>Merksatz.</strong> ETL oder ELT ist keine Glaubensfrage, sondern eine Ortsfrage: Die
+        Umformung gehört dorthin, wo sie am billigsten läuft und wo ihre Rohdaten liegen dürfen. Was das Ziel nicht
+        sehen darf, wird vorher entfernt; alles andere wird roh geladen und in SQL umgeformt – weil sich SQL
+        versionieren, testen und wiederholen lässt.</span>
+      <span lang="en"><strong>Rule of thumb.</strong> ETL or ELT is not a matter of belief but of place: the
+        transformation belongs where it runs cheapest and where its raw data is allowed to reside. What the target must
+        not see is removed beforehand; everything else is loaded raw and transformed in SQL – because SQL can be
+        versioned, tested and repeated.</span></p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section class="section-block" id="anatomie">
+    <h2><span lang="de">Anatomie einer Pipeline</span><span lang="en">Anatomy of a pipeline</span></h2>
+    <p>
+      <span lang="de">Die Kette aus dem ersten Abschnitt hat Schichten, und jede Schicht hat eine Regel. Die
+        <strong>Quellen</strong> sind das, was Sie nicht kontrollieren: eine operative Datenbank in dritter Normalform,
+        eine REST-API mit verschachteltem JSON und Seitenblättern, Dateien (CSV, Excel, JSON). Die
+        <strong>Staging-Schicht</strong> ist die erste, die Ihnen gehört – und ihre Regel lautet: unverändert. Jede Zeile
+        wie geliefert, dazu zwei Spalten, <code>loaded_at</code> (wann) und <code>source_file</code> (woher). Databricks
+        beschreibt diese Schicht als eine, die „the raw state of the data source in its original formats“ bewahrt. Wer
+        sie hat, kann eine falsche Umformung korrigieren und wiederholen, ohne die Quelle erneut zu befragen – die
+        vielleicht gar nicht mehr liefert, was sie gestern lieferte.</span>
+      <span lang="en">The chain from the first section has layers, and every layer has a rule. The <strong>sources</strong>
+        are what you do not control: an operational database in third normal form, a REST API with nested JSON and
+        pagination, files (CSV, Excel, JSON). The <strong>staging layer</strong> is the first one that belongs to you –
+        and its rule is: unchanged. Every row as delivered, plus two columns, <code>loaded_at</code> (when) and
+        <code>source_file</code> (from where). Databricks describes this layer as one that preserves “the raw state of
+        the data source in its original formats”. Whoever has it can correct and repeat a wrong transformation without
+        asking the source again – which may no longer deliver what it delivered yesterday.</span>
+    </p>
+    <p>
+      <span lang="de">Die <strong>bereinigte Schicht</strong> ist typisiert, dedupliziert, umbenannt – aber noch nach
+        der Quelle strukturiert. Das <strong>Mart</strong> schließlich ist nach dem Geschäft strukturiert: Fakten und
+        Dimensionen, so wie das Controlling fragt. Drei Vokabulare beschreiben dieselben Schichten:</span>
+      <span lang="en">The <strong>cleaned layer</strong> is typed, deduplicated, renamed – but still structured after the
+        source. The <strong>mart</strong>, finally, is structured after the business: facts and dimensions, the way
+        controlling asks. Three vocabularies describe the same layers:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Medallion (Databricks)</span><span lang="en">Medallion (Databricks)</span></th>
+            <th><span lang="de">Klassisch (Kimball)</span><span lang="en">Classic (Kimball)</span></th>
+            <th><span lang="de">dbt-Ordner</span><span lang="en">dbt folder</span></th>
+            <th><span lang="de">In diesem Lab</span><span lang="en">In this lab</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Bronze</strong> – <span lang="de">„raw, unvalidated data“</span><span lang="en">“raw, unvalidated data”</span></td>
+            <td><span lang="de">Staging / Landing Area</span><span lang="en">Staging / landing area</span></td>
+            <td><code>models/staging</code> – <span lang="de">Quellen aus <code>sources.yml</code></span><span lang="en">sources from <code>sources.yml</code></span></td>
+            <td><span lang="de">Schema <code>staging</code>: Kopie des Exports mit <code>loaded_at</code>, <code>source_file</code></span><span lang="en">schema <code>staging</code>: copy of the export with <code>loaded_at</code>, <code>source_file</code></span></td>
+          </tr>
+          <tr>
+            <td><strong>Silver</strong> – <span lang="de">„cleansing, deduplication, and normalization“</span><span lang="en">“cleansing, deduplication, and normalization”</span></td>
+            <td><span lang="de">Bereinigt / integriert („back room“)</span><span lang="en">Cleaned / integrated (“back room”)</span></td>
+            <td><code>stg_*</code>, <code>int_*</code></td>
+            <td><span lang="de">Schema <code>clean</code> oder CTEs im Ladeskript: typisiert, dedupliziert</span><span lang="en">schema <code>clean</code> or CTEs in the load script: typed, deduplicated</span></td>
+          </tr>
+          <tr>
+            <td><strong>Gold</strong> – <span lang="de">„dimensional modeling and aggregation“</span><span lang="en">“dimensional modeling and aggregation”</span></td>
+            <td><span lang="de">Data Mart / Präsentationsschicht, Sternschema</span><span lang="en">Data mart / presentation layer, star schema</span></td>
+            <td><code>models/marts</code> – <code>fct_*</code>, <code>dim_*</code></td>
+            <td><span lang="de">Schema <code>mart</code>: <code>fact_fahrt</code>, <code>dim_*</code>, Materialized Views</span><span lang="en">schema <code>mart</code>: <code>fact_fahrt</code>, <code>dim_*</code>, materialized views</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <h3><span lang="de">Batch, Scheduling, Vollladung oder inkrementell</span><span lang="en">Batch, scheduling, full or incremental load</span></h3>
+    <p>
+      <span lang="de">Alles in diesem Lab ist <strong>Batch</strong>: Ein Lauf verarbeitet einen endlichen Bestand –
+        die Datei von heute Morgen. <strong>Streaming</strong> verarbeitet Ereignisse, während sie eintreffen (Confluent:
+        „continuous computation of results over unbounded data as events arrive“); für ein Leihradsystem mit einem
+        Export pro Tag ist das Werkzeug zu schwer. Batch heißt aber auch: Jemand muss den Lauf auslösen. Das ist der
+        <strong>Scheduler</strong>:</span>
+      <span lang="en">Everything in this lab is <strong>batch</strong>: one run processes a finite set – this morning's
+        file. <strong>Streaming</strong> processes events as they arrive (Confluent: “continuous computation of results
+        over unbounded data as events arrive”); for a bike-share with one export per day that tool is too heavy. But
+        batch also means: somebody has to trigger the run. That is the <strong>scheduler</strong>:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Scheduler</span><span lang="en">Scheduler</span></th>
+            <th><span lang="de">So sieht es aus</span><span lang="en">What it looks like</span></th>
+            <th><span lang="de">Wann</span><span lang="en">When</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>cron</code></td><td><code>0 6 * * *  python lab-10-etl.py</code> – <span lang="de">Minute Stunde Tag Monat Wochentag: täglich 06:00</span><span lang="en">minute hour day month weekday: daily 06:00</span></td><td><span lang="de">ein Server unter Ihrer Kontrolle (Lab 11 als Cron Job)</span><span lang="en">a server under your control (lab 11 as a cron job)</span></td></tr>
+          <tr><td><code>pg_cron</code></td><td><code>SELECT cron.schedule('refresh', '15 2 * * *', $$REFRESH MATERIALIZED VIEW …$$);</code></td><td><span lang="de">SQL-Schritte in Supabase; <strong>Zeiten in UTC</strong></span><span lang="en">SQL steps in Supabase; <strong>times in UTC</strong></span></td></tr>
+          <tr><td>GitHub Actions</td><td><code>on: schedule: - cron: '0 6 * * *'</code> <span lang="de">in einer Workflow-Datei</span><span lang="en">in a workflow file</span></td><td><span lang="de">Skript liegt ohnehin im Repository (Lab 02); Zeiten in UTC</span><span lang="en">script is in the repository anyway (lab 02); times in UTC</span></td></tr>
+          <tr><td>n8n, Power Automate</td><td><span lang="de">Schedule Trigger / Recurrence, per Klick</span><span lang="en">Schedule trigger / recurrence, by click</span></td><td><span lang="de">Low-Code, wenn kein Server da ist</span><span lang="en">low-code when there is no server</span></td></tr>
+          <tr><td>Airflow, Dagster, Prefect</td><td><span lang="de">Python-DAGs mit Abhängigkeiten, Wiederholungen, Protokoll</span><span lang="en">Python DAGs with dependencies, retries, logs</span></td><td><span lang="de">viele Pipelines, viele Abhängigkeiten – für ein Skript zu groß</span><span lang="en">many pipelines, many dependencies – too big for one script</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <span lang="de">Und was lädt der Lauf? Ein <strong>Full Load</strong> ersetzt das Ziel jedes Mal vollständig –
+        einfach, von selbst wiederholbar, bei 1.500 Fahrten die richtige Wahl. Ein <strong>inkrementeller Load</strong>
+        holt nur, was neu ist. Dafür braucht er ein <strong>Watermark</strong>: Azure Data Factory definiert es als „a
+        column that has the last updated time stamp or an incrementing key“ – der Lauf merkt sich den höchsten Wert und
+        fragt beim nächsten Mal nur <code>WHERE fahrt_id &gt; letzter_wert</code>. Grenze des Verfahrens: Zeilen, die
+        sich ändern, ohne die Watermark-Spalte zu berühren, und gelöschte Zeilen bleiben unbemerkt. Dafür gibt es
+        <strong>CDC</strong> (Change Data Capture): Werkzeuge wie Fivetran lesen die Änderungen aus dem
+        Transaktionsprotokoll der Quelldatenbank – eine Zeile, die Sie kennen sollten, aber in diesem Kurs nicht
+        bauen.</span>
+      <span lang="en">And what does the run load? A <strong>full load</strong> replaces the target completely every
+        time – simple, repeatable by construction, the right choice for 1,500 rides. An <strong>incremental load</strong>
+        fetches only what is new. For that it needs a <strong>watermark</strong>: Azure Data Factory defines it as “a
+        column that has the last updated time stamp or an incrementing key” – the run remembers the highest value and
+        next time asks only <code>WHERE fahrt_id &gt; last_value</code>. Limit of the method: rows that change without
+        touching the watermark column, and deleted rows, go unnoticed. For that there is <strong>CDC</strong> (change
+        data capture): tools such as Fivetran read the changes from the source database's transaction log – a line you
+        should know but will not build in this course.</span>
+    </p>
+    <h3><span lang="de">Idempotenz – die wichtigste Eigenschaft</span><span lang="en">Idempotency – the most important property</span></h3>
+    <div class="concept-box">
+      <p><span lang="de">Ein Lauf ist idempotent, wenn ihn mit denselben Eingaben mehrfach auszuführen dieselbe Wirkung
+        hat wie ihn einmal auszuführen (so definiert es Airflow). Das klingt akademisch und ist die Frage, die jede
+        Pipeline im Betrieb bekommt: „Der Lauf von gestern ist abgebrochen – kann ich ihn einfach nochmal starten?“ Wenn
+        die Antwort „ja“ lautet, ist die Pipeline idempotent. Wenn sie „erst die Duplikate löschen“ lautet, nicht.</span>
+      <span lang="en">A run is idempotent if executing it several times with the same inputs has the same effect as
+        executing it once (that is how Airflow defines it). It sounds academic and is the question every pipeline gets
+        in operation: “Yesterday's run failed – can I just start it again?” If the answer is “yes”, the pipeline is
+        idempotent. If it is “delete the duplicates first”, it is not.</span></p>
+      <p><span lang="de">Airflows Regeln dafür, wörtlich aus den Best Practices: „Do not use INSERT during a task
+        re-run, an INSERT statement might lead to duplicate rows in your database. Replace it with UPSERT.“ Die
+        Funktion <code>now()</code> „should never be used inside a task“ – ein Lauf, der gestern hätte laufen sollen,
+        muss heute die Daten von gestern verarbeiten, nicht die von heute. Und: nach Datenintervall partitionieren –
+        „read and write in a specific partition“ – damit ein Lauf genau seinen Abschnitt ersetzt.</span>
+      <span lang="en">Airflow's rules for it, verbatim from the best practices: “Do not use INSERT during a task re-run,
+        an INSERT statement might lead to duplicate rows in your database. Replace it with UPSERT.” The function
+        <code>now()</code> “should never be used inside a task” – a run that should have run yesterday must process
+        yesterday's data today, not today's. And: partition by data interval – “read and write in a specific partition”
+        – so that a run replaces exactly its slice.</span></p>
+    </div>
+    <p>
+      <span lang="de">Fünf Muster machen einen Ladeschritt idempotent, und Sie sehen alle im Abschnitt <em>ELT in SQL</em>:
+        <code>INSERT … ON CONFLICT DO UPDATE</code> (Upsert), <code>MERGE</code>, <code>DELETE</code> des Zeitraums plus
+        <code>INSERT</code> in einer Transaktion, vollständiges Ersetzen (<code>CREATE TABLE AS</code>,
+        <code>if_exists="replace"</code>) – und als Sicherheitsnetz ein UNIQUE auf dem natürlichen Schlüssel, damit ein
+        Fehler laut scheitert statt still zu verdoppeln.</span>
+      <span lang="en">Five patterns make a load step idempotent, and you see all of them in the section <em>ELT in
+        SQL</em>: <code>INSERT … ON CONFLICT DO UPDATE</code> (upsert), <code>MERGE</code>, <code>DELETE</code> of the
+        period plus <code>INSERT</code> in one transaction, full replacement (<code>CREATE TABLE AS</code>,
+        <code>if_exists="replace"</code>) – and as a safety net a UNIQUE on the natural key, so that an error fails
+        loudly instead of silently doubling.</span>
+    </p>
+    <h3><span lang="de">Tests, Lineage, Logging</span><span lang="en">Tests, lineage, logging</span></h3>
+    <p>
+      <span lang="de">Eine Pipeline ohne Prüfungen meldet Fehler erst, wenn das Dashboard falsche Zahlen zeigt. dbt
+        bringt vier generische <strong>Datenqualitätstests</strong> mit, die jede Pipeline haben sollte, ob mit oder
+        ohne dbt: <code>unique</code> (kein Schlüssel doppelt), <code>not_null</code> (Pflichtfeld gefüllt),
+        <code>accepted_values</code> (nur CITY, EBIKE, CARGO) und <code>relationships</code> (jeder Fremdschlüssel
+        findet seine Dimension). Ohne dbt sind es vier <code>SELECT count(*) … WHERE …</code>, die 0 liefern müssen –
+        Abschnitt 7 der SQL-Vorlage zeigt sie.</span>
+      <span lang="en">A pipeline without checks reports errors only when the dashboard shows wrong figures. dbt ships
+        four generic <strong>data quality tests</strong> every pipeline should have, with or without dbt:
+        <code>unique</code> (no key twice), <code>not_null</code> (mandatory field filled), <code>accepted_values</code>
+        (only CITY, EBIKE, CARGO) and <code>relationships</code> (every foreign key finds its dimension). Without dbt
+        they are four <code>SELECT count(*) … WHERE …</code> that must return 0 – section 7 of the SQL template shows
+        them.</span>
+    </p>
+    <p>
+      <span lang="de"><strong>Lineage</strong> – die Herkunft jeder Tabelle – entsteht in dbt nebenbei: Modelle verweisen
+        mit <code>ref('stg_fahrt')</code> und <code>source('staging', 'fahrt')</code> aufeinander, und aus den Verweisen
+        baut dbt den Abhängigkeitsgraphen. Ohne dbt ist Lineage ein Kommentar am Anfang jedes Skripts, der Quelle und
+        Ziel nennt. <strong>Logging</strong> schließlich ist die einfachste Form der Spur: Zeilenzahlen je Schritt
+        (<code>logging.info("fahrt: %s Zeilen", n)</code>), Beginn und Ende, Fehler. Wer „gestern 1.500, heute 300“
+        im Protokoll sieht, sucht nicht im Dashboard.</span>
+      <span lang="en"><strong>Lineage</strong> – the origin of every table – arises in dbt as a by-product: models refer
+        to each other with <code>ref('stg_fahrt')</code> and <code>source('staging', 'fahrt')</code>, and from those
+        references dbt builds the dependency graph. Without dbt lineage is a comment at the top of every script naming
+        source and target. <strong>Logging</strong>, finally, is the simplest form of trail: row counts per step
+        (<code>logging.info("fahrt: %s Zeilen", n)</code>), start and end, errors. Whoever sees “1,500 yesterday, 300
+        today” in the log does not search the dashboard.</span>
+    </p>
+  </section>
+
+  <!-- ============================================================ 4 -->
+  <section class="section-block" id="katalog">
+    <h2><span lang="de">Umformungskatalog</span><span lang="en">Transformation catalogue</span></h2>
+    <p>
+      <span lang="de">Das T besteht aus einer überschaubaren Zahl von Handgriffen, die in jeder Pipeline wiederkehren.
+        Die Tabelle zeigt jeden in beiden Formen – pandas (vor dem Laden) und SQL (nach dem Laden, Postgres) – damit
+        die Ortsfrage aus dem zweiten Abschnitt keine Frage des Könnens ist.</span>
+      <span lang="en">The T consists of a manageable number of moves that recur in every pipeline. The table shows each
+        in both forms – pandas (before loading) and SQL (after loading, Postgres) – so that the question of place from
+        the second section is not a question of ability.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Umformung</span><span lang="en">Transformation</span></th>
+            <th>pandas</th>
+            <th>SQL (PostgreSQL)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span lang="de"><strong>Typen casten</strong></span><span lang="en"><strong>Cast types</strong></span></td>
+            <td><code>df.astype({"dauer_min": "int64"})</code>; <code>pd.to_numeric(s, errors="coerce")</code> <span lang="de">(erzeugt still NaN – zählen)</span><span lang="en">(silently produces NaN – count them)</span></td>
+            <td><code>dauer_min::int</code>, <code>preis_eur::numeric(6,2)</code>; <span lang="de">SQLite: <code>CAST(x AS INTEGER)</code>, aber Typaffinität (Stolpersteine)</span><span lang="en">SQLite: <code>CAST(x AS INTEGER)</code>, but type affinity (pitfalls)</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Datum parsen</strong></span><span lang="en"><strong>Parse dates</strong></span></td>
+            <td><code>pd.to_datetime(s).dt.tz_localize("Europe/Berlin").dt.tz_convert("UTC")</code> <span lang="de">für naive Ortszeit; <code>pd.to_datetime(s, utc=True)</code> nur für Werte mit Zone</span><span lang="en">for naive local time; <code>pd.to_datetime(s, utc=True)</code> only for values with a zone</span></td>
+            <td><code>s::timestamp AT TIME ZONE 'Europe/Berlin'</code> → <code>timestamptz</code>; <span lang="de">Anzeige in Ortszeit: <code>ts AT TIME ZONE 'Europe/Berlin'</code></span><span lang="en">display in local time: <code>ts AT TIME ZONE 'Europe/Berlin'</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Deduplizieren</strong></span><span lang="en"><strong>Deduplicate</strong></span></td>
+            <td><code>df.sort_values("loaded_at").drop_duplicates(subset=["fahrt_id"], keep="last")</code></td>
+            <td><code>row_number() OVER (PARTITION BY fahrt_id ORDER BY loaded_at DESC) = 1</code> (B05)</td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>NULL behandeln</strong></span><span lang="en"><strong>Handle NULL</strong></span></td>
+            <td><code>df["ziel"].fillna(-1)</code>; <code>df.dropna(subset=["fahrt_id"])</code></td>
+            <td><code>COALESCE(ziel_station_sk, -1)</code>; <code>NULLIF(trim(name), '')</code>; <span lang="de">Unbekannt-Zeile −1 in jeder Dimension</span><span lang="en">unknown row −1 in every dimension</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Unpivot / Pivot</strong></span><span lang="en"><strong>Unpivot / pivot</strong></span></td>
+            <td><code>df.melt(id_vars=["station"], var_name="monat", value_name="fahrten")</code>; <code>df.pivot_table(index="station", columns="monat", values="fahrten", aggfunc="sum")</code></td>
+            <td><span lang="de">Unpivot: <code>UNION ALL</code> oder <code>LATERAL (VALUES …)</code>; Pivot: <code>sum(CASE WHEN monat = 1 THEN fahrten END)</code></span><span lang="en">unpivot: <code>UNION ALL</code> or <code>LATERAL (VALUES …)</code>; pivot: <code>sum(CASE WHEN monat = 1 THEN fahrten END)</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Verschachteltes JSON → Tabellen</strong></span><span lang="en"><strong>Nested JSON → tables</strong></span></td>
+            <td><code>pd.json_normalize(export["stationen"], record_path="raeder", meta=["station_id"])</code></td>
+            <td><code>jsonb_array_elements(doc-&gt;'fahrten')</code>, <code>f-&gt;'start'-&gt;&gt;'station_id'</code> (B01); <span lang="de">SQLite: <code>json_each()</code></span><span lang="en">SQLite: <code>json_each()</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Surrogat- vs. natürlicher Schlüssel</strong></span><span lang="en"><strong>Surrogate vs. natural key</strong></span></td>
+            <td><code>dim["station_sk"] = range(1, len(dim) + 1)</code> <span lang="de">nach dem Deduplizieren</span><span lang="en">after deduplicating</span></td>
+            <td><code>station_sk int GENERATED ALWAYS AS IDENTITY</code>, <code>station_id int UNIQUE</code></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>SCD Typ 1 / Typ 2</strong></span><span lang="en"><strong>SCD type 1 / type 2</strong></span></td>
+            <td><span lang="de">Typ 1: überschreiben (merge auf den natürlichen Schlüssel). Typ 2: neue Zeile mit <code>gueltig_von</code>, <code>gueltig_bis</code>, <code>aktuell</code></span><span lang="en">type 1: overwrite (merge on the natural key). Type 2: new row with <code>valid_from</code>, <code>valid_to</code>, <code>is_current</code></span></td>
+            <td><span lang="de">Typ 1 = <code>ON CONFLICT DO UPDATE</code> (B03). Typ 2 = alte Zeile schließen (<code>UPDATE … SET gueltig_bis = …</code>) und neue Fassung mit neuem <code>station_sk</code> einfügen</span><span lang="en">type 1 = <code>ON CONFLICT DO UPDATE</code> (B03). Type 2 = close old row (<code>UPDATE … SET valid_to = …</code>) and insert the new version with a new <code>station_sk</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Aggregation</strong></span><span lang="en"><strong>Aggregation</strong></span></td>
+            <td><code>df.groupby(["datum_key", "station_sk"]).agg(fahrten=("fahrt_id", "count"), umsatz=("preis_eur", "sum"))</code></td>
+            <td><span lang="de">Atomarer Fakt: keine Aggregation (eine Zeile = eine Fahrt). Periodischer Snapshot: <code>GROUP BY datum_key, station_sk</code> → <code>fact_station_tag</code> (W10-04)</span><span lang="en">atomic fact: no aggregation (one row = one ride). Periodic snapshot: <code>GROUP BY datum_key, station_sk</code> → <code>fact_station_tag</code> (W10-04)</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Konforme Dimensionen</strong></span><span lang="en"><strong>Conformed dimensions</strong></span></td>
+            <td><span lang="de">eine <code>dim_station</code> für Start und Ziel (Role-Playing) und für jede weitere Faktentabelle</span><span lang="en">one <code>dim_station</code> for start and destination (role-playing) and for every further fact table</span></td>
+            <td><code>start_station_sk</code> <span lang="de">und</span><span lang="en">and</span> <code>ziel_station_sk</code> → <span lang="de">beide <code>REFERENCES mart.dim_station</code></span><span lang="en">both <code>REFERENCES mart.dim_station</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Einheiten, Geld</strong></span><span lang="en"><strong>Units, money</strong></span></td>
+            <td><code>df["preis_eur"].round(2)</code> <span lang="de">und beim Laden <code>dtype={"preis_eur": Numeric(6, 2)}</code>; oder Cent als int</span><span lang="en">and on load <code>dtype={"preis_eur": Numeric(6, 2)}</code>; or cents as int</span></td>
+            <td><code>numeric(6,2)</code>, <span lang="de">nie <code>double precision</code>; <code>dauer_min / 60.0 AS stunden</code></span><span lang="en">never <code>double precision</code>; <code>dauer_min / 60.0 AS stunden</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de"><strong>Datumsdimension</strong></span><span lang="en"><strong>Date dimension</strong></span></td>
+            <td><code>pd.date_range("2025-09-01", "2026-08-31", freq="D")</code> → <code>.dt.isocalendar().week</code>, <code>.dt.dayofweek</code></td>
+            <td><code>generate_series(DATE '2025-09-01', DATE '2026-08-31', interval '1 day')</code> (B06); <span lang="de">SQLite: rekursive CTE <code>WITH RECURSIVE tage(d) AS (…)</code></span><span lang="en">SQLite: recursive CTE <code>WITH RECURSIVE tage(d) AS (…)</code></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <p><span lang="de">Zwei Zeilen verdienen einen zweiten Blick. Das Datum: Der Export enthält Ortszeiten ohne Zone
+        (<code>2025-10-05T07:58:00</code>). <code>utc=True</code> würde sie als UTC lesen – zwei Stunden daneben. Erst
+        <code>tz_localize</code>, dann <code>tz_convert</code>. Und das Geld: pandas liest <code>1.2</code> als
+        <code>float64</code>, und <code>to_sql</code> schreibt daraus <code>double precision</code>. Der Parameter
+        <code>dtype</code> erzwingt <code>numeric</code>.</span>
+      <span lang="en">Two rows deserve a second look. The date: the export contains local times without a zone
+        (<code>2025-10-05T07:58:00</code>). <code>utc=True</code> would read them as UTC – two hours off. First
+        <code>tz_localize</code>, then <code>tz_convert</code>. And the money: pandas reads <code>1.2</code> as
+        <code>float64</code>, and <code>to_sql</code> writes <code>double precision</code> from that. The
+        <code>dtype</code> parameter forces <code>numeric</code>.</span></p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 5 -->
+  <section class="section-block" id="stern">
+    <h2><span lang="de">Das Sternschema als Ziel</span><span lang="en">The star schema as the target</span></h2>
+    <p>
+      <span lang="de">Warum nicht einfach die vier Tabellen aus Lab 08 an Power BI hängen? Weil ein BI-Werkzeug Fragen
+        anders stellt als eine Anwendung. Die Anwendung fragt „welche Räder stehen an Station 3?“ – dafür ist die dritte
+        Normalform gemacht. Das Controlling fragt „Umsatz je Bezirk und Monat, nur E-Bikes, nur Wochenende“ – Filtern
+        nach Eigenschaften, Summieren von Kennzahlen. Dafür hat Ralph Kimball das <strong>Sternschema</strong>
+        beschrieben, und die Werkzeuge in Lab 12 und 13 setzen es voraus.</span>
+      <span lang="en">Why not simply attach the four tables from lab 08 to Power BI? Because a BI tool asks questions
+        differently from an application. The application asks “which bikes are at station 3?” – third normal form is
+        made for that. Controlling asks “revenue per district and month, e-bikes only, weekends only” – filtering by
+        attributes, summing measures. For that Ralph Kimball described the <strong>star schema</strong>, and the tools
+        in labs 12 and 13 assume it.</span>
+    </p>
+    <p>
+      <span lang="de">Kimballs vier Schritte: (1) den <strong>Geschäftsprozess</strong> wählen – hier: eine Fahrt wird
+        durchgeführt; (2) den <strong>Grain</strong> festlegen; (3) die <strong>Dimensionen</strong> bestimmen – wer,
+        wo, wann, womit; (4) die <strong>Fakten</strong> bestimmen – die Zahlen, die je Zeile gemessen werden. Der
+        zweite Schritt ist der wichtigste. Der Grain „establishes exactly what a single fact table row represents“ und
+        ist laut Kimball „a binding contract on the design“. Für Velo City: <strong>eine Zeile = eine Fahrt</strong>.
+        Alles in der Faktentabelle muss zu diesem Satz passen – Tagessummen gehören nicht hinein, sondern in eine eigene
+        Tabelle mit eigenem Grain.</span>
+      <span lang="en">Kimball's four steps: (1) choose the <strong>business process</strong> – here: a ride takes place;
+        (2) declare the <strong>grain</strong>; (3) identify the <strong>dimensions</strong> – who, where, when, with
+        what; (4) identify the <strong>facts</strong> – the numbers measured per row. The second step is the most
+        important. The grain “establishes exactly what a single fact table row represents” and is, in Kimball's words,
+        “a binding contract on the design”. For Velo City: <strong>one row = one ride</strong>. Everything in the fact
+        table must fit that sentence – daily totals do not belong in it but in a separate table with its own grain.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">DataGrip – Diagram · mart</span><span class="spacer"></span>2026.2</div>
+      <div class="shot-body eins">
+        <div class="shot-main">
+          <table>
+            <tbody>
+              <tr>
+                <td><div class="code"><b>mart.dim_datum</b> <span class="callout">2</span><br>datum_key int PK (YYYYMMDD)<br>datum date · jahr · monat<br>wochentag · wochentag_name<br>wochenende bool</div></td>
+                <td style="text-align:center">↘</td>
+                <td><div class="code"><b>mart.dim_station</b> <span class="callout">3</span><br>station_sk int PK (identity)<br>station_id int UNIQUE<br>name · bezirk · plaetze</div></td>
+              </tr>
+              <tr>
+                <td style="text-align:right">→</td>
+                <td><div class="code"><b>mart.fact_fahrt</b> <span class="callout">1</span><br>fahrt_id int PK<br>datum_key FK<br>start_station_sk FK · ziel_station_sk FK<br>rad_sk FK · kunde_sk FK<br><i>dauer_min int · preis_eur numeric</i> <span class="callout">4</span></div></td>
+                <td>←</td>
+              </tr>
+              <tr>
+                <td><div class="code"><b>mart.dim_rad</b><br>rad_sk int PK (identity)<br>rad_id text UNIQUE<br>typ · baujahr · status</div></td>
+                <td style="text-align:center">↗</td>
+                <td><div class="code"><b>mart.dim_kunde</b><br>kunde_sk int PK (identity)<br>kunde_id int UNIQUE<br>tarif · registriert · bezirk</div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Die <strong>Faktentabelle</strong> in der Mitte: eine Zeile je Fahrt, Fremdschlüssel auf jede Dimension. <code>fahrt_id</code> bleibt als degenerierte Dimension – eine Kennung ohne eigene Tabelle – und verhindert als Primärschlüssel Duplikate.</span><span lang="en">The <strong>fact table</strong> in the middle: one row per ride, foreign keys to every dimension. <code>fahrt_id</code> stays as a degenerate dimension – an identifier without its own table – and as primary key prevents duplicates.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Die <strong>Datumsdimension</strong> mit sprechendem Schlüssel <code>YYYYMMDD</code> und den Attributen, nach denen gefiltert wird: Wochentag, Monat, Wochenende. Kimball: Sie hängt „to virtually every fact table“. Eine Zeile −1 für unbekannte Daten.</span><span lang="en">The <strong>date dimension</strong> with smart key <code>YYYYMMDD</code> and the attributes used for filtering: weekday, month, weekend. Kimball: it attaches “to virtually every fact table”. One row −1 for unknown dates.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de"><strong>Surrogatschlüssel</strong> <code>station_sk</code>, vom System vergeben, plus natürlicher Schlüssel <code>station_id</code> mit UNIQUE. Die Station spielt zwei Rollen (Start, Ziel) – zwei Fremdschlüssel, eine Dimension.</span><span lang="en"><strong>Surrogate key</strong> <code>station_sk</code>, assigned by the system, plus natural key <code>station_id</code> with UNIQUE. The station plays two roles (start, destination) – two foreign keys, one dimension.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Die <strong>Measures</strong>: <code>dauer_min</code> und <code>preis_eur</code> sind additiv – man darf sie über jede Dimension summieren. Ein Verhältnis wie „Preis je Minute“ wäre es nicht; das rechnet man erst nach dem Summieren.</span><span lang="en">The <strong>measures</strong>: <code>dauer_min</code> and <code>preis_eur</code> are additive – they may be summed over any dimension. A ratio such as “price per minute” would not be; that is computed only after summing.</span></span></li>
+    </ol>
+    <p>
+      <span lang="de">Warum die BI-Werkzeuge Sterne wollen, sagt die Power-BI-Dokumentation in zwei Sätzen: „Dimension
+        tables enable filtering and grouping. Fact tables enable summarization.“ Und die Beziehung bestimmt die Rolle:
+        „The ‚one‘ side is always a dimension table while the ‚many‘ side is always a fact table.“ Tableau formuliert
+        es als Handgriff: die Faktentabelle zuerst ins Modell ziehen, dann die Dimensionen daran anbinden. In beiden
+        Werkzeugen werden aus den Dimensionen die Filter und Achsen, aus den Fakten die Balken – das ist der
+        Regal-Simulator in Lab 12 und 13.</span>
+      <span lang="en">Why the BI tools want stars, the Power BI documentation says in two sentences: “Dimension tables
+        enable filtering and grouping. Fact tables enable summarization.” And the relationship determines the role:
+        “The ‘one’ side is always a dimension table while the ‘many’ side is always a fact table.” Tableau phrases it
+        as a move: drag the fact table into the model first, then relate the dimensions to it. In both tools the
+        dimensions become filters and axes, the facts become bars – that is the shelf simulator in labs 12 and 13.</span>
+    </p>
+    <p>
+      <span lang="de">Kommt eine zweite Faktentabelle hinzu – etwa <code>fact_station_tag</code> aus Übung W10-04 mit
+        dem Grain „eine Station an einem Tag“ –, teilen sich beide dieselben Dimensionen. Kimball nennt das den
+        <strong>Bus</strong> mit <strong>konformen Dimensionen</strong>: „managed once in the ETL system and then reused
+        by multiple fact tables“; Lehrbücher sprechen vom Galaxy-Schema. Der Nutzen: Fahrten und Auslastung lassen sich
+        im selben Diagramm nach demselben Bezirk filtern, weil beide auf dieselbe <code>dim_station</code> zeigen.</span>
+      <span lang="en">When a second fact table arrives – say <code>fact_station_tag</code> from exercise W10-04 with the
+        grain “one station on one day” – both share the same dimensions. Kimball calls that the <strong>bus</strong>
+        with <strong>conformed dimensions</strong>: “managed once in the ETL system and then reused by multiple fact
+        tables”; textbooks speak of the galaxy schema. The benefit: rides and utilisation can be filtered by the same
+        district in the same chart, because both point to the same <code>dim_station</code>.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Das leichte Mart: Materialized View</span><span lang="en">The lightweight mart: materialized view</span></h3>
+      <p><span lang="de">Nicht jede Kennzahl braucht eine Faktentabelle. Für „Fahrten je Station und Tag“ reicht eine
+        <strong>Materialized View</strong>: laut Postgres-Dokumentation „similar to CREATE TABLE AS, except that it also
+        remembers the query used to initialize the view, so that it can be refreshed later“. Das Dashboard liest eine
+        fertige Tabelle; die Pipeline ruft nachts <code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code> auf.
+        <code>CONCURRENTLY</code> sperrt Lesende nicht aus – hat aber eine Pflicht: einen UNIQUE-Index über alle
+        Zeilen. Fehlt er, bricht der Refresh mit <code>ERROR: cannot refresh materialized view "…" concurrently</code>
+        ab. SQLite kennt keine Materialized Views – dort baut der Lauf eine gewöhnliche Tabelle neu.</span>
+      <span lang="en">Not every measure needs a fact table. For “rides per station and day” a <strong>materialized
+        view</strong> suffices: per the Postgres docs “similar to CREATE TABLE AS, except that it also remembers the
+        query used to initialize the view, so that it can be refreshed later”. The dashboard reads a finished table;
+        the pipeline calls <code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code> at night. <code>CONCURRENTLY</code> does
+        not lock out readers – but has one obligation: a UNIQUE index over all rows. Without it the refresh aborts with
+        <code>ERROR: cannot refresh materialized view "…" concurrently</code>. SQLite has no materialized views – there
+        the run rebuilds an ordinary table.</span></p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 6 -->
+  <section class="section-block" id="sql">
+    <h2><span lang="de">ELT in SQL</span><span lang="en">ELT in SQL</span></h2>
+    <p>
+      <span lang="de">Jetzt der Werkzeugkasten für das T in der Zieldatenbank. In dieser Seite läuft ein vollständiges
+        PostgreSQL (PGlite, Stand 09/2026 auf Basis von PostgreSQL 18) mit dem Velo-City-Bestand aus Lab 08 – dieselben
+        Tabellen <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code>. Alles, was hier läuft,
+        läuft auch auf Supabase, dessen neue Projekte auf Postgres 17 stehen (Stand 09/2026). Jede Karte ist auf dieser
+        Maschine geprüft. Was Sie in der Konsole anlegen, bleibt bis zum Zurücksetzen erhalten – Schemata wie
+        <code>staging</code> und <code>mart</code> also auch.</span>
+      <span lang="en">Now the toolkit for the T inside the target database. A complete PostgreSQL runs in this page
+        (PGlite, as of 09/2026 based on PostgreSQL 18) with the Velo City data from lab 08 – the same tables
+        <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code>. Everything that runs here also
+        runs on Supabase, whose new projects are on Postgres 17 (as of 09/2026). Every card has been checked on this
+        engine. What you create in the console persists until you reset – schemas such as <code>staging</code> and
+        <code>mart</code> included.</span>
+    </p>
+    <div data-datenbank="postgres"></div>
+    <div data-befehl="B01"></div>
+    <div data-befehl="B02"></div>
+    <div data-befehl="B03"></div>
+    <div data-befehl="B04"></div>
+    <div data-befehl="B05"></div>
+    <div data-befehl="B06"></div>
+    <div data-befehl="B07"></div>
+    <p>
+      <span lang="de">Die Karten zusammengesetzt ergeben das Ladeskript für das Mart. Es liest die vier Staging-Tabellen,
+        die das Python-Skript im nächsten Abschnitt schreibt, und ist von vorn bis hinten idempotent – Sie können es in
+        Supabase jede Nacht ausführen lassen.</span>
+      <span lang="en">The cards assembled make the load script for the mart. It reads the four staging tables the Python
+        script in the next section writes, and is idempotent from start to finish – you can have Supabase run it every
+        night.</span>
+    </p>
+    <div data-befehl="B08"></div>
+  </section>
+
+  <!-- ============================================================ 7 -->
+  <section class="section-block" id="python">
+    <h2><span lang="de">Der Python-Werkzeugkasten</span><span lang="en">The Python toolkit</span></h2>
+    <p>
+      <span lang="de">Für E und L – und das kleine t – reichen fünf Bibliotheken, die Sie bis auf zwei schon kennen:
+        <code>requests</code> holt die Datei von einer URL, <code>json</code> und <code>pandas</code> (Lab 04, Lab 05)
+        klappen sie auf, <code>sqlalchemy</code> stellt die Verbindung her, die <code>to_sql</code> braucht, und
+        <code>python-dotenv</code> liest die Zugangsdaten aus einer <code>.env</code>-Datei statt aus dem Quelltext
+        (Lab 02, Lab 08). Für Postgres kommt der Treiber <code>psycopg</code> (Version 3) dazu. Stand 09/2026: pandas
+        3.0, SQLAlchemy 2.0, psycopg 3.3, python-dotenv 1.2.</span>
+      <span lang="en">For E and L – and the small t – five libraries suffice, all but two of which you already know:
+        <code>requests</code> fetches the file from a URL, <code>json</code> and <code>pandas</code> (labs 04, 05)
+        flatten it, <code>sqlalchemy</code> establishes the connection <code>to_sql</code> needs, and
+        <code>python-dotenv</code> reads the credentials from a <code>.env</code> file instead of source code (labs 02,
+        08). For Postgres the driver <code>psycopg</code> (version 3) joins. As of 09/2026: pandas 3.0, SQLAlchemy 2.0,
+        psycopg 3.3, python-dotenv 1.2.</span>
+    </p>
+    <div data-befehl="B09"></div>
+    <p>
+      <span lang="de">Das vollständige Skript unten liest den Export aus <code>data/velocity.json</code> (oder von einer
+        URL), lädt vier flache Tabellen in eine SQLite-Datei auf dem Laptop (Lab 06) <em>und</em> in das Schema
+        <code>staging</code> der Supabase-Datenbank (Lab 08), und protokolliert je Schritt die Zeilenzahl. So sieht ein
+        Lauf aus:</span>
+      <span lang="en">The complete script below reads the export from <code>data/velocity.json</code> (or a URL), loads
+        four flat tables into an SQLite file on the laptop (lab 06) <em>and</em> into the schema <code>staging</code> of
+        the Supabase database (lab 08), and logs the row count per step. This is what a run looks like:</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">PyCharm – Run: lab-10-etl</span><span class="spacer"></span>2026.2</div>
+      <div class="shot-body eins">
+        <div class="shot-main">
+          <div class="code">06:00:01  INFO     Extract: data/velocity.json – Quelle 'Velo City Betreiberportal', exportiert am 2026-09-01T06:00:00+02:00 <span class="callout">1</span><br>06:00:01  INFO     Transform: 1500 Fahrten, davon 0 Duplikate entfernt <span class="callout">2</span><br>06:00:01  INFO     Transform: Export vom 2026-09-01T04:00:00+00:00 (UTC)<br>06:00:01  INFO     Transform: station     10 Zeilen, 7 Spalten<br>06:00:01  INFO     Transform: rad         60 Zeilen, 7 Spalten<br>06:00:01  INFO     Transform: kunde      200 Zeilen, 6 Spalten<br>06:00:01  INFO     Transform: fahrt     1500 Zeilen, 10 Spalten<br>06:00:01  INFO     Load: station             10 Zeilen → sqlite:///velocity-staging.db<br>06:00:01  INFO     Load: fahrt             1500 Zeilen → sqlite:///velocity-staging.db<br>06:00:03  INFO     Load: staging.fahrt     1500 Zeilen → postgresql+psycopg://postgres.abcd:***@aws-0-eu-central-1.pooler.supabase.com:5432/postgres <span class="callout">3</span><br>06:00:03  INFO     Fertig. Nächster Schritt: lab-10-sternschema.sql in der Zieldatenbank ausführen.</div>
+          <div class="okzeile">Process finished with exit code 0</div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Der Extract nennt Quelle und Exportzeitpunkt – die erste Zeile jedes Protokolls beantwortet „welche Datei war das?“.</span><span lang="en">The extract names source and export time – the first line of every log answers “which file was that?”.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Zeilenzahlen je Tabelle und die Zahl entfernter Duplikate. Steht hier morgen „300 Fahrten“, stimmt etwas mit dem Export nicht – lange bevor es jemand im Dashboard bemerkt.</span><span lang="en">Row counts per table and the number of duplicates removed. If it says “300 rides” tomorrow, something is wrong with the export – long before anyone notices in the dashboard.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Das Passwort erscheint als <code>***</code>: <code>engine.url.render_as_string(hide_password=True)</code>. Ein Protokoll wird gelesen, kopiert, angehängt – ein Geheimnis darin ist eines zu viel.</span><span lang="en">The password appears as <code>***</code>: <code>engine.url.render_as_string(hide_password=True)</code>. A log gets read, copied, attached – a secret in it is one too many.</span></span></li>
+    </ol>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-10-etl.py" download><span class="symbol">📄</span><span><span class="datei">lab-10-etl.py</span><br><span class="was"><span lang="de">Extract aus Datei oder URL, Transform mit pandas, Load nach SQLite und Postgres – mit Logging</span><span lang="en">Extract from file or URL, transform with pandas, load to SQLite and Postgres – with logging</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-10-sternschema.sql" download><span class="symbol">📄</span><span><span class="datei">lab-10-sternschema.sql</span><br><span class="was"><span lang="de">Schema <code>mart</code>: vier Dimensionen, <code>fact_fahrt</code>, Materialized View, Tests, pg_cron</span><span lang="en">Schema <code>mart</code>: four dimensions, <code>fact_fahrt</code>, materialized view, tests, pg_cron</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-10-env.example" download><span class="symbol">📄</span><span><span class="datei">lab-10-env.example</span><br><span class="was"><span lang="de">Vorlage für <code>.env</code>: <code>DATABASE_URL</code> zum Session Pooler, erklärt</span><span lang="en">Template for <code>.env</code>: <code>DATABASE_URL</code> to the session pooler, explained</span></span></span></a>
+    </div>
+    <div data-befehl="B10"></div>
+    <div data-befehl="B11"></div>
+    <h3><span lang="de">Zwei Werkzeuge darüber hinaus</span><span lang="en">Two tools beyond that</span></h3>
+    <p>
+      <span lang="de"><strong>DuckDB</strong> ist eine Datenbank ohne Server, die als Python-Paket kommt und SQL direkt
+        auf Dateien ausführt – JSON, CSV, Parquet. Sie ist die Antwort auf die Frage „ich will in SQL umformen, aber
+        auf dem Laptop, und SQLite ist dafür zu langsam“: DuckDB liest den Export, formt um, und schreibt das Ergebnis
+        über eine Erweiterung direkt nach Postgres.</span>
+      <span lang="en"><strong>DuckDB</strong> is a database without a server that comes as a Python package and runs SQL
+        directly on files – JSON, CSV, Parquet. It answers the question “I want to transform in SQL, but on the laptop,
+        and SQLite is too slow for that”: DuckDB reads the export, transforms, and writes the result straight to
+        Postgres through an extension.</span>
+    </p>
+    <div data-befehl="B12"></div>
+    <p>
+      <span lang="de"><strong>dbt</strong> ist das Werkzeug, mit dem das T in ELT-Projekten organisiert wird: Jede
+        Umformung ist eine SQL-Datei mit einem <code>SELECT</code> (ein <em>Modell</em>), dbt macht daraus Tabellen oder
+        Sichten in der richtigen Reihenfolge, führt die Tests aus und zeichnet die Lineage. Das ist die
+        professionelle Form dessen, was <code>lab-10-sternschema.sql</code> in einer Datei tut – und der Grund, warum
+        das SQL-Skript dieses Labs so gebaut ist, dass es sich fast eins zu eins in dbt-Modelle zerlegen lässt.</span>
+      <span lang="en"><strong>dbt</strong> is the tool with which the T in ELT projects is organised: every
+        transformation is a SQL file with a <code>SELECT</code> (a <em>model</em>), dbt turns them into tables or views
+        in the right order, runs the tests and draws the lineage. It is the professional form of what
+        <code>lab-10-sternschema.sql</code> does in one file – and the reason this lab's SQL script is built so that it
+        can be split almost one to one into dbt models.</span>
+    </p>
+    <div data-befehl="B13"></div>
+    <div class="warn-box">
+      <h3><span lang="de">dbt, Stand 09/2026 – warum die Versionsgrenze</span><span lang="en">dbt, as of 09/2026 – why the version bound</span></h3>
+      <p><span lang="de">dbt Labs baut den Kern gerade neu: Die in Rust geschriebene „Fusion“-Engine ist seit
+        01.06.2026 als <strong>dbt Core v2</strong> unter Apache 2.0 im selben Repository und liegt als Release
+        Candidate vor (2.0.0-rc.2, 08.09.2026). Für Postgres nennt die Plattformliste dort noch keinen Freigabestatus.
+        Parallel wird die Python-Fassung weiter gepflegt (dbt Core 1.12.4 und 1.11.15, ebenfalls 09/2026); dbt Labs
+        schreibt, Core v1 werde „not going away tomorrow, or any time soon“. Deshalb <code>pip install "dbt-core&lt;2"
+        "dbt-postgres&lt;2"</code>: Ohne obere Grenze löste pip zeitweise auf die v2-Vorabversion auf, und der
+        Postgres-Adapter meldete, er sei „not yet supported by dbt Fusion“. Am 01.06.2026 haben Fivetran und dbt Labs
+        zudem ihren Zusammenschluss vollzogen; an der Lizenz von dbt Core ändert das laut Lizenz-FAQ nichts. Vor dem
+        Übungstermin: <code>docs.getdbt.com/docs/supported-data-platforms</code> erneut lesen.</span>
+      <span lang="en">dbt Labs is rebuilding the core: the Rust-written “Fusion” engine has been in the same repository
+        as <strong>dbt Core v2</strong> under Apache 2.0 since 1 June 2026 and is available as a release candidate
+        (2.0.0-rc.2, 8 Sept 2026). For Postgres the platform list there names no release status yet. In parallel the
+        Python version is still maintained (dbt Core 1.12.4 and 1.11.15, also 09/2026); dbt Labs writes that Core v1 is
+        “not going away tomorrow, or any time soon”. Hence <code>pip install "dbt-core&lt;2" "dbt-postgres&lt;2"</code>:
+        without an upper bound pip at times resolved to the v2 pre-release, and the Postgres adapter reported it was
+        “not yet supported by dbt Fusion”. On 1 June 2026 Fivetran and dbt Labs also completed their merger; per the
+        licensing FAQ that changes nothing about dbt Core's licence. Before the session: re-read
+        <code>docs.getdbt.com/docs/supported-data-platforms</code>.</span></p>
+    </div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Python mit pandas, DuckDB und dbt stehen
+        hier, weil sie quelloffen sind und mit dem übrigen Kurs zusammenpassen (dbt Core unter Apache 2.0). Alternativen
+        auf derselben Ebene: für E und L Airbyte (quelloffen) oder Fivetran (kommerziell, SaaS); grafische ETL-Werkzeuge
+        wie KNIME (quelloffen), SSIS, Informatica oder Talend (kommerziell); für die Ablaufsteuerung Airflow, Dagster,
+        Prefect (quelloffen) oder n8n und Power Automate (Low-Code).</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. Python with pandas, DuckDB and dbt appear here because they are
+        open source and fit the rest of the course (dbt Core under Apache 2.0). Alternatives on the same layer: for E and
+        L Airbyte (open source) or Fivetran (commercial, SaaS); graphical ETL tools such as KNIME (open source), SSIS,
+        Informatica or Talend (commercial); for orchestration Airflow, Dagster, Prefect (open source) or n8n and Power
+        Automate (low-code).</span></p>
+    </div>
+  </section>
+
+  <!-- ============================================================ 8 -->
+  <section class="section-block" id="stolper">
+    <h2><span lang="de">Stolpersteine</span><span lang="en">Pitfalls</span></h2>
+    <p>
+      <span lang="de">Acht Muster, die in Projektarbeiten regelmäßig auftauchen – jedes mit dem Symptom, an dem man es
+        erkennt, und der Gegenmaßnahme.</span>
+      <span lang="en">Eight patterns that regularly show up in project work – each with the symptom by which you
+        recognise it, and the countermeasure.</span>
+    </p>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Umformung im BI-Werkzeug</span><span lang="en">Transformation in the BI tool</span></div>
+        <p><span lang="de">Die Logik steckt in Power Query oder in berechneten Feldern – je Bericht anders, ungetestet,
+          ohne Lineage. Microsoft selbst rät: „we recommend you first develop a data warehouse and Extract, Transform,
+          and Load (ETL) processes to periodically load the data warehouse. Your semantic model can then connect to the
+          data warehouse.“ Symptom: zwei Berichte, zwei Umsatzzahlen.</span>
+        <span lang="en">The logic sits in Power Query or in calculated fields – different per report, untested, without
+          lineage. Microsoft itself advises: “we recommend you first develop a data warehouse and Extract, Transform, and
+          Load (ETL) processes to periodically load the data warehouse. Your semantic model can then connect to the data
+          warehouse.” Symptom: two reports, two revenue figures.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Rohdaten überschreiben</span><span lang="en">Overwriting raw data</span></div>
+        <p><span lang="de">Das Skript schreibt das bereinigte Ergebnis über die Rohtabelle. Stellt sich die Bereinigung
+          als falsch heraus, gibt es nichts, worauf man zurückgreifen kann – und die API liefert die Daten von letzter
+          Woche nicht mehr. Staging ist unveränderlich; das T schreibt immer in eine <em>andere</em> Tabelle.</span>
+        <span lang="en">The script writes the cleaned result over the raw table. If the cleaning turns out wrong, there
+          is nothing to fall back on – and the API no longer delivers last week's data. Staging is immutable; the T
+          always writes into a <em>different</em> table.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Nicht-idempotente Appends</span><span lang="en">Non-idempotent appends</span></div>
+        <p><span lang="de"><code>to_sql(…, if_exists="append")</code> oder ein nacktes <code>INSERT</code>, jede Nacht.
+          Nach dem Abbruch und Neustart eines Laufs sind alle Fahrten doppelt; die Fehlermeldung bei UNIQUE lautet
+          <code>duplicate key value violates unique constraint</code> – ohne UNIQUE gibt es keine. Abhilfe: Upsert,
+          <code>DELETE</code> des Zeitraums, <code>replace</code> oder <code>delete_rows</code> bei kleinen
+          Vollladungen.</span>
+        <span lang="en"><code>to_sql(…, if_exists="append")</code> or a bare <code>INSERT</code>, every night. After a
+          run aborts and restarts, all rides are doubled; with UNIQUE the error reads <code>duplicate key value violates
+          unique constraint</code> – without UNIQUE there is none. Fix: upsert, <code>DELETE</code> of the period,
+          <code>replace</code> or <code>delete_rows</code> for small full loads.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Zeitzonen</span><span lang="en">Time zones</span></div>
+        <p><span lang="de">Ein <code>timestamp</code> ohne Zone ist laut Postgres-Wiki „a picture of a calendar and a
+          clock rather than a point in time“. Symptom: Die Stundenauswertung verschiebt sich Ende März und Ende Oktober
+          um eine Stunde; pg_cron läuft „eine Stunde zu früh“, weil es in UTC rechnet. Abhilfe: <code>timestamptz</code>
+          speichern, beim Einlesen die Zone der Quelle kennzeichnen, für die Anzeige <code>AT TIME ZONE
+          'Europe/Berlin'</code>.</span>
+        <span lang="en">A <code>timestamp</code> without zone is, per the Postgres wiki, “a picture of a calendar and a
+          clock rather than a point in time”. Symptom: the hourly analysis shifts by an hour at the end of March and
+          October; pg_cron runs “an hour early” because it works in UTC. Fix: store <code>timestamptz</code>, mark the
+          source's zone on reading, for display <code>AT TIME ZONE 'Europe/Berlin'</code>.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Gleitkomma-Geld</span><span lang="en">Floating-point money</span></div>
+        <p><span lang="de">In Python ist <code>0.1 + 0.1 + 0.1 == 0.3</code> falsch; <code>double precision</code> in
+          Postgres ist ein „inexact, variable-precision numeric type“. Symptom: <code>3172.1400000000003</code> im
+          Bericht. Die Dokumentation empfiehlt <code>numeric</code> „especially … for storing monetary amounts“ – oder
+          Cent als ganze Zahl. In pandas: <code>dtype={"preis_eur": Numeric(6, 2)}</code> beim Laden.</span>
+        <span lang="en">In Python <code>0.1 + 0.1 + 0.1 == 0.3</code> is false; <code>double precision</code> in Postgres
+          is an “inexact, variable-precision numeric type”. Symptom: <code>3172.1400000000003</code> in the report. The
+          docs recommend <code>numeric</code> “especially … for storing monetary amounts” – or cents as an integer. In
+          pandas: <code>dtype={"preis_eur": Numeric(6, 2)}</code> on load.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Stille Typumwandlung</span><span lang="en">Silent type coercion</span></div>
+        <p><span lang="de"><code>read_csv</code> rät Typen: Aus der Postleitzahl 01067 wird 1067, aus der Kennung 007 die
+          Zahl 7. Abhilfe <code>dtype={"plz": str}</code>. SQLite hat <em>Typaffinität</em>: „the datatype of a value is
+          associated with the value itself, not with its container“ – eine INTEGER-Spalte nimmt <code>'k. A.'</code>
+          klaglos an. Abhilfe: <code>STRICT</code>-Tabellen (SQLite ≥ 3.37) oder Prüfung vor dem Laden.</span>
+        <span lang="en"><code>read_csv</code> guesses types: the postcode 01067 becomes 1067, the identifier 007 the
+          number 7. Fix <code>dtype={"plz": str}</code>. SQLite has <em>type affinity</em>: “the datatype of a value is
+          associated with the value itself, not with its container” – an INTEGER column accepts <code>'n/a'</code>
+          without complaint. Fix: <code>STRICT</code> tables (SQLite ≥ 3.37) or validation before loading.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Zugangsdaten im Code</span><span lang="en">Credentials in the code</span></div>
+        <p><span lang="de">Die Verbindungszeichenkette samt Passwort steht im Skript, das Skript liegt auf GitHub. Die
+          12-Factor-Regel: „The twelve-factor app stores config in environment variables.“ Abhilfe: <code>.env</code>
+          plus <code>load_dotenv()</code>, <code>.env</code> in der <code>.gitignore</code> (Lab 02), auf dem Server die
+          Variablen im Dashboard (Lab 11). Und im Protokoll das Passwort ausblenden.</span>
+        <span lang="en">The connection string including the password is in the script, the script is on GitHub. The
+          12-factor rule: “The twelve-factor app stores config in environment variables.” Fix: <code>.env</code> plus
+          <code>load_dotenv()</code>, <code>.env</code> in the <code>.gitignore</code> (lab 02), on the server the
+          variables in the dashboard (lab 11). And hide the password in the log.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Pipeline vom Laptop</span><span lang="en">Pipeline from the laptop</span></div>
+        <p><span lang="de">Der Lauf startet, wenn jemand daran denkt. Kein Protokoll, keine Wiederholung bei Fehlern,
+          kein Lauf, wenn der Deckel zu ist. Symptom: montags fehlen die Zahlen vom Wochenende. Abhilfe: ein Scheduler –
+          Cron Job auf Render (Lab 11), pg_cron für die SQL-Schritte, GitHub Actions – mit fester Zeitzone und
+          Protokoll.</span>
+        <span lang="en">The run starts when someone remembers. No log, no retry on errors, no run when the lid is closed.
+          Symptom: on Mondays the weekend's figures are missing. Fix: a scheduler – cron job on Render (lab 11), pg_cron
+          for the SQL steps, GitHub Actions – with a fixed time zone and a log.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ 9 -->
+  <section class="section-block" id="spielplatz">
+    <h2><span lang="de">Spielplatz</span><span lang="en">Playground</span></h2>
+    <p>
+      <span lang="de">Dieselbe Datenbank wie oben, frei. Die vorgegebene Abfrage ist der Monatsbericht, den das Mart
+        später liefern soll – probieren Sie, sie auf Bezirk oder Radtyp zu erweitern, ein Schema <code>mart</code>
+        anzulegen oder die Materialized View aus B07 zu bauen und mit <code>REFRESH</code> zu aktualisieren. Der Knopf
+        <em>Datenbank zurücksetzen</em> stellt den Ausgangsbestand wieder her.</span>
+      <span lang="en">The same database as above, free. The preset query is the monthly report the mart is later meant
+        to deliver – try extending it by district or bike type, creating a schema <code>mart</code>, or building the
+        materialized view from B07 and updating it with <code>REFRESH</code>. The <em>reset database</em> button restores
+        the initial state.</span>
+    </p>
+    <div data-sql-konsole data-start="SELECT date_trunc('month', start_zeit)::date AS monat,&#10;       count(*)       AS fahrten,&#10;       sum(preis_eur) AS umsatz&#10;FROM fahrt&#10;GROUP BY 1&#10;ORDER BY 1;"></div>
+  </section>
+
+  <!-- ============================================================ 10 -->
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: die Schritte einer Pipeline ordnen, drei SQL-Aufgaben in der Datenbank dieser Seite
+        – entpacken, Upsert, Fakt mit Grain –, fünf Verständnisfragen und eine Zuordnung von Anti-Pattern zu
+        Symptom.</span>
+      <span lang="en">Six exercises: order the steps of a pipeline, three SQL tasks in this page's database – unpack,
+        upsert, fact with grain –, five comprehension questions and a matching of anti-pattern to symptom.</span>
+    </p>
+    <div data-uebung="W10-01"></div>
+    <div data-uebung="W10-02"></div>
+    <div data-uebung="W10-03"></div>
+    <div data-uebung="W10-04"></div>
+    <div data-uebung="W10-05"></div>
+    <div data-uebung="W10-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <!-- ============================================================ 11 -->
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Eine Pipeline ist Code, der Daten wiederholbar von der Quelle ins Mart bringt – geplant von einem Scheduler, idempotent, mit Protokoll. Ein einmal ausgeführtes Notebook ist keine.</span><span lang="en">A pipeline is code that moves data repeatably from source to mart – scheduled, idempotent, logged. A notebook run once is not one.</span></li>
+      <li><span lang="de">ETL und ELT unterscheiden sich allein darin, wo die Umformung läuft: vor dem Laden in einer eigenen Maschine oder danach in der Zieldatenbank mit SQL. ETL bleibt richtig, wenn personenbezogene Daten vorher weg müssen, das Ziel schwach ist oder die Daten klein sind; die Regel in der Praxis ist EtLT.</span><span lang="en">ETL and ELT differ solely in where the transformation runs: before loading in a separate engine or afterwards in the target database with SQL. ETL stays right when personal data must go beforehand, the target is weak or the data is small; the rule in practice is EtLT.</span></li>
+      <li><span lang="de">Die Staging-Schicht ist unveränderlich und trägt <code>loaded_at</code> und <code>source_file</code>. Bronze, Silver, Gold – Staging, bereinigt, Mart – <code>staging</code>, <code>intermediate</code>, <code>marts</code>: drei Namen für dieselben drei Schichten.</span><span lang="en">The staging layer is immutable and carries <code>loaded_at</code> and <code>source_file</code>. Bronze, silver, gold – staging, cleaned, mart – <code>staging</code>, <code>intermediate</code>, <code>marts</code>: three names for the same three layers.</span></li>
+      <li><span lang="de">Idempotenz ist die Frage „kann ich den Lauf einfach nochmal starten?“ – und die Antwort heißt Upsert (<code>ON CONFLICT DO UPDATE</code>, <code>MERGE</code>), Zeitraum löschen und neu einfügen, oder vollständig ersetzen. Kein <code>now()</code> in der Umformung, kein nacktes <code>INSERT</code>.</span><span lang="en">Idempotency is the question “can I just start the run again?” – and the answer is upsert (<code>ON CONFLICT DO UPDATE</code>, <code>MERGE</code>), delete and re-insert the period, or replace completely. No <code>now()</code> in the transformation, no bare <code>INSERT</code>.</span></li>
+      <li><span lang="de">Das Sternschema ist das Ziel, weil BI-Werkzeuge Sterne wollen: Dimensionen filtern, Fakten summieren. Der Grain – „eine Zeile = eine Fahrt“ – ist ein bindender Vertrag; Surrogatschlüssel plus natürlicher Schlüssel mit UNIQUE machen Dimensionen upsertfähig; die Datumsdimension kommt aus <code>generate_series</code>.</span><span lang="en">The star schema is the target because BI tools want stars: dimensions filter, facts sum. The grain – “one row = one ride” – is a binding contract; surrogate key plus natural key with UNIQUE make dimensions upsertable; the date dimension comes from <code>generate_series</code>.</span></li>
+      <li><span lang="de">Eine Materialized View ist das leichte Mart: <code>REFRESH … CONCURRENTLY</code> braucht einen UNIQUE-Index, pg_cron plant den Refresh in UTC. SQLite kennt weder das eine noch das andere.</span><span lang="en">A materialized view is the lightweight mart: <code>REFRESH … CONCURRENTLY</code> needs a UNIQUE index, pg_cron schedules the refresh in UTC. SQLite has neither.</span></li>
+      <li><span lang="de">Die vier Fehler, die am meisten kosten: Zeitstempel ohne Zone, Geld als Gleitkommazahl, Zugangsdaten im Code, Pipeline vom Laptop. Die Vorlagen dieses Labs vermeiden alle vier – und Lab 11 bringt die Pipeline dorthin, wo sie nachts läuft.</span><span lang="en">The four mistakes that cost most: timestamps without a zone, money as floating point, credentials in the code, pipeline from the laptop. This lab's templates avoid all four – and lab 11 takes the pipeline to where it runs at night.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 10 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 10 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

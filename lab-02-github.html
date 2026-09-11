@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 02 · Git und GitHub · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 02 · Git and GitHub · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-02">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Warum nicht v3_final</span><span lang="en">Why not v3_final</span></a>
+  <a class="sidebar-link" href="#begriffe"><span lang="de">Git, GitHub, drei Bereiche</span><span lang="en">Git, GitHub, three areas</span></a>
+  <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme</span><span lang="en">Setting it up</span></a>
+  <a class="sidebar-link" href="#ablauf"><span lang="de">Der Grundablauf</span><span lang="en">The basic cycle</span></a>
+  <a class="sidebar-link" href="#zweige"><span lang="de">Zweige und Zusammenführen</span><span lang="en">Branches and merging</span></a>
+  <a class="sidebar-link" href="#gitignore"><span lang="de">Was nicht hineingehört</span><span lang="en">What must stay out</span></a>
+  <a class="sidebar-link" href="#notebooks"><span lang="de">Notebooks in Git</span><span lang="en">Notebooks in Git</span></a>
+  <a class="sidebar-link" href="#geheim"><span lang="de">Wenn ein Schlüssel entwischt</span><span lang="en">When a key escapes</span></a>
+  <a class="sidebar-link" href="#spielplatz"><span lang="de">Spielplatz</span><span lang="en">Playground</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">02</div>
+  <h1 class="lab-title">
+    <span lang="de">Git und GitHub</span>
+    <span lang="en">Git and GitHub</span>
+  </h1>
+  <p class="lab-intro">
+    <span lang="de">Jedes Analytics-Projekt erzeugt Stände: die Fassung, die gerechnet hat, die Fassung mit dem
+      anderen Filter, die Fassung von vor dem Umbau. Ohne Werkzeug entstehen daraus Dateinamen wie
+      <code>analyse_final_v3_wirklich_final.ipynb</code>, und niemand weiß mehr, welcher Stand die Zahlen im Bericht
+      erzeugt hat. Git löst das – zum Preis von etwa acht Befehlen und einem Denkmodell mit drei Bereichen. Dieses Lab
+      führt beides ein und behandelt zusätzlich die zwei Dinge, die auf keinen Fall in ein Repository gehören.</span>
+    <span lang="en">Every analytics project produces states: the version that computed, the version with the other
+      filter, the version from before the rebuild. Without a tool this yields file names like
+      <code>analysis_final_v3_really_final.ipynb</code>, and nobody knows any more which state produced the figures in
+      the report. Git solves that – at the price of about eight commands and a mental model with three areas. This lab
+      introduces both and additionally covers the two things that must never enter a repository.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">clone · status · add · commit · push</span>
+    <span class="lernziel-chip">branch · switch · merge</span>
+    <span class="lernziel-chip">.gitignore</span>
+    <span class="lernziel-chip">Pull Request · Issue</span>
+    <span class="lernziel-chip"><span lang="de">Notebooks im Diff</span><span lang="en">Notebooks in a diff</span></span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Warum nicht v3_final</span><span lang="en">Why not v3_final</span></h2>
+    <p>
+      <span lang="de">Die Vorlesung verlangt von einem Untersuchungsdesign, dass es <em>nachvollziehbar, transparent
+        und reproduzierbar</em> ist. Für das Ergebnis einer Auswertung heißt das: Zu jeder Zahl in einem Bericht muss
+        sich der Stand angeben lassen, der sie erzeugt hat. Genau das leistet eine Versionsverwaltung – nicht als
+        Zugabe für Programmierende, sondern als Voraussetzung dafür, dass die Aussage überhaupt überprüfbar ist.</span>
+      <span lang="en">The lecture demands of a study design that it be <em>traceable, transparent and
+        reproducible</em>. For the result of an analysis that means: for every figure in a report, the state that
+        produced it must be nameable. That is exactly what version control provides – not as an extra for programmers
+        but as the precondition for the claim being checkable at all.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Was ein Commit ist – und was er nicht ist</span><span lang="en">What a commit is – and what it is not</span></h3>
+      <p><span lang="de">Ein <strong>Commit</strong> ist eine Momentaufnahme des gesamten Projekts, versehen mit einer
+        Nachricht, einem Urheber, einem Zeitstempel und einer Kennung wie <code>a3f9c21</code>. Er ist unveränderlich.
+        Er ist keine Sicherung: Eine Sicherung schützt vor Verlust, ein Commit hält eine Entscheidung fest. Die
+        Nachricht ist deshalb kein Formalismus – sie ist die einzige Stelle, an der steht, <em>warum</em> etwas geändert
+        wurde. Der Unterschied selbst zeigt nur, <em>was</em>.</span>
+      <span lang="en">A <strong>commit</strong> is a snapshot of the whole project, carrying a message, an author, a
+        timestamp and an identifier such as <code>a3f9c21</code>. It is immutable. It is not a backup: a backup protects
+        against loss, a commit records a decision. The message is therefore not a formality – it is the only place that
+        says <em>why</em> something was changed. The diff itself only shows <em>what</em>.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="begriffe">
+    <h2><span lang="de">Git, GitHub, drei Bereiche</span><span lang="en">Git, GitHub, three areas</span></h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th></th><th>Git</th><th>GitHub</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span lang="de">Was es ist</span><span lang="en">What it is</span></td>
+            <td><span lang="de">Ein Programm auf Ihrem Rechner</span><span lang="en">A program on your machine</span></td>
+            <td><span lang="de">Ein Webdienst, der Git-Repositories aufbewahrt</span><span lang="en">A web service that hosts Git repositories</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Braucht Internet</span><span lang="en">Needs the internet</span></td>
+            <td><span lang="de">nein</span><span lang="en">no</span></td>
+            <td><span lang="de">ja</span><span lang="en">yes</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Kernbegriffe</span><span lang="en">Core concepts</span></td>
+            <td>Commit · Branch · Merge</td>
+            <td>Pull Request · Issue · Actions</td>
+          </tr>
+          <tr>
+            <td><span lang="de">Alternativen</span><span lang="en">Alternatives</span></td>
+            <td><span lang="de">keine gleichwertige – Git ist der Standard</span><span lang="en">no equivalent – Git is the standard</span></td>
+            <td>GitLab · Codeberg · Forgejo</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <span lang="de">Git funktioniert vollständig ohne GitHub. GitHub ohne Git nicht. Das ist mehr als eine
+        Begriffsklärung: Es heißt, dass Sie den ganzen Ablauf lokal üben können und dass ein Ausfall des Webdienstes Ihre
+        Geschichte nicht berührt. <strong>Pull Request</strong> ist keine Git-Funktion, sondern eine Erfindung von
+        GitHub – ein Antrag, einen Zweig in einen anderen zu überführen, samt Ort für Durchsicht und Kommentare.</span>
+      <span lang="en">Git works entirely without GitHub. GitHub does not work without Git. That is more than
+        terminology: it means you can practise the whole cycle locally and that an outage of the web service does not
+        touch your history. A <strong>pull request</strong> is not a Git function but an invention of GitHub – a request
+        to move one branch into another, together with a place for review and comments.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Die drei Bereiche – das Modell, an dem alles hängt</span><span lang="en">The three areas – the model everything hangs on</span></h3>
+      <div class="code-block">Arbeitsverzeichnis  ──git add──▶  Staging (Index)  ──git commit──▶  Repository
+   Ihre Dateien,                    Was in den                  Die unveränderliche
+   wie sie gerade sind              nächsten Commit soll        Geschichte
+                                                                      │
+                                                                 git push
+                                                                      ▼
+                                                                  GitHub</div>
+      <p><span lang="de">Der mittlere Bereich verwirrt am Anfang und ist der eigentliche Gewinn: Sie entscheiden je
+        Datei, was in den nächsten Commit gehört. Drei Änderungen an drei Dateien können so zu drei getrennten Commits
+        mit drei getrennten Begründungen werden, statt zu einem Sammelcommit „Update“. Wer <code>git add .</code>
+        gewohnheitsmäßig tippt, gibt diesen Gewinn auf – und committet irgendwann eine 200-MB-Datei mit.</span>
+      <span lang="en">The middle area confuses at first and is the actual gain: you decide per file what belongs in the
+        next commit. Three changes to three files can thus become three separate commits with three separate
+        justifications, instead of one catch-all commit “Update”. Whoever types <code>git add .</code> out of habit
+        gives up that gain – and eventually commits a 200 MB file along with it.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="inbetrieb">
+    <h2><span lang="de">Inbetriebnahme</span><span lang="en">Setting it up</span></h2>
+    <p>
+      <span lang="de">Ein GitHub-Konto ist kostenlos; legen Sie es mit der Hochschul-E-Mail an und beantragen Sie
+        gleich den <strong>GitHub Student Developer Pack</strong> (education.github.com/pack): Er schaltet den
+        Copilot-Student-Plan frei (Stand 09/2026: unbegrenzte Vervollständigungen, 200 AI-Credits im Monat – kein
+        Copilot-Pro-Sitz mehr) und dient in Lab 03 als Nachweis für die JetBrains-Bildungslizenz. Hier kommen die drei
+        Schritte auf dem eigenen Rechner: Git installieren, sich einmalig zu erkennen geben, sich anmelden können.</span>
+      <span lang="en">A GitHub account is free; create it with your university email and apply straight away for the
+        <strong>GitHub Student Developer Pack</strong> (education.github.com/pack): it unlocks the Copilot Student plan
+        (as of 09/2026: unlimited completions, 200 AI credits a month – no longer a Copilot Pro seat) and serves as
+        proof for the JetBrains educational licence in lab 03. Here come the three steps on your own machine: install
+        Git, identify yourself once, be able to authenticate.</span>
+    </p>
+    <div data-befehl="B01"></div>
+    <div data-befehl="B02"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Das Kontopasswort funktioniert nicht</span><span lang="en">The account password does not work</span></h3>
+      <p><span lang="de">GitHub hat die Anmeldung mit dem Kontopasswort für Git-Vorgänge abgeschafft. Wer es trotzdem
+        eingibt, erhält <code>Support for password authentication was removed</code> – und sucht dann meist an der
+        falschen Stelle. Drei Wege stehen offen; der erste ist für den Anfang der einfachste, weil er den Rest
+        mit einrichtet.</span>
+      <span lang="en">GitHub removed password authentication for Git operations. Whoever enters it anyway gets
+        <code>Support for password authentication was removed</code> – and then usually looks in the wrong place. Three
+        routes are open; the first is the simplest to begin with, because it sets up the rest along the way.</span></p>
+    </div>
+    <div data-befehl="B03"></div>
+  </section>
+
+  <section class="section-block" id="ablauf">
+    <h2><span lang="de">Der Grundablauf</span><span lang="en">The basic cycle</span></h2>
+    <p>
+      <span lang="de">Fünf Befehle, die neunzig Prozent der Arbeit ausmachen. Der wichtigste davon ist der, der
+        nichts verändert.</span>
+      <span lang="en">Five commands that make up ninety percent of the work. The most important of them is the one that
+        changes nothing.</span>
+    </p>
+    <div data-befehl="B04"></div>
+    <div data-befehl="B05"></div>
+    <div data-befehl="B06"></div>
+    <div data-befehl="B07"></div>
+    <div class="tip-box">
+      <h3><span lang="de">Wie eine Commit-Nachricht aussieht</span><span lang="en">What a commit message looks like</span></h3>
+      <p><span lang="de">Im Imperativ, mit Gegenstand, ohne Punkt: <code>Ausreisserbehandlung in Preisspalte
+        ergaenzt</code>. Nicht: <code>update</code>, <code>fix</code>, <code>asdf</code>, <code>Änderungen</code>. Die
+        Probe: Ergänzt die Nachricht den Satz „Dieser Commit …“ sinnvoll? Und liest man sie in sechs Wochen und weiß,
+        warum? In einer Analytics-Arbeit ist die Commit-Geschichte oft der einzige Ort, an dem eine methodische
+        Entscheidung begründet wurde – behandeln Sie sie entsprechend.</span>
+      <span lang="en">In the imperative, with an object, without a full stop: <code>Add outlier handling to price
+        column</code>. Not: <code>update</code>, <code>fix</code>, <code>asdf</code>, <code>changes</code>. The test:
+        does the message sensibly complete the sentence “This commit …”? And will you read it in six weeks and know
+        why? In an analytics project the commit history is often the only place a methodological decision was
+        justified – treat it accordingly.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="zweige">
+    <h2><span lang="de">Zweige und Zusammenführen</span><span lang="en">Branches and merging</span></h2>
+    <p>
+      <span lang="de">Ein <strong>Zweig</strong> ist ein benannter Zeiger auf einen Commit – nichts weiter. Genau
+        deshalb ist er billig: Ein neuer Zweig kopiert keine Dateien, er setzt eine Marke. Für Analytics ist das die
+        Antwort auf die häufigste Frage im Projekt: „Was wäre, wenn wir die Ausreißer anders behandeln?“ Man probiert
+        es auf einem Zweig aus und behält den bisherigen Stand unberührt.</span>
+      <span lang="en">A <strong>branch</strong> is a named pointer to a commit – nothing more. That is exactly why it is
+        cheap: a new branch copies no files, it sets a marker. For analytics it is the answer to the most common
+        question in a project: “what if we treat the outliers differently?” You try it on a branch and keep the previous
+        state untouched.</span>
+    </p>
+    <div data-befehl="B08"></div>
+    <div data-befehl="B09"></div>
+    <div class="info-box">
+      <h3><span lang="de">Konflikte lesen, nicht fürchten</span><span lang="en">Read conflicts, do not fear them</span></h3>
+      <p><span lang="de">Ein <strong>Merge-Konflikt</strong> entsteht, wenn zwei Zweige dieselbe Zeile geändert haben.
+        Git schreibt dann beide Fassungen in die Datei und markiert sie:</span>
+      <span lang="en">A <strong>merge conflict</strong> arises when two branches changed the same line. Git then writes
+        both versions into the file and marks them:</span></p>
+      <div class="code-block">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+schwelle = 0.95
+=======
+schwelle = 0.99
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; experiment</div>
+      <p><span lang="de">Das ist keine Fehlermeldung, sondern eine Frage: Welche der beiden Fassungen soll gelten – oder
+        eine dritte? Sie entscheiden, entfernen die Markierungen samt der verworfenen Fassung, und dann
+        <code>git add</code> und <code>git commit</code>. Bei einer <code>.py</code>-Datei ist das eine Minute Arbeit.
+        Bei einem Notebook ist es etwas anderes – dazu der nächste Abschnitt.</span>
+      <span lang="en">This is not an error message but a question: which of the two versions should hold – or a third?
+        You decide, remove the markers along with the discarded version, and then <code>git add</code> and
+        <code>git commit</code>. In a <code>.py</code> file that is a minute's work. In a notebook it is something
+        else – see the next section.</span></p>
+    </div>
+    <p>
+      <span lang="de">In der Zusammenarbeit kommt zwischen Zweig und Zusammenführung der <strong>Pull
+        Request</strong>: Sie schieben Ihren Zweig nach GitHub, beantragen die Überführung, und jemand liest den
+        Unterschied, bevor er in den Hauptzweig geht. In einer Gruppenarbeit ist das die Stelle, an der die
+        Arbeitsteilung tatsächlich sichtbar wird – und an der ein Fehler auffällt, bevor er im Bericht steht. Ein
+        <strong>Issue</strong> ist der zugehörige Notizzettel für offene Punkte; <code>Closes #12</code> in einer
+        Commit-Nachricht schließt ihn automatisch.</span>
+      <span lang="en">In collaboration, the <strong>pull request</strong> comes between branch and merge: you push your
+        branch to GitHub, request the transfer, and somebody reads the diff before it goes into the main branch. In
+        group work that is where the division of labour actually becomes visible – and where a mistake is caught before
+        it reaches the report. An <strong>issue</strong> is the accompanying note for open points;
+        <code>Closes #12</code> in a commit message closes it automatically.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="gitignore">
+    <h2><span lang="de">Was nicht hineingehört</span><span lang="en">What must stay out</span></h2>
+    <p>
+      <span lang="de">Ein Repository hält Quellen, nicht Erzeugnisse und keine Daten. Der Grund ist nicht
+        Sparsamkeit: Die Geschichte eines Repositories lässt sich praktisch nicht löschen. Was einmal in einem Commit
+        stand, steht dort weiter – auch wenn die Datei in einem späteren Commit entfernt wird. Für personenbezogene
+        Daten kollidiert das unmittelbar mit dem Recht auf Löschung.</span>
+      <span lang="en">A repository holds sources, not products and no data. The reason is not thrift: a repository's
+        history is practically impossible to erase. What once stood in a commit stays there – even when the file is
+        removed in a later commit. For personal data that collides directly with the right to erasure.</span>
+    </p>
+    <div data-befehl="B10"></div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Grenze</span><span lang="en">Limit</span></th>
+            <th><span lang="de">Wert</span><span lang="en">Value</span></th>
+            <th><span lang="de">Was passiert</span><span lang="en">What happens</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span lang="de">Warnung je Datei</span><span lang="en">Warning per file</span></td><td>50 MiB</td><td><span lang="de">Der Push geht durch, GitHub warnt</span><span lang="en">The push goes through, GitHub warns</span></td></tr>
+          <tr><td><span lang="de">Blockade je Datei</span><span lang="en">Block per file</span></td><td>100 MiB</td><td><span lang="de">Der Push wird abgewiesen</span><span lang="en">The push is rejected</span></td></tr>
+          <tr><td><span lang="de">Hochladen über die Weboberfläche</span><span lang="en">Upload via the web interface</span></td><td>25 MiB</td><td><span lang="de">Größeres geht nur über die Kommandozeile</span><span lang="en">Anything larger only via the command line</span></td></tr>
+          <tr><td><span lang="de">Empfohlene Repository-Größe</span><span lang="en">Recommended repository size</span></td><td>&lt; 1 GB</td><td><span lang="de">Darüber wird das Klonen unangenehm langsam</span><span lang="en">Beyond that, cloning becomes unpleasantly slow</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn-box">
+      <p><span lang="de">Eine <code>.gitignore</code> wirkt nur nach vorn. Eine Datei, die bereits in einem Commit
+        steht, verschwindet dadurch nicht aus der Geschichte – auch nicht, wenn Sie sie nachträglich in die Liste
+        aufnehmen und löschen. Das Umschreiben der Geschichte ist möglich, aber ein zerstörender Vorgang, der alle
+        Klone unbrauchbar macht. Deshalb steht die <code>.gitignore</code> im <em>ersten</em> Commit, nicht im
+        zwanzigsten.</span>
+      <span lang="en">A <code>.gitignore</code> only works forward. A file already in a commit does not disappear from
+        the history through it – not even if you add it to the list afterwards and delete it. Rewriting the history is
+        possible but a destructive operation that invalidates every clone. Hence the <code>.gitignore</code> belongs in
+        the <em>first</em> commit, not the twentieth.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="notebooks">
+    <h2><span lang="de">Notebooks in Git</span><span lang="en">Notebooks in Git</span></h2>
+    <p>
+      <span lang="de">Ein <code>.ipynb</code> ist keine Textdatei, sondern JSON – und es enthält die Ausgaben mit,
+        Bilder als lange Zeichenketten eingebettet. Daraus folgen vier Ärgernisse, die alle dieselbe Ursache
+        haben:</span>
+      <span lang="en">An <code>.ipynb</code> is not a text file but JSON – and it contains the outputs, images embedded
+        as long strings. Four annoyances follow, all with the same cause:</span>
+    </p>
+    <ul>
+      <li><span lang="de">Ein geänderter Codebuchstabe erzeugt einen Unterschied über tausende Zeilen, weil sich die Ausgaben mitgeändert haben. Niemand liest so einen Unterschied.</span><span lang="en">One changed character of code produces a diff over thousands of lines, because the outputs changed too. Nobody reads such a diff.</span></li>
+      <li><span lang="de">Der Ausführungszähler <code>execution_count</code> ändert sich bei jedem Lauf. Es entstehen Unterschiede, obwohl inhaltlich nichts passiert ist.</span><span lang="en">The <code>execution_count</code> changes on every run. Diffs appear even though nothing happened in substance.</span></li>
+      <li><span lang="de">Eingebettete Bilder blähen das Repository auf; die 100-MiB-Grenze ist schneller erreicht als man denkt.</span><span lang="en">Embedded images inflate the repository; the 100 MiB limit is reached faster than you would think.</span></li>
+      <li><span lang="de">Ein Merge-Konflikt im JSON macht das Notebook unbrauchbar – es lässt sich danach nicht mehr öffnen.</span><span lang="en">A merge conflict in the JSON makes the notebook unusable – it cannot be opened afterwards.</span></li>
+    </ul>
+    <p>
+      <span lang="de">Dazu kommt ein fünfter Punkt, der über Ärger hinausgeht: In den Ausgaben stehen Daten. Eine
+        <code>df.head()</code>-Ausgabe mit echten Namen wandert beim Push in ein öffentliches Repository und ist damit
+        veröffentlicht.</span>
+      <span lang="en">Plus a fifth point that goes beyond annoyance: the outputs contain data. A <code>df.head()</code>
+        output with real names travels into a public repository on push and is thereby published.</span>
+    </p>
+    <div data-befehl="B11"></div>
+  </section>
+
+  <section class="section-block" id="geheim">
+    <h2><span lang="de">Wenn ein Schlüssel entwischt</span><span lang="en">When a key escapes</span></h2>
+    <p>
+      <span lang="de">Es passiert – meist über eine <code>.env</code>-Datei, die vor der <code>.gitignore</code> da war,
+        oder über ein Notebook mit einem Schlüssel in einer Code-Zelle. Wichtig ist die Reihenfolge der Reaktion, und
+        sie ist nicht die, die man intuitiv wählt.</span>
+      <span lang="en">It happens – usually through a <code>.env</code> file that predated the <code>.gitignore</code>, or
+        through a notebook with a key in a code cell. What matters is the order of the response, and it is not the one
+        intuition suggests.</span>
+    </p>
+    <div class="challenge-box">
+      <h3><span lang="de">Fünf Schritte, in dieser Reihenfolge</span><span lang="en">Five steps, in this order</span></h3>
+      <ol>
+        <li><span lang="de"><strong>Den Schlüssel beim Anbieter widerrufen.</strong> Sofort, vor allem anderen. Ein widerrufener Schlüssel in einem öffentlichen Repository ist harmlos.</span><span lang="en"><strong>Revoke the key with the provider.</strong> Immediately, before anything else. A revoked key in a public repository is harmless.</span></li>
+        <li><span lang="de"><strong>Einen neuen erzeugen</strong> und die betroffenen Dienste umstellen.</span><span lang="en"><strong>Create a new one</strong> and switch the affected services over.</span></li>
+        <li><span lang="de"><strong>Die Protokolle prüfen:</strong> Wurde der Schlüssel in der Zwischenzeit benutzt?</span><span lang="en"><strong>Check the logs:</strong> was the key used in the meantime?</span></li>
+        <li><span lang="de"><strong>Die Ursache beheben:</strong> <code>.gitignore</code> ergänzen, Schlüssel aus dem Code in eine Umgebungsvariable verschieben.</span><span lang="en"><strong>Fix the cause:</strong> extend the <code>.gitignore</code>, move the key from the code into an environment variable.</span></li>
+        <li><span lang="de"><strong>Erst dann</strong> über das Umschreiben der Geschichte nachdenken – falls überhaupt nötig.</span><span lang="en"><strong>Only then</strong> think about rewriting the history – if it is needed at all.</span></li>
+      </ol>
+      <p><span lang="de">GitHub formuliert es unmissverständlich: Den Schlüssel aus dem Code zu entfernen, einen neuen
+        Commit zu schieben oder das Repository zu löschen und neu anzulegen verhindert <em>nicht</em>, dass er
+        ausgenutzt wird. Nur der Widerruf tut das.</span>
+      <span lang="en">GitHub puts it unambiguously: removing the key from the codebase, pushing a new commit, or
+        deleting and recreating the repository does <em>not</em> prevent the secret from being exploited. Only revoking
+        it does.</span></p>
+    </div>
+    <div class="info-box">
+      <p><span lang="de">Zwei Einstellungen, die vorbeugen. <strong>Push-Schutz:</strong> GitHub erkennt bekannte
+        Schlüsselformate und blockiert den Push, bevor sie ankommen – für Pushes in öffentliche Repositories ist der
+        Schutz für Nutzerkonten standardmäßig aktiv, je Repository lässt er sich unter
+        <code>Settings → Code security</code> einschalten. <strong>E-Mail-Adresse verbergen:</strong> Ihr Name und Ihre
+        Adresse stehen dauerhaft und öffentlich in jedem Commit. <code>Settings → Emails → Keep my email addresses
+        private</code> setzt eine Ersatzadresse ein.</span>
+      <span lang="en">Two settings that prevent trouble. <strong>Push protection:</strong> GitHub recognises known key
+        formats and blocks the push before they arrive – for pushes to public repositories the protection is on by
+        default for user accounts, and per repository it can be enabled under <code>Settings → Code security</code>.
+        <strong>Hide your email address:</strong> your name and address sit permanently and publicly in every commit.
+        <code>Settings → Emails → Keep my email addresses private</code> substitutes a no-reply address.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="spielplatz">
+    <h2><span lang="de">Spielplatz</span><span lang="en">Playground</span></h2>
+    <p>
+      <span lang="de">Eine Konsole ohne Auftrag, in der <code>git</code> nachgebildet ist. Sie können ein Repository
+        anlegen oder klonen, Dateien anlegen, vormerken, festschreiben, Zweige öffnen und zusammenführen. Der
+        Fernserver ist ebenfalls nachgebildet: <code>git push</code> funktioniert, sobald ein <code>origin</code>
+        eingetragen ist – aber es verlässt nichts diesen Browser.</span>
+      <span lang="en">A console without an assignment, with <code>git</code> modelled in it. You can create or clone a
+        repository, create files, stage them, commit, open branches and merge them. The remote is modelled too:
+        <code>git push</code> works once an <code>origin</code> is set – but nothing leaves this browser.</span>
+    </p>
+    <div data-terminal="frei"></div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: dreimal an der Konsole – klonen und lesen, eine Änderung festhalten, mit Zweigen
+        arbeiten – und dreimal zum Nachdenken über Begriffe, Ausschlüsse und den Umgang mit einem entwischten
+        Schlüssel.</span>
+      <span lang="en">Six exercises: three at the console – clone and read, record a change, work with branches – and
+        three to think through concepts, exclusions and how to handle an escaped key.</span>
+    </p>
+    <div data-uebung="W02-01"></div>
+    <div data-uebung="W02-02"></div>
+    <div data-uebung="W02-03"></div>
+    <div data-uebung="W02-04"></div>
+    <div data-uebung="W02-05"></div>
+    <div data-uebung="W02-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Git ist das Programm auf Ihrem Rechner, GitHub der Dienst, der Repositories aufbewahrt. Pull Requests und Issues sind GitHub-Funktionen, keine Git-Funktionen.</span><span lang="en">Git is the program on your machine, GitHub the service that hosts repositories. Pull requests and issues are GitHub functions, not Git functions.</span></li>
+      <li><span lang="de">Drei Bereiche: Arbeitsverzeichnis, Staging, Repository. <code>git add</code> wählt aus, <code>git commit</code> schreibt fest, <code>git push</code> überträgt. <code>git status</code> zeigt, wo Sie stehen – und ist der Befehl, den man am häufigsten braucht.</span><span lang="en">Three areas: working directory, staging, repository. <code>git add</code> selects, <code>git commit</code> records, <code>git push</code> transfers. <code>git status</code> shows where you stand – and is the command needed most often.</span></li>
+      <li><span lang="de">Ein Zweig ist ein Zeiger, kein Kopiervorgang. Er ist die richtige Antwort auf „was wäre, wenn“ – und ein Konflikt beim Zusammenführen ist eine Frage, keine Störung.</span><span lang="en">A branch is a pointer, not a copy operation. It is the right answer to “what if” – and a merge conflict is a question, not a malfunction.</span></li>
+      <li><span lang="de">Daten und Geheimnisse gehören nicht ins Repository. Die <code>.gitignore</code> steht im ersten Commit, weil sie nur nach vorn wirkt.</span><span lang="en">Data and secrets do not belong in the repository. The <code>.gitignore</code> goes in the first commit, because it only works forward.</span></li>
+      <li><span lang="de">Notebooks sind JSON mit eingebetteten Ausgaben. Ohne <code>nbstripout</code> sind Unterschiede unlesbar, Konflikte zerstörend und Ausgaben eine Veröffentlichung.</span><span lang="en">Notebooks are JSON with embedded outputs. Without <code>nbstripout</code>, diffs are unreadable, conflicts destructive and outputs a publication.</span></li>
+      <li><span lang="de">Ein entwischter Schlüssel wird zuerst widerrufen, nicht zuerst gelöscht. Löschen entfernt ihn aus der Gegenwart, nicht aus der Geschichte – und nicht aus den Kopien, die schon gemacht wurden.</span><span lang="en">An escaped key is revoked first, not deleted first. Deleting removes it from the present, not from the history – and not from the copies already made.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 02 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 02 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

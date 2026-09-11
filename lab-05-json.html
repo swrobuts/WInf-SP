@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 05 · JSON-Datenstrukturen · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 05 · JSON data structures · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-05">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Wo JSON herkommt</span><span lang="en">Where JSON comes from</span></a>
+  <a class="sidebar-link" href="#grammatik"><span lang="de">Die Grammatik</span><span lang="en">The grammar</span></a>
+  <a class="sidebar-link" href="#lesen"><span lang="de">Verschachtelung lesen</span><span lang="en">Reading nesting</span></a>
+  <a class="sidebar-link" href="#formate"><span lang="de">Was daneben steht</span><span lang="en">What stands beside it</span></a>
+  <a class="sidebar-link" href="#schreiben"><span lang="de">Erzeugen und prüfen</span><span lang="en">Producing and checking</span></a>
+  <a class="sidebar-link" href="#tabelle"><span lang="de">Von JSON zur Tabelle</span><span lang="en">From JSON to a table</span></a>
+  <a class="sidebar-link" href="#fehler"><span lang="de">Fehlermeldungen</span><span lang="en">Error messages</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">05</div>
+  <h1 class="lab-title"><span lang="de">JSON-Datenstrukturen</span><span lang="en">JSON data structures</span></h1>
+  <p class="lab-intro">
+    <span lang="de">Jede Schnittstelle, die Sie in diesem Kurs ansprechen, antwortet mit JSON; jede Konfigurationsdatei,
+      die Sie anlegen, ist JSON oder ein naher Verwandter; und das Notebook aus Lab 04 ist selbst eine JSON-Datei. Das
+      Format ist klein – sechs Werttypen, zwei Klammern – und trotzdem scheitern Datenprojekte regelmäßig an einem
+      einfachen Anführungszeichen, einem Komma zu viel oder einer Zahl, die eigentlich eine Kennung ist. Dieses Lab
+      macht aus dem Export des Velo-City-Betreiberportals Schritt für Schritt Tabellen – und zeigt, welche
+      Fehlermeldung an welcher Stelle wartet.</span>
+    <span lang="en">Every interface you address in this course answers with JSON; every configuration file you create is
+      JSON or a close relative; and the notebook from lab 04 is itself a JSON file. The format is small – six value
+      types, two kinds of bracket – and still data projects regularly fail on a single quote, one comma too many or a
+      number that is really an identifier. This lab turns the export of the Velo City operator portal into tables step
+      by step – and shows which error message waits at which point.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">object · array · null</span>
+    <span class="lernziel-chip">JSON Pointer · JSONPath</span>
+    <span class="lernziel-chip">JSON Lines · YAML · CSV</span>
+    <span class="lernziel-chip">json.dumps · JSON Schema</span>
+    <span class="lernziel-chip">json_normalize</span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Wo JSON herkommt</span><span lang="en">Where JSON comes from</span></h2>
+    <p>
+      <span lang="de">JSON (JavaScript Object Notation) ist ein Textformat für den Austausch strukturierter Daten. Es
+        wurde aus der Schreibweise für Objekte in JavaScript herausgelöst und ist heute in RFC 8259 und ECMA-404
+        festgelegt – zwei Dokumente, dieselbe Grammatik. Sie begegnen ihm an vier Stellen, und alle vier kommen in
+        diesem Kurs vor:</span>
+      <span lang="en">JSON (JavaScript Object Notation) is a text format for exchanging structured data. It was extracted
+        from the notation for objects in JavaScript and is today specified in RFC 8259 and ECMA-404 – two documents,
+        the same grammar. You meet it in four places, and all four occur in this course:</span>
+    </p>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Schnittstellen</span><span lang="en">Interfaces</span></div>
+        <p><span lang="de">Eine REST-Schnittstelle antwortet mit <code>Content-Type: application/json</code>. Supabase
+          liefert in Lab 08 jede Tabelle als JSON-Feld von Objekten; die eigene API aus Lab 11 antwortet ebenso. Wer
+          die Antwort nicht lesen kann, kann die Schnittstelle nicht benutzen.</span>
+        <span lang="en">A REST interface answers with <code>Content-Type: application/json</code>. In lab 08 Supabase
+          delivers every table as a JSON array of objects; your own API from lab 11 answers the same way. Whoever cannot
+          read the answer cannot use the interface.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Konfiguration</span><span lang="en">Configuration</span></div>
+        <p><span lang="de"><code>package.json</code>, <code>settings.json</code> in VS Code, <code>tsconfig.json</code>.
+          Aber Vorsicht: <code>compose.yaml</code> (Lab 07) und <code>render.yaml</code> (Lab 11) sind YAML – ein
+          anderes Format mit anderer Grammatik, das JSON allerdings einschließt (Abschnitt „Was daneben
+          steht“).</span>
+        <span lang="en"><code>package.json</code>, <code>settings.json</code> in VS Code, <code>tsconfig.json</code>.
+          But beware: <code>compose.yaml</code> (lab 07) and <code>render.yaml</code> (lab 11) are YAML – a different
+          format with a different grammar that nevertheless includes JSON (section “What stands beside it”).</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">.ipynb</div>
+        <p><span lang="de">Ein Jupyter-Notebook ist eine JSON-Datei: ein Objekt mit einem Feld <code>cells</code>, in
+          dem jede Zelle ihren Quelltext und ihre letzte Ausgabe trägt. Das erklärt zwei Beobachtungen aus Lab 04 –
+          warum Ausgaben mit auf GitHub landen und warum ein Diff auf ein Notebook so unleserlich ist.</span>
+        <span lang="en">A Jupyter notebook is a JSON file: an object with an array <code>cells</code> in which every
+          cell carries its source and its last output. That explains two observations from lab 04 – why outputs end
+          up on GitHub and why a diff on a notebook is so illegible.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Exporte</span><span lang="en">Exports</span></div>
+        <p><span lang="de">Betreiberportale, Ticketsysteme, Shopsysteme exportieren ihren Bestand als eine JSON-Datei
+          mit allem darin – verschachtelt, wie die Anwendung die Daten hält. Der Export von Velo City ist das Beispiel
+          dieses Labs.</span>
+        <span lang="en">Operator portals, ticket systems, shop systems export their stock as one JSON file with
+          everything in it – nested, the way the application holds the data. The Velo City export is this lab's
+          example.</span></p>
+      </div>
+    </div>
+
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">auswertung.ipynb – Text Editor</span><span class="spacer"></span>JSON · UTF-8</div>
+      <div class="shot-menu"><span>File</span><span>Edit</span><span>Selection</span><span>View</span><span>Go</span><span>Run</span><span>Terminal</span><span>Help</span></div>
+      <div class="shot-body eins">
+        <div class="shot-main">
+          <div class="code">{
+  "cells": [
+    {
+      "cell_type": "code", <span class="callout">1</span>
+      "execution_count": 3,
+      "source": [
+        "import pandas as pd\n",
+        "df = pd.read_csv(\"fahrten.csv\")\n",
+        "len(df)"
+      ], <span class="callout">2</span>
+      "outputs": [ { "output_type": "execute_result", "data": { "text/plain": [ "1500" ] } } ] <span class="callout">3</span>
+    }
+  ],
+  "metadata": { "kernelspec": { "name": "python3", "display_name": "Python 3" } }, <span class="callout">4</span>
+  "nbformat": 4,
+  "nbformat_minor": 5
+}</div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Jede Zelle ist ein Objekt; <code>cell_type</code> unterscheidet <code>code</code> und <code>markdown</code>.</span><span lang="en">Every cell is an object; <code>cell_type</code> distinguishes <code>code</code> and <code>markdown</code>.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Der Quelltext ist ein Feld von Zeichenketten, eine je Zeile, mit <code>\n</code> am Ende – darum sieht ein Diff jede Zeile als eigenes Element.</span><span lang="en">The source is an array of strings, one per line, with <code>\n</code> at the end – which is why a diff sees every line as its own element.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Die letzte Ausgabe steht in der Datei. Wer ein Notebook mit Zugangsdaten in der Ausgabe nach GitHub schiebt, veröffentlicht sie (Lab 04).</span><span lang="en">The last output is in the file. Whoever pushes a notebook with credentials in the output to GitHub publishes them (lab 04).</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Metadaten: welcher Kernel das Notebook zuletzt ausgeführt hat. <code>nbformat</code> nennt die Version des Dateiformats.</span><span lang="en">Metadata: which kernel last executed the notebook. <code>nbformat</code> names the version of the file format.</span></span></li>
+    </ol>
+
+    <div class="concept-box">
+      <h3><span lang="de">JSON ist Text mit sechs Werttypen und zwei Klammern</span><span lang="en">JSON is text with six value types and two kinds of bracket</span></h3>
+      <p><span lang="de">Ein JSON-Dokument ist genau ein Wert. Ein Wert ist entweder ein <strong>Objekt</strong>
+        <code>{ … }</code> (Name-Wert-Paare), ein <strong>Feld</strong> <code>[ … ]</code> (geordnete Liste), eine
+        <strong>Zeichenkette</strong>, eine <strong>Zahl</strong>, eines der Literale <strong>true</strong>/<strong>false</strong>
+        oder <strong>null</strong>. Objekte und Felder enthalten wieder Werte – beliebig tief. Mehr gibt es nicht: keine
+        Datumstypen, keine Kommentare, keine Verweise. Alles, was ein System darüber hinaus wissen muss, ist
+        Vereinbarung zwischen Sender und Empfänger.</span>
+      <span lang="en">A JSON document is exactly one value. A value is either an <strong>object</strong> <code>{ … }</code>
+        (name/value pairs), an <strong>array</strong> <code>[ … ]</code> (ordered list), a <strong>string</strong>, a
+        <strong>number</strong>, one of the literals <strong>true</strong>/<strong>false</strong> or <strong>null</strong>.
+        Objects and arrays contain values again – to any depth. There is nothing more: no date types, no comments, no
+        references. Everything a system has to know beyond that is an agreement between sender and receiver.</span></p>
+    </div>
+
+    <h3><span lang="de">Das Beispiel: der Velo-City-Export</span><span lang="en">The example: the Velo City export</span></h3>
+    <p>
+      <span lang="de">Das Betreiberportal exportiert den gesamten Bestand als eine Datei <code>velocity.json</code>
+        (435 KB). Außen ein <strong>Umschlag</strong> mit Herkunft, Zeitpunkt und Währung; darin drei Listen:
+        <code>stationen</code> (10 Stationen, jede mit ihren Rädern in einem Feld <code>raeder</code> – 60 Räder
+        insgesamt), <code>kunden</code> (200) und <code>fahrten</code> (1.500, jede mit den Unterobjekten
+        <code>start</code> und <code>ziel</code>). Für die Übungen gibt es eine <strong>Kostprobe</strong>
+        <code>velocity-kostprobe.json</code> mit 3 Stationen, 5 Kunden und 8 Fahrten – dieselbe Struktur, lesbar auf
+        einem Bildschirm.</span>
+      <span lang="en">The operator portal exports the entire stock as one file <code>velocity.json</code> (435 KB).
+        Outside, an <strong>envelope</strong> with origin, time and currency; inside, three lists:
+        <code>stationen</code> (10 stations, each with its bikes in an array <code>raeder</code> – 60 bikes in total),
+        <code>kunden</code> (200) and <code>fahrten</code> (1,500, each with the sub-objects <code>start</code> and
+        <code>ziel</code>). For the exercises there is a <strong>sample</strong> <code>velocity-kostprobe.json</code>
+        with 3 stations, 5 customers and 8 rides – the same structure, readable on one screen.</span>
+    </p>
+    <pre class="code-block">{
+  "quelle": "Velo City Betreiberportal",
+  "exportiert_am": "2026-09-01T06:00:00+02:00",
+  "waehrung": "EUR",
+  "stationen": [
+    { "station_id": 1, "name": "Juliuspromenade", "bezirk": "Altstadt", "plaetze": 18, "eroeffnet": "2024-04-02",
+      "raeder": [ { "rad_id": "R-010", "typ": "CARGO", "baujahr": 2024, "status": "aktiv" }, … ] },
+    …
+  ],
+  "kunden":  [ { "kunde_id": 1, "tarif": "Basis", "registriert": "2024-04-04", "bezirk": "Sanderau" }, … ],
+  "fahrten": [ { "fahrt_id": 1, "rad_id": "R-057", "kunde_id": 13,
+                 "start": { "station_id": 6, "zeit": "2025-10-05T07:58:00" }, "ziel": { "station_id": 3 },
+                 "dauer_min": 7, "preis_eur": 1.2 }, … ]
+}</pre>
+    <div class="kette">
+      <div class="glied hell"><span class="titel">Lab 04</span><span class="was"><span lang="de">pandas liest die Datei</span><span lang="en">pandas reads the file</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">Lab 05</span><span class="was"><span lang="de">Struktur verstehen, prüfen, flachklopfen</span><span lang="en">understand, check, flatten the structure</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Lab 06</span><span class="was"><span lang="de">dieselben Daten als Tabellen in SQLite</span><span lang="en">the same data as tables in SQLite</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Lab 08 · 11</span><span class="was"><span lang="de">Schnittstellen antworten JSON</span><span lang="en">interfaces answer JSON</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Lab 10</span><span class="was"><span lang="de">Rohexport als jsonb → Sternschema</span><span lang="en">raw export as jsonb → star schema</span></span></div>
+    </div>
+  </section>
+
+  <section class="section-block" id="grammatik">
+    <h2><span lang="de">Die Grammatik</span><span lang="en">The grammar</span></h2>
+    <p>
+      <span lang="de">Die vollständige Grammatik passt auf eine Seite von RFC 8259. Sechs Werttypen, und jeder hat im
+        Export ein Beispiel:</span>
+      <span lang="en">The complete grammar fits on one page of RFC 8259. Six value types, and each has an example in the
+        export:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Typ</span><span lang="en">Type</span></th>
+            <th><span lang="de">Schreibweise</span><span lang="en">Notation</span></th>
+            <th><span lang="de">Im Export</span><span lang="en">In the export</span></th>
+            <th>Python</th>
+            <th><span lang="de">Bemerkung</span><span lang="en">Remark</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>object</strong></td><td><code>{ "name": wert, … }</code></td><td><code>{ "station_id": 6, "zeit": "…" }</code></td><td><code>dict</code></td><td><span lang="de">Ungeordnet; Schlüssel sind Zeichenkette in doppelten Anführungszeichen</span><span lang="en">Unordered; keys are strings in double quotes</span></td></tr>
+          <tr><td><strong>array</strong></td><td><code>[ wert, wert, … ]</code></td><td><code>"raeder": [ {…}, {…} ]</code></td><td><code>list</code></td><td><span lang="de">Geordnet, Index ab 0; Elemente dürfen verschiedene Typen haben</span><span lang="en">Ordered, index from 0; elements may have different types</span></td></tr>
+          <tr><td><strong>string</strong></td><td><code>"…"</code></td><td><code>"Juliuspromenade"</code>, <code>"2024-04-02"</code>, <code>"R-010"</code></td><td><code>str</code></td><td><span lang="de">Nur doppelte Anführungszeichen; Escapes <code>\" \\ \n \t \uXXXX</code></span><span lang="en">Double quotes only; escapes <code>\" \\ \n \t \uXXXX</code></span></td></tr>
+          <tr><td><strong>number</strong></td><td><code>18</code>, <code>1.2</code>, <code>-3</code>, <code>1e3</code></td><td><code>"plaetze": 18</code>, <code>"preis_eur": 1.2</code></td><td><code>int</code>, <code>float</code></td><td><span lang="de">Kein Unterschied ganz/gebrochen in der Grammatik; kein <code>+</code>, keine führende Null, kein <code>NaN</code></span><span lang="en">No integer/fraction distinction in the grammar; no <code>+</code>, no leading zero, no <code>NaN</code></span></td></tr>
+          <tr><td><strong>true / false</strong></td><td><code>true</code>, <code>false</code></td><td><span lang="de">– (der Export nutzt <code>"status": "aktiv"</code>)</span><span lang="en">– (the export uses <code>"status": "aktiv"</code>)</span></td><td><code>True</code>, <code>False</code></td><td><span lang="de">Kleingeschrieben, ohne Anführungszeichen</span><span lang="en">Lower case, without quotes</span></td></tr>
+          <tr><td><strong>null</strong></td><td><code>null</code></td><td><span lang="de">– (fehlende Werte fehlen als Schlüssel: <code>ziel</code> hat keine <code>zeit</code>)</span><span lang="en">– (missing values are missing as keys: <code>ziel</code> has no <code>zeit</code>)</span></td><td><code>None</code></td><td><span lang="de">„Bekannt, aber leer“ – nicht dasselbe wie ein fehlender Schlüssel</span><span lang="en">“Known but empty” – not the same as a missing key</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <h3><span lang="de">Die Regeln (RFC 8259)</span><span lang="en">The rules (RFC 8259)</span></h3>
+      <ul>
+        <li><span lang="de">Schlüssel stehen in <strong>doppelten</strong> Anführungszeichen. Einfache Anführungszeichen gibt es in JSON nicht – weder um Schlüssel noch um Werte.</span><span lang="en">Keys are in <strong>double</strong> quotes. Single quotes do not exist in JSON – neither around keys nor around values.</span></li>
+        <li><span lang="de">Elemente werden mit Komma getrennt; vor der schließenden Klammer steht <strong>kein</strong> Komma.</span><span lang="en">Elements are separated by commas; there is <strong>no</strong> comma before the closing bracket.</span></li>
+        <li><span lang="de">Es gibt <strong>keine Kommentare</strong>. <code>//</code> und <code>/* */</code> machen das Dokument ungültig.</span><span lang="en">There are <strong>no comments</strong>. <code>//</code> and <code>/* */</code> make the document invalid.</span></li>
+        <li><span lang="de">Literale sind <strong>kleingeschrieben</strong>: <code>true</code>, <code>false</code>, <code>null</code>. <code>True</code>, <code>None</code>, <code>NULL</code>, <code>undefined</code> sind keine JSON-Werte.</span><span lang="en">Literals are <strong>lower case</strong>: <code>true</code>, <code>false</code>, <code>null</code>. <code>True</code>, <code>None</code>, <code>NULL</code>, <code>undefined</code> are not JSON values.</span></li>
+        <li><span lang="de">Zahlen haben keine führende Null (<code>01</code> ist ungültig), kein Pluszeichen, keinen Tausenderpunkt; Dezimaltrenner ist der Punkt. <code>NaN</code> und <code>Infinity</code> sind nicht erlaubt.</span><span lang="en">Numbers have no leading zero (<code>01</code> is invalid), no plus sign, no thousands separator; the decimal separator is the point. <code>NaN</code> and <code>Infinity</code> are not allowed.</span></li>
+        <li><span lang="de">Ganze Zahlen sind nur bis <strong>2<sup>53</sup>−1</strong> (9007199254740991) verlässlich, weil JavaScript jede Zahl als double liest. 64-Bit-Kennungen werden deshalb als Zeichenkette übertragen.</span><span lang="en">Integers are reliable only up to <strong>2<sup>53</sup>−1</strong> (9007199254740991), because JavaScript reads every number as a double. 64-bit identifiers are therefore transmitted as strings.</span></li>
+        <li><span lang="de">Es gibt <strong>keinen Datumstyp</strong>. Datum und Zeit sind Zeichenketten nach ISO 8601: <code>"2024-04-02"</code>, <code>"2025-10-05T07:58:00"</code>, mit Zeitzone <code>"2026-09-01T06:00:00+02:00"</code>.</span><span lang="en">There is <strong>no date type</strong>. Date and time are strings in ISO 8601: <code>"2024-04-02"</code>, <code>"2025-10-05T07:58:00"</code>, with time zone <code>"2026-09-01T06:00:00+02:00"</code>.</span></li>
+        <li><span lang="de">Die Datei ist <strong>UTF-8 ohne BOM</strong>. Umlaute stehen direkt darin; eine Byte Order Mark am Anfang ist verboten.</span><span lang="en">The file is <strong>UTF-8 without BOM</strong>. Umlauts sit directly in it; a byte order mark at the start is forbidden.</span></li>
+        <li><span lang="de">Schlüssel <em>sollen</em> eindeutig sein. Kommt einer doppelt vor, gewinnt in Python und in Postgres <code>jsonb</code> der letzte – ohne Warnung.</span><span lang="en">Keys <em>should</em> be unique. If one occurs twice, the last one wins in Python and in Postgres <code>jsonb</code> – without a warning.</span></li>
+        <li><span lang="de">Leerraum zwischen den Zeichen ist beliebig. Einrückung ist Kosmetik, kein Inhalt – anders als in YAML.</span><span lang="en">Whitespace between tokens is arbitrary. Indentation is cosmetic, not content – unlike in YAML.</span></li>
+      </ul>
+    </div>
+
+    <div data-befehl="B01"></div>
+
+    <p>
+      <span lang="de">Die Werkbank unten prüft und formatiert beliebiges JSON. Sie zeigt dieselbe Meldung wie
+        <code>JSON.parse</code> im Browser und ergänzt einen Hinweis auf die wahrscheinliche Ursache. Probieren Sie die
+        Regeln aus: ein einfaches Anführungszeichen, ein Komma vor der Klammer, ein <code>True</code>.</span>
+      <span lang="en">The workbench below checks and formats any JSON. It shows the same message as
+        <code>JSON.parse</code> in the browser and adds a hint at the probable cause. Try the rules out: a single quote,
+        a comma before the bracket, a <code>True</code>.</span>
+    </p>
+    <div data-json-konsole data-start='{ "station_id": 2, "name": "Hauptbahnhof", "plaetze": 24, "raeder": ["R-001", "R-011"] }'></div>
+  </section>
+
+  <section class="section-block" id="lesen">
+    <h2><span lang="de">Verschachtelung lesen</span><span lang="en">Reading nesting</span></h2>
+    <p>
+      <span lang="de">Ein verschachteltes Dokument liest man von außen nach innen, ein Schritt je Klammer. Der Typ des
+        zweiten Rads der ersten Station im Export:</span>
+      <span lang="en">You read a nested document from the outside in, one step per bracket. The type of the second bike of
+        the first station in the export:</span>
+    </p>
+    <div class="kette">
+      <div class="glied hell"><span class="titel">export</span><span class="was"><span lang="de">der Umschlag (Objekt)</span><span lang="en">the envelope (object)</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">["stationen"]</span><span class="was"><span lang="de">Schlüssel → Feld mit 10 Objekten</span><span lang="en">key → array of 10 objects</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">[0]</span><span class="was"><span lang="de">Index → erste Station (Objekt)</span><span lang="en">index → first station (object)</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">["raeder"]</span><span class="was"><span lang="de">Schlüssel → Feld mit 6 Objekten</span><span lang="en">key → array of 6 objects</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">[1]</span><span class="was"><span lang="de">Index → zweites Rad</span><span lang="en">index → second bike</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">["typ"]</span><span class="was">"CARGO"</span></div>
+    </div>
+    <p>
+      <span lang="de">Für so einen Weg gibt es zwei genormte Schreibweisen. Der <strong>JSON Pointer</strong> (RFC 6901)
+        ist eine Zeichenkette aus Schrägstrichen: <code>/stationen/0/raeder/1/typ</code>. Er bezeichnet genau
+        <em>eine</em> Stelle; leer (<code>""</code>) ist das ganze Dokument. JSON Schema verwendet ihn in
+        <code>$ref</code>, und die Übungen dieses Labs melden Verstöße mit ihm. <strong>JSONPath</strong> (RFC 9535)
+        beginnt mit <code>$</code> und kann auch <em>mehrere</em> Stellen treffen – mit <code>*</code> für alle
+        Elemente, <code>..</code> für beliebige Tiefe und Filtern in eckigen Klammern. Postgres spricht in
+        <code>jsonb_path_query</code> einen nahen Dialekt davon.</span>
+      <span lang="en">For such a route there are two standardised notations. The <strong>JSON Pointer</strong>
+        (RFC 6901) is a string of slashes: <code>/stationen/0/raeder/1/typ</code>. It designates exactly
+        <em>one</em> place; empty (<code>""</code>) is the whole document. JSON Schema uses it in <code>$ref</code>, and
+        this lab's exercises report violations with it. <strong>JSONPath</strong> (RFC 9535) starts with <code>$</code>
+        and can also hit <em>several</em> places – with <code>*</code> for all elements, <code>..</code> for any depth
+        and filters in square brackets. Postgres speaks a close dialect of it in <code>jsonb_path_query</code>.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Gesucht</span><span lang="en">Wanted</span></th>
+            <th>JSON Pointer (RFC 6901)</th>
+            <th>JSONPath (RFC 9535)</th>
+            <th>Python</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span lang="de">Die Quelle des Exports</span><span lang="en">The export's source</span></td><td><code>/quelle</code></td><td><code>$.quelle</code></td><td><code>export["quelle"]</code></td></tr>
+          <tr><td><span lang="de">Die erste Station</span><span lang="en">The first station</span></td><td><code>/stationen/0</code></td><td><code>$.stationen[0]</code></td><td><code>export["stationen"][0]</code></td></tr>
+          <tr><td><span lang="de">Typ des zweiten Rads der ersten Station</span><span lang="en">Type of the second bike of the first station</span></td><td><code>/stationen/0/raeder/1/typ</code></td><td><code>$.stationen[0].raeder[1].typ</code></td><td><code>export["stationen"][0]["raeder"][1]["typ"]</code></td></tr>
+          <tr><td><span lang="de">Zielstation der ersten Fahrt</span><span lang="en">Destination of the first ride</span></td><td><code>/fahrten/0/ziel/station_id</code></td><td><code>$.fahrten[0].ziel.station_id</code></td><td><code>export["fahrten"][0]["ziel"]["station_id"]</code></td></tr>
+          <tr><td><span lang="de">Alle Stationsnamen</span><span lang="en">All station names</span></td><td>–</td><td><code>$.stationen[*].name</code></td><td><code>[s["name"] for s in export["stationen"]]</code></td></tr>
+          <tr><td><span lang="de">Jede <code>rad_id</code>, egal wie tief</span><span lang="en">Every <code>rad_id</code>, at any depth</span></td><td>–</td><td><code>$..rad_id</code></td><td><span lang="de">zwei Schleifen</span><span lang="en">two loops</span></td></tr>
+          <tr><td><span lang="de">Fahrten über 30 Minuten</span><span lang="en">Rides over 30 minutes</span></td><td>–</td><td><code>$.fahrten[?@.dauer_min &gt; 30]</code></td><td><code>[f for f in export["fahrten"] if f["dauer_min"] &gt; 30]</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box">
+      <p><span lang="de">Ein Pointer ist eine Adresse, keine Garantie. Fehlt der Schlüssel, meldet Python
+        <code>KeyError: 'zeit'</code>, ein zu großer Index <code>IndexError: list index out of range</code>. Für
+        Schlüssel, die fehlen dürfen – wie <code>zeit</code> im <code>ziel</code> jeder Fahrt –, ist
+        <code>objekt.get("zeit")</code> der richtige Zugriff: <code>None</code> statt Abbruch.</span>
+      <span lang="en">A pointer is an address, not a guarantee. If the key is missing, Python reports
+        <code>KeyError: 'zeit'</code>; an index too large <code>IndexError: list index out of range</code>. For keys
+        that may be absent – like <code>zeit</code> in the <code>ziel</code> of every ride – <code>obj.get("zeit")</code>
+        is the right access: <code>None</code> instead of an abort.</span></p>
+    </div>
+    <p>
+      <span lang="de">Auf der Kommandozeile übernimmt <code>jq</code> (MIT-Lizenz, Version 1.8, Stand 09/2026) diese
+        Rolle: ein Filterprogramm, das JSON liest, einen Ausdruck anwendet und JSON ausgibt. Für einen ersten Blick in
+        eine 435-KB-Datei ist es schneller als jedes Notebook.</span>
+      <span lang="en"><code>jq</code> (MIT licence, version 1.8, as of 09/2026) plays this role on the command line: a
+        filter program that reads JSON, applies an expression and outputs JSON. For a first look into a 435 KB file it
+        is faster than any notebook.</span>
+    </p>
+    <div data-befehl="B02"></div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. <code>jq</code> steht hier, weil es
+        auf jedem System in einer Minute installiert ist und in Anleitungen vorausgesetzt wird; dasselbe leisten
+        <code>python -m json.tool</code> (Bestandteil von Python), <code>gron</code> (MIT) oder die Entwicklerwerkzeuge
+        des Browsers, die jede JSON-Antwort aufklappbar anzeigen.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. <code>jq</code> appears here because it is installed on any
+        system in a minute and is assumed in guides; <code>python -m json.tool</code> (part of Python),
+        <code>gron</code> (MIT) or the browser's developer tools, which show every JSON response collapsible, do the
+        same job.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="formate">
+    <h2><span lang="de">Was daneben steht</span><span lang="en">What stands beside it</span></h2>
+    <p>
+      <span lang="de">Fünf Formate sehen JSON ähnlich oder lösen dieselbe Aufgabe – und jedes davon hat mindestens eine
+        Regel, die JSON nicht kennt. Wer sie verwechselt, bekommt <code>Expecting value: line 1 column 1 (char 0)</code>
+        und sucht den Fehler an der falschen Stelle.</span>
+      <span lang="en">Five formats look similar to JSON or solve the same task – and each has at least one rule JSON does
+        not know. Whoever confuses them gets <code>Expecting value: line 1 column 1 (char 0)</code> and looks for the
+        error in the wrong place.</span>
+    </p>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">JSON Lines · .jsonl</div>
+        <p><span lang="de">Ein vollständiger JSON-Wert je Zeile, getrennt durch <code>\n</code>, UTF-8 ohne BOM. Die
+          Datei als Ganzes ist <em>kein</em> JSON – es fehlen die eckigen Klammern und die Kommas. Dafür lässt sich eine
+          Zeile anhängen, ohne die Datei zu lesen, und <code>head</code>, <code>wc -l</code> und <code>grep</code>
+          funktionieren. Standard für Protokolle, Datenströme und Trainingsdaten. <code>fahrten.jsonl</code> enthält
+          die 1.500 Fahrten so; pandas liest sie mit <code>pd.read_json("fahrten.jsonl", lines=True)</code>.</span>
+        <span lang="en">One complete JSON value per line, separated by <code>\n</code>, UTF-8 without BOM. The file as a
+          whole is <em>not</em> JSON – the square brackets and commas are missing. In return, a line can be appended
+          without reading the file, and <code>head</code>, <code>wc -l</code> and <code>grep</code> work. Standard for
+          logs, data streams and training data. <code>fahrten.jsonl</code> holds the 1,500 rides this way; pandas reads
+          them with <code>pd.read_json("fahrten.jsonl", lines=True)</code>.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">JSONC · JSON5</div>
+        <p><span lang="de">JSON mit Kommentaren und nachgestellten Kommas – der Modus, in dem VS Code seine
+          <code>settings.json</code> und <code>tasks.json</code> hält. JSON5 geht weiter: unquotierte Schlüssel,
+          einfache Anführungszeichen, <code>Infinity</code>. Beides ist gedacht für Dateien, die Menschen von Hand
+          pflegen, und beides ist mit <code>json.loads</code> und <code>JSON.parse</code> <strong>nicht</strong> lesbar.
+          Wer eine <code>settings.json</code> als Vorlage für eine Schnittstellenantwort nimmt, merkt das an
+          <code>Expecting property name enclosed in double quotes</code>.</span>
+        <span lang="en">JSON with comments and trailing commas – the mode in which VS Code keeps its
+          <code>settings.json</code> and <code>tasks.json</code>. JSON5 goes further: unquoted keys, single quotes,
+          <code>Infinity</code>. Both are meant for files people maintain by hand, and both are <strong>not</strong>
+          readable with <code>json.loads</code> and <code>JSON.parse</code>. Whoever takes a <code>settings.json</code>
+          as a template for an interface response notices by <code>Expecting property name enclosed in double
+          quotes</code>.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">YAML</div>
+        <p><span lang="de">Die Sprache von <code>compose.yaml</code> (Lab 07), <code>render.yaml</code> (Lab 11),
+          GitHub Actions und Kubernetes. Struktur durch <strong>Einrückung</strong> mit Leerzeichen (Tabulatoren sind
+          verboten), Listen mit <code>-</code>, Kommentare mit <code>#</code>. YAML 1.2 ist eine Obermenge von JSON:
+          Jede JSON-Datei ist gültiges YAML, nicht umgekehrt. Stolperstein: Ein Wert ohne Anführungszeichen wird
+          gedeutet – <code>no</code> kann in älteren Parsern zu <code>false</code> werden, <code>08</code> zu einer
+          Zahl.</span>
+        <span lang="en">The language of <code>compose.yaml</code> (lab 07), <code>render.yaml</code> (lab 11), GitHub
+          Actions and Kubernetes. Structure by <strong>indentation</strong> with spaces (tabs are forbidden), lists
+          with <code>-</code>, comments with <code>#</code>. YAML 1.2 is a superset of JSON: every JSON file is valid
+          YAML, not the other way round. Stumbling block: an unquoted value gets interpreted – <code>no</code> can
+          become <code>false</code> in older parsers, <code>08</code> a number.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">TOML</div>
+        <p><span lang="de">Das Format von <code>pyproject.toml</code>: Abschnitte in eckigen Klammern wie in
+          INI-Dateien, <code>schluessel = wert</code>, Kommentare mit <code>#</code>, und – anders als JSON – ein
+          echter Datumstyp. Python liest es seit 3.11 mit <code>tomllib</code> aus der Standardbibliothek, schreibt es
+          aber nicht.</span>
+        <span lang="en">The format of <code>pyproject.toml</code>: sections in square brackets as in INI files,
+          <code>key = value</code>, comments with <code>#</code>, and – unlike JSON – a real date type. Python reads it
+          since 3.11 with <code>tomllib</code> from the standard library, but does not write it.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">CSV</div>
+        <p><span lang="de">Ein Datensatz je Zeile, Felder durch Komma getrennt, Felder mit Komma oder Zeilenumbruch in
+          doppelten Anführungszeichen (RFC 4180). „Es gibt keine formale Spezifikation“, sagt der RFC selbst – und ein
+          deutsches Excel schreibt Semikolon als Trenner und Dezimal<em>komma</em>. In pandas:
+          <code>pd.read_csv(pfad, sep=";", decimal=",")</code>. Keine Typen, keine Verschachtelung, keine Unterscheidung
+          zwischen leer, <code>null</code> und fehlend.</span>
+        <span lang="en">One record per line, fields separated by commas, fields containing a comma or line break in
+          double quotes (RFC 4180). “There is no formal specification”, the RFC itself says – and a German Excel writes
+          the semicolon as separator and the decimal <em>comma</em>. In pandas:
+          <code>pd.read_csv(path, sep=";", decimal=",")</code>. No types, no nesting, no distinction between empty,
+          <code>null</code> and missing.</span></p>
+      </div>
+    </div>
+    <div data-befehl="B03"></div>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-05-beispiel.jsonl" download><span class="symbol">📄</span><span><span class="datei">lab-05-beispiel.jsonl</span><br><span class="was"><span lang="de">Fünf Fahrten als JSON Lines – zum Öffnen im Editor und für <code>read_json(…, lines=True)</code></span><span lang="en">Five rides as JSON Lines – to open in the editor and for <code>read_json(…, lines=True)</code></span></span></span></a>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th></th><th>JSON</th><th>YAML</th><th>TOML</th><th>XML</th><th>CSV</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span lang="de">Verschachtelung</span><span lang="en">Nesting</span></td><td><span lang="de">ja</span><span lang="en">yes</span></td><td><span lang="de">ja</span><span lang="en">yes</span></td><td><span lang="de">ja, umständlich</span><span lang="en">yes, awkward</span></td><td><span lang="de">ja</span><span lang="en">yes</span></td><td><strong><span lang="de">nein</span><span lang="en">no</span></strong></td></tr>
+          <tr><td><span lang="de">Kommentare</span><span lang="en">Comments</span></td><td><strong><span lang="de">nein</span><span lang="en">no</span></strong></td><td><code>#</code></td><td><code>#</code></td><td><code>&lt;!-- --&gt;</code></td><td><span lang="de">nein</span><span lang="en">no</span></td></tr>
+          <tr><td><span lang="de">Datentypen</span><span lang="en">Data types</span></td><td>6</td><td><span lang="de">viele, implizit</span><span lang="en">many, implicit</span></td><td><span lang="de">viele, inkl. Datum</span><span lang="en">many, incl. date</span></td><td><span lang="de">nur Text (XSD ergänzt Typen)</span><span lang="en">text only (XSD adds types)</span></td><td><span lang="de">nur Text</span><span lang="en">text only</span></td></tr>
+          <tr><td><span lang="de">Schemasprache</span><span lang="en">Schema language</span></td><td>JSON Schema</td><td><span lang="de">JSON Schema (über YAML)</span><span lang="en">JSON Schema (via YAML)</span></td><td>–</td><td>XSD / DTD</td><td>–</td></tr>
+          <tr><td><span lang="de">Hauptverwendung</span><span lang="en">Main use</span></td><td><span lang="de">Schnittstellen, Konfiguration, Dokumentdatenbanken</span><span lang="en">interfaces, configuration, document databases</span></td><td><span lang="de">DevOps-Konfiguration</span><span lang="en">DevOps configuration</span></td><td><span lang="de">Werkzeugkonfiguration</span><span lang="en">tool configuration</span></td><td><span lang="de">Dokumente, B2B (XRechnung)</span><span lang="en">documents, B2B (e-invoicing)</span></td><td><span lang="de">Tabellenaustausch, Excel</span><span lang="en">tabular exchange, Excel</span></td></tr>
+          <tr><td><span lang="de">Von Hand schreibbar</span><span lang="en">Hand-written</span></td><td><span lang="de">mäßig</span><span lang="en">so-so</span></td><td><span lang="de">gut</span><span lang="en">good</span></td><td><span lang="de">gut</span><span lang="en">good</span></td><td><span lang="de">schlecht</span><span lang="en">poor</span></td><td><span lang="de">geht</span><span lang="en">okay</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn-box">
+      <h3><span lang="de">Warum CSV keine Verschachtelung kann</span><span lang="en">Why CSV cannot nest</span></h3>
+      <p><span lang="de">CSV ist ein zweidimensionales Raster: Jede Zeile hat dieselben Spalten, jede Zelle enthält
+        einen einzelnen Wert. Eine Station mit sechs Rädern passt nicht in eine Zeile – sechs Räder sind sechs Werte,
+        und die Zahl ist von Station zu Station verschieden. Es gibt zwei Auswege, und beide verlieren etwas:
+        <strong>Flachklopfen</strong> (<code>raeder.0.rad_id</code>, <code>raeder.1.rad_id</code>, … – Spalten, die
+        mit dem längsten Datensatz wachsen und bei kürzeren leer bleiben) oder <strong>Normalisieren</strong> in
+        mehrere Dateien, die über eine Kennung zusammengehören. Das zweite ist der Weg in die relationale Datenbank
+        und Gegenstand des Abschnitts „Von JSON zur Tabelle“. Umgekehrt kann CSV nicht sagen, ob eine leere Zelle
+        <code>null</code>, <code>""</code> oder „Spalte gab es nicht“ bedeutet – JSON kann alle drei
+        unterscheiden.</span>
+      <span lang="en">CSV is a two-dimensional grid: every row has the same columns, every cell holds a single value. A
+        station with six bikes does not fit in one row – six bikes are six values, and the number differs from station
+        to station. There are two ways out, and both lose something: <strong>flattening</strong>
+        (<code>raeder.0.rad_id</code>, <code>raeder.1.rad_id</code>, … – columns that grow with the longest record and
+        stay empty for shorter ones) or <strong>normalising</strong> into several files that belong together via an
+        identifier. The second is the route into the relational database and the subject of the section “From JSON
+        to a table”. Conversely, CSV cannot say whether an empty cell means <code>null</code>, <code>""</code> or
+        “the column did not exist” – JSON can distinguish all three.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="schreiben">
+    <h2><span lang="de">JSON erzeugen und prüfen</span><span lang="en">Producing and checking JSON</span></h2>
+    <p>
+      <span lang="de">JSON schreibt man nicht von Hand, sondern lässt es erzeugen: aus einem <code>dict</code> in
+        Python, aus einem Objekt in JavaScript. Dann stimmen Anführungszeichen und Kommas automatisch – und die
+        verbleibenden Fehler sind die interessanten: Umlaute, Datumswerte, Typen.</span>
+      <span lang="en">You do not write JSON by hand but have it generated: from a <code>dict</code> in Python, from an
+        object in JavaScript. Then quotes and commas are automatically right – and the remaining errors are the
+        interesting ones: umlauts, date values, types.</span>
+    </p>
+    <div data-befehl="B04"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Umlaute: zwei Stellen, an denen es schiefgeht</span><span lang="en">Umlauts: two places where it goes wrong</span></h3>
+      <p><span lang="de">Erstens beim Öffnen: Ohne <code>encoding="utf-8"</code> nimmt Python die Voreinstellung des
+        Betriebssystems – auf Windows bis Python 3.14 cp1252 (UTF-8 wird erst mit Python 3.15 Standard, PEP 686,
+        Stand 09/2026). Eine UTF-8-Datei, als cp1252 gelesen, zeigt <code>WÃ¼rzburg</code>; eine cp1252-Datei, als
+        UTF-8 gelesen, bricht ab mit <code>UnicodeDecodeError: 'utf-8' codec can't decode byte 0xfc in position …:
+        invalid start byte</code>. Zweitens beim Schreiben: <code>json.dumps</code> maskiert ohne
+        <code>ensure_ascii=False</code> jeden Umlaut als <code>\u00fc</code> – gültig, aber unlesbar. Die Regel:
+        <code>encoding="utf-8"</code> bei jedem <code>open</code>, <code>ensure_ascii=False</code> bei jedem
+        <code>dumps</code>.</span>
+      <span lang="en">First when opening: without <code>encoding="utf-8"</code> Python takes the operating system's
+        default – on Windows cp1252 up to Python 3.14 (UTF-8 becomes the default only with Python 3.15, PEP 686, as
+        of 09/2026). A UTF-8 file read as cp1252 shows <code>WÃ¼rzburg</code>; a cp1252 file read as UTF-8 aborts
+        with <code>UnicodeDecodeError: 'utf-8' codec can't decode byte 0xfc in position …: invalid start
+        byte</code>. Second when writing: without <code>ensure_ascii=False</code>, <code>json.dumps</code> escapes
+        every umlaut as <code>\u00fc</code> – valid but unreadable. The rule: <code>encoding="utf-8"</code> on every
+        <code>open</code>, <code>ensure_ascii=False</code> on every <code>dumps</code>.</span></p>
+    </div>
+    <div data-befehl="B09"></div>
+    <div data-befehl="B07"></div>
+
+    <h3><span lang="de">Ein Schema für die Struktur</span><span lang="en">A schema for the structure</span></h3>
+    <p>
+      <span lang="de">Dass eine Datei gültiges JSON ist, sagt nichts darüber, ob sie die <em>erwartete</em> Struktur hat.
+        <code>{"station_id": "4"}</code> ist gültig – und trotzdem falsch, wenn eine Zahl erwartet wird. Dafür gibt es
+        <strong>JSON Schema</strong>: ein JSON-Dokument, das beschreibt, welche Schlüssel mit welchen Typen, Mustern und
+        Wertelisten in einem anderen JSON-Dokument stehen müssen. Aktuelle Fassung ist 2020-12 (Stand 09/2026). Die
+        Vorlage unten beschreibt ein Stationsobjekt des Exports; in Python prüft das Paket <code>jsonschema</code>
+        (Version 4.26, MIT) dagegen, in JavaScript <code>ajv</code>. Die Übungen W05-02 und W05-05 auf dieser Seite
+        tun im Kern dasselbe.</span>
+      <span lang="en">That a file is valid JSON says nothing about whether it has the <em>expected</em> structure.
+        <code>{"station_id": "4"}</code> is valid – and still wrong when a number is expected. That is what
+        <strong>JSON Schema</strong> is for: a JSON document describing which keys with which types, patterns and value
+        lists must appear in another JSON document. The current version is 2020-12 (as of 09/2026). The template below
+        describes a station object of the export; in Python the package <code>jsonschema</code> (version 4.26, MIT)
+        validates against it, in JavaScript <code>ajv</code>. Exercises W05-02 and W05-05 on this page do essentially
+        the same.</span>
+    </p>
+    <div data-befehl="B05"></div>
+    <div data-befehl="B06"></div>
+    <p>
+      <span lang="de">Die Meldung nennt den Verstoß, den Pfad im Schema und den Wert: <code>'Invalid' is not of type
+        'integer'</code> – oder <code>… of type 'number'</code>, wenn das Schema <code>number</code> verlangt. Ein
+        fehlendes Feld meldet sich als <code>'eroeffnet' is a required property</code>, ein Wert außerhalb der Liste
+        als <code>'TANDEM' is not one of ['CITY', 'EBIKE', 'CARGO']</code>. Alle drei sind besser als das, was ohne
+        Schema passiert: Die Zeichenkette wandert bis in die Datenbank und fällt erst beim Rechnen auf.</span>
+      <span lang="en">The message names the violation, the path in the schema and the value: <code>'Invalid' is not of
+        type 'integer'</code> – or <code>… of type 'number'</code> when the schema demands <code>number</code>. A
+        missing field reports as <code>'eroeffnet' is a required property</code>, a value outside the list as
+        <code>'TANDEM' is not one of ['CITY', 'EBIKE', 'CARGO']</code>. All three are better than what happens
+        without a schema: the string travels all the way into the database and shows up only when calculating.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-05-station.schema.json" download><span class="symbol">📄</span><span><span class="datei">lab-05-station.schema.json</span><br><span class="was"><span lang="de">JSON Schema 2020-12 für ein Stationsobjekt mit <code>raeder</code></span><span lang="en">JSON Schema 2020-12 for a station object with <code>raeder</code></span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-05-json_lesen.py" download><span class="symbol">📄</span><span><span class="datei">lab-05-json_lesen.py</span><br><span class="was"><span lang="de">Lädt die Kostprobe, navigiert, schreibt stationen.csv und raeder.csv</span><span lang="en">Loads the sample, navigates, writes stationen.csv and raeder.csv</span></span></span></a>
+    </div>
+  </section>
+
+  <section class="section-block" id="tabelle">
+    <h2><span lang="de">Von JSON zur Tabelle</span><span lang="en">From JSON to a table</span></h2>
+    <p>
+      <span lang="de">pandas kennt nur Tabellen. <code>pd.json_normalize</code> macht aus einer Liste von Objekten eine
+        Tabelle mit einer Zeile je Objekt – und klopft dabei Unterobjekte zu Punktspalten flach: aus
+        <code>start.station_id</code> und <code>start.zeit</code> werden zwei Spalten. Unter<em>listen</em> dagegen
+        bleiben als Liste in der Zelle stehen, bis man sie mit <code>record_path</code> zu eigenen Zeilen macht und mit
+        <code>meta</code> die Felder des Elternobjekts mitnimmt.</span>
+      <span lang="en">pandas only knows tables. <code>pd.json_normalize</code> turns a list of objects into a table with
+        one row per object – and flattens sub-objects into dotted columns along the way: <code>start.station_id</code>
+        and <code>start.zeit</code> become two columns. Sub-<em>lists</em>, by contrast, remain as a list in the cell
+        until you turn them into rows of their own with <code>record_path</code> and carry the parent object's fields
+        along with <code>meta</code>.</span>
+    </p>
+
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">velocity_json.ipynb – Colab</span><span class="spacer"></span>Python 3 · CPU</div>
+      <div class="shot-menu"><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Runtime</span><span>Tools</span><span>Help</span></div>
+      <div class="shot-body eins">
+        <div class="shot-main">
+          <div class="zelle"><span class="nrz">[1]</span>import json, pandas as pd<br>with open("velocity-kostprobe.json", encoding="utf-8") as f: <span class="callout">1</span><br>&nbsp;&nbsp;&nbsp;&nbsp;export = json.load(f)</div>
+          <div class="zelle"><span class="nrz">[2]</span>raeder = pd.json_normalize(export["stationen"], record_path="raeder", meta=["station_id", "name"]) <span class="callout">2</span><br>raeder.head(3)</div>
+          <div class="ausgabe">  rad_id    typ  baujahr status station_id             name
+0  R-010  CARGO     2024  aktiv          1  Juliuspromenade
+1  R-020  CARGO     2025  aktiv          1  Juliuspromenade
+2  R-030  CARGO     2023  aktiv          1  Juliuspromenade <span class="callout">3</span></div>
+          <div class="zelle"><span class="nrz">[3]</span>pd.json_normalize(export["fahrten"]).columns.tolist()</div>
+          <div class="ausgabe">['fahrt_id', 'rad_id', 'kunde_id', 'dauer_min', 'preis_eur', 'start.station_id', 'start.zeit', 'ziel.station_id'] <span class="callout">4</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de"><code>encoding="utf-8"</code> steht bei jedem <code>open</code> – in Colab läuft Linux mit UTF-8, auf dem eigenen Windows-Rechner nicht.</span><span lang="en"><code>encoding="utf-8"</code> is on every <code>open</code> – Colab runs Linux with UTF-8, your own Windows machine does not.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de"><code>record_path</code> nennt die Liste, die zu Zeilen wird; <code>meta</code> die Felder der Station, die auf jede Radzeile kopiert werden.</span><span lang="en"><code>record_path</code> names the list that becomes rows; <code>meta</code> the station's fields copied onto every bike row.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">18 Zeilen aus 3 Stationen. <code>station_id</code> wiederholt sich – das ist der Fremdschlüssel, den Lab 06 in der Tabelle <code>rad</code> als <code>heimstation</code> anlegt.</span><span lang="en">18 rows from 3 stations. <code>station_id</code> repeats – that is the foreign key lab 06 creates in the table <code>rad</code> as <code>heimstation</code>.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Ohne <code>record_path</code>: eine Zeile je Fahrt, die Unterobjekte werden zu Punktspalten. <code>ziel.zeit</code> fehlt, weil kein Ziel eine Zeit hat.</span><span lang="en">Without <code>record_path</code>: one row per ride, the sub-objects become dotted columns. <code>ziel.zeit</code> is absent because no destination has a time.</span></span></li>
+    </ol>
+    <div data-befehl="B08"></div>
+
+    <h3><span lang="de">Normalisieren: aus einem Dokument werden vier Tabellen</span><span lang="en">Normalising: one document becomes four tables</span></h3>
+    <p>
+      <span lang="de">Die Verschachtelung im Export drückt Beziehungen aus: Ein Rad <em>gehört zu</em> einer Station,
+        eine Fahrt <em>beginnt an</em> einer Station. Relational werden daraus Tabellen und Fremdschlüssel. Die
+        Regeln dafür sind kurz:</span>
+      <span lang="en">The nesting in the export expresses relationships: a bike <em>belongs to</em> a station, a ride
+        <em>starts at</em> a station. Relationally these become tables and foreign keys. The rules for that are
+        short:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">JSON-Struktur</span><span lang="en">JSON structure</span></th>
+            <th><span lang="de">Relationale Regel</span><span lang="en">Relational rule</span></th>
+            <th><span lang="de">Im Export</span><span lang="en">In the export</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span lang="de">Objekt in einer Liste</span><span lang="en">Object in a list</span></td><td><span lang="de">eine Zeile</span><span lang="en">one row</span></td><td><code>stationen[i]</code> → <span lang="de">Zeile in</span><span lang="en">row in</span> <code>station</code></td></tr>
+          <tr><td><span lang="de">Feld von Objekten in einem Objekt</span><span lang="en">Array of objects inside an object</span></td><td><span lang="de">eigene Tabelle mit Fremdschlüssel auf das Elternobjekt (1:n)</span><span lang="en">own table with a foreign key to the parent (1:n)</span></td><td><code>raeder</code> → <code>rad(rad_id, typ, baujahr, status, heimstation)</code></td></tr>
+          <tr><td><span lang="de">Einzelnes Unterobjekt</span><span lang="en">Single sub-object</span></td><td><span lang="de">flachklopfen: Spalten im Elternobjekt (1:1)</span><span lang="en">flatten: columns in the parent (1:1)</span></td><td><code>start</code>, <code>ziel</code> → <code>fahrt(…, start_station, start_zeit, ziel_station)</code></td></tr>
+          <tr><td><span lang="de">Feld von Skalaren</span><span lang="en">Array of scalars</span></td><td><span lang="de">Kindtabelle mit einer Wertspalte oder Verbindungstabelle (n:m)</span><span lang="en">child table with one value column, or junction table (n:m)</span></td><td><span lang="de">– (kommt im Export nicht vor; typisch: <code>tags</code>)</span><span lang="en">– (does not occur in the export; typical: <code>tags</code>)</span></td></tr>
+          <tr><td><span lang="de">Verweis über eine Kennung</span><span lang="en">Reference via an identifier</span></td><td><span lang="de">Fremdschlüssel</span><span lang="en">foreign key</span></td><td><code>fahrten[i].rad_id</code> → <code>rad.rad_id</code>, <code>kunde_id</code> → <code>kunde</code></td></tr>
+          <tr><td><span lang="de">Fehlender Schlüssel oder <code>null</code></span><span lang="en">Missing key or <code>null</code></span></td><td><code>NULL</code></td><td><code>ziel.zeit</code> <span lang="de">fehlt → in der Tabelle</span><span lang="en">is absent → in the table</span> <code>NULL</code></td></tr>
+          <tr><td><span lang="de">Der Umschlag</span><span lang="en">The envelope</span></td><td><span lang="de">Metadaten: eigene Tabelle oder Ladeprotokoll</span><span lang="en">metadata: own table or load log</span></td><td><code>quelle</code>, <code>exportiert_am</code>, <code>waehrung</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <span lang="de">Das Ergebnis sind vier Tabellen – <code>station</code>, <code>rad</code>, <code>kunde</code>,
+        <code>fahrt</code> – und genau dieses Schema legt Lab 06 in SQLite an und Lab 08 in Postgres. Lab 10 geht den
+        anderen Weg: Der Rohexport wird zuerst unverändert in eine <code>jsonb</code>-Spalte geladen und erst in der
+        Datenbank mit <code>jsonb_array_elements()</code> zerlegt (ELT). Beide Wege führen zu denselben vier
+        Tabellen; sie unterscheiden sich darin, <em>wo</em> die Umformung stattfindet.</span>
+      <span lang="en">The result is four tables – <code>station</code>, <code>rad</code>, <code>kunde</code>,
+        <code>fahrt</code> – and exactly this schema is what lab 06 creates in SQLite and lab 08 in Postgres. Lab 10
+        takes the other route: the raw export is first loaded unchanged into a <code>jsonb</code> column and only
+        decomposed inside the database with <code>jsonb_array_elements()</code> (ELT). Both routes lead to the same
+        four tables; they differ in <em>where</em> the transformation takes place.</span>
+    </p>
+    <div class="tip-box">
+      <p><span lang="de">Eine Zeichenkette in einer Zahlenspalte fällt in pandas erst spät auf: Steht in einer einzigen
+        Fahrt <code>"dauer_min": "9"</code>, bekommt die ganze Spalte den Typ <code>object</code>, und
+        <code>mean()</code> scheitert mit <code>TypeError</code>. <code>df.dtypes</code> nach dem Laden ist deshalb
+        kein optionaler Schritt – und ein Schema vor dem Laden erspart ihn.</span>
+      <span lang="en">A string in a numeric column shows up late in pandas: if a single ride has
+        <code>"dauer_min": "9"</code>, the whole column gets the type <code>object</code>, and <code>mean()</code> fails
+        with a <code>TypeError</code>. <code>df.dtypes</code> after loading is therefore not an optional step – and a
+        schema before loading saves it.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="fehler">
+    <h2><span lang="de">Fehlermeldungen</span><span lang="en">Error messages</span></h2>
+    <p>
+      <span lang="de">Die Meldungen sind wörtlich wiedergegeben, Stand 09/2026: Python 3.12 (<code>json</code>) und
+        Node 26 beziehungsweise Chrome (V8). Firefox formuliert anders (<code>JSON.parse: expected property name or
+        '}'</code>), meint aber dasselbe. Die Angabe <code>line 1 column 9 (char 8)</code> ist die Stelle, an der der
+        Parser <em>aufgegeben</em> hat – der Fehler liegt meist unmittelbar davor.</span>
+      <span lang="en">The messages are reproduced verbatim, as of 09/2026: Python 3.12 (<code>json</code>) and Node 26
+        or Chrome (V8). Firefox phrases differently (<code>JSON.parse: expected property name or '}'</code>) but means
+        the same. The indication <code>line 1 column 9 (char 8)</code> is the place where the parser <em>gave up</em> –
+        the error usually lies immediately before it.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Eingabe</span><span lang="en">Input</span></th>
+            <th>Python <code>json</code></th>
+            <th>JavaScript (V8)</th>
+            <th><span lang="de">Ursache und Abhilfe</span><span lang="en">Cause and remedy</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>{'a': 1}</code></td><td><code>Expecting property name enclosed in double quotes: line 1 column 2 (char 1)</code></td><td><code>Expected property name or '}' in JSON at position 1 (line 1 column 2)</code></td><td><span lang="de">Einfache Anführungszeichen – meist <code>print(dict)</code> statt <code>json.dumps</code></span><span lang="en">Single quotes – usually <code>print(dict)</code> instead of <code>json.dumps</code></span></td></tr>
+          <tr><td><code>{"a": 1,}</code></td><td><code>Expecting property name enclosed in double quotes: line 1 column 9 (char 8)</code></td><td><code>Expected double-quoted property name in JSON at position 8 (line 1 column 9)</code></td><td><span lang="de">Komma vor der schließenden Klammer; bei <code>[1, 2,]</code> lautet die Python-Meldung <code>Expecting value</code></span><span lang="en">Comma before the closing bracket; for <code>[1, 2,]</code> the Python message reads <code>Expecting value</code></span></td></tr>
+          <tr><td><code>{"a": 1 "b": 2}</code></td><td><code>Expecting ',' delimiter: line 1 column 9 (char 8)</code></td><td><code>Expected ',' or '}' after property value in JSON at position 7 (line 1 column 8)</code></td><td><span lang="de">Komma fehlt zwischen zwei Paaren; dieselbe Meldung bei <code>{"a": 01}</code> (führende Null) und bei unvollständigem Dokument</span><span lang="en">Comma missing between two pairs; the same message for <code>{"a": 01}</code> (leading zero) and for an incomplete document</span></td></tr>
+          <tr><td><span lang="de">leer</span><span lang="en">empty</span></td><td><code>Expecting value: line 1 column 1 (char 0)</code></td><td><code>Unexpected end of JSON input</code></td><td><span lang="de">Leerer Antwortkörper – Status prüfen; ein 204 hat keinen Inhalt</span><span lang="en">Empty response body – check the status; a 204 has no content</span></td></tr>
+          <tr><td><code>&lt;!DOCTYPE html&gt;…</code></td><td><code>Expecting value: line 1 column 1 (char 0)</code></td><td><code>Unexpected token '&lt;', "&lt;!DOCTYPE "... is not valid JSON</code></td><td><span lang="de">Eine HTML-Fehlerseite statt JSON: falsche URL, fehlender Schlüssel, Anmeldeseite. In Python <code>r.status_code</code> und <code>r.text[:200]</code> ansehen</span><span lang="en">An HTML error page instead of JSON: wrong URL, missing key, login page. In Python look at <code>r.status_code</code> and <code>r.text[:200]</code></span></td></tr>
+          <tr><td><code>// Kommentar</code></td><td><code>Expecting value: line 1 column 1 (char 0)</code></td><td><code>Unexpected token '/', "// Kommentar" is not valid JSON</code></td><td><span lang="de">Kommentar – die Datei ist JSONC (VS Code) oder von Hand geschrieben</span><span lang="en">Comment – the file is JSONC (VS Code) or hand-written</span></td></tr>
+          <tr><td><code>{"a": True}</code></td><td><code>Expecting value: line 1 column 7 (char 6)</code></td><td><code>Unexpected token 'T', "{"a": True}" is not valid JSON</code></td><td><span lang="de">Python-Literal; ebenso <code>None</code>, <code>NaN</code>, <code>undefined</code></span><span lang="en">Python literal; likewise <code>None</code>, <code>NaN</code>, <code>undefined</code></span></td></tr>
+          <tr><td><span lang="de">Datei mit BOM</span><span lang="en">File with BOM</span></td><td><code>Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)</code></td><td><code>Unexpected token '﻿', "﻿{"a":1}" is not valid JSON</code></td><td><span lang="de">Windows-Editor oder Excel: als „UTF-8“ ohne BOM speichern oder mit <code>encoding="utf-8-sig"</code> lesen</span><span lang="en">Windows Notepad or Excel: save as “UTF-8” without BOM or read with <code>encoding="utf-8-sig"</code></span></td></tr>
+          <tr><td><code>json.dumps({"d": datetime.now()})</code></td><td><code>TypeError: Object of type datetime is not JSON serializable</code></td><td><span lang="de">– (<code>Date</code> wird zu ISO-Zeichenkette)</span><span lang="en">– (<code>Date</code> becomes an ISO string)</span></td><td><span lang="de"><code>default=str</code> oder <code>.isoformat()</code>; dieselbe Meldung für <code>date</code>, <code>set</code>, <code>Decimal</code> und numpy-Typen (<code>int64</code>)</span><span lang="en"><code>default=str</code> or <code>.isoformat()</code>; the same message for <code>date</code>, <code>set</code>, <code>Decimal</code> and numpy types (<code>int64</code>)</span></td></tr>
+          <tr><td><code>json.dumps(float("nan"), allow_nan=False)</code></td><td><code>ValueError: Out of range float values are not JSON compliant: nan</code></td><td><span lang="de">– (<code>NaN</code> wird still zu <code>null</code>)</span><span lang="en">– (<code>NaN</code> silently becomes <code>null</code>)</span></td><td><span lang="de">Ohne <code>allow_nan=False</code> schreibt Python <code>NaN</code> – und kein anderer Parser liest es. Vorher <code>df.fillna</code> oder <code>None</code></span><span lang="en">Without <code>allow_nan=False</code> Python writes <code>NaN</code> – and no other parser reads it. Beforehand <code>df.fillna</code> or <code>None</code></span></td></tr>
+          <tr><td><span lang="de">UTF-8 als cp1252 gelesen</span><span lang="en">UTF-8 read as cp1252</span></td><td><code>WÃ¼rzburg</code> <span lang="de">(keine Meldung)</span><span lang="en">(no message)</span></td><td>–</td><td><span lang="de"><code>encoding="utf-8"</code> beim <code>open</code>. Umgekehrt (cp1252 als UTF-8): <code>UnicodeDecodeError: 'utf-8' codec can't decode byte 0xfc</code></span><span lang="en"><code>encoding="utf-8"</code> on <code>open</code>. The other way round (cp1252 as UTF-8): <code>UnicodeDecodeError: 'utf-8' codec can't decode byte 0xfc</code></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <p><span lang="de">Die Python-Ausnahme heißt <code>json.decoder.JSONDecodeError</code> und ist eine Unterklasse von
+        <code>ValueError</code>; sie trägt <code>e.lineno</code>, <code>e.colno</code> und <code>e.pos</code>. In
+        <code>requests</code> löst <code>r.json()</code> bei Nicht-JSON eine <code>requests.exceptions.JSONDecodeError</code>
+        aus – die Prüfung auf <code>r.ok</code> gehört davor, nicht dahinter.</span>
+      <span lang="en">The Python exception is called <code>json.decoder.JSONDecodeError</code> and is a subclass of
+        <code>ValueError</code>; it carries <code>e.lineno</code>, <code>e.colno</code> and <code>e.pos</code>. In
+        <code>requests</code>, <code>r.json()</code> raises a <code>requests.exceptions.JSONDecodeError</code> on
+        non-JSON – the check for <code>r.ok</code> belongs before it, not after.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: dreimal JSON schreiben oder reparieren – die Prüfung meldet Syntaxfehler mit der
+        Meldung des Browsers und Strukturfehler je JSON Pointer –, einmal Fehlermeldungen zuordnen und zweimal
+        nachdenken: über die Grammatik und über den Weg zur Tabelle.</span>
+      <span lang="en">Six exercises: three times writing or repairing JSON – the check reports syntax errors with the
+        browser's message and structural errors per JSON pointer –, once assigning error messages and twice thinking
+        it through: about the grammar and about the route to the table.</span>
+    </p>
+    <div data-uebung="W05-01"></div>
+    <div data-uebung="W05-02"></div>
+    <div data-uebung="W05-03"></div>
+    <div data-uebung="W05-04"></div>
+    <div data-uebung="W05-05"></div>
+    <div data-uebung="W05-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">JSON ist Text mit sechs Werttypen – Objekt, Feld, Zeichenkette, Zahl, <code>true</code>/<code>false</code>, <code>null</code> – und zwei Klammern. Schlüssel in doppelten Anführungszeichen, kein Komma vor der schließenden Klammer, keine Kommentare, Literale klein.</span><span lang="en">JSON is text with six value types – object, array, string, number, <code>true</code>/<code>false</code>, <code>null</code> – and two kinds of bracket. Keys in double quotes, no comma before the closing bracket, no comments, literals lower case.</span></li>
+      <li><span lang="de">Es gibt keinen Datumstyp (ISO 8601 als Zeichenkette) und keine sichere Ganzzahl über 2<sup>53</sup>−1 (Kennungen als Zeichenkette). Die Datei ist UTF-8 ohne BOM.</span><span lang="en">There is no date type (ISO 8601 as a string) and no safe integer above 2<sup>53</sup>−1 (identifiers as strings). The file is UTF-8 without BOM.</span></li>
+      <li><span lang="de">Verschachtelung liest man von außen nach innen; JSON Pointer <code>/stationen/0/raeder/1/typ</code> bezeichnet eine Stelle, JSONPath <code>$..rad_id</code> viele. <code>jq</code> tut dasselbe auf der Kommandozeile.</span><span lang="en">You read nesting from the outside in; JSON Pointer <code>/stationen/0/raeder/1/typ</code> designates one place, JSONPath <code>$..rad_id</code> many. <code>jq</code> does the same on the command line.</span></li>
+      <li><span lang="de">JSON Lines ist ein Wert je Zeile; JSONC und JSON5 sind für Menschen und nicht mit <code>json.loads</code> lesbar; YAML schließt JSON ein und lebt von Einrückung; CSV kennt weder Typen noch Verschachtelung.</span><span lang="en">JSON Lines is one value per line; JSONC and JSON5 are for people and not readable with <code>json.loads</code>; YAML includes JSON and lives on indentation; CSV knows neither types nor nesting.</span></li>
+      <li><span lang="de"><code>json.dumps(obj, ensure_ascii=False, indent=2, default=str)</code> und <code>open(…, encoding="utf-8")</code> – in dieser Form, jedes Mal. Ein JSON Schema prüft, ob gültiges JSON auch das erwartete JSON ist.</span><span lang="en"><code>json.dumps(obj, ensure_ascii=False, indent=2, default=str)</code> and <code>open(…, encoding="utf-8")</code> – in this form, every time. A JSON Schema checks whether valid JSON is also the expected JSON.</span></li>
+      <li><span lang="de">Verschachtelung ist Beziehung: Ein Feld von Objekten wird zur eigenen Tabelle mit Fremdschlüssel, ein Unterobjekt zu Spalten, ein fehlender Schlüssel zu <code>NULL</code>. <code>json_normalize</code> mit <code>record_path</code> und <code>meta</code> macht das in pandas; Lab 06 legt die Tabellen an, Lab 10 zerlegt in der Datenbank.</span><span lang="en">Nesting is relationship: an array of objects becomes its own table with a foreign key, a sub-object becomes columns, a missing key becomes <code>NULL</code>. <code>json_normalize</code> with <code>record_path</code> and <code>meta</code> does that in pandas; lab 06 creates the tables, lab 10 decomposes inside the database.</span></li>
+      <li><span lang="de"><code>Expecting value: line 1 column 1 (char 0)</code> und <code>Unexpected token '&lt;'</code> heißen beide: Es kam kein JSON an. Erst den Status prüfen, dann parsen.</span><span lang="en"><code>Expecting value: line 1 column 1 (char 0)</code> and <code>Unexpected token '&lt;'</code> both mean: no JSON arrived. Check the status first, then parse.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 05 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 05 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

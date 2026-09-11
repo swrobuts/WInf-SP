@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 11 · Render · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 11 · Render · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-11">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Das Problem, das es löst</span><span lang="en">The problem it solves</span></a>
+  <a class="sidebar-link" href="#begriffe"><span lang="de">Workspace, Service, Deploy</span><span lang="en">Workspace, service, deploy</span></a>
+  <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme, Kosten, Datenschutz</span><span lang="en">Setting up, costs, data protection</span></a>
+  <a class="sidebar-link" href="#dienst"><span lang="de">Der Dienst</span><span lang="en">The service</span></a>
+  <a class="sidebar-link" href="#deploy"><span lang="de">Der Deploy im Dashboard</span><span lang="en">The deploy in the dashboard</span></a>
+  <a class="sidebar-link" href="#protokoll"><span lang="de">Das Protokoll lesen</span><span lang="en">Reading the log</span></a>
+  <a class="sidebar-link" href="#blueprint"><span lang="de">Blueprint und Docker</span><span lang="en">Blueprint and Docker</span></a>
+  <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></a>
+  <a class="sidebar-link" href="#simulator"><span lang="de">Deploy-Simulator</span><span lang="en">Deploy simulator</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">11</div>
+  <h1 class="lab-title">Render</h1>
+  <p class="lab-intro">
+    <span lang="de">Der Dienst läuft auf Ihrem Rechner, die Datenbank liegt bei Supabase, der Code auf GitHub – und
+      niemand außer Ihnen kann die Schnittstelle aufrufen. Dieses Lab bringt den Dienst ins Netz, ohne dass jemand
+      einen Server pflegt: Render baut aus dem Repository, startet den Prozess und gibt ihm eine Adresse. Die
+      eigentliche Lernfrage sind drei Einstellungen, an denen fast jeder erste Deploy scheitert – und das Protokoll,
+      das genau sagt, welche.</span>
+    <span lang="en">The service runs on your machine, the database sits on Supabase, the code on GitHub – and nobody
+      but you can call the interface. This lab brings the service online without anybody maintaining a server: Render
+      builds from the repository, starts the process and gives it an address. The actual learning question is three
+      settings on which almost every first deploy fails – and the log that says exactly which.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">Web Service · Free</span>
+    <span class="lernziel-chip">0.0.0.0 · $PORT</span>
+    <span class="lernziel-chip">Environment Variables</span>
+    <span class="lernziel-chip">Build · Start Command</span>
+    <span class="lernziel-chip">Blueprint · render.yaml</span>
+    <span class="lernziel-chip">Spin-down · 750 h</span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <!-- ================================================================ warum -->
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Das Problem, das es löst</span><span lang="en">The problem it solves</span></h2>
+    <p>
+      <span lang="de">„Läuft bei mir“ war in Lab 07 das Problem der Umgebung; hier ist es das Problem der
+        Erreichbarkeit. Ein Dienst, der auf <code>127.0.0.1:8000</code> antwortet, hilft dem Team, dem Dashboard in
+        Lab 12 und der Betreiberin von Velo City nicht – sie müssen ihn aufrufen können, auch wenn Ihr Laptop
+        zugeklappt ist. Der klassische Weg wäre ein eigener Server: Betriebssystem einrichten, Python installieren,
+        Prozess überwachen, Zertifikat erneuern, Updates einspielen. Für ein Kursprojekt ist das der falsche
+        Aufwand, und für viele Analytics-Projekte im Betrieb auch.</span>
+      <span lang="en">“Works on my machine” was the environment problem in lab 07; here it is the reachability
+        problem. A service answering on <code>127.0.0.1:8000</code> helps neither the team, nor the dashboard in lab
+        12, nor the operator of Velo City – they have to be able to call it even when your laptop is closed. The
+        classic route would be a server of your own: set up the operating system, install Python, supervise the
+        process, renew the certificate, apply updates. For a course project that is the wrong effort, and for many
+        analytics projects in operation as well.</span>
+    </p>
+    <p>
+      <span lang="de">Die Alternativen liegen auf verschiedenen Ebenen – und die Ebene bestimmt, wie viel man selbst
+        betreibt:</span>
+      <span lang="en">The alternatives sit on different layers – and the layer determines how much you run
+        yourself:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Ebene</span><span lang="en">Layer</span></th>
+            <th><span lang="de">Was Sie liefern · was die Plattform macht</span><span lang="en">What you deliver · what the platform does</span></th>
+            <th><span lang="de">Beispiele und Free-Tier-Lage, Stand 09/2026</span><span lang="en">Examples and free-tier situation, as of 09/2026</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>IaaS</strong><br><span class="hinweis-klein"><span lang="de">Infrastruktur</span><span lang="en">Infrastructure</span></span></td>
+            <td><span lang="de">Sie bekommen eine leere virtuelle Maschine und betreiben alles selbst – volle Kontrolle, voller Aufwand.</span><span lang="en">You get an empty virtual machine and run everything yourself – full control, full effort.</span></td>
+            <td><span lang="de"><strong>Hetzner Cloud</strong> (deutscher Anbieter, Falkenstein/Nürnberg): kein Free Tier, kleinste Instanz wenige Euro im Monat, Zahlungsmittel Pflicht.</span><span lang="en"><strong>Hetzner Cloud</strong> (German provider, Falkenstein/Nuremberg): no free tier, smallest instance a few euros a month, payment method required.</span></td>
+          </tr>
+          <tr>
+            <td><strong>PaaS</strong><br><span class="hinweis-klein"><span lang="de">Plattform</span><span lang="en">Platform</span></span></td>
+            <td><span lang="de">Sie liefern ein Repository mit Build- und Startbefehl; die Plattform baut, startet, überwacht, vergibt Adresse und Zertifikat.</span><span lang="en">You deliver a repository with build and start command; the platform builds, starts, supervises, assigns address and certificate.</span></td>
+            <td><span lang="de"><strong>Render</strong>: Free Web Service ohne Zahlungsmittel, Frankfurt wählbar. <strong>Railway</strong>: einmalig 5 $ Guthaben, danach 1 $ je Monat – praktisch nicht nutzbar. <strong>Heroku</strong>: kein Free Tier seit 2022, ab 5 $. <strong>Fly.io</strong>: kein Free Tier für neue Konten, Karte Pflicht. <strong>Koyeb</strong>: ein Free Web Service in Frankfurt, aber Karte Pflicht. <strong>PythonAnywhere</strong>: nur Python, eine Web-App, monatlich zu verlängern.</span><span lang="en"><strong>Render</strong>: free web service without a payment method, Frankfurt selectable. <strong>Railway</strong>: one-off $5 credit, then $1 per month – practically unusable. <strong>Heroku</strong>: no free tier since 2022, from $5. <strong>Fly.io</strong>: no free tier for new accounts, card required. <strong>Koyeb</strong>: one free web service in Frankfurt, but card required. <strong>PythonAnywhere</strong>: Python only, one web app, to be renewed monthly.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Serverless</strong></td>
+            <td><span lang="de">Sie liefern Funktionen, die je Aufruf gestartet werden; kein dauerhaft laufender Prozess, kein Zustand, oft keine verwaltete Datenbank.</span><span lang="en">You deliver functions started per call; no permanently running process, no state, often no managed database.</span></td>
+            <td><span lang="de"><strong>Vercel</strong> Hobby 0 $ (1 Mio. Aufrufe, nur nicht-kommerziell), <strong>Netlify</strong> Free (300 Credits je Monat). Beide für Frontends gedacht – ein FastAPI-Dienst mit Datenbankverbindung passt nicht ohne Umbau.</span><span lang="en"><strong>Vercel</strong> Hobby $0 (1 million invocations, non-commercial only), <strong>Netlify</strong> Free (300 credits per month). Both meant for frontends – a FastAPI service with a database connection does not fit without rework.</span></td>
+          </tr>
+          <tr>
+            <td><strong><span lang="de">Container-Plattform</span><span lang="en">Container platform</span></strong></td>
+            <td><span lang="de">Sie liefern ein Image (Lab 07); die Plattform betreibt den Container. Render mit Language Docker ist genau das – die großen Cloud-Anbieter haben eigene Angebote, deren Konditionen hier nicht geprüft wurden.</span><span lang="en">You deliver an image (lab 07); the platform runs the container. Render with language Docker is exactly that – the large cloud providers have their own offerings, whose terms were not checked here.</span></td>
+            <td><span lang="de">Render (Docker), siehe Abschnitt Blueprint und Docker.</span><span lang="en">Render (Docker), see the section Blueprint and Docker.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="concept-box">
+      <h3><span lang="de">Warum Render in diesem Lab</span><span lang="en">Why Render in this lab</span></h3>
+      <p><span lang="de">Drei Gründe, alle nüchtern: Es gibt einen <strong>echten Free Web Service</strong> – ein
+        dauerhaft laufender Prozess mit eigener Adresse, nicht nur Funktionen. Er ist <strong>ohne Kreditkarte</strong>
+        nutzbar. Und <strong>Frankfurt</strong> ist als Region wählbar. Im Vergleich (Stand 09/2026) erfüllt sonst nur
+        Koyeb alle drei, mit Karte. Was Sie hier lernen – Build Command, Start Command, Port-Regel, Environment
+        Variables, Protokoll lesen – ist bei jeder PaaS dasselbe; nur die Formulare sehen anders aus.</span>
+      <span lang="en">Three reasons, all sober: there is a <strong>real free web service</strong> – a permanently
+        running process with its own address, not just functions. It is usable <strong>without a credit card</strong>.
+        And <strong>Frankfurt</strong> is selectable as a region. In the comparison (as of 09/2026) only Koyeb meets
+        all three otherwise, with a card. What you learn here – build command, start command, port rule, environment
+        variables, reading the log – is the same on every PaaS; only the forms look different.</span></p>
+    </div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Render steht hier, weil sein Free-Plan
+        zum Stand 09/2026 ohne Zahlungsmittel einen dauerhaft laufenden Dienst in Frankfurt erlaubt; die Alternativen in
+        der Tabelle darüber leisten Vergleichbares zu anderen Konditionen, und ein eigener Server (IaaS) bleibt immer
+        möglich.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. Render appears here because, as of 09/2026, its free plan allows
+        a permanently running service in Frankfurt without a payment method; the alternatives in the table above do
+        comparable things on other terms, and a server of your own (IaaS) always remains possible.</span></p>
+    </div>
+  </section>
+
+  <!-- ============================================================= begriffe -->
+  <section class="section-block" id="begriffe">
+    <h2><span lang="de">Workspace, Service, Deploy</span><span lang="en">Workspace, service, deploy</span></h2>
+    <p>
+      <span lang="de">Render ordnet alles in drei Stufen: Ein <strong>Workspace</strong> ist die Abrechnungs- und
+        Berechtigungseinheit – er trägt den Plan (Hobby, Pro, Scale) und die Kontingente. Darin liegen
+        <strong>Projects</strong>, die Dienste nach Anwendung bündeln, und je Project <strong>Environments</strong>
+        (etwa Production und Staging). Für den Kurs genügt ein Hobby-Workspace mit einem Project.</span>
+      <span lang="en">Render organises everything in three tiers: a <strong>workspace</strong> is the billing and
+        permission unit – it carries the plan (Hobby, Pro, Scale) and the quotas. Inside it are
+        <strong>projects</strong>, which bundle services by application, and per project <strong>environments</strong>
+        (such as production and staging). For the course a Hobby workspace with one project suffices.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Service-Typ</span><span lang="en">Service type</span></th>
+            <th><span lang="de">Wortlaut der Dokumentation</span><span lang="en">Documentation wording</span></th>
+            <th>Free?</th>
+            <th><span lang="de">Im Kurs</span><span lang="en">In the course</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Web Service</strong></td><td>“Dynamic web apps with a public onrender.com subdomain for receiving HTTP traffic.”</td><td><span lang="de">ja</span><span lang="en">yes</span></td><td><span lang="de">velocity-api – dieses Lab</span><span lang="en">velocity-api – this lab</span></td></tr>
+          <tr><td><strong>Static Site</strong></td><td>“Websites that consist entirely of statically served assets (commonly HTML, CSS, and JS).”</td><td><span lang="de">ja</span><span lang="en">yes</span></td><td><span lang="de">eine Lernumgebung wie diese</span><span lang="en">a learning environment like this one</span></td></tr>
+          <tr><td><strong>Private Service</strong></td><td>“Dynamic web apps that don't have a public URL.”</td><td><span lang="de">nein</span><span lang="en">no</span></td><td>–</td></tr>
+          <tr><td><strong>Background Worker</strong></td><td>“Internal apps that run continuously, often to process jobs from a shared queue.”</td><td><span lang="de">nein</span><span lang="en">no</span></td><td>–</td></tr>
+          <tr><td><strong>Cron Job</strong></td><td>“Internal apps that run—and then exit—on a defined schedule.”</td><td><span lang="de">nein (mind. 1 $/Monat)</span><span lang="en">no (min. $1/month)</span></td><td><span lang="de">das ETL-Skript aus Lab 10 – siehe Stolpersteine</span><span lang="en">the ETL script from lab 10 – see stumbling blocks</span></td></tr>
+          <tr><td><strong>Render Postgres</strong></td><td><span lang="de">verwaltete PostgreSQL, Hauptversionen 13–18</span><span lang="en">managed PostgreSQL, major versions 13–18</span></td><td><span lang="de">ja, 30 Tage</span><span lang="en">yes, 30 days</span></td><td><span lang="de">nicht – die Datenbank liegt bei Supabase (Lab 08)</span><span lang="en">not used – the database sits on Supabase (lab 08)</span></td></tr>
+          <tr><td><strong>Render Key Value</strong></td><td>“in-memory key-value store … Redis-compatible” (Valkey 8)</td><td><span lang="de">ja, 25 MB, flüchtig</span><span lang="en">yes, 25 MB, volatile</span></td><td>–</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">Deploy</div>
+        <p><span lang="de">Ein Deploy ist <strong>Build plus Start</strong>: Render klont das Repository, führt den
+          Build Command aus, startet den Start Command und prüft, ob ein Port offen ist. Jeder Push auf den verbundenen
+          Branch löst einen neuen Deploy aus; der alte Prozess läuft weiter, bis der neue antwortet.</span>
+        <span lang="en">A deploy is <strong>build plus start</strong>: Render clones the repository, runs the build
+          command, starts the start command and checks whether a port is open. Every push to the linked branch triggers
+          a new deploy; the old process keeps running until the new one answers.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Blueprint</div>
+        <p><span lang="de">Eine Datei <code>render.yaml</code> im Repository, die beschreibt, was man sonst im
+          Formular anklickt – <em>Infrastructure as Code</em>. Dieselbe Idee wie <code>compose.yaml</code> in Lab 07:
+          der gewünschte Zustand als Text, versioniert, nachlesbar.</span>
+        <span lang="en">A file <code>render.yaml</code> in the repository describing what you would otherwise click in
+          the form – <em>infrastructure as code</em>. The same idea as <code>compose.yaml</code> in lab 07: the desired
+          state as text, versioned, readable.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Region</div>
+        <p><span lang="de">Der Ort des Rechenzentrums: Oregon, Ohio, Virginia, Frankfurt, Singapore. Die
+          Voreinstellung ist Oregon. Die Region wird bei der Anlage gewählt und ist <strong>nachträglich nicht
+          änderbar</strong> – weder für Dienste noch für Datenbanken.</span>
+        <span lang="en">The data centre's location: Oregon, Ohio, Virginia, Frankfurt, Singapore. The default is Oregon.
+          The region is chosen at creation and <strong>cannot be changed afterwards</strong> – neither for services
+          nor for databases.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Instance · Compute-Plan</div>
+        <p><span lang="de">Wie viel Rechner ein Service bekommt. Seit 08/2026 heißen die Pläne nach ihrer Größe:
+          <code>free</code> (0.1 CPU, 512 MB), <code>0.5c-512mb</code> (7 $/Monat, früher „Starter“),
+          <code>1c-2g</code> (25 $, früher „Standard“). Ältere Anleitungen verwenden noch die alten Namen.</span>
+        <span lang="en">How much machine a service gets. Since 08/2026 the plans are named by size: <code>free</code>
+          (0.1 CPU, 512 MB), <code>0.5c-512mb</code> ($7/month, formerly “Starter”), <code>1c-2g</code> ($25, formerly
+          “Standard”). Older guides still use the old names.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ inbetrieb -->
+  <section class="section-block" id="inbetrieb">
+    <h2><span lang="de">Inbetriebnahme, Kosten, Datenschutz</span><span lang="en">Setting up, costs, data protection</span></h2>
+    <p>
+      <span lang="de">Ein Konto entsteht mit E-Mail-Adresse oder GitHub-Login auf <code>dashboard.render.com</code>;
+        kein Zahlungsmittel, keine Installation. Beim ersten Verbinden eines Repositorys installiert Render seine
+        GitHub-App – im Dialog <em>Repository access</em> nur die Repositories freigeben, die deployt werden sollen.
+        Ein neues Konto bekommt einen <strong>Hobby-Workspace</strong>; die Pläne wurden am 23.04.2026 umgestellt,
+        die Zahlen unten gelten seither (Stand 09/2026).</span>
+      <span lang="en">An account is created with an email address or GitHub login on
+        <code>dashboard.render.com</code>; no payment method, no installation. When a repository is connected for the
+        first time, Render installs its GitHub app – in the <em>Repository access</em> dialogue grant only the
+        repositories to be deployed. A new account gets a <strong>Hobby workspace</strong>; the plans were changed on
+        23 April 2026, the figures below apply since then (as of 09/2026).</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Was</span><span lang="en">What</span></th>
+            <th><span lang="de">Kostet</span><span lang="en">Costs</span></th>
+            <th><span lang="de">Grenzen, Stand 09/2026</span><span lang="en">Limits, as of 09/2026</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Hobby-Workspace</strong></td>
+            <td>0 $ / <span lang="de">Monat</span><span lang="en">month</span></td>
+            <td><span lang="de">1 Seat, 25 Services, 5 GB Bandwidth je Monat, 500 Build-Minuten je Monat, 2 Custom Domains, 2 Environments je Project, Logs 7 Tage. „For individuals building personal projects and prototypes.“</span><span lang="en">1 seat, 25 services, 5 GB bandwidth per month, 500 build minutes per month, 2 custom domains, 2 environments per project, logs 7 days. “For individuals building personal projects and prototypes.”</span></td>
+          </tr>
+          <tr>
+            <td><strong>Free Web Service</strong></td>
+            <td>0 $</td>
+            <td><span lang="de">0.1 CPU, 512 MB. <strong>Spin-down</strong> nach 15 Minuten ohne eingehenden Verkehr, Spin-up „about one minute“ mit Ladeseite. <strong>750 Free-Instance-Stunden</strong> je Workspace und Monat – heruntergefahrene Dienste zählen nicht; sind sie aufgebraucht, setzt Render alle Free Web Services bis zum Monatsanfang aus. <strong>Flüchtiges Dateisystem</strong>: „uploaded images, local SQLite databases, etc. are lost every time the service redeploys, restarts, or spins down“. Keine Shell, kein Mail-Versand (Ports 25, 465, 587 gesperrt), Neustart jederzeit möglich. Nicht für Produktion gedacht.</span><span lang="en">0.1 CPU, 512 MB. <strong>Spin-down</strong> after 15 minutes without inbound traffic, spin-up “about one minute” with a loading page. <strong>750 free instance hours</strong> per workspace and month – spun-down services do not count; once used up, Render suspends all free web services until the start of the month. <strong>Ephemeral file system</strong>: “uploaded images, local SQLite databases, etc. are lost every time the service redeploys, restarts, or spins down”. No shell, no outbound mail (ports 25, 465, 587 blocked), restart possible at any time. Not meant for production.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Free Postgres</strong></td>
+            <td>0 $</td>
+            <td><span lang="de">1 GB, eine je Workspace, 0.1 CPU/256 MB. <strong>Läuft 30 Tage nach der Anlage ab</strong>; danach 14 Tage Gnadenfrist für ein Upgrade, dann wird sie samt Daten gelöscht. Keine Sicherungen. Bezahlt ab 6 $/Monat (<code>0.1c-256mb</code>).</span><span lang="en">1 GB, one per workspace, 0.1 CPU/256 MB. <strong>Expires 30 days after creation</strong>; then a 14-day grace period for an upgrade, then it is deleted along with its data. No backups. Paid from $6/month (<code>0.1c-256mb</code>).</span></td>
+          </tr>
+          <tr>
+            <td><strong>Static Site</strong></td>
+            <td>0 $</td>
+            <td><span lang="de">„Always free to deploy“; Bandwidth und Build-Minuten zählen gegen den Workspace.</span><span lang="en">“Always free to deploy”; bandwidth and build minutes count against the workspace.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Cron Job · Background Worker · Private Service</strong></td>
+            <td><span lang="de">ab 7 $/Monat Compute; Cron Job mindestens 1 $/Monat</span><span lang="en">from $7/month compute; cron job at least $1/month</span></td>
+            <td><span lang="de">Kein Free-Plan. Ein Skript, das durchläuft und endet, braucht also entweder Geld oder einen anderen Ort – siehe Stolpersteine.</span><span lang="en">No free plan. A script that runs through and ends therefore needs either money or a different place – see stumbling blocks.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Compute 0.5c-512mb</strong></td>
+            <td>7 $ / <span lang="de">Monat</span><span lang="en">month</span></td>
+            <td><span lang="de">0.5 CPU, 512 MB, kein Spin-down – der Schritt, wenn die Minute Wartezeit stört. Sekundengenau abgerechnet; dafür braucht es ein Zahlungsmittel (Prüfbuchung 1 $, wird erstattet).</span><span lang="en">0.5 CPU, 512 MB, no spin-down – the step when the minute of waiting bothers you. Billed to the second; it needs a payment method (a $1 verification charge, refunded).</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn-box">
+      <h3><span lang="de">Die Datenbank liegt nicht bei Render</span><span lang="en">The database does not sit on Render</span></h3>
+      <p><span lang="de">Eine Free Render Postgres läuft 30 Tage nach ihrer Anlage ab – unabhängig davon, ob sie
+        benutzt wird. Ein Semester ist länger. Deshalb betreibt Render in diesem Kurs nur den <em>Dienst</em>; die
+        Daten bleiben in der Supabase-Datenbank aus Lab 08, deren Free-Projekt bei Inaktivität pausiert, aber erhalten
+        bleibt. Der Dienst bekommt die Verbindungszeichenkette des Session Poolers (Port 5432,
+        <code>sslmode=require</code>) als Environment Variable.</span>
+      <span lang="en">A free Render Postgres expires 30 days after its creation – regardless of whether it is used. A
+        semester is longer. That is why in this course Render runs only the <em>service</em>; the data stays in the
+        Supabase database from lab 08, whose free project pauses on inactivity but is kept. The service receives the
+        session pooler's connection string (port 5432, <code>sslmode=require</code>) as an environment variable.</span></p>
+    </div>
+    <div class="info-box">
+      <h3><span lang="de">Datenschutz</span><span lang="en">Data protection</span></h3>
+      <p><span lang="de">Render Services, Inc. ist ein US-Unternehmen (San Francisco). Die Region Frankfurt legt fest,
+        wo Dienst und Datenbank <em>laufen</em> – deshalb gehört sie für beide gesetzt. Vertragspartner bleibt ein
+        US-Anbieter; Protokolle, Support-Zugriff und Subprozessoren (AWS, Google Cloud, Cloudflare, ClickHouse) können
+        US-Bezug haben. Rechtlich abgesichert ist das durch das <em>Data Processing Addendum</em>, das automatisch Teil
+        der Nutzungsbedingungen ist (auch für Free), mit Standardvertragsklauseln und der Zertifizierung nach dem
+        <em>EU-US Data Privacy Framework</em> (seit 06.01.2025); dazu SOC 2 Type II und ISO 27001 für die Plattform.
+        Für den Kurs gilt dieselbe Regel wie in Lab 08: <strong>nur synthetische Daten</strong> – dann stellt sich
+        die Frage nach einer Rechtsgrundlage nicht.</span>
+      <span lang="en">Render Services, Inc. is a US company (San Francisco). The Frankfurt region determines where
+        service and database <em>run</em> – which is why it belongs set for both. The contracting party remains a US
+        provider; logs, support access and sub-processors (AWS, Google Cloud, Cloudflare, ClickHouse) may have a US
+        connection. Legally this is covered by the <em>Data Processing Addendum</em>, automatically part of the terms
+        of service (for Free too), with standard contractual clauses and certification under the <em>EU-US Data Privacy
+        Framework</em> (since 6 January 2025); plus SOC 2 Type II and ISO 27001 for the platform. For the course the
+        same rule as in lab 08 applies: <strong>synthetic data only</strong> – then the question of a legal basis does
+        not arise.</span></p>
+    </div>
+  </section>
+
+  <!-- ============================================================== dienst -->
+  <section class="section-block" id="dienst">
+    <h2><span lang="de">Der Dienst</span><span lang="en">The service</span></h2>
+    <p>
+      <span lang="de">Deployt wird <code>velocity-api</code>: ein FastAPI-Dienst, der die Velo-City-Daten aus der
+        Supabase-Datenbank liest und als JSON antwortet – <code>/stationen</code>, <code>/fahrten?limit=20</code>,
+        <code>/kennzahlen</code> (Fahrten und Umsatz je Radtyp, dieselbe Abfrage wie W08-02) und <code>/</code> als
+        Status. Die Struktur der Antworten kennen Sie aus Lab 05. Drei Regeln im Code entscheiden darüber, ob der
+        Dienst bei Render läuft – nicht die Logik der Endpunkte.</span>
+      <span lang="en">What gets deployed is <code>velocity-api</code>: a FastAPI service that reads the Velo City data
+        from the Supabase database and answers in JSON – <code>/stationen</code>, <code>/fahrten?limit=20</code>,
+        <code>/kennzahlen</code> (rides and revenue per bike type, the same query as W08-02) and <code>/</code> as a
+        status. You know the structure of the responses from lab 05. Three rules in the code decide whether the service
+        runs on Render – not the logic of the endpoints.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Die drei Regeln</span><span lang="en">The three rules</span></h3>
+      <ol>
+        <li><span lang="de"><strong>An <code>0.0.0.0</code> binden.</strong> Der Prozess läuft in einem Container;
+          Render erreicht ihn von außen. Ein Server, der nur auf <code>127.0.0.1</code> hört, ist innerhalb des
+          Containers erreichbar und sonst nirgends – Render meldet dann „No open ports detected“.</span>
+        <span lang="en"><strong>Bind to <code>0.0.0.0</code>.</strong> The process runs in a container; Render reaches
+          it from outside. A server listening only on <code>127.0.0.1</code> is reachable inside the container and
+          nowhere else – Render then reports “No open ports detected”.</span></li>
+        <li><span lang="de"><strong>Den Port aus <code>PORT</code> lesen.</strong> Render setzt die Variable
+          (Standard 10000) und erwartet den Dienst genau dort. Einen anderen offenen Port findet Render meist auch –
+          aber mit Warnung, und ohne Garantie.</span>
+        <span lang="en"><strong>Read the port from <code>PORT</code>.</strong> Render sets the variable (default 10000)
+          and expects the service exactly there. Render usually finds a different open port as well – but with a
+          warning, and without guarantee.</span></li>
+        <li><span lang="de"><strong>Geheimnisse aus der Umgebung.</strong> Die Verbindungszeichenkette kommt aus
+          <code>os.environ</code>, lokal aus <code>.env</code>, bei Render aus Environment Variables. Die
+          <code>.env</code>-Datei liegt nicht im Repository (Lab 02) – Render kennt sie nicht, und das ist
+          richtig so.</span>
+        <span lang="en"><strong>Secrets from the environment.</strong> The connection string comes from
+          <code>os.environ</code>, locally from <code>.env</code>, on Render from environment variables. The
+          <code>.env</code> file is not in the repository (lab 02) – Render does not know it, and that is as it should
+          be.</span></li>
+      </ol>
+    </div>
+    <div data-befehl="B01"></div>
+    <div data-befehl="B02"></div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Server</span><span lang="en">Server</span></th>
+            <th><span lang="de">Bindet ohne Angabe an</span><span lang="en">Binds without arguments to</span></th>
+            <th><span lang="de">Start Command bei Render</span><span lang="en">Start command on Render</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Uvicorn</strong> (FastAPI)</td><td><code>127.0.0.1:8000</code></td><td><code>uvicorn main:app --host 0.0.0.0 --port $PORT</code> – <span lang="de">immer beide Angaben</span><span lang="en">always both arguments</span></td></tr>
+          <tr><td><strong>Gunicorn</strong> (Flask, Django)</td><td><span lang="de"><code>0.0.0.0:$PORT</code>, wenn <code>PORT</code> gesetzt ist – Gunicorn liest die Variable selbst</span><span lang="en"><code>0.0.0.0:$PORT</code> when <code>PORT</code> is set – Gunicorn reads the variable itself</span></td><td><code>gunicorn app:app</code></td></tr>
+          <tr><td><strong>Flask-Dev-Server</strong> (<code>flask run</code>, <code>app.run()</code>)</td><td><code>127.0.0.1:5000</code></td><td><span lang="de">nicht verwenden – Gunicorn nehmen; notfalls <code>app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))</code></span><span lang="en">do not use – take Gunicorn; if need be <code>app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))</code></span></td></tr>
+          <tr><td><strong>Express</strong> (Node)</td><td><span lang="de">alle Adressen, Port aus dem Code</span><span lang="en">all addresses, port from the code</span></td><td><code>node app.js</code> <span lang="de">mit</span><span lang="en">with</span> <code>app.listen(process.env.PORT || 3000)</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-befehl="B03"></div>
+    <div class="tip-box">
+      <h3><span lang="de">Die Python-Version festnageln</span><span lang="en">Pin the Python version</span></h3>
+      <p><span lang="de">Ohne Angabe nimmt Render für Services, die seit dem 11.02.2026 angelegt wurden, Python
+        3.14.x (Stand 09/2026). Das ist neuer als das, was viele Pakete fertig unterstützen – ein Build, der lokal mit
+        3.13 lief, scheitert dann mitten im <code>pip install</code> an einem Paket, das übersetzt werden müsste. Zwei
+        Wege: Environment Variable <code>PYTHON_VERSION</code> mit vollständiger Nummer (<code>3.13.5</code>) oder eine
+        Datei <code>.python-version</code> im Root Directory (<code>3.13</code> genügt). Die Variable hat Vorrang.</span>
+      <span lang="en">Without a setting, Render uses Python 3.14.x for services created since 11 February 2026 (as of
+        09/2026). That is newer than what many packages support ready-made – a build that ran locally on 3.13 then
+        fails in the middle of <code>pip install</code> on a package that would have to be compiled. Two routes:
+        environment variable <code>PYTHON_VERSION</code> with the full number (<code>3.13.5</code>) or a file
+        <code>.python-version</code> in the root directory (<code>3.13</code> suffices). The variable takes
+        precedence.</span></p>
+    </div>
+    <div data-befehl="B08"></div>
+    <p>
+      <span lang="de">Alle Dateien des Dienstes als Kopiervorlagen – vollständig kommentiert, mit Velo City als
+        Beispiel. Die Datei <code>lab-11-python-version.txt</code> heißt im Projekt <code>.python-version</code>, die
+        <code>lab-11-Dockerfile</code> schlicht <code>Dockerfile</code>.</span>
+      <span lang="en">All files of the service as templates – fully commented, with Velo City as the example. The
+        file <code>lab-11-python-version.txt</code> is called <code>.python-version</code> in the project, the
+        <code>lab-11-Dockerfile</code> simply <code>Dockerfile</code>.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-11-main.py" download><span class="symbol">📄</span><span><span class="datei">main.py</span><br><span class="was"><span lang="de">FastAPI-Dienst mit vier Endpunkten, psycopg 3, DATABASE_URL aus der Umgebung</span><span lang="en">FastAPI service with four endpoints, psycopg 3, DATABASE_URL from the environment</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-11-requirements.txt" download><span class="symbol">📄</span><span><span class="datei">requirements.txt</span><br><span class="was"><span lang="de">fastapi, uvicorn[standard], psycopg[binary] mit Versionsgrenzen</span><span lang="en">fastapi, uvicorn[standard], psycopg[binary] with version bounds</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-11-render.yaml" download><span class="symbol">📄</span><span><span class="datei">render.yaml</span><br><span class="was"><span lang="de">Blueprint: Web Service, free, frankfurt, envVars</span><span lang="en">Blueprint: web service, free, frankfurt, envVars</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-11-Dockerfile" download><span class="symbol">📄</span><span><span class="datei">Dockerfile</span><br><span class="was"><span lang="de">python:3.13-slim, dieselbe Port-Regel in CMD</span><span lang="en">python:3.13-slim, the same port rule in CMD</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-11-python-version.txt" download><span class="symbol">📄</span><span><span class="datei">.python-version</span><br><span class="was"><span lang="de">Inhalt 3.13 – Python-Version für den Build</span><span lang="en">Content 3.13 – Python version for the build</span></span></span></a>
+    </div>
+  </section>
+
+  <!-- ============================================================== deploy -->
+  <section class="section-block" id="deploy">
+    <h2><span lang="de">Der Deploy im Dashboard</span><span lang="en">The deploy in the dashboard</span></h2>
+    <p>
+      <span lang="de">Das Repository liegt auf GitHub, <code>.env</code> steht in der <code>.gitignore</code>,
+        <code>requirements.txt</code> ist eingefroren. Dann ist der Deploy ein Formular: <code>+ New → Web
+        Service</code>, Repository wählen, neun Felder, ein Knopf. Die Nachbildung zeigt die Felder, die zählen; die
+        Befehlskarte darunter den Klickweg mit den Werten für velocity-api.</span>
+      <span lang="en">The repository is on GitHub, <code>.env</code> is in the <code>.gitignore</code>,
+        <code>requirements.txt</code> is frozen. Then the deploy is a form: <code>+ New → Web Service</code>, choose the
+        repository, nine fields, one button. The rendering shows the fields that matter; the command card below it the
+        click path with the values for velocity-api.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Render – New Web Service</span><span class="spacer"></span>dashboard.render.com</div>
+      <div class="shot-menu"><span>Dashboard</span><span>Blueprints</span><span>Env Groups</span><span>Logs</span><span><b>+ New</b> ▾</span></div>
+      <div class="shot-body">
+        <div class="shot-side">
+          <h5>Source Code</h5>
+          <ul class="baum">
+            <li>▾ Git Provider <span class="callout">1</span></li>
+            <li class="ein">GitHub · studi</li>
+            <li class="ein aktiv">velocity-api</li>
+            <li class="ein">velocity-analyse</li>
+            <li>▸ Public Git Repository</li>
+            <li>▸ Existing Image</li>
+          </ul>
+          <h5 style="margin-top:0.9rem">Project (optional)</h5>
+          <ul class="baum"><li>velocity · Production</li></ul>
+        </div>
+        <div class="shot-main">
+          <div class="zeile"><span class="beschriftung">Name</span><span class="feld">velocity-api</span></div>
+          <div class="zeile"><span class="beschriftung">Language</span><span class="feld">Python 3 ▾</span></div>
+          <div class="zeile"><span class="beschriftung">Branch</span><span class="feld">main ▾</span></div>
+          <div class="zeile"><span class="beschriftung">Region</span><span class="feld">Frankfurt (EU Central) ▾</span> <span class="callout">2</span></div>
+          <div class="zeile"><span class="beschriftung">Root Directory</span><span class="feld">&nbsp;</span> <span class="callout">3</span></div>
+          <div class="zeile"><span class="beschriftung">Build Command</span><span class="feld breit">pip install -r requirements.txt</span></div>
+          <div class="zeile"><span class="beschriftung">Start Command</span><span class="feld breit">uvicorn main:app --host 0.0.0.0 --port $PORT</span> <span class="callout">4</span></div>
+          <div class="zeile"><span class="beschriftung">Instance Type</span><span class="pill-neutral">Free · 512 MB · 0.1 CPU</span><span class="pill-blau">0.5c-512mb · $7/mo</span> <span class="callout">5</span></div>
+          <div class="warnzeile">Your free instance will spin down with inactivity, which can delay requests by 50 seconds or more.</div>
+          <h5>Environment Variables</h5>
+          <div class="zeile"><span class="feld">DATABASE_URL</span><span class="feld">postgresql://postgres.abcd…:••••••@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require</span> <span class="callout">6</span></div>
+          <div class="zeile"><span class="feld">PYTHON_VERSION</span><span class="feld">3.13.5</span> <span class="callout">7</span></div>
+          <div class="zeile"><span class="knopf">+ Add Environment Variable</span><span class="knopf">Add from .env</span></div>
+          <div class="zeile"><span class="tab">Advanced ▸ Secret Files · Health Check Path · Auto-Deploy · Pre-Deploy Command</span></div>
+          <div class="zeile"><span class="knopf primaer">Deploy Web Service</span> <span class="callout gold">8</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Quelle: das per GitHub-App verbundene Repository. Alternativ eine öffentliche Repository-URL ohne Login oder ein fertiges Image aus einer Registry.</span><span lang="en">Source: the repository connected via the GitHub app. Alternatively a public repository URL without login or a ready-made image from a registry.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Region – Voreinstellung Oregon, hier Frankfurt. Nach dem Anlegen nicht mehr änderbar.</span><span lang="en">Region – default Oregon, here Frankfurt. Not changeable after creation.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Root Directory – leer für ein Repository, das nur den Dienst enthält; <code>api</code>, wenn der Dienst in einem Unterordner liegt (Übung W11-02).</span><span lang="en">Root directory – empty for a repository containing only the service; <code>api</code> if the service lives in a subfolder (exercise W11-02).</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Start Command mit beiden Angaben: <code>--host 0.0.0.0</code> und <code>--port $PORT</code>. Render setzt die Variable, die Shell setzt sie ein.</span><span lang="en">Start command with both arguments: <code>--host 0.0.0.0</code> and <code>--port $PORT</code>. Render sets the variable, the shell substitutes it.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Instance Type Free – mit dem Hinweis auf den Spin-down direkt darunter (Wortlaut nach Sekundärquellen). In der Dokumentation heißt der Abschnitt „Compute“.</span><span lang="en">Instance type Free – with the spin-down note directly beneath (wording per secondary sources). The documentation calls the section “Compute”.</span></span></li>
+      <li><span class="callout">6</span><span><span lang="de"><code>DATABASE_URL</code> – die Session-Pooler-Zeichenkette aus dem Connect-Dialog von Supabase (Lab 08), Port 5432, mit <code>?sslmode=require</code>. Der Wert wird nach dem Speichern verdeckt.</span><span lang="en"><code>DATABASE_URL</code> – the session pooler string from Supabase's Connect dialogue (lab 08), port 5432, with <code>?sslmode=require</code>. The value is masked after saving.</span></span></li>
+      <li><span class="callout">7</span><span><span lang="de"><code>PYTHON_VERSION</code> vollständig – sonst 3.14.x als Default.</span><span lang="en"><code>PYTHON_VERSION</code> in full – otherwise 3.14.x by default.</span></span></li>
+      <li><span class="callout gold">8</span><span><span lang="de">Der Knopf startet den ersten Deploy und öffnet das Protokoll. Die Dokumentation nennt ihn kurz „Deploy“; die genaue Beschriftung kann sich mit der Oberfläche ändern.</span><span lang="en">The button starts the first deploy and opens the log. The documentation just calls it “Deploy”; the exact label may change with the interface.</span></span></li>
+    </ol>
+    <div data-befehl="B04"></div>
+    <p>
+      <span lang="de">Nach dem ersten Deploy verschiebt sich die Arbeit von der Anlage zum Betrieb: Welcher Push löst
+        einen Deploy aus, wie stößt man ihn von Hand an, wo stehen die Protokolle. Die wichtigsten Wege stehen in der
+        zweiten Befehlskarte.</span>
+      <span lang="en">After the first deploy the work shifts from creation to operation: which push triggers a deploy,
+        how to trigger one by hand, where the logs are. The most important routes are in the second command card.</span>
+    </p>
+    <div data-befehl="B05"></div>
+    <div class="info-box">
+      <p><span lang="de"><strong>Custom Domain.</strong> Die Adresse <code>velocity-api.onrender.com</code> genügt
+        für den Kurs. Eine eigene Domain kommt über <code>Settings → Custom Domains → + Add Custom Domain</code> und
+        einen CNAME-Eintrag beim Domain-Anbieter; das Zertifikat erstellt und erneuert Render selbst, HTTP wird auf
+        HTTPS umgeleitet. Im Hobby-Workspace sind zwei Domains enthalten (Stand 09/2026).</span>
+      <span lang="en"><strong>Custom domain.</strong> The address <code>velocity-api.onrender.com</code> is enough for
+        the course. A domain of your own comes via <code>Settings → Custom Domains → + Add Custom Domain</code> and a
+        CNAME record at the domain provider; Render creates and renews the certificate itself, HTTP is redirected to
+        HTTPS. The Hobby workspace includes two domains (as of 09/2026).</span></p>
+    </div>
+  </section>
+
+  <!-- =========================================================== protokoll -->
+  <section class="section-block" id="protokoll">
+    <h2><span lang="de">Das Protokoll lesen</span><span lang="en">Reading the log</span></h2>
+    <p>
+      <span lang="de">Nach dem Klick zeigt Render ein Fenster, in dem Zeile für Zeile steht, was passiert – die
+        <code>==&gt;</code>-Zeilen stammen von Render, die anderen vom eigenen Prozess. Fast jede Frage aus dem Kurs
+        („es geht nicht“) beantwortet sich in diesem Fenster, sofern man es liest, statt es zu überfliegen. Die eine
+        Regel: <strong>Die Ursache steht über der Statuszeile.</strong> „Exited with status 1“ sagt nur, dass etwas
+        abgebrochen ist; die Zeilen darüber sagen, was.</span>
+      <span lang="en">After the click Render shows a window listing line by line what happens – the
+        <code>==&gt;</code> lines come from Render, the others from your own process. Almost every question from the
+        course (“it doesn't work”) answers itself in this window, provided one reads it rather than skims it. The one
+        rule: <strong>the cause stands above the status line.</strong> “Exited with status 1” says only that something
+        aborted; the lines above say what.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">velocity-api · Logs</span><span class="spacer"></span>Deploy · main · 3f9a1c2</div>
+      <div class="shot-body eins">
+        <div class="shot-main">
+          <div class="zeile"><span class="tab aktiv">Logs</span><span class="tab">Events</span><span class="tab">Environment</span><span class="tab">Settings</span><span class="pill-neutral">Deploy failed</span> <span class="callout">1</span></div>
+          <div class="code">==&gt; Cloning from https://github.com/studi/velocity-api
+==&gt; Checking out commit 3f9a1c2 in branch main
+==&gt; Using Python version 3.13.5 (from PYTHON_VERSION)
+==&gt; Running build command 'pip install -r requirements.txt'…
+Collecting fastapi&gt;=0.115,&lt;1
+Collecting uvicorn[standard]&gt;=0.30,&lt;1
+Collecting psycopg[binary]&gt;=3.2,&lt;4
+Successfully installed fastapi uvicorn psycopg
+==&gt; Build successful 🎉                                          <span class="callout">2</span>
+==&gt; Deploying…
+==&gt; Running 'uvicorn main:app --host 0.0.0.0 --port $PORT'
+Traceback (most recent call last):
+  File "/opt/render/project/src/main.py", line 7, in &lt;module&gt;
+    DATENBANK = os.environ["DATABASE_URL"]
+  File "&lt;frozen os&gt;", line 716, in __getitem__
+KeyError: 'DATABASE_URL'                                          <span class="callout gold">3</span>
+==&gt; Exited with status 1                                          <span class="callout">4</span>
+==&gt; Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys</div>
+          <div class="zeile"><span class="knopf">Manual Deploy ▾</span><span class="knopf">Clear build cache &amp; deploy</span> <span class="callout">5</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Der Zustand des Deploys. Bei einem fehlgeschlagenen Deploy läuft die vorige Fassung weiter – falls es eine gab.</span><span lang="en">The deploy's state. When a deploy fails, the previous version keeps running – if there was one.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Build und Start sind zwei Phasen. Ein grüner Build heißt nur: Die Pakete sind installiert. Ob der Dienst läuft, entscheidet sich danach.</span><span lang="en">Build and start are two phases. A green build means only: the packages are installed. Whether the service runs is decided afterwards.</span></span></li>
+      <li><span class="callout gold">3</span><span><span lang="de">Die Ursache: der Traceback des eigenen Programms. Hier fehlt die Environment Variable – die <code>.env</code>-Datei liegt nicht im Repository (Lab 02), Render kennt sie nicht.</span><span lang="en">The cause: your own program's traceback. Here the environment variable is missing – the <code>.env</code> file is not in the repository (lab 02), Render does not know it.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Die Statuszeile. Sie sagt „abgebrochen“, mehr nicht. In Community-Threads meist zitiert als „Exited with status 1 while running your code“.</span><span lang="en">The status line. It says “aborted”, nothing more. In community threads usually quoted as “Exited with status 1 while running your code”.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Nach der Korrektur: Environment Variable setzen → „Save, rebuild, and deploy“ – oder Manual Deploy → Deploy latest commit.</span><span lang="en">After the fix: set the environment variable → “Save, rebuild, and deploy” – or Manual Deploy → Deploy latest commit.</span></span></li>
+    </ol>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Zeile im Protokoll</span><span lang="en">Line in the log</span></th>
+            <th><span lang="de">Ursache und Abhilfe</span><span lang="en">Cause and remedy</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>==&gt; No open ports detected, continuing to scan...</code><br><code>==&gt; Port scan timeout reached, no open ports detected. Bind your service to at least one port. If you don't need to receive traffic on any port, create a background worker instead.</code></td>
+            <td><span lang="de">Der Prozess hört auf <code>127.0.0.1</code> oder ist vor dem Binden abgestürzt (dann steht der Absturz darüber). Abhilfe: <code>--host 0.0.0.0 --port $PORT</code>. Der Scan dauert eine Weile – der Deploy wirkt „hängend“, bevor die Meldung kommt.</span><span lang="en">The process listens on <code>127.0.0.1</code> or crashed before binding (then the crash stands above). Remedy: <code>--host 0.0.0.0 --port $PORT</code>. The scan takes a while – the deploy seems to “hang” before the message appears.</span></td>
+          </tr>
+          <tr>
+            <td><code>==&gt; Exited with status 1</code> („… while running your code“)</td>
+            <td><span lang="de">Das Programm ist mit Fehler beendet. Die Ursache steht <strong>darüber</strong>: Traceback, <code>KeyError</code>, <code>ModuleNotFoundError</code>, Versionskonflikt. Lokal mit demselben Start Command reproduzieren.</span><span lang="en">The program ended with an error. The cause stands <strong>above</strong>: traceback, <code>KeyError</code>, <code>ModuleNotFoundError</code>, version conflict. Reproduce locally with the same start command.</span></td>
+          </tr>
+          <tr>
+            <td><code>==&gt; Exited with status 0</code></td>
+            <td><span lang="de">Kein Fehler im Code – das Programm war fertig. Ein Web Service muss aber laufen bleiben. Typisch bei <code>python main.py</code> statt <code>uvicorn main:app …</code>. Ein Skript, das durchlaufen soll (Lab 10), ist ein Cron Job oder Background Worker.</span><span lang="en">No error in the code – the program was done. But a web service has to keep running. Typical for <code>python main.py</code> instead of <code>uvicorn main:app …</code>. A script meant to run through (lab 10) is a cron job or background worker.</span></td>
+          </tr>
+          <tr>
+            <td><code>ERROR: Could not open requirements file: [Errno 2] No such file or directory: 'requirements.txt'</code></td>
+            <td><span lang="de">Die Datei fehlt im Repository, ist nicht gepusht oder liegt nicht im Root Directory (Monorepo). Prüfen: Liegt sie auf GitHub, und in welchem Ordner?</span><span lang="en">The file is missing from the repository, not pushed, or not in the root directory (monorepo). Check: is it on GitHub, and in which folder?</span></td>
+          </tr>
+          <tr>
+            <td><code>ModuleNotFoundError: No module named 'psycopg'</code></td>
+            <td><span lang="de">Das Paket steht nicht in <code>requirements.txt</code> – lokal war es vielleicht global installiert. Auch: Groß-/Kleinschreibung von Dateinamen, denn der Build-Rechner ist Linux.</span><span lang="en">The package is not in <code>requirements.txt</code> – locally it may have been installed globally. Also: upper/lower case of file names, since the build machine is Linux.</span></td>
+          </tr>
+          <tr>
+            <td><code>KeyError: 'DATABASE_URL'</code></td>
+            <td><span lang="de">Die Environment Variable ist nicht gesetzt. Die <code>.env</code> liegt nicht im Repository – zu Recht (Lab 02). Unter Environment eintragen, dann „Save, rebuild, and deploy“.</span><span lang="en">The environment variable is not set. The <code>.env</code> is not in the repository – rightly so (lab 02). Enter it under Environment, then “Save, rebuild, and deploy”.</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Build bricht in <code>pip install</code> ab mit Meldungen über Compiler, Wheels oder <code>requires Python &gt;=</code></span><span lang="en">Build aborts in <code>pip install</code> with messages about compilers, wheels or <code>requires Python &gt;=</code></span></td>
+            <td><span lang="de">Python-Version: ohne Pin 3.14.x, für die nicht jedes Paket fertige Wheels hat. <code>PYTHON_VERSION</code> oder <code>.python-version</code> auf die lokale Version setzen; danach „Clear build cache &amp; deploy“.</span><span lang="en">Python version: without a pin 3.14.x, for which not every package has ready-made wheels. Set <code>PYTHON_VERSION</code> or <code>.python-version</code> to the local version; then “Clear build cache &amp; deploy”.</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Erste Anfrage nach einer Pause dauert etwa eine Minute, Render zeigt eine Ladeseite</span><span lang="en">First request after a pause takes about a minute, Render shows a loading page</span></td>
+            <td><span lang="de"><strong>Kein Fehler.</strong> Spin-down des Free-Plans nach 15 Minuten ohne Verkehr; der Dienst wird geweckt. Wer das nicht will: 0.5c-512mb für 7 $/Monat.</span><span lang="en"><strong>Not an error.</strong> Spin-down of the free plan after 15 minutes without traffic; the service is woken up. Whoever does not want that: 0.5c-512mb for $7/month.</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Dienst ist „suspended“, ohne dass jemand etwas geändert hat</span><span lang="en">Service is “suspended” without anybody having changed anything</span></td>
+            <td><span lang="de">Die 750 Free-Instance-Stunden des Workspace sind aufgebraucht – meist, weil mehrere Free-Dienste dauerhaft wach gehalten wurden. Ab Monatsanfang läuft es wieder.</span><span lang="en">The workspace's 750 free instance hours are used up – usually because several free services were kept permanently awake. It runs again from the start of the month.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="hinweis-klein">
+      <span lang="de">Die Wortlaute der Port-Scan- und Statuszeilen sind über Community-Threads und Nutzerprotokolle belegt, nicht über die Dokumentation; Render kann sie ändern. Die Kernaussagen sind seit Jahren stabil.</span>
+      <span lang="en">The wording of the port-scan and status lines is attested through community threads and user logs, not through the documentation; Render may change them. The core statements have been stable for years.</span>
+    </p>
+  </section>
+
+  <!-- =========================================================== blueprint -->
+  <section class="section-block" id="blueprint">
+    <h2><span lang="de">Blueprint und Docker</span><span lang="en">Blueprint and Docker</span></h2>
+    <p>
+      <span lang="de">Wer das Formular einmal ausgefüllt hat, will es beim zweiten Mal nicht wieder tun – und will
+        vor allem nachlesen können, was eingestellt ist. Dafür gibt es den <strong>Blueprint</strong>: eine Datei
+        <code>render.yaml</code> im Wurzelverzeichnis des Repositorys, die Dienste, Pläne, Regionen und Environment
+        Variables beschreibt. <code>+ New → Blueprint</code> liest sie ein und legt alles an; ein späterer Push, der
+        die Datei ändert, passt die Dienste an (<em>Auto Sync</em>) – und löscht dabei nie eine bestehende
+        Ressource.</span>
+      <span lang="en">Whoever has filled in the form once does not want to do it again the second time – and above all
+        wants to be able to read what is set. That is what the <strong>blueprint</strong> is for: a file
+        <code>render.yaml</code> in the repository's root describing services, plans, regions and environment
+        variables. <code>+ New → Blueprint</code> reads it in and creates everything; a later push changing the file
+        adjusts the services (<em>Auto Sync</em>) – and never deletes an existing resource while doing so.</span>
+    </p>
+    <div data-befehl="B06"></div>
+    <div class="tip-box">
+      <p><span lang="de">Die Zeile <code>sync: false</code> ist die Antwort auf die Frage aus Lab 02, wie ein
+        Geheimnis in eine versionierte Konfiguration kommt: gar nicht. Die Datei nennt nur den Namen der Variable;
+        den Wert fragt Render beim Anlegen ab und speichert ihn außerhalb des Repositorys. Wer stattdessen eine
+        Render-Postgres benutzt, schreibt <code>fromDatabase</code> – dann setzt Render die Verbindungszeichenkette
+        selbst ein, und sie steht ebenfalls nirgends im Code.</span>
+      <span lang="en">The line <code>sync: false</code> answers the question from lab 02 of how a secret gets into a
+        versioned configuration: it does not. The file names only the variable; Render prompts for the value at creation
+        and stores it outside the repository. Whoever uses a Render Postgres instead writes <code>fromDatabase</code> –
+        then Render substitutes the connection string itself, and it likewise appears nowhere in the code.</span></p>
+    </div>
+    <h3><span lang="de">Die Docker-Variante</span><span lang="en">The Docker variant</span></h3>
+    <p>
+      <span lang="de">Statt der Sprache „Python 3“ lässt sich im Formular <strong>Docker</strong> wählen. Dann
+        verschwinden Build Command und Start Command: Render baut das Image aus dem <code>Dockerfile</code> im Root
+        Directory und startet, was in <code>CMD</code> steht – genau das Dockerfile aus Lab 07, mit einer Ergänzung.
+        Die Port-Regel gilt unverändert; nur muss <code>$PORT</code> in <code>CMD</code> über eine Shell eingesetzt
+        werden. Der Free-Plan gilt auch für Docker-Dienste.</span>
+      <span lang="en">Instead of the language “Python 3”, <strong>Docker</strong> can be chosen in the form. Then build
+        command and start command disappear: Render builds the image from the <code>Dockerfile</code> in the root
+        directory and starts what <code>CMD</code> says – exactly the Dockerfile from lab 07, with one addition. The
+        port rule applies unchanged; only <code>$PORT</code> has to be substituted in <code>CMD</code> through a shell.
+        The free plan applies to Docker services too.</span>
+    </p>
+    <div data-befehl="B07"></div>
+    <div class="vergleich">
+      <div>
+        <h3><span lang="de">Native Laufzeit (Python 3)</span><span lang="en">Native runtime (Python 3)</span></h3>
+        <ul>
+          <li><span lang="de">Build Command + Start Command im Formular</span><span lang="en">Build command + start command in the form</span></li>
+          <li><span lang="de">Python-Version über <code>PYTHON_VERSION</code></span><span lang="en">Python version via <code>PYTHON_VERSION</code></span></li>
+          <li><span lang="de">nur die Systembibliotheken, die Renders Build-Image mitbringt</span><span lang="en">only the system libraries Render's build image ships</span></li>
+          <li><span lang="de">kürzere Builds, Paket-Cache – <strong>der Einstieg</strong></span><span lang="en">shorter builds, package cache – <strong>the entry point</strong></span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Docker</h3>
+        <ul>
+          <li><span lang="de">Dockerfile baut, <code>CMD</code> startet; optional Docker Command zum Überschreiben</span><span lang="en">Dockerfile builds, <code>CMD</code> starts; optional Docker Command to override</span></li>
+          <li><span lang="de">Python-Version im <code>FROM</code></span><span lang="en">Python version in <code>FROM</code></span></li>
+          <li><span lang="de">beliebige Systempakete (<code>libpq</code>, <code>ffmpeg</code> …)</span><span lang="en">any system packages (<code>libpq</code>, <code>ffmpeg</code> …)</span></li>
+          <li><span lang="de">Environment Variables werden auch Build Args – Geheimnisse nicht per <code>ARG</code> lesen (Lab 07)</span><span lang="en">Environment variables also become build args – do not read secrets via <code>ARG</code> (lab 07)</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================= stolper -->
+  <section class="section-block" id="stolper">
+    <h2><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></h2>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">Region</div>
+        <p><span lang="de">Die Voreinstellung ist Oregon, und die Region eines bestehenden Service oder einer
+          Datenbank lässt sich <strong>nicht ändern</strong>. Wer es beim Anlegen übersieht, legt neu an – bei einer
+          Datenbank mit <code>pg_dump</code> und <code>pg_restore</code> dazwischen. Dienst und Datenbank gehören in
+          dieselbe Region, auch weil das Private Network nur innerhalb einer Region funktioniert.</span>
+        <span lang="en">The default is Oregon, and an existing service's or database's region <strong>cannot be
+          changed</strong>. Whoever overlooks it at creation recreates – for a database with <code>pg_dump</code> and
+          <code>pg_restore</code> in between. Service and database belong in the same region, also because the private
+          network works only within one region.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">SQLite</div>
+        <p><span lang="de">Die Datei aus Lab 06 neben <code>main.py</code> funktioniert – bis zum nächsten Redeploy,
+          Neustart oder Spin-down. Dann ist sie weg; Render nennt „local SQLite databases“ ausdrücklich. Das
+          Dateisystem des Free Web Service ist flüchtig wie ein Container ohne Volume (Lab 07). Daten, die bleiben
+          sollen, gehören in eine Datenbank außerhalb (Lab 08).</span>
+        <span lang="en">The file from lab 06 beside <code>main.py</code> works – until the next redeploy, restart or
+          spin-down. Then it is gone; Render explicitly names “local SQLite databases”. The free web service's file
+          system is ephemeral like a container without a volume (lab 07). Data that should stay belongs in a database
+          outside (lab 08).</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Uptime-Pinger</div>
+        <p><span lang="de">Ein Dienst, der den eigenen Free Web Service alle fünf Minuten aufruft, verhindert den
+          Spin-down – und verbraucht damit die 750 Stunden, hält einen zweiten Free-Dienst vom Laufen ab und
+          unterläuft den Sinn des Free-Plans, den Render ausdrücklich nicht für Produktion vorsieht. Wer keine
+          Wartezeit will, nimmt <code>0.5c-512mb</code> für 7 $/Monat.</span>
+        <span lang="en">A service that calls your own free web service every five minutes prevents the spin-down – and
+          thereby burns the 750 hours, keeps a second free service from running and defeats the point of the free plan,
+          which Render explicitly does not intend for production. Whoever wants no waiting takes
+          <code>0.5c-512mb</code> for $7/month.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Free Postgres · 30 <span lang="de">Tage</span><span lang="en">days</span></div>
+        <p><span lang="de">Die Frist läuft ab dem Tag der Anlage, nicht ab der letzten Nutzung. Nach 30 Tagen ist die
+          Datenbank unzugänglich, nach weiteren 14 Tagen gelöscht – Render schickt vorher E-Mails. Wer sie trotzdem
+          nutzt: vor Ablauf <code>pg_dump</code>, und den Termin in den Kalender. Im Kurs: Supabase.</span>
+        <span lang="en">The period runs from the day of creation, not from last use. After 30 days the database is
+          inaccessible, after another 14 days deleted – Render sends emails beforehand. Whoever uses it anyway:
+          <code>pg_dump</code> before expiry, and the date in the calendar. In the course: Supabase.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Root Directory</div>
+        <p><span lang="de">Liegt der Dienst in <code>api/</code>, gehört <code>api</code> ins Feld Root Directory –
+          nicht <code>api/</code> in die Befehle. Render: „Files outside your service's root directory are not
+          available to the service at build time or at runtime.“ Der Umweg <code>pip install -r
+          api/requirements.txt</code> baut zwar, aber jeder relative Pfad im Code zeigt danach ins Leere.</span>
+        <span lang="en">If the service lives in <code>api/</code>, <code>api</code> belongs in the Root Directory field
+          – not <code>api/</code> in the commands. Render: “Files outside your service's root directory are not
+          available to the service at build time or at runtime.” The workaround <code>pip install -r
+          api/requirements.txt</code> does build, but every relative path in the code then points at nothing.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Python 3.14</div>
+        <p><span lang="de">Der Default seit 11.02.2026. Lokal läuft 3.12 oder 3.13, bei Render 3.14 – und
+          <code>pip install</code> scheitert an einem Paket ohne Wheels für 3.14 mit einer Meldung, die nach allem
+          aussieht, nur nicht nach einer Versionsfrage. Immer pinnen: <code>PYTHON_VERSION</code> vollständig oder
+          <code>.python-version</code>. Dasselbe Prinzip wie der Tag statt <code>latest</code> in Lab 07.</span>
+        <span lang="en">The default since 11 February 2026. Locally 3.12 or 3.13 runs, on Render 3.14 – and
+          <code>pip install</code> fails on a package without wheels for 3.14 with a message that looks like anything but
+          a version question. Always pin: <code>PYTHON_VERSION</code> in full or <code>.python-version</code>. The same
+          principle as the tag instead of <code>latest</code> in lab 07.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Geheimnis im Repository</span><span lang="en">Secret in the repository</span></div>
+        <p><span lang="de">Der scheinbar schnelle Weg, den <code>KeyError</code> loszuwerden: <code>DATABASE_URL =
+          "postgresql://…"</code> in <code>main.py</code> schreiben und pushen. Dann liegt das Datenbankpasswort auf
+          GitHub, in jedem Klon und im Build-Protokoll. Die Regel aus Lab 02, Lab 04, Lab 07 und Lab 08 gilt hier
+          unverändert: Geheimnisse in die Umgebung, nie in eine Datei, die weitergegeben wird.</span>
+        <span lang="en">The seemingly quick way to get rid of the <code>KeyError</code>: write <code>DATABASE_URL =
+          "postgresql://…"</code> into <code>main.py</code> and push. Then the database password sits on GitHub, in
+          every clone and in the build log. The rule from labs 02, 04, 07 and 08 applies unchanged here: secrets into
+          the environment, never into a file that gets passed on.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Cron Job</div>
+        <p><span lang="de">Das ETL-Skript aus Lab 10 läuft durch und endet – als Web Service scheitert es mit „Exited
+          with status 0“, und ein Cron Job kostet bei Render mindestens 1 $/Monat. Kostenlose Alternativen für ein
+          Skript nach Zeitplan: ein GitHub-Actions-Workflow mit <code>on: schedule</code> (Lab 02) oder
+          <code>pg_cron</code> in der Supabase-Datenbank (Lab 08), wenn die Umformung ohnehin in SQL steht (ELT).</span>
+        <span lang="en">The ETL script from lab 10 runs through and ends – as a web service it fails with “Exited with
+          status 0”, and a cron job on Render costs at least $1/month. Free alternatives for a script on a schedule: a
+          GitHub Actions workflow with <code>on: schedule</code> (lab 02) or <code>pg_cron</code> in the Supabase
+          database (lab 08) when the transformation is in SQL anyway (ELT).</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================== simulator -->
+  <section class="section-block" id="simulator">
+    <h2><span lang="de">Deploy-Simulator</span><span lang="en">Deploy simulator</span></h2>
+    <p>
+      <span lang="de">Das Formular „New Web Service“ als Nachbildung, rechts daneben das Repository
+        <code>velocity-api</code> mit seinen Dateien. Der Knopf erzeugt das Protokoll, das Render schreiben würde – die
+        <code>==&gt;</code>-Zeilen sind dem echten nachempfunden. Der Simulator kennt die Sprachen Python, Node und
+        Docker, prüft, ob die im Build Command verlangte <code>requirements.txt</code> (bzw. <code>package.json</code>,
+        <code>Dockerfile</code>) im Root Directory liegt, ob der Start Command einen Server startet, ob der an
+        <code>0.0.0.0</code> bindet und <code>$PORT</code> liest, und ob die Environment Variables gesetzt sind, die
+        der Code liest. Probieren Sie die Fehler aus, bevor sie draußen Zeit kosten.</span>
+      <span lang="en">The “New Web Service” form as a rendering, beside it the repository <code>velocity-api</code>
+        with its files. The button produces the log Render would write – the <code>==&gt;</code> lines are modelled on
+        the real ones. The simulator knows the languages Python, Node and Docker, checks whether the
+        <code>requirements.txt</code> (or <code>package.json</code>, <code>Dockerfile</code>) demanded by the build
+        command sits in the root directory, whether the start command starts a server, whether it binds to
+        <code>0.0.0.0</code> and reads <code>$PORT</code>, and whether the environment variables the code reads are set.
+        Try the mistakes out before they cost time outside.</span>
+    </p>
+    <div data-deploy="frei"></div>
+    <div class="info-box">
+      <p><span lang="de">Es ist ein Modell, kein Render: Es installiert nichts, verbindet sich mit keiner Datenbank
+        und kennt keine Region. Die Python-Version im Protokoll ist fest, die Paketnamen kommen aus der Datei, und der
+        Port-Scan dauert Sekunden statt Minuten. Was das Modell erkennt, erkennt Render auch – nur langsamer und mit
+        mehr Zeilen dazwischen.</span>
+      <span lang="en">It is a model, not Render: it installs nothing, connects to no database and knows no region. The
+        Python version in the log is fixed, the package names come from the file, and the port scan takes seconds
+        instead of minutes. What the model detects, Render detects too – only slower and with more lines in
+        between.</span></p>
+    </div>
+  </section>
+
+  <!-- ============================================================ uebungen -->
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Fünf Übungen: zwei am Deploy-Simulator – der erste Deploy mit seinen drei typischen Fehlern und
+        das Root Directory in einem Monorepo –, ein Quiz zu den Grenzen des Free-Plans, die Reihenfolge vom Repository
+        zum laufenden Dienst und eine Zuordnung von Protokollzeilen zu Ursachen.</span>
+      <span lang="en">Five exercises: two at the deploy simulator – the first deploy with its three typical errors and
+        the root directory in a monorepo –, a quiz on the free plan's limits, the order from repository to running
+        service and a matching of log lines to causes.</span>
+    </p>
+    <div data-uebung="W11-01"></div>
+    <div data-uebung="W11-02"></div>
+    <div data-uebung="W11-03"></div>
+    <div data-uebung="W11-04"></div>
+    <div data-uebung="W11-05"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <!-- ===================================================== zusammenfassung -->
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Render ist eine PaaS: Repository plus Build Command plus Start Command, und die Plattform baut, startet, überwacht und vergibt Adresse und Zertifikat. Ein Deploy ist Build plus Start, und jeder Push löst einen aus.</span><span lang="en">Render is a PaaS: repository plus build command plus start command, and the platform builds, starts, supervises and assigns address and certificate. A deploy is build plus start, and every push triggers one.</span></li>
+      <li><span lang="de">Drei Regeln im Code: an <code>0.0.0.0</code> binden, den Port aus <code>PORT</code> lesen, Geheimnisse aus der Umgebung. Für Uvicorn heißt das immer <code>--host 0.0.0.0 --port $PORT</code>.</span><span lang="en">Three rules in the code: bind to <code>0.0.0.0</code>, read the port from <code>PORT</code>, secrets from the environment. For Uvicorn that always means <code>--host 0.0.0.0 --port $PORT</code>.</span></li>
+      <li><span lang="de">Die Ursache steht über der Statuszeile. „Exited with status 1“ heißt abgebrochen, „status 0“ heißt fertig, „No open ports detected“ heißt 127.0.0.1 – und keine der drei Zeilen nennt selbst den Grund.</span><span lang="en">The cause stands above the status line. “Exited with status 1” means aborted, “status 0” means finished, “No open ports detected” means 127.0.0.1 – and none of the three lines names the reason itself.</span></li>
+      <li><span lang="de">Die <code>.env</code> liegt nicht im Repository; ihre Werte werden zu Environment Variables. Region Frankfurt für Dienst und Datenbank, bei der Anlage – nachträglich nicht änderbar. Python-Version pinnen, weil der Default 3.14.x ist (Stand 09/2026).</span><span lang="en">The <code>.env</code> is not in the repository; its values become environment variables. Region Frankfurt for service and database, at creation – not changeable afterwards. Pin the Python version, because the default is 3.14.x (as of 09/2026).</span></li>
+      <li><span lang="de">Der Free Web Service kostet nichts und keine Kreditkarte, schläft nach 15 Minuten ein, braucht eine Minute zum Aufwachen, hat 750 Stunden je Workspace und Monat und ein flüchtiges Dateisystem. Free Postgres läuft nach 30 Tagen ab – deshalb bleibt die Datenbank bei Supabase (Lab 08).</span><span lang="en">The free web service costs nothing and no credit card, falls asleep after 15 minutes, takes a minute to wake up, has 750 hours per workspace and month and an ephemeral file system. Free Postgres expires after 30 days – which is why the database stays on Supabase (lab 08).</span></li>
+      <li><span lang="de"><code>render.yaml</code> ist das Formular als Datei – Infrastructure as Code wie <code>compose.yaml</code> in Lab 07; <code>sync: false</code> hält Geheimnisse heraus. Mit Language Docker gilt dieselbe Port-Regel im <code>CMD</code>.</span><span lang="en"><code>render.yaml</code> is the form as a file – infrastructure as code like <code>compose.yaml</code> in lab 07; <code>sync: false</code> keeps secrets out. With language Docker the same port rule applies in <code>CMD</code>.</span></li>
+      <li><span lang="de">Ein Skript, das durchläuft (Lab 10), ist kein Web Service. Cron Jobs sind bei Render nicht kostenlos; GitHub Actions nach Zeitplan oder <code>pg_cron</code> in Supabase sind es. Der Dienst dieses Labs ist eine Quelle, die ein Dashboard (Lab 12) oder ein Notebook (Lab 04) über HTTP aufrufen kann.</span><span lang="en">A script that runs through (lab 10) is not a web service. Cron jobs are not free on Render; GitHub Actions on a schedule or <code>pg_cron</code> in Supabase are. This lab's service is a source a dashboard (lab 12) or a notebook (lab 04) can call over HTTP.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 11 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 11 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

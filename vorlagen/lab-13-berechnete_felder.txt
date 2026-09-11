@@ -1,0 +1,51 @@
+// lab-13-berechnete_felder.txt – Calculated Fields fuer Velo City (Tableau, Lab 13)
+//
+// Anlegen:  Analysis → Create Calculated Field…   (oder: Data pane ▾ → Create Calculated Field…)
+// Oben den Namen eintragen, die Formel einfuegen; unten muss stehen:  The calculation is valid.
+// Feldnamen stehen in eckigen Klammern. Tableau schreibt die Spalte preis_eur beim Laden
+// als "Preis Eur", fahrt_id als "Fahrt Id", rad_typ als "Rad Typ", dauer_min als "Dauer Min".
+// Kommentare mit // sind in Tableau-Formeln erlaubt und koennen mitkopiert werden.
+
+// ---------------------------------------------------------------------------
+// 1) Umsatz je Fahrt – Aggregat-Rechnung (beide Seiten aggregiert)
+//    Zaehler und Nenner sind Aggregate; Tableau rechnet je Zelle der Viz.
+//    Waere links SUM(...) und rechts das rohe [Fahrt Id], kaeme:
+//    "Cannot mix aggregate and non-aggregate arguments with this function."
+// Name: Umsatz je Fahrt
+SUM([Preis Eur]) / COUNTD([Fahrt Id])
+
+// ---------------------------------------------------------------------------
+// 2) Ist E-Bike – Zeilenrechnung (row-level)
+//    Liefert TRUE/FALSE je Fahrt; das Ergebnis ist eine Dimension (blau) und
+//    eignet sich fuer Color, Filters oder Rows.
+// Name: Ist E-Bike
+[Rad Typ] = "EBIKE"
+
+// ---------------------------------------------------------------------------
+// 3) Dauerklasse – IF / ELSEIF je Zeile
+//    Ergebnis ist Text, also eine Dimension. Die Reihenfolge der Klassen ist
+//    alphabetisch; fuer eine sinnvolle Sortierung: Rechtsklick → Sort… → Manual.
+// Name: Dauerklasse
+IF [Dauer Min] < 10 THEN "kurz (unter 10 min)"
+ELSEIF [Dauer Min] < 30 THEN "mittel (10 bis 29 min)"
+ELSE "lang (30 min und mehr)"
+END
+
+// ---------------------------------------------------------------------------
+// 4) Fahrten je Station (FIXED) – Level of Detail Expression
+//    Zaehlt je Station, unabhaengig davon, welche Dimensionen in der Viz liegen.
+//    Wird VOR den Dimension Filters berechnet: Ein Filter auf Rad Typ aendert
+//    diesen Wert nicht (ein Context Filter schon).
+// Name: Fahrten je Station (FIXED)
+{ FIXED [Station] : COUNTD([Fahrt Id]) }
+
+// ---------------------------------------------------------------------------
+// 5) Anteil am Gesamtumsatz – KEIN Calculated Field, sondern eine Table Calculation
+//    Weg ohne Formel: SUM(Preis Eur) auf das Regal ziehen → Rechtsklick auf die Pille
+//    → Quick Table Calculation → Percent of Total. Die Pille traegt danach ein Dreieck.
+//    Rechtsklick → Edit Table Calculation… → Compute Using legt fest, was 100 % ist
+//    (Table (across), Table (down), Pane, Specific Dimensions).
+//    Als Formel geschrieben (rechnet auf dem Ergebnis der Viz, NACH allen Filtern):
+// Name: Anteil am Gesamtumsatz
+SUM([Preis Eur]) / TOTAL(SUM([Preis Eur]))
+//    Ein Filter auf EBIKE macht die E-Bike-Fahrten zu 100 % – anders als FIXED oben.

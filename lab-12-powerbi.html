@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 12 · Power BI · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 12 · Power BI · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-12">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Das Problem, das es löst</span><span lang="en">The problem it solves</span></a>
+  <a class="sidebar-link" href="#landschaft"><span lang="de">Produktlandschaft und Lizenz</span><span lang="en">Product landscape and licence</span></a>
+  <a class="sidebar-link" href="#begriffe"><span lang="de">Die Begriffe</span><span lang="en">The concepts</span></a>
+  <a class="sidebar-link" href="#daten"><span lang="de">Daten holen: Power Query</span><span lang="en">Getting data: Power Query</span></a>
+  <a class="sidebar-link" href="#modell"><span lang="de">Das Modell: Beziehungen</span><span lang="en">The model: relationships</span></a>
+  <a class="sidebar-link" href="#dax"><span lang="de">Kennzahlen: DAX Measures</span><span lang="en">Metrics: DAX measures</span></a>
+  <a class="sidebar-link" href="#bericht"><span lang="de">Der Bericht</span><span lang="en">The report</span></a>
+  <a class="sidebar-link" href="#veroeffentlichen"><span lang="de">Veröffentlichen und Refresh</span><span lang="en">Publishing and refresh</span></a>
+  <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></a>
+  <a class="sidebar-link" href="#simulator"><span lang="de">Simulator</span><span lang="en">Simulator</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">12</div>
+  <h1 class="lab-title">Power BI</h1>
+  <p class="lab-intro">
+    <span lang="de">In Lab 10 ist aus den Rohdaten von Velo City ein Sternschema geworden: eine Faktentabelle mit
+      1.500 Fahrten, vier Dimensionen. Jetzt soll jemand damit arbeiten, der kein SQL schreibt. Power BI lädt die
+      Tabellen, verbindet sie zu einem Semantic Model, rechnet Kennzahlen als Measures und zeichnet daraus einen
+      Bericht – Umsatz je Bezirk, Fahrten je Monat, Dauer je Radtyp. Der eigentliche Lernstoff ist nicht das
+      Diagramm, sondern das Modell darunter: Wer es richtig baut, bekommt jedes Diagramm geschenkt. Wer es weglässt,
+      summiert irgendwann Kennungen.</span>
+    <span lang="en">In lab 10 the raw data of Velo City became a star schema: one fact table with 1,500 rides, four
+      dimensions. Now somebody who does not write SQL is supposed to work with it. Power BI loads the tables, relates
+      them into a semantic model, computes metrics as measures and draws a report from that – revenue per district,
+      rides per month, duration per bike type. The actual subject is not the chart but the model underneath: whoever
+      builds it right gets every chart for free. Whoever skips it ends up summing identifiers.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">Semantic Model</span>
+    <span class="lernziel-chip">Power Query · Applied Steps</span>
+    <span class="lernziel-chip">Relationship · *:1</span>
+    <span class="lernziel-chip">Measure vs. Calculated Column</span>
+    <span class="lernziel-chip">Filter Context · CALCULATE</span>
+    <span class="lernziel-chip"><span lang="de">Σ-Falle</span><span lang="en">Σ trap</span></span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Das Problem, das es löst</span><span lang="en">The problem it solves</span></h2>
+    <p>
+      <span lang="de">Drei Abteilungen von Velo City berichten den Monatsumsatz – und nennen drei Zahlen. Die eine
+        zählt Stornierungen mit, die zweite rechnet netto, die dritte hat eine ältere Kopie der Daten. Keine der drei
+        ist falsch gerechnet; sie sind nur <em>verschieden definiert</em>, jede in ihrer eigenen Excel-Datei. Das ist
+        das Problem, das Business-Intelligence-Werkzeuge lösen sollen: nicht das Zeichnen von Balken, sondern eine
+        Kennzahl, die überall dasselbe bedeutet.</span>
+      <span lang="en">Three departments at Velo City report the monthly revenue – and name three figures. One counts
+        cancellations, the second calculates net, the third has an older copy of the data. None of the three is
+        computed wrongly; they are just <em>defined differently</em>, each in its own Excel file. That is the problem
+        business intelligence tools are meant to solve: not drawing bars, but a metric that means the same thing
+        everywhere.</span>
+    </p>
+    <p>
+      <span lang="de">Power BI beantwortet das mit einem <strong>Semantic Model</strong>: Tabellen, ihre Beziehungen
+        und die Definitionen der Kennzahlen liegen an einem Ort. Ein Bericht ist nur ein Fenster auf dieses Modell –
+        er wählt aus, nach welcher Dimension er eine Kennzahl aufteilt, aber er definiert sie nicht. Zwanzig Berichte,
+        ein Modell, eine Zahl für „Umsatz“.</span>
+      <span lang="en">Power BI answers that with a <strong>semantic model</strong>: tables, their relationships and
+        the definitions of the metrics live in one place. A report is only a window onto that model – it chooses
+        which dimension to break a metric down by, but it does not define it. Twenty reports, one model, one figure
+        for “revenue”.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Erst das Modell, dann der Bericht</span><span lang="en">Model first, report second</span></h3>
+      <p><span lang="de">Die Reihenfolge in diesem Lab ist die Reihenfolge, in der Power BI gedacht ist: Daten holen
+        und bereinigen (Power Query), Tabellen verbinden (Model view), Kennzahlen definieren (DAX), dann erst Visuals
+        (Report view). Wer mit dem Diagramm anfängt, zieht Spalten in Field wells und lässt Power BI raten, was damit
+        gemeint ist – und Power BI rät bei jeder Zahlenspalte <em>Summe</em>. Das ist der Ursprung der Falle, die
+        dieses Lab durchzieht: „Sum of fahrt_id“.</span>
+      <span lang="en">The order in this lab is the order Power BI is designed for: get and clean data (Power Query),
+        relate tables (Model view), define metrics (DAX), only then visuals (Report view). Whoever starts with the chart
+        drags columns into field wells and lets Power BI guess what is meant – and Power BI guesses <em>sum</em> for
+        every numeric column. That is the origin of the trap running through this lab: “Sum of fahrt_id”.</span></p>
+    </div>
+    <p>
+      <span lang="de">Im Kurs steht Power BI am Ende der Kette: Terminal und Git (Lab 01, 02), Notebook (Lab 04),
+        Datenbank im Container und in der Cloud (Lab 07, 08), DataGrip (Lab 09), ETL ins Sternschema (Lab 10). Was
+        dort entstanden ist, wird hier zum Bericht. Lab 13 zeigt anschließend das Gegenmodell: Tableau, wo das
+        Diagramm die Abfrage <em>ist</em>.</span>
+      <span lang="en">In the course Power BI stands at the end of the chain: terminal and Git (labs 01, 02), notebook
+        (lab 04), database in a container and in the cloud (labs 07, 08), DataGrip (lab 09), ETL into the star schema
+        (lab 10). What emerged there becomes a report here. Lab 13 then shows the opposite model: Tableau, where the
+        chart <em>is</em> the query.</span>
+    </p>
+    <div class="kette">
+      <div class="glied hell"><span class="titel">Lab 08 · 10</span><span class="was"><span lang="de">Sternschema in Supabase</span><span lang="en">Star schema in Supabase</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Power Query</span><span class="was"><span lang="de">holen, Typen, Applied Steps</span><span lang="en">get, types, applied steps</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Model view</span><span class="was"><span lang="de">Relationships *:1</span><span lang="en">relationships *:1</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">DAX</span><span class="was"><span lang="de">Measures, Filter Context</span><span lang="en">measures, filter context</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Report view</span><span class="was"><span lang="de">Visuals, Slicer</span><span lang="en">visuals, slicers</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied hell"><span class="titel">Service</span><span class="was"><span lang="de">Publish, Refresh</span><span lang="en">publish, refresh</span></span></div>
+    </div>
+  </section>
+
+  <section class="section-block" id="landschaft">
+    <h2><span lang="de">Produktlandschaft und Lizenz</span><span lang="en">Product landscape and licence</span></h2>
+    <p>
+      <span lang="de">„Power BI“ ist kein Programm, sondern vier Dinge, die verschieden kosten und verschieden
+        erreichbar sind. Stand 09/2026:</span>
+      <span lang="en">“Power BI” is not one program but four things that cost differently and are reachable
+        differently. As of 09/2026:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Baustein</span><span lang="en">Component</span></th>
+            <th><span lang="de">Was es ist</span><span lang="en">What it is</span></th>
+            <th><span lang="de">Zugang</span><span lang="en">Access</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Power BI Desktop</strong></td>
+            <td><span lang="de">Das Autorenwerkzeug: Abfragen, Modell, DAX, Berichtsdesign. Nur Windows, nur 64-Bit, monatliche Versionen – unterstützt ist stets nur die aktuelle.</span><span lang="en">The authoring tool: queries, model, DAX, report design. Windows only, 64-bit only, monthly releases – only the current one is supported.</span></td>
+            <td><span lang="de">Kostenlos. Installation über den Microsoft Store (aktualisiert sich selbst, keine Adminrechte nötig). Windows 10 oder neuer, WebView2, mindestens 1440×900.</span><span lang="en">Free. Install from the Microsoft Store (updates itself, no admin rights). Windows 10 or newer, WebView2, at least 1440×900.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Power BI Service</strong></td>
+            <td><span lang="de"><code>app.powerbi.com</code> – die Cloud zum Veröffentlichen, Teilen, Aktualisieren. Wird inzwischen innerhalb von Microsoft Fabric verwaltet und lizenziert.</span><span lang="en"><code>app.powerbi.com</code> – the cloud for publishing, sharing, refreshing. Now administered and licensed inside Microsoft Fabric.</span></td>
+            <td><span lang="de"><strong>Work- oder School-Account</strong> zwingend. Gmail, Outlook.com und andere Privatkonten werden abgewiesen. Desktop läuft ohne Anmeldung; erst <code>Publish</code> verlangt sie.</span><span lang="en"><strong>Work or school account</strong> required. Gmail, Outlook.com and other consumer accounts are rejected. Desktop runs without signing in; only <code>Publish</code> demands it.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Microsoft Fabric</strong></td>
+            <td><span lang="de">Die Plattform, in der Power BI heute steckt (OneLake, Lakehouse, Data Factory …). Für dieses Lab wichtig: Die Begriffe haben sich verschoben – aus <em>dataset</em> wurde <em>semantic model</em>, die kostenlose Lizenz heißt <em>Fabric (Free)</em>.</span><span lang="en">The platform Power BI now sits in (OneLake, Lakehouse, Data Factory …). Relevant here: the vocabulary has shifted – <em>dataset</em> became <em>semantic model</em>, the free licence is called <em>Fabric (Free)</em>.</span></td>
+            <td><span lang="de">Kapazitäten (F-SKUs) kauft die Organisation, nicht die Person.</span><span lang="en">Capacities (F SKUs) are bought by the organisation, not the person.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Power BI Mobile</strong></td>
+            <td><span lang="de">Apps für iOS und Android zum Ansehen veröffentlichter Berichte.</span><span lang="en">Apps for iOS and Android for viewing published reports.</span></td>
+            <td><span lang="de">Kostenlos; sieht, was die Lizenz erlaubt.</span><span lang="en">Free; sees what the licence allows.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn-box">
+      <h3><span lang="de">Mac</span><span lang="en">Mac</span></h3>
+      <p><span lang="de">Es gibt keinen Power BI Desktop für macOS, und keiner ist angekündigt. Offiziell unterstützt
+        ist Desktop in <strong>Windows 365</strong> und <strong>Azure Virtual Desktop</strong> – ein Windows in der
+        Cloud, das die IT bereitstellt und bezahlt. In der Praxis läuft Desktop auch in <strong>Parallels</strong>
+        oder <strong>VMware Fusion</strong> mit Windows 11 ARM (Fusion ist seit 2024 für private Nutzung kostenlos,
+        Parallels kostenpflichtig mit Studierendenrabatt); das ist nicht offiziell unterstützt, funktioniert aber.
+        Zwei weitere Wege: der Rechnerpool der Hochschule, und der Service im Browser – dort lassen sich vorhandene
+        Berichte bearbeiten, aber es gibt keinen Power Query Editor und kein neues Modell.</span>
+      <span lang="en">There is no Power BI Desktop for macOS, and none is announced. Officially supported is Desktop in
+        <strong>Windows 365</strong> and <strong>Azure Virtual Desktop</strong> – a Windows in the cloud provided and
+        paid for by IT. In practice Desktop also runs in <strong>Parallels</strong> or <strong>VMware Fusion</strong>
+        with Windows 11 ARM (Fusion has been free for personal use since 2024, Parallels is paid with a student
+        discount); that is not officially supported but works. Two further routes: the university's PC pool, and the
+        service in the browser – existing reports can be edited there, but there is no Power Query Editor and no new
+        model.</span></p>
+    </div>
+    <h3><span lang="de">Lizenzen, Stand 09/2026</span><span lang="en">Licences, as of 09/2026</span></h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Lizenz</span><span lang="en">Licence</span></th>
+            <th><span lang="de">Preis</span><span lang="en">Price</span></th>
+            <th><span lang="de">Was geht</span><span lang="en">What works</span></th>
+            <th><span lang="de">Was nicht geht</span><span lang="en">What does not</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Fabric (Free)</strong><br><span lang="de">„Power BI Free“</span><span lang="en">“Power BI Free”</span></td>
+            <td><span lang="de">kostenlos</span><span lang="en">free</span></td>
+            <td><span lang="de">Desktop uneingeschränkt; Publish nach <code>My workspace</code>; dort Berichte, Semantic Models, Scheduled refresh; Export nach PDF, PowerPoint, CSV.</span><span lang="en">Desktop without limits; publish to <code>My workspace</code>; reports, semantic models, scheduled refresh there; export to PDF, PowerPoint, CSV.</span></td>
+            <td><span lang="de">Kein Teilen, keine Apps, kein Publish to web, kein Publish in fremde Workspaces. Inhalte in My workspace sieht niemand sonst.</span><span lang="en">No sharing, no apps, no Publish to web, no publishing to other workspaces. Nobody else sees content in My workspace.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Power BI Pro</strong></td>
+            <td>$14 <span lang="de">je Nutzer und Monat (12,10 € zzgl. MwSt.), jährlich</span><span lang="en">per user per month (EUR 12.10 plus VAT), annual</span></td>
+            <td><span lang="de">Publish in gemeinsame Workspaces, Teilen mit anderen Pro-Nutzern, Apps, Abonnements.</span><span lang="en">Publish to shared workspaces, share with other Pro users, apps, subscriptions.</span></td>
+            <td><span lang="de">Empfänger brauchen ebenfalls Pro – außer der Workspace liegt auf einer Kapazität.</span><span lang="en">Recipients need Pro as well – unless the workspace sits on a capacity.</span></td>
+          </tr>
+          <tr>
+            <td><strong>Premium Per User</strong> (PPU)</td>
+            <td>$24 <span lang="de">je Nutzer und Monat (20,80 €), jährlich</span><span lang="en">per user per month (EUR 20.80), annual</span></td>
+            <td><span lang="de">Pro plus die meisten Premium-Funktionen (größere Modelle, häufigerer Refresh).</span><span lang="en">Pro plus most Premium features (larger models, more frequent refresh).</span></td>
+            <td><span lang="de">PPU-Inhalte können nur andere PPU-Nutzer sehen.</span><span lang="en">PPU content can be seen only by other PPU users.</span></td>
+          </tr>
+          <tr>
+            <td><strong><span lang="de">Fabric-Kapazität</span><span lang="en">Fabric capacity</span></strong></td>
+            <td><span lang="de">F2 bis F2048, stundenweise abgerechnet oder reserviert; Preis je Region</span><span lang="en">F2 to F2048, billed hourly or reserved; price per region</span></td>
+            <td><span lang="de">Die Organisation kauft Rechenleistung; ab F64 sehen auch Free-Nutzer geteilte Inhalte als Viewer.</span><span lang="en">The organisation buys compute; from F64 up, free users can view shared content as Viewer.</span></td>
+            <td><span lang="de">Für Einzelpersonen und Kurse nicht gedacht.</span><span lang="en">Not meant for individuals or courses.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <p><span lang="de"><strong>Bildung.</strong> Microsoft 365 Education A1 und A3 enthalten nur Fabric (Free);
+        Power BI Pro ist in A5 enthalten und für A1/A3 als Zusatzlizenz erhältlich. Ob Sie als Studierende der THWS
+        Berichte teilen können, hängt also vom Tenant der Hochschule ab – und davon, ob die Selbstregistrierung für
+        Power BI freigeschaltet ist. Verlassen Sie sich nicht darauf: Die Abgabe in diesem Kurs ist die
+        <code>.pbix</code>-Datei plus ein PDF-Export, beides funktioniert mit der kostenlosen Lizenz. Eine eigene
+        „Studierendenlizenz“ für Power BI gibt es nicht; Microsoft Learn bietet kostenlose Lernpfade, aber keine
+        Lizenz.</span>
+      <span lang="en"><strong>Education.</strong> Microsoft 365 Education A1 and A3 include only Fabric (Free); Power
+        BI Pro is included in A5 and available as an add-on for A1/A3. Whether you as a THWS student can share reports
+        therefore depends on the university's tenant – and on whether self-service sign-up for Power BI is enabled. Do
+        not rely on it: the submission in this course is the <code>.pbix</code> file plus a PDF export, both of which
+        work with the free licence. There is no separate “student licence” for Power BI; Microsoft Learn offers free
+        learning paths but no licence.</span></p>
+    </div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Power BI steht hier, weil es in
+        deutschen Unternehmen das am häufigsten eingesetzte BI-Werkzeug ist und seine Begriffe (Semantic Model,
+        Measure, Filter Context) in Stellenanzeigen vorausgesetzt werden. Alternativen auf derselben Ebene:
+        <strong>Tableau</strong> (Lab 13; Creator-Lizenz kostenpflichtig, kostenlose Desktop-Editionen mit
+        Einschränkungen), <strong>Looker Studio</strong> (Google, kostenlos im Browser, Pro-Variante kostenpflichtig),
+        <strong>Metabase</strong> (AGPL, selbst gehostet kostenlos), <strong>Apache Superset</strong> (Apache 2.0,
+        selbst gehostet), <strong>Excel Power Pivot</strong> (in Excel für Windows enthalten, dieselben Sprachen DAX
+        und M – auf dem Mac nicht verfügbar) sowie code-first <strong>Streamlit</strong> (Apache 2.0) und
+        <strong>Plotly/Dash</strong> (MIT).</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. Power BI appears here because it is the most widely deployed
+        BI tool in German companies and its vocabulary (semantic model, measure, filter context) is assumed in job
+        adverts. Alternatives on the same layer: <strong>Tableau</strong> (lab 13; Creator licence paid, free desktop
+        editions with restrictions), <strong>Looker Studio</strong> (Google, free in the browser, Pro variant paid),
+        <strong>Metabase</strong> (AGPL, free self-hosted), <strong>Apache Superset</strong> (Apache 2.0, self-hosted),
+        <strong>Excel Power Pivot</strong> (included in Excel for Windows, the same languages DAX and M – not available
+        on the Mac) and code-first <strong>Streamlit</strong> (Apache 2.0) and <strong>Plotly/Dash</strong>
+        (MIT).</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="begriffe">
+    <h2><span lang="de">Die Begriffe</span><span lang="en">The concepts</span></h2>
+    <p>
+      <span lang="de">Neun Begriffe, die in jeder Anleitung, jeder Fehlermeldung und jedem Vorstellungsgespräch
+        vorkommen. Die drei wichtigsten sind fett.</span>
+      <span lang="en">Nine concepts that appear in every guide, every error message and every job interview. The three
+        most important are in bold.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Begriff</span><span lang="en">Concept</span></th>
+            <th><span lang="de">Was es ist</span><span lang="en">What it is</span></th>
+            <th><span lang="de">Wo</span><span lang="en">Where</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Semantic Model</strong></td>
+            <td><span lang="de">Tabellen, Beziehungen, Measures und Formatierungen – das, was ein Bericht befragt. Früher „dataset“. Beim Publish entsteht es als eigenes Objekt neben dem Report.</span><span lang="en">Tables, relationships, measures and formatting – what a report queries. Formerly “dataset”. On publish it becomes its own object next to the report.</span></td>
+            <td>Desktop · Service</td>
+          </tr>
+          <tr>
+            <td>Power Query</td>
+            <td><span lang="de">Der Lade- und Bereinigungsteil. Jede Umformung wird als Schritt in <em>Applied Steps</em> aufgezeichnet; die Sprache dahinter heißt <strong>M</strong> (<code>View → Advanced Editor</code>). Läuft bei jedem Refresh erneut.</span><span lang="en">The loading and cleaning part. Every transformation is recorded as a step in <em>Applied Steps</em>; the language behind it is called <strong>M</strong> (<code>View → Advanced Editor</code>). Runs again on every refresh.</span></td>
+            <td>Power Query Editor</td>
+          </tr>
+          <tr>
+            <td><strong>Relationship</strong></td>
+            <td><span lang="de">Verbindung zweier Tabellen über eine Spalte. <em>Cardinality</em> (<code>Many to one (*:1)</code> ist der Normalfall), <em>Cross filter direction</em> (<code>Single</code> oder <code>Both</code>), aktiv oder inaktiv.</span><span lang="en">Link between two tables over one column. <em>Cardinality</em> (<code>Many to one (*:1)</code> is the normal case), <em>Cross filter direction</em> (<code>Single</code> or <code>Both</code>), active or inactive.</span></td>
+            <td>Model view</td>
+          </tr>
+          <tr>
+            <td><strong>Measure</strong></td>
+            <td><span lang="de">Eine Formel in DAX, die zur Abfragezeit im Filter Context ausgewertet wird: <code>Umsatz = SUM(fact_fahrt[preis_eur])</code>. Speichert nichts, gilt überall. Taschenrechner-Symbol.</span><span lang="en">A DAX formula evaluated at query time in the filter context: <code>Umsatz = SUM(fact_fahrt[preis_eur])</code>. Stores nothing, applies everywhere. Calculator icon.</span></td>
+            <td>Modeling → New measure</td>
+          </tr>
+          <tr>
+            <td>Calculated Column</td>
+            <td><span lang="de">Eine Spalte, die je Zeile beim Laden berechnet und gespeichert wird (<em>Row Context</em>). Braucht Speicher, kann Kategorien bilden, kann nicht auf den Bericht reagieren. <code>fx</code>-Symbol.</span><span lang="en">A column computed per row on load and stored (<em>row context</em>). Uses memory, can form categories, cannot react to the report. <code>fx</code> icon.</span></td>
+            <td>Modeling → New column</td>
+          </tr>
+          <tr>
+            <td>Calculated Table</td>
+            <td><span lang="de">Eine ganze Tabelle aus DAX, etwa die Datumstabelle: <code>CALENDAR(…)</code>.</span><span lang="en">A whole table from DAX, e.g. the date table: <code>CALENDAR(…)</code>.</span></td>
+            <td>Modeling → New table</td>
+          </tr>
+          <tr>
+            <td>Filter Context · Row Context</td>
+            <td><span lang="de"><em>Filter Context</em>: die Menge der Werte, die Achse, Legende, Slicer und Filters pane gerade erlauben – das, worin ein Measure rechnet. <em>Row Context</em>: „die aktuelle Zeile“ – das, worin eine Calculated Column oder ein Iterator wie <code>SUMX</code> rechnet. <code>CALCULATE</code> verändert den Filter Context.</span><span lang="en"><em>Filter context</em>: the set of values that axis, legend, slicers and Filters pane currently allow – what a measure computes in. <em>Row context</em>: “the current row” – what a calculated column or an iterator like <code>SUMX</code> computes in. <code>CALCULATE</code> modifies the filter context.</span></td>
+            <td>DAX</td>
+          </tr>
+          <tr>
+            <td>Visual · Field wells</td>
+            <td><span lang="de">Ein Diagramm auf der Leinwand. Seine Ablagen im Visualizations pane heißen Field wells: <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>, <code>Values</code>, <code>Rows</code>, <code>Columns</code>. Ein <em>Slicer</em> ist ein Visual, das nur filtert.</span><span lang="en">A chart on the canvas. Its slots in the Visualizations pane are called field wells: <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>, <code>Values</code>, <code>Rows</code>, <code>Columns</code>. A <em>slicer</em> is a visual that only filters.</span></td>
+            <td>Report view</td>
+          </tr>
+          <tr>
+            <td>Workspace · Gateway</td>
+            <td><span lang="de">Der Ort im Service, an dem Modell und Bericht liegen (<code>My workspace</code> für alle, geteilte Workspaces ab Pro). Ein <em>On-premises data gateway</em> ist die Brücke vom Service zu Quellen, die er nicht direkt erreicht: Dateien auf dem Laptop, SQLite, lokales PostgreSQL.</span><span lang="en">The place in the service where model and report live (<code>My workspace</code> for everyone, shared workspaces from Pro). An <em>On-premises data gateway</em> is the bridge from the service to sources it cannot reach directly: files on the laptop, SQLite, a local PostgreSQL.</span></td>
+            <td>Service</td>
+          </tr>
+          <tr>
+            <td>Storage mode</td>
+            <td><span lang="de"><code>Import</code> (Kopie im Speicher, Standard, alle Funktionen), <code>DirectQuery</code> (jede Interaktion fragt die Quelle), <code>Direct Lake</code> (nur Fabric, liest OneLake ohne Import).</span><span lang="en"><code>Import</code> (copy in memory, default, all features), <code>DirectQuery</code> (every interaction queries the source), <code>Direct Lake</code> (Fabric only, reads OneLake without import).</span></td>
+            <td>Get data</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box">
+      <p><span lang="de">Die Data pane rechts zeigt mit einem Symbol, was ein Feld ist: <strong>Σ</strong> vor einer
+        Zahlenspalte heißt „ich summiere, wenn du mich ziehst“ (implizites Measure), das
+        <strong>Taschenrechner</strong>-Symbol ist ein von Ihnen geschriebenes Measure, <strong>fx</strong> eine
+        Calculated Column, der <strong>Kalender</strong> eine Datumsspalte. Wer die vier Symbole lesen kann, sieht die
+        Σ-Falle, bevor er hineintritt.</span>
+      <span lang="en">The Data pane on the right shows with an icon what a field is: <strong>Σ</strong> before a
+        numeric column means “I sum when you drag me” (implicit measure), the <strong>calculator</strong> icon is a
+        measure you wrote, <strong>fx</strong> a calculated column, the <strong>calendar</strong> a date column.
+        Whoever can read the four icons sees the Σ trap before stepping into it.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="daten">
+    <h2><span lang="de">Daten holen: Power Query</span><span lang="en">Getting data: Power Query</span></h2>
+    <p>
+      <span lang="de">Alles beginnt mit <code>Home → Get data</code>. Die Karten zeigen die häufigsten Quellen;
+        <code>More…</code> öffnet den vollständigen Dialog mit Kategorien <code>File</code>, <code>Database</code>,
+        <code>Online Services</code>, <code>Other</code>. Für diesen Kurs zählen drei Connectoren – und ein
+        Nicht-Connector: SQLite (Lab 06) hat keinen eigenen und braucht einen ODBC-Treiber.</span>
+      <span lang="en">Everything starts with <code>Home → Get data</code>. The cards show the most common sources;
+        <code>More…</code> opens the full dialog with categories <code>File</code>, <code>Database</code>,
+        <code>Online Services</code>, <code>Other</code>. For this course three connectors matter – and one
+        non-connector: SQLite (lab 06) has none of its own and needs an ODBC driver.</span>
+    </p>
+    <div data-befehl="B01"></div>
+    <h3><span lang="de">Supabase als Quelle</span><span lang="en">Supabase as source</span></h3>
+    <p>
+      <span lang="de">Das Sternschema aus Lab 10 liegt in Supabase (Lab 08) im Schema <code>mart</code>:
+        <code>fact_fahrt</code>, <code>dim_datum</code>, <code>dim_station</code>, <code>dim_rad</code>,
+        <code>dim_kunde</code> – die Matview <code>fahrten_station_tag</code> bleibt draußen, das Modell aggregiert
+        selbst. Der Connector heißt <code>PostgreSQL database</code>; der Treiber Npgsql ist seit Oktober 2024 in Power BI Desktop enthalten,
+        es ist nichts nachzuinstallieren. Die Werte sind dieselben wie für DataGrip in Lab 09 – mit einer
+        Besonderheit: Power BI hat kein Port-Feld, der Port steht mit Doppelpunkt hinter dem Server.</span>
+      <span lang="en">The star schema from lab 10 lives in Supabase (lab 08) in schema <code>mart</code>:
+        <code>fact_fahrt</code>, <code>dim_datum</code>, <code>dim_station</code>, <code>dim_rad</code>,
+        <code>dim_kunde</code> – the materialized view <code>fahrten_station_tag</code> stays out, the model aggregates
+        itself. The connector is called <code>PostgreSQL database</code>; the Npgsql driver has shipped with Power BI Desktop since October 2024,
+        nothing to install. The values are the same as for DataGrip in lab 09 – with one peculiarity: Power BI has no
+        port field, the port goes after the server with a colon.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-12-verbindung.txt" download><span class="symbol">📄</span><span><span class="datei">lab-12-verbindung.txt</span><br><span class="was"><span lang="de">Verbindungswerte für Supabase in Power BI, mit Begründung für Pooler und Port</span><span lang="en">Connection values for Supabase in Power BI, with the reasoning for pooler and port</span></span></span></a>
+    </div>
+    <div data-befehl="B02"></div>
+    <h3><span lang="de">Der Power Query Editor</span><span lang="en">The Power Query Editor</span></h3>
+    <p>
+      <span lang="de">Der Knopf <code>Transform Data</code> im Navigator öffnet den Editor. Er sieht aus wie eine
+        Tabellenkalkulation, verhält sich aber grundlegend anders: Sie ändern keine Zelle, Sie zeichnen Schritte auf.
+        Jeder Klick – Typ ändern, Spalte entfernen, Zeilen filtern – wird rechts unter <em>Applied Steps</em>
+        eingetragen und bei jedem Refresh in dieser Reihenfolge wiederholt. Das ist ETL (Lab 10) mit Maus.</span>
+      <span lang="en">The <code>Transform Data</code> button in the Navigator opens the editor. It looks like a
+        spreadsheet but behaves fundamentally differently: you change no cell, you record steps. Every click – change
+        type, remove column, filter rows – is entered on the right under <em>Applied Steps</em> and repeated in that
+        order on every refresh. That is ETL (lab 10) with a mouse.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Power Query Editor – velocity-bericht</span><span class="spacer"></span>2026.09</div>
+      <div class="shot-menu"><span>File</span><span><b>Home</b> <span class="callout">1</span></span><span>Transform</span><span>Add Column</span><span>View</span><span>Tools</span><span>Help</span></div>
+      <div class="shot-body drei">
+        <div class="shot-side">
+          <h5>Queries [4] <span class="callout">2</span></h5>
+          <ul class="baum">
+            <li class="aktiv">▦ fact_fahrt</li>
+            <li>▦ dim_station</li>
+            <li>▦ dim_rad</li>
+            <li>▦ dim_kunde</li>
+          </ul>
+        </div>
+        <div class="shot-main">
+          <div class="zeile"><span class="tab">Choose Columns</span><span class="tab">Remove Rows</span><span class="tab">Data Type: Decimal Number ▾</span><span class="tab">Use First Row as Headers</span><span class="tab">Merge Queries</span><span class="tab">Append Queries</span></div>
+          <div class="code">= Table.TransformColumnTypes(#"Promoted Headers", {{"preis_eur", type number}, {"start_zeit", type datetime}, {"datum_key", Int64.Type}}, "de-DE") <span class="callout">3</span></div>
+          <table>
+            <thead><tr><th>1²₃ fahrt_id</th><th>1²₃ datum_key</th><th>1²₃ start_station_sk</th><th>1²₃ rad_sk</th><th>📅 start_zeit</th><th>1²₃ dauer_min</th><th>1.2 preis_eur <span class="callout">4</span></th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>20251118</td><td>2</td><td>14</td><td>18.11.2025 08:12</td><td>9</td><td>1,40</td></tr>
+              <tr><td>2</td><td>20260703</td><td>5</td><td>31</td><td>03.07.2026 16:05</td><td>6</td><td>1,10</td></tr>
+              <tr><td>3</td><td>20251212</td><td>7</td><td>22</td><td>12.12.2025 18:40</td><td>22</td><td>4,08</td></tr>
+            </tbody>
+          </table>
+          <div class="fehlerzeile">DataFormat.Error: We couldn't convert to Number. &nbsp;Details: 4,08 <span class="callout">5</span></div>
+        </div>
+        <div class="shot-side rechts">
+          <h5>Query Settings</h5>
+          <div class="zeile"><span class="beschriftung">Name</span><span class="feld">fact_fahrt</span></div>
+          <h5>Applied Steps <span class="callout">6</span></h5>
+          <ul class="baum">
+            <li>Source</li>
+            <li>Navigation</li>
+            <li>Promoted Headers</li>
+            <li class="aktiv">Changed Type with Locale ⚙</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Ribbon <code>Home</code>: <code>Choose Columns</code>, <code>Remove Rows</code>, <code>Data Type</code>, <code>Use First Row as Headers</code>, <code>Merge Queries</code> (Verbund über einen Schlüssel), <code>Append Queries</code> (Zeilen anhängen, etwa zwei Monatsdateien). Unter <code>Transform</code>: <code>Unpivot Columns</code> – aus zwölf Monatsspalten wird eine Spalte Monat, wie <code>melt</code> in Lab 04.</span><span lang="en">Ribbon <code>Home</code>: <code>Choose Columns</code>, <code>Remove Rows</code>, <code>Data Type</code>, <code>Use First Row as Headers</code>, <code>Merge Queries</code> (join over a key), <code>Append Queries</code> (append rows, e.g. two monthly files). Under <code>Transform</code>: <code>Unpivot Columns</code> – twelve month columns become one month column, like <code>melt</code> in lab 04.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Die Abfragen – eine je Tabelle des Sternschemas. Jede hat ihre eigenen Applied Steps.</span><span lang="en">The queries – one per table of the star schema. Each has its own applied steps.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Die Formelleiste zeigt den M-Code des markierten Schritts. <code>"de-DE"</code> am Ende ist das Gebietsschema aus <em>Using Locale…</em>; ohne diese Angabe würde <code>1,40</code> im englischen Schema scheitern.</span><span lang="en">The formula bar shows the M code of the selected step. <code>"de-DE"</code> at the end is the locale from <em>Using Locale…</em>; without it <code>1,40</code> would fail in the English locale.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Typsymbole im Spaltenkopf: <code>1²₃</code> ganze Zahl, <code>1.2</code> Dezimalzahl, <code>ABC</code> Text, Kalender Datum. Steht bei <code>preis_eur</code> ein <code>ABC</code>, wird später jede Summe scheitern – dieselbe Prüfung wie <code>pg_typeof</code> in Lab 08. Die Schlüssel <code>datum_key</code>, <code>start_station_sk</code>, <code>rad_sk</code> sind ganze Zahlen aus Lab 10 – Power BI wird sie später summieren wollen (Σ), obwohl sie nur verbinden.</span><span lang="en">Type icons in the column header: <code>1²₃</code> whole number, <code>1.2</code> decimal, <code>ABC</code> text, calendar date. If <code>preis_eur</code> shows <code>ABC</code>, every sum will fail later – the same check as <code>pg_typeof</code> in lab 08. The keys <code>datum_key</code>, <code>start_station_sk</code>, <code>rad_sk</code> are whole numbers from lab 10 – Power BI will later want to sum them (Σ), although they only connect.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Die Meldung, die ein deutsches CSV ohne Locale erzeugt: <code>DataFormat.Error: We couldn't convert to Number.</code> Abhilfe: Spaltenkopf rechtsklick → <code>Change Type → Using Locale…</code> → <code>Decimal Number</code>, <code>German (Germany)</code>. Bei <code>start_zeit</code> im Format <code>dd.mm.yyyy hh:mm</code> ebenso (Typ <code>Date/Time</code>).</span><span lang="en">The message a German CSV without locale produces: <code>DataFormat.Error: We couldn't convert to Number.</code> Fix: right-click the column header → <code>Change Type → Using Locale…</code> → <code>Decimal Number</code>, <code>German (Germany)</code>. Same for <code>start_zeit</code> in the format <code>dd.mm.yyyy hh:mm</code> (type <code>Date/Time</code>).</span></span></li>
+      <li><span class="callout">6</span><span><span lang="de">Applied Steps: Klick auf einen Schritt zeigt die Tabelle in diesem Zustand, das Zahnrad öffnet den Dialog erneut, × löscht den Schritt. Rechtsklick → <code>View Native Query</code> zeigt bei Datenbankquellen das SQL, das Power Query hinschickt (Query folding); ist der Eintrag ausgegraut, rechnet ab hier Power BI selbst.</span><span lang="en">Applied steps: clicking a step shows the table in that state, the gear reopens the dialog, × deletes the step. Right-click → <code>View Native Query</code> shows, for database sources, the SQL Power Query sends (query folding); if the entry is greyed out, Power BI computes from here on itself.</span></span></li>
+    </ol>
+    <div data-befehl="B03"></div>
+    <div class="info-box">
+      <p><span lang="de">Der zweite Blick auf Applied Steps ist der Blick auf Lab 10: Jeder Schritt ist eine
+        Umformung, die in einer Reihenfolge steht und wiederholbar ist – genau das Versprechen von ETL. Der
+        Unterschied zu einem Python-Skript ist, dass die Schritte per Maus entstehen und in M festgehalten werden.
+        Wer <code>View → Advanced Editor</code> öffnet, sieht das ganze Skript und kann es in ein Repository
+        legen.</span>
+      <span lang="en">The second look at Applied Steps is the look at lab 10: every step is a transformation that stands
+        in an order and is repeatable – exactly ETL's promise. The difference from a Python script is that the steps
+        arise by mouse and are recorded in M. Whoever opens <code>View → Advanced Editor</code> sees the whole script
+        and can put it in a repository.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="modell">
+    <h2><span lang="de">Das Modell: Beziehungen</span><span lang="en">The model: relationships</span></h2>
+    <p>
+      <span lang="de">Nach <code>Close &amp; Apply</code> liegen fünf Tabellen im Modell – und Power BI muss wissen,
+        dass <code>fact_fahrt[rad_sk]</code> und <code>dim_rad[rad_sk]</code> dasselbe Rad meinen. Lab 10 hat dafür
+        Surrogatschlüssel angelegt (<code>rad_sk</code>, <code>kunde_sk</code>, <code>station_sk</code>,
+        <code>datum_key</code>); die natürlichen Kennungen wie <code>R-017</code> stehen nur noch in den Dimensionen.
+        Das sagt ihm die <strong>Model view</strong>: Tabellen als Kacheln, Beziehungen als Linien. Eine Beziehung
+        entsteht, indem Sie eine Spalte auf die andere ziehen, oder über <code>Modeling → Manage relationships</code>.
+        Beim Laden aus Supabase übernimmt Power BI die Fremdschlüssel des Schemas meist selbst; nachsehen muss man
+        trotzdem.</span>
+      <span lang="en">After <code>Close &amp; Apply</code> five tables sit in the model – and Power BI has to know
+        that <code>fact_fahrt[rad_sk]</code> and <code>dim_rad[rad_sk]</code> mean the same bike. Lab 10 created
+        surrogate keys for that (<code>rad_sk</code>, <code>kunde_sk</code>, <code>station_sk</code>,
+        <code>datum_key</code>); the natural identifiers such as <code>R-017</code> now sit only in the dimensions.
+        The <strong>Model view</strong> tells it: tables as cards, relationships as lines. A relationship arises by
+        dragging one column onto the other, or via <code>Modeling → Manage relationships</code>. When loading from
+        Supabase, Power BI usually takes over the schema's foreign keys itself; you still have to check.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Power BI Desktop – velocity-bericht · Model view</span><span class="spacer"></span>2026.09</div>
+      <div class="shot-menu"><span>File</span><span>Home</span><span>Insert</span><span><b>Modeling</b></span><span>View</span><span>Optimize</span><span>Help</span><span><b>Table tools</b> <span class="callout">5</span></span></div>
+      <div class="shot-body drei">
+        <div class="shot-side">
+          <h5>Views</h5>
+          <ul class="baum">
+            <li>▤ Report view</li>
+            <li>▦ Table view</li>
+            <li class="aktiv">⧉ Model view <span class="callout">1</span></li>
+            <li>◫ DAX query view</li>
+          </ul>
+        </div>
+        <div class="shot-main">
+          <div class="leinwand" style="flex-direction:column;align-items:stretch;font-style:normal;padding:0.6rem;gap:0.3rem">
+            <div class="zeile" style="justify-content:space-between">
+              <span class="feld"><b>dim_station</b><br>🔑 station_sk · station_id · name · bezirk · plaetze</span>
+              <span class="feld"><b>dim_datum</b> 📅<br>🔑 datum_key · datum · jahr · quartal · monat · monat_name · wochentag · wochenende</span>
+            </div>
+            <div class="zeile" style="justify-content:center;color:var(--ink-soft)">1 ─── * &nbsp;<span class="callout">2</span>&nbsp; 1 ┈┈┈ * <span class="callout">4</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1 ─────────── *</div>
+            <div class="zeile" style="justify-content:center">
+              <span class="feld" style="border-color:var(--primary)"><b>fact_fahrt</b><br>fahrt_id · datum_key · start_station_sk · ziel_station_sk · rad_sk · kunde_sk · start_zeit · stunde · dauer_min · preis_eur</span>
+            </div>
+            <div class="zeile" style="justify-content:center;color:var(--ink-soft)">* ─────────── 1 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * ─────────── 1</div>
+            <div class="zeile" style="justify-content:space-between">
+              <span class="feld"><b>dim_rad</b><br>🔑 rad_sk · rad_id · typ · baujahr · status</span>
+              <span class="feld"><b>dim_kunde</b><br>🔑 kunde_sk · kunde_id · tarif · bezirk</span>
+            </div>
+          </div>
+        </div>
+        <div class="shot-side rechts">
+          <h5>Edit relationship <span class="callout">3</span></h5>
+          <div class="zeile"><span class="beschriftung">From</span><span class="feld">fact_fahrt · rad_sk</span></div>
+          <div class="zeile"><span class="beschriftung">To</span><span class="feld">dim_rad · rad_sk</span></div>
+          <div class="zeile"><span class="beschriftung">Cardinality</span><span class="feld">Many to one (*:1)</span></div>
+          <div class="zeile"><span class="beschriftung">Cross filter direction</span><span class="feld">Single</span></div>
+          <div class="zeile"><span class="feld">☑ Make this relationship active</span></div>
+          <div class="zeile"><span class="knopf primaer">OK</span><span class="knopf">Cancel</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Die linke Leiste wechselt zwischen <code>Report view</code>, <code>Table view</code>, <code>Model view</code> und <code>DAX query view</code>. Das Modell baut man hier, nicht im Bericht.</span><span lang="en">The left rail switches between <code>Report view</code>, <code>Table view</code>, <code>Model view</code> and <code>DAX query view</code>. The model is built here, not in the report.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Das Sternschema aus Lab 10 (Schema <code>mart</code>): <code>fact_fahrt</code> in der Mitte, die Dimensionen außen, verbunden über die Surrogatschlüssel <code>rad_sk</code>, <code>kunde_sk</code>, <code>station_sk</code> und den Datumsschlüssel <code>datum_key</code> (<code>20260901</code>). An jeder Linie steht <code>*</code> an der Faktentabelle und <code>1</code> an der Dimension – die 1-Seite ist immer die Dimension, ihre Schlüsselspalte muss eindeutig sein. Der kleine Pfeil auf der Linie zeigt die Filterrichtung: von der Dimension in die Fakten.</span><span lang="en">The star schema from lab 10 (schema <code>mart</code>): <code>fact_fahrt</code> in the middle, dimensions around it, linked over the surrogate keys <code>rad_sk</code>, <code>kunde_sk</code>, <code>station_sk</code> and the date key <code>datum_key</code> (<code>20260901</code>). Each line shows <code>*</code> at the fact table and <code>1</code> at the dimension – the 1 side is always the dimension, its key column must be unique. The small arrow on the line shows the filter direction: from the dimension into the facts.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Der Dialog hinter einem Doppelklick auf die Linie: <code>Cardinality</code> <code>Many to one (*:1)</code>, <code>Cross filter direction</code> <code>Single</code>. <code>Both</code> ist bequem für Slicer auf der Faktentabelle, öffnet aber mehrdeutige Filterpfade – in einem Sternschema bleibt es bei <code>Single</code>. Ist keine der beiden Spalten eindeutig, verweigert der Dialog: <code>One of the columns must have unique values</code>.</span><span lang="en">The dialog behind a double-click on the line: <code>Cardinality</code> <code>Many to one (*:1)</code>, <code>Cross filter direction</code> <code>Single</code>. <code>Both</code> is convenient for slicers on the fact table but opens ambiguous filter paths – in a star schema it stays <code>Single</code>. If neither column is unique, the dialog refuses: <code>One of the columns must have unique values</code>.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Die gestrichelte Linie: <code>fact_fahrt</code> zeigt zweimal auf <code>dim_station</code> – <code>start_station_sk</code> und <code>ziel_station_sk</code> –, aber zwischen zwei Tabellen darf nur <em>eine</em> Beziehung aktiv sein. Die zweite bleibt inaktiv und wird in einem Measure mit <code>USERELATIONSHIP</code> eingeschaltet (Vorlage: <code>Ankünfte</code>) – die <em>rollenspielende Dimension</em>: dieselbe Tabelle in zwei Rollen, Startstation und Zielstation.</span><span lang="en">The dashed line: <code>fact_fahrt</code> points at <code>dim_station</code> twice – <code>start_station_sk</code> and <code>ziel_station_sk</code> –, but only <em>one</em> relationship between two tables may be active. The second stays inactive and is switched on inside a measure with <code>USERELATIONSHIP</code> (template: <code>Ankünfte</code>) – the <em>role-playing dimension</em>: the same table in two roles, start station and destination station.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Mit markierter Tabelle <code>dim_datum</code> erscheint <code>Table tools</code> – dort liegt <code>Mark as date table</code>. Ohne diese Markierung legt Power BI für jede Datumsspalte eine versteckte <em>Auto date/time</em>-Hierarchie an, und Zeitfunktionen wie <code>DATEADD</code> rechnen unzuverlässig.</span><span lang="en">With table <code>dim_datum</code> selected, <code>Table tools</code> appears – that is where <code>Mark as date table</code> lives. Without that mark Power BI creates a hidden <em>Auto date/time</em> hierarchy for every date column, and time functions such as <code>DATEADD</code> compute unreliably.</span></span></li>
+    </ol>
+    <div data-befehl="B04"></div>
+    <h3><span lang="de">Die Datumstabelle</span><span lang="en">The date table</span></h3>
+    <p>
+      <span lang="de">Lab 10 liefert <code>dim_datum</code> fertig mit: <code>datum_key</code> im Format
+        <code>YYYYMMDD</code>, <code>datum</code>, <code>jahr</code>, <code>quartal</code>, <code>monat</code>,
+        <code>monat_name</code>, <code>kw_iso</code>, <code>wochentag</code>, <code>wochentag_name</code>,
+        <code>wochenende</code> – plus eine Zeile <code>-1</code> für „unbekannt“. Wer aus Supabase importiert, muss
+        also nichts erzeugen; es bleibt ein Schritt: Tabelle markieren, <code>Table tools → Mark as date table →
+        datum</code>. Nur wer allein die Faktentabelle als CSV geladen hat, baut die Tabelle in DAX als Calculated
+        Table nach – lückenlos vom 1. September 2025 bis zum 31. August 2026, mit demselben
+        <code>datum_key</code>. Die Vorlage sagt beides.</span>
+      <span lang="en">Lab 10 delivers <code>dim_datum</code> ready-made: <code>datum_key</code> in the format
+        <code>YYYYMMDD</code>, <code>datum</code>, <code>jahr</code>, <code>quartal</code>, <code>monat</code>,
+        <code>monat_name</code>, <code>kw_iso</code>, <code>wochentag</code>, <code>wochentag_name</code>,
+        <code>wochenende</code> – plus a row <code>-1</code> for “unknown”. Whoever imports from Supabase therefore
+        creates nothing; one step remains: mark the table, <code>Table tools → Mark as date table → datum</code>.
+        Only whoever loaded the fact table alone as CSV rebuilds the table in DAX as a calculated table – without gaps
+        from 1 September 2025 to 31 August 2026, with the same <code>datum_key</code>. The template says both.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-12-datum.dax" download><span class="symbol">📄</span><span><span class="datei">lab-12-datum.dax</span><br><span class="was"><span lang="de">Alternative ohne Lab 10: dim_datum als CALENDAR mit datum_key, Jahr, Monat, Wochentag (ADDCOLUMNS); Mark as date table gilt in beiden Fällen</span><span lang="en">Alternative without lab 10: dim_datum as CALENDAR with datum_key, year, month, weekday (ADDCOLUMNS); Mark as date table applies in both cases</span></span></span></a>
+    </div>
+    <div data-befehl="B05"></div>
+  </section>
+
+  <section class="section-block" id="dax">
+    <h2><span lang="de">Kennzahlen: DAX Measures</span><span lang="en">Metrics: DAX measures</span></h2>
+    <p>
+      <span lang="de">Hier liegt der Kern des Labs. Ein <strong>Measure</strong> ist eine Formel in DAX, die keinen
+        Wert speichert, sondern bei jeder Abfrage neu rechnet – in genau dem <em>Filter Context</em>, den das Visual
+        vorgibt. <code>Modeling → New measure</code>, dann in die Formelleiste:</span>
+      <span lang="en">This is the core of the lab. A <strong>measure</strong> is a DAX formula that stores no value but
+        computes anew on every query – in exactly the <em>filter context</em> the visual provides.
+        <code>Modeling → New measure</code>, then into the formula bar:</span>
+    </p>
+    <pre class="code-block">Umsatz = SUM ( fact_fahrt[preis_eur] )</pre>
+    <p>
+      <span lang="de">Dasselbe Measure liefert im Balken „Altstadt“ den Altstadt-Umsatz, in der Linie „2026-03“ den
+        Märzumsatz und in der Karte ohne Achsen 3.172,14 €. Es weiß nichts von Bezirken oder Monaten – das Visual
+        setzt den Filter, das Measure rechnet darin. Deshalb reicht ein einziges Measure für alle Berichte.</span>
+      <span lang="en">The same measure yields the Altstadt revenue in the “Altstadt” bar, the March revenue in the
+        “2026-03” line and EUR 3,172.14 in the card without axes. It knows nothing of districts or months – the visual
+        sets the filter, the measure computes inside it. That is why one measure suffices for all reports.</span>
+    </p>
+    <div class="vergleich">
+      <div>
+        <h3>Measure</h3>
+        <ul>
+          <li><span lang="de">Rechnet zur Abfragezeit, je Zelle eines Visuals</span><span lang="en">Computes at query time, per cell of a visual</span></li>
+          <li><span lang="de"><strong>Filter Context</strong>, kein Row Context – „welche Zeile?“ ergibt keinen Sinn</span><span lang="en"><strong>Filter context</strong>, no row context – “which row?” makes no sense</span></li>
+          <li><span lang="de">Speichert nichts; das Modell bleibt klein</span><span lang="en">Stores nothing; the model stays small</span></li>
+          <li><span lang="de">Symbol: Taschenrechner</span><span lang="en">Icon: calculator</span></li>
+          <li><span lang="de">Für alles, was aggregiert: Summen, Anzahlen, Mittelwerte, Quoten</span><span lang="en">For everything that aggregates: sums, counts, averages, ratios</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Calculated Column</h3>
+        <ul>
+          <li><span lang="de">Rechnet beim Laden, je Zeile, und speichert das Ergebnis</span><span lang="en">Computes on load, per row, and stores the result</span></li>
+          <li><span lang="de"><strong>Row Context</strong> – „die aktuelle Zeile“ ist immer bekannt</span><span lang="en"><strong>Row context</strong> – “the current row” is always known</span></li>
+          <li><span lang="de">Braucht Speicher; ändert sich nur beim Refresh</span><span lang="en">Uses memory; changes only on refresh</span></li>
+          <li><span lang="de">Symbol: <code>fx</code></span><span lang="en">Icon: <code>fx</code></span></li>
+          <li><span lang="de">Für Kategorien je Zeile: <code>dauer_klasse = IF(fact_fahrt[dauer_min] &gt; 30, "lang", "kurz")</code></span><span lang="en">For per-row categories: <code>dauer_klasse = IF(fact_fahrt[dauer_min] &gt; 30, "long", "short")</code></span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="concept-box">
+      <h3><span lang="de">SUM, SUMX, CALCULATE, DIVIDE</span><span lang="en">SUM, SUMX, CALCULATE, DIVIDE</span></h3>
+      <ul>
+        <li><span lang="de"><code>SUM(fact_fahrt[preis_eur])</code> aggregiert genau eine Spalte. <code>SUMX(fact_fahrt, fact_fahrt[dauer_min] * 0.1)</code> ist ein <em>Iterator</em>: Er geht Zeile für Zeile (Row Context), rechnet den Ausdruck und summiert dann – nötig, sobald je Zeile multipliziert wird.</span><span lang="en"><code>SUM(fact_fahrt[preis_eur])</code> aggregates exactly one column. <code>SUMX(fact_fahrt, fact_fahrt[dauer_min] * 0.1)</code> is an <em>iterator</em>: it goes row by row (row context), evaluates the expression and then sums – needed as soon as you multiply per row.</span></li>
+        <li><span lang="de"><code>CALCULATE([Umsatz], dim_rad[typ] = "EBIKE")</code> ist die wichtigste Funktion in DAX: Sie wertet den ersten Ausdruck in einem <em>veränderten</em> Filter Context aus. Der Filter auf <code>dim_rad[typ]</code> ersetzt, was der Slicer dort gesetzt hat; Filter auf anderen Spalten bleiben. So entsteht ein Measure, das den E-Bike-Umsatz auch dann zeigt, wenn der Bericht gerade CARGO gewählt hat.</span><span lang="en"><code>CALCULATE([Umsatz], dim_rad[typ] = "EBIKE")</code> is the most important function in DAX: it evaluates the first expression in a <em>modified</em> filter context. The filter on <code>dim_rad[typ]</code> replaces whatever the slicer set there; filters on other columns remain. That yields a measure showing e-bike revenue even when the report has CARGO selected.</span></li>
+        <li><span lang="de"><code>DIVIDE([Umsatz], [Fahrten])</code> statt <code>/</code>: liefert BLANK statt eines Fehlers, wenn keine Fahrten vorliegen. Measures dürfen Measures aufrufen.</span><span lang="en"><code>DIVIDE([Umsatz], [Fahrten])</code> instead of <code>/</code>: returns BLANK instead of an error when there are no rides. Measures may call measures.</span></li>
+      </ul>
+    </div>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-12-measures.dax" download><span class="symbol">📄</span><span><span class="datei">lab-12-measures.dax</span><br><span class="was"><span lang="de">Sechs Measures für den Velo-City-Bericht, kommentiert, mit Gegenprüfwerten</span><span lang="en">Six measures for the Velo City report, commented, with check values</span></span></span></a>
+    </div>
+    <div data-befehl="B06"></div>
+    <h3><span lang="de">Die Σ-Falle: implizite Measures</span><span lang="en">The Σ trap: implicit measures</span></h3>
+    <p>
+      <span lang="de">Power BI ist hilfsbereit, und das ist das Problem. Jede numerische Spalte bekommt beim Laden
+        eine Standardaggregation – <code>Sum</code> – und ein Σ vor dem Namen in der Data pane. Zieht man
+        <code>fahrt_id</code> in ein Visual, entsteht ohne Rückfrage ein <em>implizites Measure</em> „Sum of
+        fahrt_id“: Die Altstadt bekommt den Wert 533.594, weil die Kennungen ihrer 712 Fahrten addiert wurden. Kein
+        Fehler, keine Warnung, ein plausibel aussehender Balken.</span>
+      <span lang="en">Power BI is helpful, and that is the problem. Every numeric column gets a default aggregation on
+        load – <code>Sum</code> – and a Σ before its name in the Data pane. Drag <code>fahrt_id</code> into a visual
+        and, without asking, an <em>implicit measure</em> “Sum of fahrt_id” appears: Altstadt gets the value 533,594,
+        because the identifiers of its 712 rides were added up. No error, no warning, a plausible-looking bar.</span>
+    </p>
+    <div data-befehl="B07"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Die Meldung, wenn ein Measure eine nackte Spalte enthält</span><span lang="en">The message when a measure contains a bare column</span></h3>
+      <p><span lang="de">Wer <code>Umsatz = fact_fahrt[preis_eur]</code> schreibt – ohne Aggregation – bekommt:
+        <code>A single value for column 'preis_eur' in table 'fact_fahrt' cannot be determined. This can happen when a
+        measure formula refers to a column that contains many values without specifying an aggregation such as min,
+        max, count, or sum to get a single result.</code> Die Meldung ist lang, aber genau: Ein Measure hat keinen
+        Row Context, es kann nicht wissen, welche der 1.500 Zeilen gemeint ist. Dieselbe Formel wäre als Calculated
+        Column gültig – dort gibt es eine aktuelle Zeile.</span>
+      <span lang="en">Whoever writes <code>Umsatz = fact_fahrt[preis_eur]</code> – without aggregation – gets:
+        <code>A single value for column 'preis_eur' in table 'fact_fahrt' cannot be determined. This can happen when a
+        measure formula refers to a column that contains many values without specifying an aggregation such as min,
+        max, count, or sum to get a single result.</code> The message is long but precise: a measure has no row
+        context, it cannot know which of the 1,500 rows is meant. The same formula would be valid as a calculated
+        column – there, a current row exists.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="bericht">
+    <h2><span lang="de">Der Bericht</span><span lang="en">The report</span></h2>
+    <p>
+      <span lang="de">Erst jetzt die <strong>Report view</strong>. Ein Visual entsteht mit einem Klick im
+        Visualizations pane; danach zieht man Felder in seine <em>Field wells</em>. Für ein Säulendiagramm heißen sie
+        <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>; für eine Tabelle <code>Columns</code>, für eine
+        Matrix <code>Rows</code>, <code>Columns</code>, <code>Values</code>. Ein <strong>Slicer</strong> ist ein
+        Visual, das nichts zeigt, sondern filtert – für den Bericht dieses Labs: <code>dim_rad[typ]</code>.</span>
+      <span lang="en">Only now the <strong>Report view</strong>. A visual arises with one click in the Visualizations
+        pane; then you drag fields into its <em>field wells</em>. For a column chart they are called
+        <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>; for a table <code>Columns</code>, for a matrix
+        <code>Rows</code>, <code>Columns</code>, <code>Values</code>. A <strong>slicer</strong> is a visual that shows
+        nothing but filters – for this lab's report: <code>dim_rad[typ]</code>.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Power BI Desktop – velocity-bericht · Report view</span><span class="spacer"></span>2026.09</div>
+      <div class="shot-menu"><span>File</span><span><b>Home</b></span><span>Insert</span><span>Modeling</span><span>View</span><span>Optimize</span><span>Help</span><span>Format</span><span>Data / Drill</span></div>
+      <div class="shot-body drei">
+        <div class="shot-side">
+          <h5>Filters <span class="callout">4</span></h5>
+          <div class="zeile"><span class="feld breit">Filters on this page<br>typ &nbsp;is EBIKE</span></div>
+          <h5>Bookmarks</h5>
+          <div class="zeile"><span class="feld breit">Startansicht<br>E-Bike-Sicht</span></div>
+        </div>
+        <div class="shot-main">
+          <div class="leinwand" style="flex-direction:column;align-items:stretch;font-style:normal;padding:0.5rem;gap:0.4rem">
+            <div class="zeile" style="justify-content:space-between">
+              <span class="feld"><b>Fahrten</b><br><span style="font-size:1.3rem">444</span></span>
+              <span class="feld"><b>Umsatz</b><br><span style="font-size:1.3rem">1.153,80 €</span></span>
+              <span class="feld">Slicer · typ<br>☐ CARGO &nbsp;☐ CITY &nbsp;☑ EBIKE <span class="callout">3</span></span>
+            </div>
+            <div class="feld breit">Fahrten by bezirk &nbsp;<span class="callout">1</span><br>
+              Altstadt ████████████████████ 216<br>
+              Grombuehl ██████ 68<br>
+              Sanderau █████ 57<br>
+              Frauenland █████ 52<br>
+              <span style="color:var(--ink-soft)">⤓ ⤒ ⇊ &nbsp; Drill down · Drill up · Expand all</span></div>
+          </div>
+        </div>
+        <div class="shot-side rechts">
+          <h5>Visualizations <span class="callout">2</span></h5>
+          <div class="zeile"><span class="tab aktiv">▥</span><span class="tab">▤</span><span class="tab">〽</span><span class="tab">◔</span><span class="tab">▦</span><span class="tab">⊞</span><span class="tab">◫</span></div>
+          <div class="regalzeile"><span class="name">X-axis</span><span class="ablage"><span class="pill-neutral">bezirk</span></span></div>
+          <div class="regalzeile"><span class="name">Y-axis</span><span class="ablage"><span class="pill-neutral">Fahrten</span></span></div>
+          <div class="regalzeile"><span class="name">Legend</span><span class="ablage"></span></div>
+          <div class="regalzeile"><span class="name">Tooltips</span><span class="ablage"></span></div>
+          <h5>Data <span class="callout">5</span></h5>
+          <ul class="baum">
+            <li>▾ ▮ fact_fahrt</li>
+            <li class="ein">Σ fahrt_id</li>
+            <li class="ein">Σ datum_key</li>
+            <li class="ein">Σ rad_sk</li>
+            <li class="ein">Σ dauer_min</li>
+            <li class="ein">Σ preis_eur</li>
+            <li class="ein">🖩 Fahrten</li>
+            <li class="ein">🖩 Umsatz</li>
+            <li class="ein">fx dauer_klasse</li>
+            <li>▾ ▮ dim_datum</li>
+            <li class="ein">📅 datum</li>
+            <li>▸ ▮ dim_rad</li>
+            <li>▸ ▮ dim_station</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Die Leinwand mit einem Säulendiagramm. Der Titel entsteht aus den Feldern: „Fahrten by bezirk“. Die Symbole in der Kopfzeile des Visuals sind <code>Drill down</code>, <code>Drill up</code> und <code>Expand all down one level in the hierarchy</code> – sie wirken, sobald auf einer Achse eine Hierarchie liegt (Jahr → Monat).</span><span lang="en">The canvas with a column chart. The title arises from the fields: “Fahrten by bezirk”. The icons in the visual's header are <code>Drill down</code>, <code>Drill up</code> and <code>Expand all down one level in the hierarchy</code> – they act once a hierarchy sits on an axis (year → month).</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Das Visualizations pane: oben die Diagrammtypen, darunter die Field wells des markierten Visuals. <code>X-axis</code> trägt die Dimension <code>bezirk</code>, <code>Y-axis</code> das Measure <code>Fahrten</code>. Der Pinsel daneben öffnet das <em>Format</em> pane (Farben, Achsen, Titel), <code>Format → Edit interactions</code> legt fest, ob ein Klick in einem Visual die anderen filtert oder hervorhebt.</span><span lang="en">The Visualizations pane: chart types on top, the field wells of the selected visual below. <code>X-axis</code> carries the dimension <code>bezirk</code>, <code>Y-axis</code> the measure <code>Fahrten</code>. The paintbrush next to it opens the <em>Format</em> pane (colours, axes, title), <code>Format → Edit interactions</code> decides whether a click in one visual filters or highlights the others.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Ein Slicer auf <code>dim_rad[typ]</code>: EBIKE gewählt, und alle Visuals der Seite rechnen im neuen Filter Context – die Altstadt fällt von 712 auf 216, die Karte Fahrten zeigt 444.</span><span lang="en">A slicer on <code>dim_rad[typ]</code>: EBIKE selected, and all visuals on the page compute in the new filter context – Altstadt drops from 712 to 216, the Fahrten card shows 444.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Das Filters pane: Filter je Visual, je Seite oder für den ganzen Bericht. Darunter <code>Bookmarks</code> (<code>View → Bookmarks</code>): gespeicherte Zustände aus Filtern, Slicern und Sichtbarkeit, die sich mit Knöpfen ansteuern lassen.</span><span lang="en">The Filters pane: filters per visual, per page or for the whole report. Below, <code>Bookmarks</code> (<code>View → Bookmarks</code>): saved states of filters, slicers and visibility that buttons can jump to.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Die Data pane mit den vier Symbolen: <strong>Σ</strong> – Zahlenspalte mit Standardaggregation, das implizite Measure lauert (auch vor <code>datum_key</code> und <code>rad_sk</code>, die nur Schlüssel sind); <strong>🖩</strong> Taschenrechner – ein von Ihnen geschriebenes Measure; <strong>fx</strong> – Calculated Column; <strong>📅</strong> – Datumsspalte (ohne aufklappbare Hierarchie, weil <code>dim_datum</code> markiert ist). In Visuals gehören nur Taschenrechner und Dimensionen.</span><span lang="en">The Data pane with the four icons: <strong>Σ</strong> – numeric column with default aggregation, the implicit measure lurks (also before <code>datum_key</code> and <code>rad_sk</code>, which are only keys); <strong>🖩</strong> calculator – a measure you wrote; <strong>fx</strong> – calculated column; <strong>📅</strong> – date column (without an expandable hierarchy, because <code>dim_datum</code> is marked). Only calculators and dimensions belong in visuals.</span></span></li>
+    </ol>
+    <div data-befehl="B08"></div>
+  </section>
+
+  <section class="section-block" id="veroeffentlichen">
+    <h2><span lang="de">Veröffentlichen und Refresh</span><span lang="en">Publishing and refresh</span></h2>
+    <p>
+      <span lang="de"><code>Home → Publish</code> fragt nach der Anmeldung (Work/School-Account) und dann
+        <code>Select a destination</code>. Mit Fabric (Free) steht dort genau ein Ziel: <code>My workspace</code>.
+        Im Service entstehen zwei Objekte gleichen Namens – das <strong>Semantic model</strong> und der
+        <strong>Report</strong>. Das ist die Trennung aus dem ersten Abschnitt, jetzt sichtbar: Andere Berichte
+        könnten dasselbe Modell befragen.</span>
+      <span lang="en"><code>Home → Publish</code> asks you to sign in (work/school account) and then
+        <code>Select a destination</code>. With Fabric (Free) there is exactly one destination: <code>My
+        workspace</code>. In the service two objects with the same name appear – the <strong>semantic model</strong>
+        and the <strong>report</strong>. That is the separation from the first section, now visible: other reports
+        could query the same model.</span>
+    </p>
+    <div data-befehl="B09"></div>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Cloud-Quelle: Supabase</span><span lang="en">Cloud source: Supabase</span></div>
+        <p><span lang="de">Der Service erreicht Supabase direkt – kein Gateway. Einmal <code>Data source
+          credentials</code> eintragen, dann <code>Scheduled refresh</code> einschalten: bis zu acht Aktualisierungen
+          je Tag ohne Kapazität. Der Haken aus Lab 08: Ein Free-Projekt pausiert nach sieben Tagen ohne Zugriff, und
+          der Refresh scheitert, bis es im Dashboard wieder läuft.</span>
+        <span lang="en">The service reaches Supabase directly – no gateway. Enter <code>Data source credentials</code>
+          once, then enable <code>Scheduled refresh</code>: up to eight refreshes a day without capacity. The catch
+          from lab 08: a free project pauses after seven days without access, and the refresh fails until it runs
+          again in the dashboard.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Lokale Quelle: CSV, SQLite, Lab 07</span><span lang="en">Local source: CSV, SQLite, lab 07</span></div>
+        <p><span lang="de">Das Publish funktioniert – die Daten sind als Kopie im Modell. Aber der Service erreicht
+          keine Datei auf Ihrem Laptop und kein PostgreSQL auf <code>127.0.0.1</code>. Für den Refresh braucht es das
+          <code>On-premises data gateway (personal mode)</code> auf dem Rechner, und der muss laufen, wenn der
+          Refresh dran ist.</span>
+        <span lang="en">The publish works – the data is in the model as a copy. But the service reaches no file on your
+          laptop and no PostgreSQL on <code>127.0.0.1</code>. For the refresh you need the <code>On-premises data
+          gateway (personal mode)</code> on the machine, and it must be running when the refresh is due.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Teilen mit Fabric (Free)</span><span lang="en">Sharing with Fabric (Free)</span></div>
+        <p><span lang="de">Geht nicht. Kein <code>Share</code>, keine App, kein <code>Publish to web</code>. Was in My
+          workspace liegt, sieht nur der Besitzer. Die Abgabe ist deshalb die <code>.pbix</code> (enthält Abfragen,
+          Modell, Measures und Bericht) plus <code>File → Export → Export to PDF</code>.</span>
+        <span lang="en">Not possible. No <code>Share</code>, no app, no <code>Publish to web</code>. What sits in My
+          workspace is seen only by its owner. The submission is therefore the <code>.pbix</code> (contains queries,
+          model, measures and report) plus <code>File → Export → Export to PDF</code>.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="stolper">
+    <h2><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></h2>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">Sum of fahrt_id</div>
+        <p><span lang="de">Keine Fehlermeldung – das ist das Tückische. Eine sechsstellige Zahl, wo 712 stehen sollte.
+          Erkennungsmerkmal: das Σ in der Data pane und der Achsentitel „Sum of …“. Abhilfe:
+          <code>Column tools → Summarization → Don't summarize</code> und ein Measure
+          <code>Fahrten = COUNTROWS(fact_fahrt)</code>.</span>
+        <span lang="en">No error message – that is the treacherous part. A six-digit number where 712 should be. Tell-tale
+          signs: the Σ in the Data pane and the axis title “Sum of …”. Fix: <code>Column tools → Summarization → Don't
+          summarize</code> and a measure <code>Fahrten = COUNTROWS(fact_fahrt)</code>.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">DataFormat.Error</div>
+        <p><span lang="de"><code>DataFormat.Error: We couldn't convert to Number.</code> mit <code>Details: 4,08</code> –
+          ein deutsches CSV mit Dezimalkomma, im englischen Gebietsschema gelesen. Schlimmer ist die stille Variante:
+          <code>1,40</code> wird zu 140. Abhilfe: <code>Change Type → Using Locale…</code>, oder in
+          <code>File → Options and settings → Options → Regional Settings</code> das Gebietsschema für Importe
+          setzen.</span>
+        <span lang="en"><code>DataFormat.Error: We couldn't convert to Number.</code> with <code>Details: 4,08</code> – a
+          German CSV with decimal comma read in the English locale. Worse is the silent variant: <code>1,40</code>
+          becomes 140. Fix: <code>Change Type → Using Locale…</code>, or set the import locale under
+          <code>File → Options and settings → Options → Regional Settings</code>.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Expression.Error</div>
+        <p><span lang="de"><code>Expression.Error: The column 'X' of the table wasn't found.</code> – ein Applied Step
+          nennt eine Spalte, die es nicht mehr gibt, weil die CSV-Kopfzeile umbenannt wurde oder ein früherer Schritt
+          gelöscht ist. Der rote Schritt sagt, wo: Schritt anklicken, im Zahnrad oder im Advanced Editor den Namen
+          anpassen.</span>
+        <span lang="en"><code>Expression.Error: The column 'X' of the table wasn't found.</code> – an applied step names
+          a column that no longer exists because the CSV header was renamed or an earlier step deleted. The red step
+          says where: click it, fix the name in the gear dialog or the Advanced Editor.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Unique values</div>
+        <p><span lang="de"><code>One of the columns must have unique values</code> beim Anlegen einer Beziehung: Keine
+          der beiden Spalten ist ein Schlüssel – meist, weil in der Dimension Dubletten stecken (zweimal
+          <code>R-017</code>). Abhilfe in Power Query: <code>Remove Duplicates</code>; oder die Beziehung verläuft in
+          Wahrheit über eine andere Spalte.</span>
+        <span lang="en"><code>One of the columns must have unique values</code> when creating a relationship: neither
+          column is a key – usually because the dimension contains duplicates (<code>R-017</code> twice). Fix in Power
+          Query: <code>Remove Duplicates</code>; or the relationship actually runs over a different column.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Can't determine relationships</div>
+        <p><span lang="de"><code>Can't determine relationships between the fields</code> im Visual: Zwei Spalten aus
+          Tabellen, die nur indirekt verbunden sind – etwa <code>dim_kunde[bezirk]</code> und
+          <code>dim_station[bezirk]</code>, die sich nur über <code>fact_fahrt</code> berühren. Abhilfe: ein Measure
+          ins Visual legen, das den Weg über die Faktentabelle erzwingt – oder das Visual anders schneiden.</span>
+        <span lang="en"><code>Can't determine relationships between the fields</code> in a visual: two columns from
+          tables that are only indirectly related – say <code>dim_kunde[bezirk]</code> and
+          <code>dim_station[bezirk]</code>, which touch only via <code>fact_fahrt</code>. Fix: put a measure into the
+          visual that forces the path through the fact table – or cut the visual differently.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Couldn't load the data</div>
+        <p><span lang="de"><code>Couldn't load the data for this visual</code> ist die Sammelmeldung: Dahinter steckt
+          ein DAX-Fehler, ein Typkonflikt (Datum mit Text verglichen), abgelaufene Zugangsdaten oder ein Modell, das
+          zu groß für den Speicher ist. Immer <code>See details</code> aufklappen – erst die zweite Zeile nennt die
+          Ursache.</span>
+        <span lang="en"><code>Couldn't load the data for this visual</code> is the catch-all: behind it sits a DAX error,
+          a type conflict (date compared with text), expired credentials or a model too large for memory. Always expand
+          <code>See details</code> – only the second line names the cause.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Mehrdeutige Beziehungen</span><span lang="en">Ambiguous relationships</span></div>
+        <p><span lang="de">Zwei aktive Wege zwischen denselben Tabellen – die zweite Beziehung zu <code>dim_station</code> (Zielstation), oder
+          <code>Cross filter direction: Both</code> an zwei Stellen. Power BI lehnt es ab, eine solche Beziehung zu
+          aktivieren, und begründet das in der Model view mit einem mehrdeutigen Pfad. Abhilfe: eine Beziehung inaktiv
+          lassen und im Measure per <code>USERELATIONSHIP</code> wählen, oder die Dimension in Power Query ein zweites
+          Mal laden (<code>Reference</code>).</span>
+        <span lang="en">Two active paths between the same tables – the second relationship to <code>dim_station</code> (destination station), or <code>Cross filter
+          direction: Both</code> in two places. Power BI refuses to activate such a relationship and explains it in the
+          Model view with an ambiguous path. Fix: leave one relationship inactive and select it in the measure with
+          <code>USERELATIONSHIP</code>, or load the dimension a second time in Power Query (<code>Reference</code>).</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Refresh scheitert</span><span lang="en">Refresh fails</span></div>
+        <p><span lang="de">Im Service: <code>Refresh failed</code>, und in den Details ein Hinweis auf ein Gateway,
+          das offline oder nicht erreichbar ist. Die Quelle liegt auf einem Rechner, den der Service nicht sieht.
+          Abhilfe: <code>Settings → Gateway connection</code> → Gateway im personal mode installieren – oder die Daten
+          nach Supabase legen, dann entfällt die Frage. Ist die Quelle Supabase und trotzdem tot: Das Projekt
+          pausiert.</span>
+        <span lang="en">In the service: <code>Refresh failed</code>, and in the details a note about a gateway being
+          offline or unreachable. The source sits on a machine the service cannot see. Fix: <code>Settings → Gateway
+          connection</code> → install the gateway in personal mode – or put the data in Supabase, then the question
+          disappears. If the source is Supabase and still dead: the project is paused.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="simulator">
+    <h2><span lang="de">Simulator</span><span lang="en">Simulator</span></h2>
+    <p>
+      <span lang="de">Der Simulator unten ist eine Nachbildung der Field wells von Power BI: <code>X-axis</code>,
+        <code>Y-axis</code>, <code>Legend</code>, <code>Filters</code>. Drei Dinge unterscheiden ihn vom Original.
+        Felder werden in den Ablagen <em>ausgewählt</em> statt gezogen. Σ-Felder – die Kennzahlen – bekommen im Chip
+        eine Aggregation, die Sie umstellen können: <code>SUM</code>, <code>AVG</code>, <code>COUNT</code>,
+        <code>MIN</code>, <code>MAX</code> – genau die Wahl, die Power BI bei einem impliziten Measure für Sie
+        trifft. Und das Diagramm wählen Sie nicht: Es folgt aus der Belegung, wie das Standard-Visual im Original –
+        Dimension auf X-axis und Kennzahl auf Y-axis ergibt Säulen, ein geordnetes Feld wie Monat oder Stunde eine
+        Linie, eine Legende Serien, nur Dimensionen eine Tabelle.</span>
+      <span lang="en">The simulator below is a rendering of Power BI's field wells: <code>X-axis</code>,
+        <code>Y-axis</code>, <code>Legend</code>, <code>Filters</code>. Three things separate it from the original.
+        Fields are <em>selected</em> in the slots rather than dragged. Σ fields – the measures – get an aggregation in
+        their chip that you can change: <code>SUM</code>, <code>AVG</code>, <code>COUNT</code>, <code>MIN</code>,
+        <code>MAX</code> – exactly the choice Power BI makes for you with an implicit measure. And you do not choose
+        the chart: it follows from the fields, like the default visual in the original – dimension on X-axis and
+        measure on Y-axis gives columns, an ordered field like month or hour a line, a legend series, dimensions only
+        a table.</span>
+    </p>
+    <p>
+      <span lang="de">Die Daten sind die 1.500 Fahrten von Velo City als flache Tabelle: je Fahrt Monat, Wochentag,
+        Stunde, Startbezirk, Startstation, Radtyp, Tarif, Dauer und Preis – das, was ein Bericht nach dem Verbund über
+        das Sternschema sieht. Probieren Sie <em>Fahrt-ID</em> auf der Y-axis mit <code>SUM</code>: Das ist die
+        Σ-Falle, ungefährlich.</span>
+      <span lang="en">The data is the 1,500 Velo City rides as a flat table: per ride month, weekday, hour, start
+        district, start station, bike type, plan, duration and price – what a report sees after the join over the star
+        schema. Try <em>Ride ID</em> on the Y-axis with <code>SUM</code>: that is the Σ trap, harmless here.</span>
+    </p>
+    <div data-regal="frei" data-variante="powerbi"></div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: drei im Simulator – von der Σ-Falle über eine Linie mit Serien bis zum Filter –,
+        ein Quiz zu Measure, Filter Context, Sternschema und Gateway, eine Zuordnung „wo erledigt man was“ und eine
+        Checkliste für den echten Bericht in Power BI Desktop.</span>
+      <span lang="en">Six exercises: three in the simulator – from the Σ trap through a line with series to a filter –,
+        a quiz on measure, filter context, star schema and gateway, a matching exercise “where is what done” and a
+        checklist for the real report in Power BI Desktop.</span>
+    </p>
+    <div data-uebung="W12-01"></div>
+    <div data-uebung="W12-02"></div>
+    <div data-uebung="W12-03"></div>
+    <div data-uebung="W12-04"></div>
+    <div data-uebung="W12-05"></div>
+    <div data-uebung="W12-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Ein Semantic Model ist der Ort, an dem eine Kennzahl genau einmal definiert ist; ein Bericht ist ein Fenster darauf. Reihenfolge: Power Query, Model view, DAX, Report view.</span><span lang="en">A semantic model is the place where a metric is defined exactly once; a report is a window onto it. Order: Power Query, Model view, DAX, Report view.</span></li>
+      <li><span lang="de">Power Query zeichnet Umformungen als Applied Steps auf und wiederholt sie bei jedem Refresh. Ein deutsches CSV braucht <code>Change Type → Using Locale…</code>, sonst <code>DataFormat.Error: We couldn't convert to Number.</code></span><span lang="en">Power Query records transformations as applied steps and repeats them on every refresh. A German CSV needs <code>Change Type → Using Locale…</code>, otherwise <code>DataFormat.Error: We couldn't convert to Number.</code></span></li>
+      <li><span lang="de">Das Sternschema aus Lab 10 wird in der Model view zu Beziehungen <code>Many to one (*:1)</code>, <code>Single</code> über die Surrogatschlüssel <code>rad_sk</code>, <code>kunde_sk</code>, <code>station_sk</code> und <code>datum_key</code>: Faktentabelle in der Mitte, die 1-Seite ist die Dimension, nur eine Beziehung je Tabellenpaar aktiv (Zielstation inaktiv, <code>USERELATIONSHIP</code>). <code>dim_datum</code> kommt fertig aus Lab 10 und wird mit <code>Mark as date table</code> markiert.</span><span lang="en">The star schema from lab 10 becomes relationships <code>Many to one (*:1)</code>, <code>Single</code> in Model view over the surrogate keys <code>rad_sk</code>, <code>kunde_sk</code>, <code>station_sk</code> and <code>datum_key</code>: fact table in the middle, the 1 side is the dimension, only one relationship per table pair active (destination station inactive, <code>USERELATIONSHIP</code>). <code>dim_datum</code> arrives ready-made from lab 10 and is marked with <code>Mark as date table</code>.</span></li>
+      <li><span lang="de">Ein Measure rechnet zur Abfragezeit im Filter Context und speichert nichts; eine Calculated Column rechnet je Zeile beim Laden. <code>CALCULATE</code> verändert den Filter Context, <code>DIVIDE</code> schützt vor Division durch null.</span><span lang="en">A measure computes at query time in the filter context and stores nothing; a calculated column computes per row on load. <code>CALCULATE</code> modifies the filter context, <code>DIVIDE</code> protects against division by zero.</span></li>
+      <li><span lang="de">Das Σ vor einer Zahlenspalte kündigt ein implizites Measure an. „Sum of fahrt_id“ ist kein Fehler, sondern eine falsche Zahl ohne Warnung – <code>Don't summarize</code> für Kennungen, explizite Measures für alles andere.</span><span lang="en">The Σ before a numeric column announces an implicit measure. “Sum of fahrt_id” is not an error but a wrong number without warning – <code>Don't summarize</code> for identifiers, explicit measures for everything else.</span></li>
+      <li><span lang="de">Fabric (Free) erlaubt Desktop ohne Grenzen und Publish nach My workspace, aber kein Teilen. Pro kostet $14, PPU $24 je Nutzer und Monat (Stand 09/2026); ob die Hochschule teilen kann, entscheidet der Tenant. Abgabe: <code>.pbix</code> plus PDF.</span><span lang="en">Fabric (Free) allows Desktop without limits and publishing to My workspace, but no sharing. Pro costs $14, PPU $24 per user per month (as of 09/2026); whether the university can share is decided by the tenant. Submission: <code>.pbix</code> plus PDF.</span></li>
+      <li><span lang="de">Supabase ist eine Cloud-Quelle und braucht kein Gateway – Session Pooler, Port 5432, User <code>postgres.[REF]</code>. Lokale Dateien, SQLite und das Postgres aus Lab 07 brauchen für den Refresh ein On-premises data gateway. Lab 13 baut dasselbe Modell in Tableau – mit umgekehrter Denkrichtung.</span><span lang="en">Supabase is a cloud source and needs no gateway – session pooler, port 5432, user <code>postgres.[REF]</code>. Local files, SQLite and the Postgres from lab 07 need an On-premises data gateway for refresh. Lab 13 builds the same model in Tableau – with the opposite way of thinking.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 12 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 12 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

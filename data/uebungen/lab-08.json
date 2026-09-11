@@ -1,0 +1,282 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": { "de": "Tabelle anlegen – mit richtigen Typen von Anfang an", "en": "Create a table – with the right types from the start" },
+      "prompt": "SQL",
+      "befehl": "CREATE TABLE public.umsatz (\n  id         bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  monat      date          NOT NULL,\n  bezirk     text          NOT NULL,\n  betrag     numeric(12,2) NOT NULL,\n  erfasst_am timestamptz   NOT NULL DEFAULT now()\n);\n\nALTER TABLE public.umsatz ENABLE ROW LEVEL SECURITY;\n\nCREATE INDEX umsatz_monat_idx ON public.umsatz (monat);",
+      "teile": [
+        { "was": "numeric(12,2)", "bedeutet": { "de": "Der richtige Typ für Geldbeträge: exakt, ohne Rundungsfehler. double precision spart Speicher und produziert dafür Summen wie 1234.5600000000002 – in einem Bericht ein Ärgernis, in einer Abrechnung ein Fehler.", "en": "The right type for money: exact, without rounding errors. double precision saves space and produces sums like 1234.5600000000002 in exchange – an annoyance in a report, an error in an invoice." } },
+        { "was": "timestamptz", "bedeutet": { "de": "Zeitstempel mit Zeitzone. Ohne das tz kennt der Wert keine Zone, und eine Auswertung über Sommer- und Winterzeit hinweg verschiebt sich um eine Stunde.", "en": "Timestamp with time zone. Without the tz the value knows no zone, and an analysis spanning the summer-time change shifts by an hour." } },
+        { "was": "GENERATED ALWAYS AS IDENTITY", "bedeutet": { "de": "Die heutige Schreibweise für eine automatisch gezählte Kennung. serial funktioniert weiterhin, ist aber die ältere Form.", "en": "Today's notation for an automatically counted identifier. serial still works but is the older form." } },
+        { "was": "ENABLE ROW LEVEL SECURITY", "bedeutet": { "de": "Gehört direkt hinter jedes CREATE TABLE, in derselben Ausführung. Ohne diese Zeile ist die Tabelle über die erzeugte Schnittstelle von außen les- und schreibbar.", "en": "Belongs immediately after every CREATE TABLE, in the same execution. Without this line the table is readable and writable from outside through the generated interface." } },
+        { "was": "public.", "bedeutet": { "de": "Das Schema ausdrücklich nennen. Supabase legt eigene Schemata für Authentifizierung und Speicher an; wer public wegläßt, landet gelegentlich woanders.", "en": "Name the schema explicitly. Supabase creates its own schemas for authentication and storage; whoever omits public occasionally ends up elsewhere." } }
+      ]
+    },
+    "B02": {
+      "titel": { "de": "CSV importieren – und die Typen prüfen", "en": "Import CSV – and check the types" },
+      "prompt": "☰",
+      "befehl": "Table Editor → Tabelle wählen → Insert → Import Data from CSV\n   Grenze 100 MB. Größere Dateien über psql:\n\n\\copy public.umsatz (monat, bezirk, betrag) FROM 'umsatz.csv' CSV HEADER DELIMITER ';'\n\n-- Danach immer prüfen:\nSELECT pg_typeof(betrag) FROM public.umsatz LIMIT 1;",
+      "teile": [
+        { "was": "Import Data from CSV", "bedeutet": { "de": "Legt entweder eine neue Tabelle aus der CSV-Struktur an oder füllt eine vorhandene. Der zweite Weg ist der bessere: Dann bestimmen Sie die Typen, nicht die Datei.", "en": "Either creates a new table from the CSV structure or fills an existing one. The second route is better: then you determine the types, not the file." } },
+        { "was": "\\copy", "bedeutet": { "de": "Der Metabefehl von psql. Er liest die Datei auf Ihrem Rechner (im Gegensatz zu COPY, das eine Datei auf dem Server erwartet) und kennt keine Größengrenze.", "en": "psql's meta-command. It reads the file on your machine (unlike COPY, which expects a file on the server) and has no size limit." } },
+        { "was": "DELIMITER ';'", "bedeutet": { "de": "Für deutsche Ausleitungen nötig. Fehlt die Angabe, landet jede Zeile in einer Spalte – derselbe Fehler wie beim sep=\";\" in pandas, Lab 04.", "en": "Needed for German exports. Without it every line lands in one column – the same error as with sep=\";\" in pandas, lab 04." } },
+        { "was": "pg_typeof", "bedeutet": { "de": "Die Prüfung in einer Zeile. Steht dort text, wo numeric stehen sollte, scheitert jede Summe – mit einer Meldung über Operatoren, die nicht auf die Ursache verweist.", "en": "The check in one line. If it says text where numeric should be, every sum fails – with a message about operators that does not point at the cause." } },
+        { "was": "Typ nachträglich ändern", "bedeutet": { "de": "ALTER TABLE t ALTER COLUMN betrag TYPE numeric(12,2) USING replace(betrag, ',', '.')::numeric – möglich, aber umständlicher als es vorher richtig zu machen.", "en": "ALTER TABLE t ALTER COLUMN betrag TYPE numeric(12,2) USING replace(betrag, ',', '.')::numeric – possible, but more awkward than getting it right beforehand." } }
+      ]
+    },
+    "B03": {
+      "titel": { "de": "Absichern und wieder öffnen", "en": "Secure it, and open it again" },
+      "prompt": "SQL",
+      "befehl": "-- 1) Standardmäßig verweigern\nALTER TABLE public.fahrt ENABLE ROW LEVEL SECURITY;\n\n-- Ab hier liefert die Schnittstelle mit dem öffentlichen Schlüssel NICHTS.\n\n-- 2) Lesen für angemeldete Nutzer erlauben\nCREATE POLICY \"fahrt_lesen_angemeldet\"\nON public.fahrt FOR SELECT\nTO authenticated\nUSING ( true );",
+      "teile": [
+        { "was": "ENABLE ROW LEVEL SECURITY", "bedeutet": { "de": "Schaltet die Zeilenprüfung ein. Vorher galten die Tabellenrechte, nachher gilt: keine Zeile ohne Regel. Dass danach nichts mehr kommt, ist der Beweis, dass es wirkt.", "en": "Switches row checking on. Before, the table permissions applied; afterwards: no row without a rule. That nothing comes back afterwards is the proof it works." } },
+        { "was": "FOR SELECT", "bedeutet": { "de": "Regeln gelten je Vorgang. Eine Leseregel erlaubt kein Einfügen – dafür braucht es eine eigene mit FOR INSERT.", "en": "Rules apply per operation. A read rule permits no inserting – that needs its own with FOR INSERT." } },
+        { "was": "TO authenticated", "bedeutet": { "de": "Die Rolle, für die die Regel gilt. anon ist jeder mit dem öffentlichen Schlüssel, authenticated jeder angemeldete Nutzer. Wer TO anon schreibt, öffnet die Tabelle für das Internet – manchmal ist genau das gewollt, dann bewusst.", "en": "The role the rule applies to. anon is anyone with the publishable key, authenticated any signed-in user. Whoever writes TO anon opens the table to the internet – sometimes that is exactly what is wanted, then deliberately." } },
+        { "was": "USING ( true )", "bedeutet": { "de": "Die Bedingung, unter der eine Zeile sichtbar ist. true heißt: alle. Eine echte Einschränkung wäre USING ( kunde_id = (SELECT auth.uid()) ) – jeder sieht nur seine eigenen Zeilen.", "en": "The condition under which a row is visible. true means: all of them. A real restriction would be USING ( kunde_id = (SELECT auth.uid()) ) – everyone sees only their own rows." } }
+      ]
+    },
+    "B04": {
+      "titel": { "de": "USING und WITH CHECK", "en": "USING and WITH CHECK" },
+      "prompt": "SQL",
+      "befehl": "-- Lesen: nur eigene Zeilen\nCREATE POLICY \"eigene_lesen\"\nON public.fahrt FOR SELECT\nTO authenticated\nUSING ( (SELECT auth.uid()) = nutzer_id );\n\n-- Einfügen: nur mit eigener Kennung\nCREATE POLICY \"eigene_einfuegen\"\nON public.fahrt FOR INSERT\nTO authenticated\nWITH CHECK ( (SELECT auth.uid()) = nutzer_id );\n\n-- Aufräumen\nDROP POLICY \"eigene_lesen\" ON public.fahrt;",
+      "teile": [
+        { "was": "USING", "bedeutet": { "de": "Filtert vorhandene Zeilen. Gilt für SELECT, UPDATE und DELETE: Was die Bedingung nicht erfüllt, existiert für diese Anfrage nicht.", "en": "Filters existing rows. Applies to SELECT, UPDATE and DELETE: what does not meet the condition does not exist for that request." } },
+        { "was": "WITH CHECK", "bedeutet": { "de": "Prüft neue oder geänderte Zeilen. Gilt für INSERT und UPDATE: Was die Bedingung nicht erfüllt, wird abgewiesen. Merkregel: USING sieht zurück, WITH CHECK sieht nach vorn.", "en": "Checks new or changed rows. Applies to INSERT and UPDATE: what does not meet the condition is rejected. Rule of thumb: USING looks back, WITH CHECK looks forward." } },
+        { "was": "auth.uid()", "bedeutet": { "de": "Die Kennung des angemeldeten Nutzers, von Supabase bereitgestellt. Die Klammern um SELECT sind kein Zierrat: Sie sorgen dafür, dass der Wert einmal statt je Zeile berechnet wird – bei 100.000 Zeilen ein messbarer Unterschied.", "en": "The signed-in user's identifier, provided by Supabase. The parentheses around SELECT are not decoration: they make the value be computed once instead of per row – with 100,000 rows a measurable difference." } },
+        { "was": "DROP POLICY", "bedeutet": { "de": "Regeln lassen sich einzeln entfernen. Nützlich zum Ausprobieren: Regel setzen, Wirkung prüfen, Regel entfernen, Wirkung erneut prüfen.", "en": "Rules can be removed individually. Useful for experimenting: set the rule, check the effect, remove the rule, check again." } }
+      ]
+    },
+    "B05": {
+      "titel": { "de": "Drei Verbindungszeichenketten", "en": "Three connection strings" },
+      "prompt": "🔗",
+      "befehl": "# Direct – IPv6, für Migrationen und pg_dump\npostgresql://postgres:[PASSWORT]@db.[REF].supabase.co:5432/postgres\n\n# Session Pooler – IPv4, Port 5432: der Weg für DataGrip, DBeaver, psql\npostgres://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:5432/postgres\n\n# Transaction Pooler – IPv4, Port 6543: für Serverless, NICHT für Datenbankwerkzeuge\npostgres://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres",
+      "teile": [
+        { "was": "db.[REF].supabase.co", "bedeutet": { "de": "Die Direktverbindung. Sie löst nur über IPv6 auf – in einem IPv4-Netz scheitert sie mit einer Zeitüberschreitung, die nach einem falschen Passwort aussieht. Ein IPv4-Zusatz ist kostenpflichtig.", "en": "The direct connection. It resolves over IPv6 only – in an IPv4 network it fails with a timeout that looks like a wrong password. An IPv4 add-on is chargeable." } },
+        { "was": "postgres.[REF]", "bedeutet": { "de": "Beim Pooler enthält der Benutzername die Projektkennung. Wer nur postgres einträgt, erhält einen Anmeldefehler – die zweithäufigste Ursache für „geht nicht“ nach der IPv6-Falle.", "en": "With the pooler the user name contains the project reference. Whoever enters only postgres gets an authentication error – the second most common cause of “does not work” after the IPv6 trap." } },
+        { "was": "Port 5432 vs. 6543", "bedeutet": { "de": "5432 ist der Session Mode: eine Verbindung bleibt Ihnen zugeordnet, Sitzungszustand und vorbereitete Anweisungen funktionieren. 6543 ist der Transaction Mode: Verbindungen werden je Transaktion geteilt – sparsam, aber unbrauchbar für Werkzeuge, die Sitzungszustand brauchen.", "en": "5432 is session mode: a connection stays assigned to you, session state and prepared statements work. 6543 is transaction mode: connections are shared per transaction – frugal, but useless for tools that need session state." } },
+        { "was": "sslmode=require", "bedeutet": { "de": "Verschlüsselung ist Pflicht und in den Zeichenketten des Dashboards enthalten. In einem Werkzeug, das SSL nicht von sich aus einschaltet, ausdrücklich setzen.", "en": "Encryption is mandatory and included in the dashboard's strings. In a tool that does not enable SSL by itself, set it explicitly." } }
+      ]
+    },
+    "B06": {
+      "titel": { "de": "Von der Konsole und aus Python", "en": "From the console and from Python" },
+      "befehl": "# psql – über den Pooler, weil IPv4\npsql \"postgres://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:5432/postgres\"\n\n# Sicherung\npg_dump \"postgres://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:5432/postgres\" \\\n  --no-owner --no-privileges -F c -f sicherung.dump\n\n# Aus Python – Zugangsdaten aus der Umgebung, nie im Quelltext\nimport os, pandas as pd\nfrom sqlalchemy import create_engine\n\nmotor = create_engine(os.environ[\"SUPABASE_URL\"])\ndf = pd.read_sql(\"SELECT * FROM public.station\", motor)",
+      "teile": [
+        { "was": "psql-Metabefehle", "bedeutet": { "de": "\\dt listet die Tabellen, \\d station zeigt den Aufbau, \\timing schaltet die Laufzeitmessung ein, \\q verlässt. Vier Befehle, die einen Datenbank-Client fast entbehrlich machen.", "en": "\\dt lists the tables, \\d station shows the structure, \\timing enables timing, \\q quits. Four commands that make a database client almost dispensable." } },
+        { "was": "pg_dump -F c", "bedeutet": { "de": "Das komprimierte Eigenformat, das pg_restore versteht. Für eine Sicherung, die man wieder einspielen will, die bessere Wahl als reines SQL.", "en": "The compressed custom format pg_restore understands. For a backup you intend to restore, the better choice than plain SQL." } },
+        { "was": "os.environ[...]", "bedeutet": { "de": "Liest die Verbindungszeichenkette aus einer Umgebungsvariablen. In Colab käme sie aus dem Secrets-Panel (Lab 04), lokal aus einer .env-Datei, die in der .gitignore steht (Lab 02). Nie aus dem Quelltext.", "en": "Reads the connection string from an environment variable. In Colab it would come from the secrets panel (lab 04), locally from a .env file listed in the .gitignore (lab 02). Never from source code." } },
+        { "was": "read_sql", "bedeutet": { "de": "Liest das Ergebnis unmittelbar in einen Datenrahmen. Damit ist die Kette geschlossen: Datenbank in Lab 08, Auswertung in Lab 04, Editor in Lab 03, Versionierung in Lab 02.", "en": "Reads the result straight into a data frame. That closes the chain: database in lab 08, analysis in lab 04, editor in lab 03, versioning in lab 02." } }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W08-01",
+      "typ": "checkliste",
+      "titel": { "de": "Ein Projekt anlegen und absichern", "en": "Create and secure a project" },
+      "aufgabe": {
+        "de": "<p>Diese Liste arbeiten Sie in einem zweiten Browserfenster auf <code>supabase.com</code> ab. Sie kostet nichts und braucht keine Kreditkarte. Am Ende haben Sie ein Projekt in der EU, eine Tabelle mit richtigen Typen und einen leeren Security Advisor.</p>",
+        "en": "<p>You work through this list in a second browser window on <code>supabase.com</code>. It costs nothing and needs no credit card. At the end you have a project in the EU, a table with the right types and an empty security advisor.</p>"
+      },
+      "schritte": [
+        { "text": { "de": "Konto angelegt (E-Mail oder GitHub) und Organisation mit Plan <code>Free</code> erstellt.", "en": "Account created (email or GitHub) and organisation created with plan <code>Free</code>." } },
+        { "text": { "de": "Projekt <code>winf-lab</code> angelegt. <strong>Region: Central EU (Frankfurt)</strong> — nicht London, nicht Zürich; beide liegen außerhalb der EU.", "en": "Project <code>winf-lab</code> created. <strong>Region: Central EU (Frankfurt)</strong> — not London, not Zurich; both lie outside the EU." } },
+        { "text": { "de": "Datenbankpasswort im Passwortmanager gesichert. Es wird nur einmal angezeigt.", "en": "Database password saved in the password manager. It is shown only once." } },
+        { "text": { "de": "Im <code>SQL Editor</code> eine Tabelle angelegt — mit <code>numeric</code> für Beträge und <code>timestamptz</code> für Zeitstempel, nicht mit <code>text</code>.", "en": "Created a table in the <code>SQL Editor</code> — with <code>numeric</code> for amounts and <code>timestamptz</code> for timestamps, not with <code>text</code>." } },
+        { "text": { "de": "<code>Advisors → Security Advisor</code> geöffnet und den Befund gelesen: Die neue Tabelle ist als ungeschützt gemeldet.", "en": "Opened <code>Advisors → Security Advisor</code> and read the finding: the new table is reported as unprotected." } },
+        { "text": { "de": "<code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code> ausgeführt und den Security Advisor erneut geprüft — der Befund ist weg.", "en": "Ran <code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code> and checked the security advisor again — the finding is gone." } },
+        { "text": { "de": "Unter <code>Project Settings → API Keys</code> beide Schlüssel angesehen und verstanden, welcher wohin darf.", "en": "Looked at both keys under <code>Project Settings → API Keys</code> and understood which may go where." } },
+        { "text": { "de": "Über den Knopf <code>Connect</code> die drei Verbindungszeichenketten verglichen und die Session-Pooler-Zeichenkette gesichert — sie wird in Lab 09 gebraucht.", "en": "Compared the three connection strings via the <code>Connect</code> button and saved the session pooler string — it is needed in lab 09." } },
+        { "text": { "de": "Im Kalender notiert: Das Projekt pausiert nach etwa einer Woche ohne Zugriff und muss dann im Dashboard wiederhergestellt werden.", "en": "Noted in the calendar: the project pauses after roughly a week without access and then has to be restored in the dashboard." } }
+      ],
+      "rueckmeldung": {
+        "de": "Der fünfte und sechste Schritt sind das Kernstück. Der Security Advisor sagt Ihnen ohne SQL, welche Tabellen über das Internet les- und schreibbar sind — und diese Liste sollte leer sein, bevor ein Projekt jemandem gezeigt wird. Ein Projekt mit offener Tabelle ist keine Panne, sondern der Ausgangszustand: Absichern ist ein bewusster Schritt.",
+        "en": "Steps five and six are the heart of it. The security advisor tells you without SQL which tables are readable and writable over the internet — and that list should be empty before a project is shown to anyone. A project with an open table is not a mishap but the initial state: securing it is a deliberate step."
+      }
+    },
+    {
+      "id": "W08-02",
+      "typ": "sql",
+      "titel": { "de": "Aufwärmen: Fahrten je Radtyp", "en": "Warm-up: rides per bike type" },
+      "aufgabe": {
+        "de": "<p>Die Datenbank auf dieser Seite ist ein echtes PostgreSQL. Ermitteln Sie je <strong>Radtyp</strong> die Anzahl der Fahrten, die durchschnittliche Dauer in Minuten (auf eine Stelle gerundet) und den Gesamtumsatz.</p><p>Spalten in dieser Reihenfolge: <code>rad_typ</code>, <code>fahrten</code>, <code>dauer_mittel</code>, <code>umsatz</code>. Absteigend nach Umsatz sortieren.</p><p>Die Sicht <code>fahrt_mit_typ</code> erspart Ihnen den Verbund.</p>",
+        "en": "<p>The database on this page is a real PostgreSQL. For each <strong>bike type</strong>, determine the number of rides, the average duration in minutes (rounded to one decimal) and the total revenue.</p><p>Columns in this order: <code>rad_typ</code>, <code>fahrten</code>, <code>dauer_mittel</code>, <code>umsatz</code>. Sort descending by revenue.</p><p>The view <code>fahrt_mit_typ</code> saves you the join.</p>"
+      },
+      "start": "SELECT rad_typ\nFROM fahrt_mit_typ\n",
+      "loesung": "SELECT rad_typ,\n       count(*)                    AS fahrten,\n       round(avg(dauer_min), 1)    AS dauer_mittel,\n       sum(preis_eur)              AS umsatz\nFROM fahrt_mit_typ\nGROUP BY rad_typ\nORDER BY umsatz DESC;",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p><code>round()</code> braucht in PostgreSQL bei zwei Argumenten einen <code>numeric</code>-Wert. <code>avg(dauer_min)</code> auf einer Integer-Spalte liefert bereits <code>numeric</code> — das passt also. Bei einer <code>double precision</code>-Spalte müsste man <code>round(avg(x)::numeric, 1)</code> schreiben.</p>",
+        "en": "<p>With two arguments, <code>round()</code> in PostgreSQL needs a <code>numeric</code> value. <code>avg(dauer_min)</code> on an integer column already returns <code>numeric</code> — so that fits. With a <code>double precision</code> column you would have to write <code>round(avg(x)::numeric, 1)</code>.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Lastenräder fahren seltener, kosten aber je Fahrt mehr — der Unterschied im Grundpreis. Genau solche Aufschlüsselungen sind der Ausgangspunkt der Preisspannen-Auswertung aus Notebook 01 der Fallstudie: Dort war die Frage, ob eine Spanne je Radtyp innerhalb einer Grenze von 50 Cent bleibt.",
+        "en": "Cargo bikes ride less often but cost more per ride — the difference in the base price. Exactly such breakdowns are the starting point of the price-range analysis in notebook 01 of the case study: there the question was whether a range per bike type stays within a 50-cent limit."
+      }
+    },
+    {
+      "id": "W08-03",
+      "typ": "sql",
+      "titel": { "de": "Die stärksten Verbindungen im Netz", "en": "The strongest connections in the network" },
+      "aufgabe": {
+        "de": "<p>Für die Disposition ist interessant, welche Wege oft gefahren werden. Ermitteln Sie die <strong>fünf häufigsten Verbindungen</strong> zwischen zwei <em>verschiedenen</em> Stationen — Rundfahrten (Start = Ziel) bleiben also außen vor.</p><p>Spalten in dieser Reihenfolge: <code>start_name</code>, <code>ziel_name</code>, <code>fahrten</code>. Absteigend nach Anzahl, bei Gleichstand nach <code>start_name</code> aufsteigend.</p>",
+        "en": "<p>For dispatching it is interesting which routes are ridden often. Determine the <strong>five most frequent connections</strong> between two <em>different</em> stations — round trips (start = destination) therefore stay out.</p><p>Columns in this order: <code>start_name</code>, <code>ziel_name</code>, <code>fahrten</code>. Descending by count, ties broken by <code>start_name</code> ascending.</p>"
+      },
+      "start": "SELECT start_name, ziel_name, count(*) AS fahrten\nFROM fahrt_mit_typ\n",
+      "loesung": "SELECT start_name, ziel_name, count(*) AS fahrten\nFROM fahrt_mit_typ\nWHERE start_station <> ziel_station\nGROUP BY start_name, ziel_name\nORDER BY fahrten DESC, start_name ASC\nLIMIT 5;",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p>Drei Bausteine: <code>WHERE start_station &lt;&gt; ziel_station</code> schließt Rundfahrten aus, <code>GROUP BY</code> über beide Namen, <code>LIMIT 5</code> am Ende. Die Reihenfolge der Klauseln ist in SQL fest: FROM, WHERE, GROUP BY, ORDER BY, LIMIT.</p>",
+        "en": "<p>Three building blocks: <code>WHERE start_station &lt;&gt; ziel_station</code> excludes round trips, <code>GROUP BY</code> over both names, <code>LIMIT 5</code> at the end. The order of clauses in SQL is fixed: FROM, WHERE, GROUP BY, ORDER BY, LIMIT.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Genau diese Auswertung steht am Anfang von Notebook 05 der Fallstudie, dort mit den Kennzahlen Support, Konfidenz und Lift versehen. Eine Häufigkeit allein sagt noch nichts über einen Zusammenhang: Zwei große Stationen erzeugen viele gemeinsame Fahrten schon deshalb, weil sie groß sind. Der Lift setzt die beobachtete Häufigkeit gegen die erwartete.",
+        "en": "This exact analysis stands at the beginning of notebook 05 of the case study, there furnished with the measures support, confidence and lift. A frequency alone says nothing about an association: two large stations produce many shared rides simply because they are large. Lift sets the observed frequency against the expected one."
+      }
+    },
+    {
+      "id": "W08-04",
+      "typ": "zuordnen",
+      "titel": { "de": "Schlüssel und Verbindungen", "en": "Keys and connections" },
+      "aufgabe": {
+        "de": "<p>Ordnen Sie jedem Zweck zu, was dort hingehört. Vier der Zuordnungen betreffen Sicherheit, drei die Erreichbarkeit.</p>",
+        "en": "<p>Assign to each purpose what belongs there. Four of the assignments concern security, three reachability.</p>"
+      },
+      "ziele": [
+        { "id": "pub", "text": { "de": "Öffentlicher Schlüssel (sb_publishable_…)", "en": "Publishable key (sb_publishable_…)" } },
+        { "id": "sec", "text": { "de": "Geheimer Schlüssel (sb_secret_…)", "en": "Secret key (sb_secret_…)" } },
+        { "id": "pool", "text": { "de": "Session Pooler, Port 5432", "en": "Session pooler, port 5432" } },
+        { "id": "direkt", "text": { "de": "Direktverbindung (IPv6)", "en": "Direct connection (IPv6)" } },
+        { "id": "nie", "text": { "de": "Gehört nirgendwohin", "en": "Belongs nowhere" } }
+      ],
+      "paare": [
+        { "begriff": { "de": "In einer öffentlichen Webseite, die Stationsdaten anzeigt", "en": "In a public web page displaying station data" }, "ziel": "pub" },
+        { "begriff": { "de": "In einem Hintergrunddienst, der nachts alle Fahrten aggregiert", "en": "In a background service aggregating all rides at night" }, "ziel": "sec" },
+        { "begriff": { "de": "In DataGrip aus dem Hochschul-WLAN ohne IPv6", "en": "In DataGrip from a university network without IPv6" }, "ziel": "pool" },
+        { "begriff": { "de": "Für pg_dump von einem Rechner mit IPv6", "en": "For pg_dump from a machine with IPv6" }, "ziel": "direkt" },
+        { "begriff": { "de": "In einem Notebook, das nach GitHub gespeichert wird", "en": "In a notebook that gets saved to GitHub" }, "ziel": "nie" },
+        { "begriff": { "de": "In der .idea-Konfiguration von PyCharm, die im Repository liegt", "en": "In PyCharm's .idea configuration that sits in the repository" }, "ziel": "nie" },
+        { "begriff": { "de": "In einer .env-Datei, die in der .gitignore steht", "en": "In a .env file listed in the .gitignore" }, "ziel": "sec" }
+      ],
+      "rueckmeldung": {
+        "de": "Zwei Zuordnungen lauten „gehört nirgendwohin“ — und das ist die Kernaussage. Ein Notebook auf GitHub und eine settings.json in Settings Sync sind beides Wege nach draußen, und für einen Schlüssel bedeutet „draußen“ dasselbe wie veröffentlicht. Die .env-Datei in der .gitignore ist dagegen der vorgesehene Ort für den geheimen Schlüssel: lokal, ausdrücklich ausgeschlossen, nicht synchronisiert.",
+        "en": "Two assignments read “belongs nowhere” — and that is the core point. A notebook on GitHub and a settings.json in Settings Sync are both routes outward, and for a key “outward” means the same as published. The .env file in the .gitignore, by contrast, is the intended place for the secret key: local, explicitly excluded, not synchronised."
+      }
+    },
+    {
+      "id": "W08-05",
+      "typ": "quiz",
+      "titel": { "de": "Zugriffsregeln", "en": "Access rules" },
+      "aufgabe": {
+        "de": "<p>Vier Fragen zu Row Level Security. Die erste beschreibt die Situation, in der Studierende regelmäßig den Fehler suchen, wo keiner ist.</p>",
+        "en": "<p>Four questions on row level security. The first describes the situation in which students regularly look for a bug where there is none.</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Sie schalten Row Level Security für eine Tabelle ein. Ein Aufruf der Schnittstelle mit dem öffentlichen Schlüssel liefert danach ein leeres Ergebnis <code>[]</code>. Was ist passiert?", "en": "You enable row level security for a table. A call to the interface with the publishable key then returns an empty result <code>[]</code>. What happened?" },
+          "optionen": [
+            { "de": "Nichts Unerwartetes: Ohne Regel ist der Zugriff verweigert. Das ist die richtige Voreinstellung — jetzt fehlt eine Policy, die das Lesen ausdrücklich erlaubt.", "en": "Nothing unexpected: without a rule, access is denied. That is the right default — now a policy explicitly permitting reading is missing." },
+            { "de": "Die Tabelle ist beim Einschalten geleert worden.", "en": "The table was emptied when it was switched on." },
+            { "de": "Der Schlüssel ist ungültig geworden.", "en": "The key has become invalid." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Die Daten sind unberührt — im SQL-Editor sehen Sie sie weiter, weil der dort verwendete Zugang die Regeln nicht durchläuft. Genau dieser Unterschied verwirrt: Über die Schnittstelle nichts, im Editor alles. Die Prüfung ist ein curl-Aufruf mit dem öffentlichen Schlüssel.",
+            "en": "The data is untouched — in the SQL editor you still see it, because the access used there does not pass through the rules. Exactly that difference confuses: nothing through the interface, everything in the editor. The check is a curl call with the publishable key."
+          }
+        },
+        {
+          "frage": { "de": "Sie schreiben eine Policy mit <code>USING ( (SELECT auth.uid()) = nutzer_id )</code> und <code>FOR SELECT</code>. Angemeldete Nutzer können lesen, aber kein Einfügen funktioniert. Warum?", "en": "You write a policy with <code>USING ( (SELECT auth.uid()) = nutzer_id )</code> and <code>FOR SELECT</code>. Signed-in users can read, but no insert works. Why?" },
+          "optionen": [
+            { "de": "Regeln gelten je Vorgang. Für <code>INSERT</code> braucht es eine eigene Policy mit <code>WITH CHECK</code>.", "en": "Rules apply per operation. <code>INSERT</code> needs its own policy with <code>WITH CHECK</code>." },
+            { "de": "<code>USING</code> muss für Einfügungen <code>true</code> lauten.", "en": "<code>USING</code> has to read <code>true</code> for inserts." },
+            { "de": "Einfügen ist über die Schnittstelle grundsätzlich nicht möglich.", "en": "Inserting is fundamentally impossible through the interface." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Vier Vorgänge, vier Regeln: SELECT, INSERT, UPDATE, DELETE. USING filtert vorhandene Zeilen (SELECT, UPDATE, DELETE), WITH CHECK prüft neue oder geänderte (INSERT, UPDATE). UPDATE braucht beides: USING sagt, welche Zeilen geändert werden dürfen, WITH CHECK, wie sie danach aussehen dürfen.",
+            "en": "Four operations, four rules: SELECT, INSERT, UPDATE, DELETE. USING filters existing rows (SELECT, UPDATE, DELETE), WITH CHECK checks new or changed ones (INSERT, UPDATE). UPDATE needs both: USING says which rows may be changed, WITH CHECK how they may look afterwards."
+          }
+        },
+        {
+          "frage": { "de": "Dieselbe Anfrage liefert mit dem geheimen Schlüssel alle Zeilen, mit dem öffentlichen keine. Row Level Security ist eingeschaltet, es gibt keine Policy. Ist das ein Fehler?", "en": "The same request returns all rows with the secret key and none with the publishable one. Row level security is on, there is no policy. Is that a bug?" },
+          "optionen": [
+            { "de": "Nein, das ist die vorgesehene Wirkung: Der geheime Schlüssel umgeht die Regeln vollständig. Genau deshalb gehört er nur auf einen Server.", "en": "No, that is the intended effect: the secret key bypasses the rules entirely. That is exactly why it belongs on a server only." },
+            { "de": "Ja, Regeln müssen für alle Schlüssel gleich gelten.", "en": "Yes, rules have to apply equally to all keys." },
+            { "de": "Ja, der öffentliche Schlüssel ist offenbar abgelaufen.", "en": "Yes, the publishable key has apparently expired." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Der geheime Schlüssel ist als Verwaltungszugang gedacht: Migrationen, Hintergrundverarbeitung, Ausleitungen. Er ist damit gleichbedeutend mit Vollzugriff — und die Konsequenz ist eindeutig. Im Browser, in einem Notebook auf GitHub oder in einer synchronisierten Einstellungsdatei ist er ein offener Datenzugang für jeden, der ihn findet.",
+            "en": "The secret key is meant as an administrative access: migrations, background processing, exports. It is therefore equivalent to full access — and the consequence is unambiguous. In the browser, in a notebook on GitHub or in a synchronised settings file it is an open data access for anyone who finds it."
+          }
+        },
+        {
+          "frage": { "de": "Welche Aussage über den Security Advisor trifft zu?", "en": "Which statement about the security advisor is correct?" },
+          "optionen": [
+            { "de": "Er meldet unter anderem Tabellen im Schema public, für die Row Level Security nicht eingeschaltet ist — also solche, die über die Schnittstelle offen erreichbar sind.", "en": "Among other things it reports tables in the public schema for which row level security is not enabled — that is, ones openly reachable through the interface." },
+            { "de": "Er schaltet Row Level Security automatisch ein, sobald eine Tabelle entsteht.", "en": "It enables row level security automatically as soon as a table is created." },
+            { "de": "Er prüft, ob Passwörter ausreichend lang sind.", "en": "It checks whether passwords are long enough." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Er meldet, er handelt nicht. Das Einschalten bleibt eine bewusste Entscheidung — und der Grund, warum ENABLE ROW LEVEL SECURITY in dieselbe Ausführung gehört wie das CREATE TABLE. Der Advisor ist die Kontrolle danach, nicht der Ersatz dafür.",
+            "en": "It reports, it does not act. Enabling stays a deliberate decision — and the reason ENABLE ROW LEVEL SECURITY belongs in the same execution as the CREATE TABLE. The advisor is the check afterwards, not a substitute for it."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W08-06",
+      "typ": "quiz",
+      "titel": { "de": "Grenzen, Verbindungen, Datenschutz", "en": "Limits, connections, data protection" },
+      "aufgabe": {
+        "de": "<p>Drei Fragen aus dem Betrieb. Die erste kostet regelmäßig eine halbe Übungsstunde.</p>",
+        "en": "<p>Three questions from operation. The first regularly costs half a practical session.</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Ein Verbindungsversuch aus dem Hochschul-WLAN mit der Direktverbindung <code>db.[REF].supabase.co:5432</code> läuft in eine Zeitüberschreitung. Passwort und Benutzername sind richtig. Was ist die wahrscheinlichste Ursache?", "en": "A connection attempt from the university network with the direct connection <code>db.[REF].supabase.co:5432</code> runs into a timeout. Password and user name are correct. What is the most likely cause?" },
+          "optionen": [
+            { "de": "Der Name löst nur über IPv6 auf, und das Netz kennt kein IPv6. Der Session Pooler auf <code>aws-…pooler.supabase.com:5432</code> ist über IPv4 erreichbar — mit Benutzernamen <code>postgres.[REF]</code>.", "en": "The name resolves over IPv6 only, and the network has no IPv6. The session pooler at <code>aws-…pooler.supabase.com:5432</code> is reachable over IPv4 — with user name <code>postgres.[REF]</code>." },
+            { "de": "Das Projekt ist pausiert.", "en": "The project is paused." },
+            { "de": "Der Port 5432 ist im Hochschulnetz gesperrt.", "en": "Port 5432 is blocked in the university network." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Ein pausiertes Projekt und ein gesperrter Port sind denkbar, aber die IPv6-Auflösung ist die häufigste Ursache — und die einzige, deren Fehlermeldung nichts über den Grund sagt. Merkregel: In einem fremden Netz immer der Pooler auf 5432, nicht die Direktverbindung. Und nicht Port 6543: Das ist der Transaction Mode, der für Datenbankwerkzeuge nicht taugt.",
+            "en": "A paused project and a blocked port are conceivable, but IPv6 resolution is the most common cause — and the only one whose error message says nothing about the reason. Rule of thumb: in an unfamiliar network always the pooler on 5432, not the direct connection. And not port 6543: that is transaction mode, unsuitable for database tools."
+          }
+        },
+        {
+          "frage": { "de": "Welche Grenzen gelten im kostenlosen Plan? Mehrere Antworten sind richtig.", "en": "Which limits apply on the free plan? Several answers are correct." },
+          "mehrfach": true,
+          "optionen": [
+            { "de": "Zwei aktive Projekte je Organisation", "en": "Two active projects per organisation" },
+            { "de": "500 MB Datenbankgröße", "en": "500 MB of database size" },
+            { "de": "Pausieren nach etwa einer Woche ohne Zugriff", "en": "Pausing after roughly a week without access" },
+            { "de": "Keine automatische Wiederherstellung auf einen Zeitpunkt", "en": "No automatic point-in-time restore" },
+            { "de": "Höchstens fünf Tabellen je Projekt", "en": "At most five tables per project" }
+          ],
+          "richtig": [0, 1, 2, 3],
+          "erklaerung": {
+            "de": "Eine Begrenzung der Tabellenzahl gibt es nicht — darunter arbeitet ein vollständiges PostgreSQL. Die vier anderen Grenzen sind für einen Kurs alle handhabbar, wenn man sie kennt: Projekte gezielt verwalten, Datenmenge in Übungen begrenzen, vor Terminen aufwecken, und vor Semesterende einmal pg_dump.",
+            "en": "There is no limit on the number of tables — a complete PostgreSQL works underneath. The other four limits are all manageable for a course if you know them: manage projects deliberately, keep exercise data small, wake up before sessions, and run pg_dump once before the end of the semester."
+          }
+        },
+        {
+          "frage": { "de": "Eine Projektgruppe möchte in einer Fallstudie mit echten Kundendaten eines Partnerunternehmens arbeiten und wählt als Region Frankfurt. Genügt das datenschutzrechtlich?", "en": "A project group wants to work with real customer data from a partner company in a case study and chooses Frankfurt as the region. Is that sufficient in data protection terms?" },
+          "optionen": [
+            { "de": "Nein. Die Region betrifft den Speicherort der Datenbank, nicht Sicherungen, Protokolle, Ausleitungen und Unterauftragnehmer. Zusätzlich braucht es eine Rechtsgrundlage und einen Auftragsverarbeitungsvertrag; tragfähig ist meist Pseudonymisierung oder Selbst-Hosting.", "en": "No. The region concerns where the database resides, not backups, logs, exports and sub-processors. In addition a legal basis and a data processing agreement are needed; what usually holds up is pseudonymisation or self-hosting." },
+            { "de": "Ja, mit der EU-Region ist die Verarbeitung abgedeckt.", "en": "Yes, with the EU region the processing is covered." },
+            { "de": "Ja, solange Row Level Security eingeschaltet ist.", "en": "Yes, as long as row level security is enabled." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Supabase weist selbst darauf hin, dass die Regionswahl allein keine Konformität herstellt, und beschreibt die Verantwortung als geteilt: die Infrastruktur beim Anbieter, die Verarbeitung bei Ihnen. Row Level Security ist eine Zugriffskontrolle und keine Rechtsgrundlage. Der praktikable Weg für eine Fallstudie ist fast immer: pseudonymisieren, bis kein Personenbezug bleibt — dann ist die Frage erledigt.",
+            "en": "Supabase itself points out that the choice of region alone does not create compliance, and describes responsibility as shared: the infrastructure with the provider, the processing with you. Row level security is an access control, not a legal basis. The practical route for a case study is nearly always: pseudonymise until no personal reference remains — then the question is settled."
+          }
+        }
+      ]
+    }
+  ]
+}

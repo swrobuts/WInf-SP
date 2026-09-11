@@ -1,0 +1,29 @@
+# velocity-api – Dockerfile für den Deploy bei Render mit Language „Docker“
+# (WInf-SP-Lab 11; Aufbau wie in Lab 07, Befehlskarte B07)
+#
+# Bei Language Docker entfallen Build Command und Start Command im Formular:
+# Render baut das Image aus dieser Datei und startet, was in CMD steht.
+
+FROM python:3.13-slim
+# Feste Nebenversion statt „latest“ – und dieselbe wie lokal (Lab 07: Stolperstein „latest“).
+
+WORKDIR /app
+
+# Erst die Paketliste, dann der Code: Solange requirements.txt gleich bleibt,
+# nimmt Docker die Installationsschicht aus dem Cache (Lab 07).
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+# .dockerignore nicht vergessen: .env, .venv, __pycache__ gehören nicht ins Image.
+# Vor allem .env – sonst liegt das Datenbankpasswort in einer Schicht des Images.
+
+EXPOSE 10000
+# Dokumentiert nur den Port; Render liest EXPOSE nicht. Entscheidend ist CMD.
+
+# Die Port-Regel gilt in Docker unverändert: an 0.0.0.0 binden, Port aus der
+# Variable PORT lesen. Die Shell-Form über „sh -c“ ist nötig, damit ${PORT}
+# überhaupt eingesetzt wird – in der reinen Exec-Form ["uvicorn", "…", "$PORT"]
+# bliebe „$PORT“ ein wörtlicher Text. ${PORT:-10000} nimmt 10000, wenn die
+# Variable fehlt (lokal mit docker run -p 10000:10000).
+CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}"]

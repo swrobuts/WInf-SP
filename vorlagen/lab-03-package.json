@@ -1,0 +1,17 @@
+{
+  "name": "velocity-node",
+  "version": "1.0.0",
+  "description": "Velo City – Radanzahl je Station (Lab 03, WebStorm)",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "lint": "eslint ."
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  }
+}

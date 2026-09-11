@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 06 · SQLite · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 06 · SQLite · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-06">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#was"><span lang="de">Bibliothek, nicht Server</span><span lang="en">A library, not a server</span></a>
+  <a class="sidebar-link" href="#begriffe"><span lang="de">Sieben Begriffe</span><span lang="en">Seven terms</span></a>
+  <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme</span><span lang="en">Setting up</span></a>
+  <a class="sidebar-link" href="#datei"><span lang="de">Die Datei anlegen und füllen</span><span lang="en">Create and fill the file</span></a>
+  <a class="sidebar-link" href="#typen"><span lang="de">Das Typsystem</span><span lang="en">The type system</span></a>
+  <a class="sidebar-link" href="#json"><span lang="de">JSON in SQLite</span><span lang="en">JSON in SQLite</span></a>
+  <a class="sidebar-link" href="#postgres"><span lang="de">Unterschiede zu PostgreSQL</span><span lang="en">Differences from PostgreSQL</span></a>
+  <a class="sidebar-link" href="#fehler"><span lang="de">Fehlermeldungen</span><span lang="en">Error messages</span></a>
+  <a class="sidebar-link" href="#spielplatz"><span lang="de">Spielplatz</span><span lang="en">Playground</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">06</div>
+  <h1 class="lab-title">SQLite</h1>
+  <p class="lab-intro">
+    <span lang="de">In Lab 05 lag der Bestand von Velo City als JSON-Export vor: verschachtelt, gut zum Weitergeben,
+      schlecht zum Abfragen. Hier wird daraus eine Datenbank – und zwar eine, die aus genau einer Datei besteht und
+      keinen Server braucht. SQLite steckt in jedem Telefon, jedem Browser und in Python, ohne dass man es installiert.
+      Der Preis für diese Einfachheit ist ein Typsystem, das nimmt, was kommt, und eine Grenze, die man kennen muss:
+      ein Schreiber zu jedem Zeitpunkt. Dieses Lab führt vom JSON-Export zur <code>velocity.db</code>, durch das
+      Typsystem, zu JSON in SQL – und zeigt, wo die Datei aufhört und der Server aus Lab 07 und Lab 08 anfängt.</span>
+    <span lang="en">In lab 05 the Velo City data sat in a JSON export: nested, good for passing on, poor for querying.
+      Here it becomes a database – one that consists of exactly one file and needs no server. SQLite sits in every
+      phone, every browser and in Python, without anyone installing it. The price of that simplicity is a type system
+      that takes whatever comes, and a limit you have to know: one writer at any instant. This lab leads from the JSON
+      export to <code>velocity.db</code>, through the type system, to JSON in SQL – and shows where the file ends and the
+      server from labs 07 and 08 begins.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip"><span lang="de">Eine Datei = eine Datenbank</span><span lang="en">One file = one database</span></span>
+    <span class="lernziel-chip">sqlite3 · Python · pandas</span>
+    <span class="lernziel-chip"><span lang="de">Affinity vs. STRICT</span><span lang="en">Affinity vs. STRICT</span></span>
+    <span class="lernziel-chip">-&gt;&gt; · json_each</span>
+    <span class="lernziel-chip"><span lang="de">Ein Schreiber</span><span lang="en">One writer</span></span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="was">
+    <h2><span lang="de">Bibliothek, nicht Server</span><span lang="en">A library, not a server</span></h2>
+    <p>
+      <span lang="de">Eine Datenbank, wie Sie sie aus DABA kennen, ist ein Programm, das im Hintergrund läuft: Es
+        nimmt Verbindungen an, prüft Zugangsdaten, verwaltet Sitzungen. SQLite ist nichts davon. SQLite ist eine
+        <strong>Bibliothek</strong> – ein Stück Code, das ein Programm einbindet und das eine Datei liest und
+        schreibt. Es gibt keinen Dienst, den man starten könnte, keinen Port, kein Passwort. Die Dokumentation sagt es
+        selbst: SQLite konkurriert nicht mit Oracle oder PostgreSQL, sondern mit <code>fopen()</code> – mit dem
+        Öffnen einer Datei.</span>
+      <span lang="en">A database as you know it from DABA is a program running in the background: it accepts
+        connections, checks credentials, manages sessions. SQLite is none of that. SQLite is a <strong>library</strong>
+        – a piece of code a program embeds and that reads and writes a file. There is no service to start, no port, no
+        password. The documentation says so itself: SQLite does not compete with Oracle or PostgreSQL but with
+        <code>fopen()</code> – with opening a file.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Eine Datei, ein Schreiber</span><span lang="en">One file, one writer</span></h3>
+      <p><span lang="de">Die ganze Datenbank – Tabellen, Indizes, Sichten, Daten – ist <strong>eine Datei</strong>, meist
+        mit der Endung <code>.db</code> oder <code>.sqlite</code>. Sie lässt sich kopieren, per E-Mail verschicken,
+        in ein Repository legen. Und weil es keinen Dienst gibt, der die Zugriffe ordnet, gilt eine Regel auf
+        Dateiebene: <strong>Zu jedem Zeitpunkt darf genau ein Prozess schreiben.</strong> Lesen dürfen viele, aber der
+        zweite Schreiber wartet – oder bekommt <code>database is locked</code>.</span>
+      <span lang="en">The whole database – tables, indexes, views, data – is <strong>one file</strong>, usually with the
+        extension <code>.db</code> or <code>.sqlite</code>. It can be copied, emailed, put into a repository. And since
+        there is no service arbitrating access, one rule applies at file level: <strong>at any instant exactly one
+        process may write.</strong> Many may read, but the second writer waits – or gets <code>database is
+        locked</code>.</span></p>
+      <p><span lang="de">Der <strong>WAL-Modus</strong> (<code>PRAGMA journal_mode = WAL</code>) lockert das: Leser
+        blockieren dann keinen Schreiber mehr und umgekehrt. Es bleibt aber bei einem Schreiber – und WAL funktioniert
+        nur, wenn alle Prozesse auf demselben Rechner laufen. Auf einem Netzlaufwerk oder in einem OneDrive-Ordner ist
+        die Sperre unzuverlässig; die Datei kann beschädigt werden.</span>
+      <span lang="en"><strong>WAL mode</strong> (<code>PRAGMA journal_mode = WAL</code>) relaxes that: readers then no
+        longer block a writer and vice versa. It stays at one writer, though – and WAL works only when all processes run
+        on the same machine. On a network drive or in a OneDrive folder the lock is unreliable; the file can get
+        corrupted.</span></p>
+    </div>
+    <p>
+      <span lang="de">Ein paar Tatsachen, die die Einordnung tragen (Stand 09/2026): Die aktuelle Version ist
+        <strong>3.53.4</strong> vom 24. Juli 2026. Der Code ist <strong>Public Domain</strong> – keine Lizenz, keine
+        Bedingungen, für jeden Zweck. Und SQLite ist nach eigener, plausibler Schätzung das meistverbreitete
+        Datenbanksystem überhaupt: in jedem Android-Gerät und iPhone, in jedem Mac und Windows-Rechner, in Firefox,
+        Chrome und Safari, in PHP und in der Standardbibliothek von Python. Über eine Billion Datenbanken sollen in
+        Gebrauch sein.</span>
+      <span lang="en">A few facts that carry the classification (as of 09/2026): the current version is
+        <strong>3.53.4</strong> of 24 July 2026. The code is <strong>public domain</strong> – no licence, no conditions,
+        for any purpose. And SQLite is, by its own plausible estimate, the most widely deployed database system of all: in
+        every Android device and iPhone, in every Mac and Windows machine, in Firefox, Chrome and Safari, in PHP and in
+        Python's standard library. Over a trillion databases are said to be in use.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>SQLite</th>
+            <th><span lang="de">Client/Server (PostgreSQL, Lab 07/08)</span><span lang="en">Client/server (PostgreSQL, labs 07/08)</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span lang="de">Was läuft</span><span lang="en">What runs</span></td>
+            <td><span lang="de">nichts – eine Bibliothek im eigenen Programm</span><span lang="en">nothing – a library inside your own program</span></td>
+            <td><span lang="de">ein Dienst, dauerhaft, mit Port</span><span lang="en">a service, permanently, with a port</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Wo liegen die Daten</span><span lang="en">Where the data sits</span></td>
+            <td><span lang="de">eine Datei, die Sie sehen und kopieren können</span><span lang="en">one file you can see and copy</span></td>
+            <td><span lang="de">im Datenverzeichnis des Servers – ein Volume in Lab 07</span><span lang="en">in the server's data directory – a volume in lab 07</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Verbindung</span><span lang="en">Connection</span></td>
+            <td><span lang="de">Dateipfad</span><span lang="en">file path</span></td>
+            <td><span lang="de">Host, Port, Benutzer, Passwort, Datenbank</span><span lang="en">host, port, user, password, database</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Gleichzeitig schreiben</span><span lang="en">Concurrent writes</span></td>
+            <td><span lang="de">einer</span><span lang="en">one</span></td>
+            <td><span lang="de">viele (MVCC)</span><span lang="en">many (MVCC)</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Rechte</span><span lang="en">Permissions</span></td>
+            <td><span lang="de">die des Dateisystems – <code>GRANT</code>/<code>REVOKE</code> gibt es nicht</span><span lang="en">those of the file system – no <code>GRANT</code>/<code>REVOKE</code></span></td>
+            <td><span lang="de">Rollen, <code>GRANT</code>, Row Level Security (Lab 08)</span><span lang="en">roles, <code>GRANT</code>, row level security (lab 08)</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Über das Netz</span><span lang="en">Over the network</span></td>
+            <td><span lang="de">nicht vorgesehen</span><span lang="en">not intended</span></td>
+            <td><span lang="de">der Normalfall</span><span lang="en">the normal case</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Typen</span><span lang="en">Types</span></td>
+            <td><span lang="de">fünf Speicherklassen, flexibel – oder <code>STRICT</code></span><span lang="en">five storage classes, flexible – or <code>STRICT</code></span></td>
+            <td><span lang="de">streng: <code>date</code>, <code>numeric(6,2)</code>, <code>boolean</code>, <code>jsonb</code> …</span><span lang="en">strict: <code>date</code>, <code>numeric(6,2)</code>, <code>boolean</code>, <code>jsonb</code> …</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="vergleich">
+      <div>
+        <h3><span lang="de">Dafür ist SQLite gemacht</span><span lang="en">What SQLite is made for</span></h3>
+        <ul>
+          <li><span lang="de"><strong>Datenanalyse</strong> auf dem eigenen Rechner: eine CSV- oder JSON-Datei laden, mit SQL auswerten, weitergeben. Lab 10 nutzt genau das als Staging.</span><span lang="en"><strong>Data analysis</strong> on your own machine: load a CSV or JSON file, analyse it with SQL, pass it on. Lab 10 uses exactly that as staging.</span></li>
+          <li><span lang="de"><strong>Anwendungsdateiformat</strong>: Statt eines eigenen Formats speichert ein Programm seine Daten in einer SQLite-Datei – Fotoverwaltungen, Browserprofile, Nachrichten-Apps.</span><span lang="en"><strong>Application file format</strong>: instead of its own format a program stores its data in a SQLite file – photo managers, browser profiles, messaging apps.</span></li>
+          <li><span lang="de"><strong>Lehre und Tests</strong>: eine Datei je Person, kein Konto, kein Server – dieses Lab.</span><span lang="en"><strong>Education and testing</strong>: one file per person, no account, no server – this lab.</span></li>
+          <li><span lang="de"><strong>Kleine Websites</strong> mit wenigen Schreibzugriffen; die Dokumentation nennt als Faustregel bis zu 100.000 Aufrufe am Tag.</span><span lang="en"><strong>Small websites</strong> with few writes; the documentation's rule of thumb is up to 100,000 hits a day.</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3><span lang="de">Dafür nicht</span><span lang="en">What it is not made for</span></h3>
+        <ul>
+          <li><span lang="de"><strong>Viele gleichzeitige Schreiber</strong> – ein Ticketsystem, ein Shop, eine App mit tausend Nutzern. Ab hier: Lab 07, Lab 08.</span><span lang="en"><strong>Many concurrent writers</strong> – a ticket system, a shop, an app with a thousand users. From here on: lab 07, lab 08.</span></li>
+          <li><span lang="de"><strong>Netzlaufwerke und Synchronisationsordner</strong> (OneDrive, SharePoint, NAS), von mehreren Rechnern gleichzeitig geöffnet – die Sperre versagt, die Datei kann kaputtgehen.</span><span lang="en"><strong>Network drives and sync folders</strong> (OneDrive, SharePoint, NAS) opened from several machines at once – the lock fails, the file can break.</span></li>
+          <li><span lang="de"><strong>Rechteverwaltung</strong>: Wer die Datei lesen darf, darf alles lesen. <code>GRANT</code> und <code>REVOKE</code> sind nicht implementiert.</span><span lang="en"><strong>Permission management</strong>: whoever may read the file may read everything. <code>GRANT</code> and <code>REVOKE</code> are not implemented.</span></li>
+          <li><span lang="de"><strong>Ein Web Service</strong> auf Render (Lab 11): Die Platte dort ist flüchtig, die Datei ist nach jedem Redeploy weg.</span><span lang="en"><strong>A web service</strong> on Render (lab 11): the disk there is ephemeral, the file is gone after every redeploy.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="begriffe">
+    <h2><span lang="de">Sieben Begriffe</span><span lang="en">Seven terms</span></h2>
+    <p>
+      <span lang="de">Die Wörter, die in Fehlermeldungen, Dokumentation und in Lab 09 wiederkommen. Was SQL selbst
+        betrifft – <code>SELECT</code>, <code>JOIN</code>, <code>GROUP BY</code> –, wird aus DABA vorausgesetzt.</span>
+      <span lang="en">The words that recur in error messages, documentation and in lab 09. SQL itself –
+        <code>SELECT</code>, <code>JOIN</code>, <code>GROUP BY</code> – is assumed from DABA.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Begriff</span><span lang="en">Term</span></th>
+            <th><span lang="de">Bedeutung</span><span lang="en">Meaning</span></th>
+            <th><span lang="de">Wo Sie ihm begegnen</span><span lang="en">Where you meet it</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong><span lang="de">Datenbankdatei</span><span lang="en">Database file</span></strong></td>
+            <td><span lang="de">Die eine Datei, die alles enthält. Beginnt mit den Bytes <code>SQLite format 3</code>. Leer ist sie 0 Byte groß – <code>connect()</code> legt sie an, das erste <code>CREATE TABLE</code> füllt sie.</span><span lang="en">The one file that holds everything. Begins with the bytes <code>SQLite format 3</code>. Empty it is 0 bytes – <code>connect()</code> creates it, the first <code>CREATE TABLE</code> fills it.</span></td>
+            <td><code>velocity.db</code></td>
+          </tr>
+          <tr>
+            <td><strong>Connection</strong></td>
+            <td><span lang="de">Eine geöffnete Verbindung zur Datei. Alles, was per <code>PRAGMA</code> eingestellt wird, gilt für diese Verbindung – nicht für die Datei.</span><span lang="en">An open connection to the file. Everything set via <code>PRAGMA</code> applies to this connection – not to the file.</span></td>
+            <td><code>con = sqlite3.connect("velocity.db")</code></td>
+          </tr>
+          <tr>
+            <td><strong>Statement · Cursor</strong></td>
+            <td><span lang="de">Eine vorbereitete Anweisung mit <code>?</code>-Platzhaltern; der Cursor läuft über die Ergebniszeilen. In Python liefert <code>con.execute()</code> beides in einem.</span><span lang="en">A prepared statement with <code>?</code> placeholders; the cursor walks the result rows. In Python <code>con.execute()</code> delivers both in one.</span></td>
+            <td><code>con.execute("… WHERE typ = ?", ("EBIKE",))</code></td>
+          </tr>
+          <tr>
+            <td><strong><span lang="de">Transaktion · commit</span><span lang="en">Transaction · commit</span></strong></td>
+            <td><span lang="de">Änderungen werden gesammelt und mit <code>commit</code> in die Datei geschrieben; bis dahin hält die Verbindung die Schreibsperre. In Python: <code>with con:</code>.</span><span lang="en">Changes are collected and written to the file with <code>commit</code>; until then the connection holds the write lock. In Python: <code>with con:</code>.</span></td>
+            <td><code>database is locked</code></td>
+          </tr>
+          <tr>
+            <td><strong>PRAGMA</strong></td>
+            <td><span lang="de">SQLites Einstellungsbefehl. <code>PRAGMA foreign_keys = ON</code> schaltet die Fremdschlüsselprüfung ein, <code>PRAGMA journal_mode = WAL</code> den WAL-Modus, <code>PRAGMA table_info(fahrt)</code> zeigt die Spalten.</span><span lang="en">SQLite's settings command. <code>PRAGMA foreign_keys = ON</code> enables foreign key checking, <code>PRAGMA journal_mode = WAL</code> WAL mode, <code>PRAGMA table_info(fahrt)</code> shows the columns.</span></td>
+            <td><span lang="de">Anfang jedes Skripts</span><span lang="en">start of every script</span></td>
+          </tr>
+          <tr>
+            <td><strong>rowid</strong></td>
+            <td><span lang="de">Die interne Zeilennummer, die jede gewöhnliche Tabelle hat. <code>INTEGER PRIMARY KEY</code> ist ein Alias dafür – deshalb vergibt SQLite den Schlüssel selbst, ohne <code>AUTOINCREMENT</code> und ohne <code>serial</code>.</span><span lang="en">The internal row number every ordinary table has. <code>INTEGER PRIMARY KEY</code> is an alias for it – hence SQLite assigns the key itself, without <code>AUTOINCREMENT</code> and without <code>serial</code>.</span></td>
+            <td><code>wartung_id INTEGER PRIMARY KEY</code></td>
+          </tr>
+          <tr>
+            <td><strong>Affinity</strong></td>
+            <td><span lang="de">Der „Wunschtyp“ einer Spalte. Ein Wert wird dahin gewandelt, wenn es verlustfrei geht – sonst bleibt er, was er ist. Der eigentliche Typ hängt am Wert (<code>typeof()</code>), nicht an der Spalte.</span><span lang="en">A column's “preferred type”. A value is converted to it when lossless – otherwise it stays what it is. The actual type belongs to the value (<code>typeof()</code>), not to the column.</span></td>
+            <td><span lang="de">Abschnitt Typsystem</span><span lang="en">type system section</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section-block" id="inbetrieb">
+    <h2><span lang="de">Inbetriebnahme</span><span lang="en">Setting up</span></h2>
+    <p>
+      <span lang="de">Die Inbetriebnahme ist der kürzeste Abschnitt dieser Lernumgebung, weil meist nichts zu tun
+        ist. Vier Wege, SQLite zu benutzen – und Sie haben mindestens zwei davon schon.</span>
+      <span lang="en">Setting up is the shortest section of this learning environment because usually there is nothing
+        to do. Four ways to use SQLite – and you already have at least two of them.</span>
+    </p>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Die Kommandozeile: <code>sqlite3</code></span><span lang="en">The command line: <code>sqlite3</code></span></div>
+        <p><span lang="de"><strong>macOS</strong> liefert es mit: <code>/usr/bin/sqlite3</code>, Version 3.51.0.
+          <strong>Windows</strong> nicht – <code>winget install --id SQLite.SQLite</code>, oder das Zip
+          <code>sqlite-tools-win-x64-…</code> von sqlite.org entpacken und den Ordner in den PATH aufnehmen; danach
+          ein neues Terminal öffnen. <strong>Linux</strong>: das Paket <code>sqlite3</code> der Distribution.</span>
+        <span lang="en"><strong>macOS</strong> ships it: <code>/usr/bin/sqlite3</code>, version 3.51.0.
+          <strong>Windows</strong> does not – <code>winget install --id SQLite.SQLite</code>, or unzip
+          <code>sqlite-tools-win-x64-…</code> from sqlite.org and add the folder to the PATH; then open a new terminal.
+          <strong>Linux</strong>: the distribution's <code>sqlite3</code> package.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Python: <code>import sqlite3</code></span><span lang="en">Python: <code>import sqlite3</code></span></div>
+        <p><span lang="de">Teil der Standardbibliothek, kein <code>pip install</code>. Die Bibliothek darin ist eine
+          eigene Fassung – welche, sagt <code>sqlite3.sqlite_version</code>. Unter 3.37 fehlt <code>STRICT</code>,
+          unter 3.38 fehlen <code>-&gt;</code> und <code>-&gt;&gt;</code>; die aktuellen Python-Installer bringen
+          3.50 oder neuer mit.</span>
+        <span lang="en">Part of the standard library, no <code>pip install</code>. The library inside is its own copy –
+          which one, <code>sqlite3.sqlite_version</code> tells you. Below 3.37 <code>STRICT</code> is missing, below
+          3.38 <code>-&gt;</code> and <code>-&gt;&gt;</code>; current Python installers bring 3.50 or newer.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">DB Browser for SQLite</div>
+        <p><span lang="de">Das grafische Werkzeug: Tabellen ansehen, Zellen bearbeiten, SQL ausführen, CSV
+          importieren und exportieren. Version 3.13.1, kostenlos, quelloffen (GPLv3 / MPL 2.0), für macOS, Windows,
+          Linux. Stand 09/2026. Wer DataGrip aus Lab 09 hat, braucht es nicht – dort:
+          <code>File → New → Data Source → SQLite</code>, dann <em>Download missing driver files</em>.</span>
+        <span lang="en">The graphical tool: view tables, edit cells, run SQL, import and export CSV. Version 3.13.1, free,
+          open source (GPLv3 / MPL 2.0), for macOS, Windows, Linux. As of 09/2026. Whoever has DataGrip from lab 09 does
+          not need it – there: <code>File → New → Data Source → SQLite</code>, then <em>Download missing driver
+          files</em>.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Im Browser: diese Seite</span><span lang="en">In the browser: this page</span></div>
+        <p><span lang="de">Unten läuft ein vollständiges SQLite 3.49.1 als WebAssembly (sql.js 1.14.2, MIT-Lizenz) –
+          mit dem Bestand von Velo City. Keine Installation, kein Konto; was Sie ändern, lebt nur in diesem Fenster.
+          Die Fehlermeldungen sind dieselben wie in Python und in der Kommandozeile.</span>
+        <span lang="en">Below runs a complete SQLite 3.49.1 as WebAssembly (sql.js 1.14.2, MIT licence) – with the
+          Velo City data. No installation, no account; what you change lives only in this window. The error messages are
+          the same as in Python and on the command line.</span></p>
+      </div>
+    </div>
+    <div data-befehl="B01"></div>
+    <div data-befehl="B02"></div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. SQLite steht hier, weil es ohne
+        Installation überall vorhanden ist und weil sein Typsystem die Fragen stellt, die Lab 07 und Lab 08 mit
+        PostgreSQL beantworten. Alternativen auf derselben Ebene: <strong>DuckDB</strong> (MIT) – dieselbe Idee, eine
+        Bibliothek und eine Datei, aber spaltenorientiert und für Auswertungen über Millionen Zeilen gebaut; es liest
+        CSV und Parquet direkt und ist für Datenanalyse der analytische Gegenspieler. <strong>H2</strong> und
+        <strong>Apache Derby</strong> (Java, quelloffen) sind die eingebetteten Datenbanken der Java-Welt. Und „gleich
+        Postgres“: Wer ohnehin zu Lab 07 kommt, kann die Übungsdaten auch direkt in einen Container laden.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. SQLite appears here because it is present everywhere without
+        installation and because its type system raises the questions labs 07 and 08 answer with PostgreSQL.
+        Alternatives on the same layer: <strong>DuckDB</strong> (MIT) – the same idea, a library and a file, but
+        column-oriented and built for analyses over millions of rows; it reads CSV and Parquet directly and is the
+        analytical counterpart for data analysis. <strong>H2</strong> and <strong>Apache Derby</strong> (Java, open
+        source) are the embedded databases of the Java world. And “straight to Postgres”: whoever reaches lab 07 anyway
+        can load the exercise data directly into a container.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="datei">
+    <h2><span lang="de">Die Datei anlegen und füllen</span><span lang="en">Create and fill the file</span></h2>
+    <p>
+      <span lang="de">Drei Wege zur <code>velocity.db</code>, in der Reihenfolge, in der man sie draußen braucht: die
+        Kommandozeile für das schnelle Nachsehen, Python für den reproduzierbaren Aufbau aus dem JSON-Export, pandas
+        für den Weg in die Auswertung. Die Datenbank in dieser Seite entsteht auf dieselbe Weise – aus dem Skript
+        <code>data/velocity.sqlite.sql</code>.</span>
+      <span lang="en">Three routes to <code>velocity.db</code>, in the order you need them outside: the command line for a
+        quick look, Python for the reproducible build from the JSON export, pandas for the way into analysis. The
+        database in this page comes about the same way – from the script <code>data/velocity.sqlite.sql</code>.</span>
+    </p>
+    <div data-datenbank="sqlite"></div>
+
+    <h3><span lang="de">Weg 1: die Kommandozeile</span><span lang="en">Route 1: the command line</span></h3>
+    <p>
+      <span lang="de"><code>sqlite3 velocity.db</code> öffnet die Datei – oder legt sie an. Dann stehen Sie in einer
+        Sitzung mit dem Prompt <code>sqlite&gt;</code>, in der zwei Sprachen gesprochen werden: SQL, mit Semikolon
+        am Ende, und die <strong>Dot-Commands</strong> des Programms, die mit einem Punkt beginnen und keins
+        brauchen.</span>
+      <span lang="en"><code>sqlite3 velocity.db</code> opens the file – or creates it. Then you are in a session with the
+        prompt <code>sqlite&gt;</code> in which two languages are spoken: SQL, with a semicolon at the end, and the
+        program's <strong>dot-commands</strong>, which start with a dot and need none.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Terminal — sqlite3 velocity.db</span><span class="spacer"></span>zsh</div>
+      <div class="shot-body eins">
+        <div class="shot-main">
+          <div class="code">% sqlite3 velocity.db <span class="callout">1</span>
+SQLite version 3.51.0 2025-06-12 13:14:41
+Enter ".help" for usage hints.
+sqlite> .read data/velocity.sqlite.sql <span class="callout">2</span>
+sqlite> .tables
+fahrt          fahrt_mit_typ  kunde          rad            station
+sqlite> .mode box
+sqlite> .headers on
+sqlite> SELECT rad_typ, count(*) AS fahrten, round(sum(preis_eur), 2) AS umsatz
+   ...> FROM fahrt_mit_typ GROUP BY rad_typ ORDER BY umsatz DESC; <span class="callout">3</span>
+┌─────────┬─────────┬─────────┐
+│ rad_typ │ fahrten │ umsatz  │
+├─────────┼─────────┼─────────┤
+│ CITY    │ 913     │ 1522.5  │
+│ EBIKE   │ 444     │ 1153.8  │
+│ CARGO   │ 143     │ 495.84  │
+└─────────┴─────────┴─────────┘
+sqlite> SELECT * FROM kunden;
+Parse error: no such table: kunden <span class="callout">4</span>
+sqlite> .quit</div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Der Dateiname als Argument. Existiert die Datei nicht, wird sie beim ersten Schreiben angelegt – ein Tippfehler erzeugt also still eine zweite, leere Datenbank.</span><span lang="en">The file name as argument. If the file does not exist it is created on the first write – so a typo silently produces a second, empty database.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Ein Dot-Command: beginnt mit Punkt, endet ohne Semikolon, eine Zeile. <code>.read</code> führt das Skript aus; <code>.tables</code> und <code>.schema</code> zeigen, was entstanden ist.</span><span lang="en">A dot-command: starts with a dot, ends without a semicolon, one line. <code>.read</code> runs the script; <code>.tables</code> and <code>.schema</code> show what came into being.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">SQL über zwei Zeilen: Der Prompt <code>...&gt;</code> zeigt, dass das Semikolon noch fehlt. <code>.mode box</code> und <code>.headers on</code> haben die Ausgabe in einen Rahmen mit Spaltennamen verwandelt.</span><span lang="en">SQL over two lines: the prompt <code>...&gt;</code> shows the semicolon is still missing. <code>.mode box</code> and <code>.headers on</code> have turned the output into a box with column names.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Die Fehlermeldung nennt, was fehlt – hier die Tabelle <code>kunden</code>, die <code>kunde</code> heißt. Ältere Fassungen schreiben <code>Error: in prepare, no such table: kunden</code>; der Kern ist gleich.</span><span lang="en">The error message names what is missing – here the table <code>kunden</code>, which is called <code>kunde</code>. Older versions write <code>Error: in prepare, no such table: kunden</code>; the core is the same.</span></span></li>
+    </ol>
+    <div data-befehl="B03"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Nach dem CSV-Import ist alles TEXT</span><span lang="en">After a CSV import everything is TEXT</span></h3>
+      <p><span lang="de">Legt <code>.import</code> die Tabelle selbst an, bekommt jede Spalte den Typ <code>TEXT</code> –
+        auch <code>dauer_min</code> und <code>preis_eur</code>. Eine Summe darüber liefert dann nicht einmal einen
+        Fehler, sondern ein Ergebnis, das aussieht wie eine Zahl und keine ist. Darum: Tabelle zuerst mit Typen
+        anlegen, dann <code>.import --csv --skip 1</code>, dann <code>typeof()</code> prüfen. In Lab 08 hieß dieselbe
+        Regel <code>pg_typeof()</code>.</span>
+      <span lang="en">If <code>.import</code> creates the table itself, every column gets the type <code>TEXT</code> –
+        <code>dauer_min</code> and <code>preis_eur</code> too. A sum over it then does not even give an error but a
+        result that looks like a number and is not one. Hence: create the table with types first, then
+        <code>.import --csv --skip 1</code>, then check with <code>typeof()</code>. In lab 08 the same rule was called
+        <code>pg_typeof()</code>.</span></p>
+    </div>
+
+    <h3><span lang="de">Weg 2: Python – vom JSON-Export zur Datei</span><span lang="en">Route 2: Python – from the JSON export to the file</span></h3>
+    <p>
+      <span lang="de">In Lab 05 haben Sie <code>velocity.json</code> gelesen: Stationen mit ihren Rädern darin, Fahrten
+        mit den Unterobjekten <code>start</code> und <code>ziel</code>. Das Skript unten macht daraus vier flache
+        Tabellen und eine Sicht – das <em>Normalisieren</em> aus Lab 05, jetzt mit einem Ziel. Vier Handgriffe tragen
+        es: <code>connect()</code>, <code>PRAGMA foreign_keys = ON</code>, <code>executemany()</code> mit
+        <code>?</code>-Platzhaltern in einem <code>with con:</code>-Block, und <code>close()</code>.</span>
+      <span lang="en">In lab 05 you read <code>velocity.json</code>: stations with their bikes inside, rides with the
+        sub-objects <code>start</code> and <code>ziel</code>. The script below turns that into four flat tables and a
+        view – the <em>normalising</em> from lab 05, now with a target. Four actions carry it: <code>connect()</code>,
+        <code>PRAGMA foreign_keys = ON</code>, <code>executemany()</code> with <code>?</code> placeholders inside a
+        <code>with con:</code> block, and <code>close()</code>.</span>
+    </p>
+    <div data-befehl="B04"></div>
+    <div class="tip-box">
+      <p><span lang="de">Das vollständige Skript liegt als Kopiervorlage unten: <code>lab-06-velocity_sqlite.py</code>.
+        Es läuft im Projektordner mit <code>python3 lab-06-velocity_sqlite.py</code> und druckt am Ende die
+        Kontrollzahlen – CITY 913 Fahrten, 1.522,50 €. Dieselben Zahlen liefert die Datenbank in dieser Seite, und
+        dieselben liefert Postgres in Lab 08. Wenn sie abweichen, ist beim Laden etwas schiefgegangen.</span>
+      <span lang="en">The complete script is a template below: <code>lab-06-velocity_sqlite.py</code>. It runs in the
+        project folder with <code>python3 lab-06-velocity_sqlite.py</code> and prints the check figures at the end –
+        CITY 913 rides, €1,522.50. The database in this page yields the same numbers, and so does Postgres in lab 08.
+        If they differ, something went wrong while loading.</span></p>
+    </div>
+
+    <h3><span lang="de">Weg 3: pandas</span><span lang="en">Route 3: pandas</span></h3>
+    <p>
+      <span lang="de">Für die Auswertung ist der Datenrahmen das Ziel, nicht die Tabelle. <code>read_sql</code> holt ein
+        Abfrageergebnis in pandas, <code>to_sql</code> legt einen Datenrahmen als Tabelle ab – der Weg, den Lab 10
+        für das Staging nimmt und Lab 04 für die Auswertung.</span>
+      <span lang="en">For analysis the data frame is the target, not the table. <code>read_sql</code> fetches a query
+        result into pandas, <code>to_sql</code> stores a data frame as a table – the route lab 10 takes for staging and
+        lab 04 for analysis.</span>
+    </p>
+    <div data-befehl="B05"></div>
+
+    <h3><span lang="de">Ansehen: DB Browser for SQLite</span><span lang="en">Looking at it: DB Browser for SQLite</span></h3>
+    <p>
+      <span lang="de">Die Datei zu öffnen und durch die Tabellen zu blättern ist mit einem grafischen Werkzeug am
+        schnellsten. DB Browser for SQLite hat vier Reiter und einen Knopf, auf den es ankommt.</span>
+      <span lang="en">Opening the file and browsing the tables is fastest with a graphical tool. DB Browser for SQLite
+        has four tabs and one button that matters.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">DB Browser for SQLite - velocity.db</span><span class="spacer"></span>3.13.1</div>
+      <div class="shot-menu"><span>File</span><span>Edit</span><span>View</span><span>Tools</span><span>Help</span></div>
+      <div class="shot-body eins">
+        <div class="shot-main">
+          <div class="zeile"><span class="knopf">New Database</span><span class="knopf">Open Database</span> <span class="callout">1</span><span class="knopf primaer">Write Changes</span> <span class="callout">4</span><span class="knopf">Revert Changes</span></div>
+          <div class="zeile"><span class="tab">Database Structure</span><span class="tab">Browse Data</span><span class="tab">Edit Pragmas</span> <span class="callout">2</span><span class="tab aktiv">Execute SQL</span> <span class="callout">3</span></div>
+          <div class="code">SELECT rad_typ, count(*) AS fahrten, round(sum(preis_eur), 2) AS umsatz
+FROM fahrt_mit_typ
+GROUP BY rad_typ
+ORDER BY umsatz DESC;</div>
+          <table>
+            <thead><tr><th>rad_typ</th><th>fahrten</th><th>umsatz</th></tr></thead>
+            <tbody>
+              <tr><td>CITY</td><td>913</td><td>1522.5</td></tr>
+              <tr><td>EBIKE</td><td>444</td><td>1153.8</td></tr>
+              <tr><td>CARGO</td><td>143</td><td>495.84</td></tr>
+            </tbody>
+          </table>
+          <div class="okzeile">Execution finished without errors.
+Result: 3 rows returned in 4ms</div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de"><code>Open Database</code> öffnet eine vorhandene Datei; <code>New Database</code> legt eine an und fragt gleich nach der ersten Tabelle.</span><span lang="en"><code>Open Database</code> opens an existing file; <code>New Database</code> creates one and immediately asks for the first table.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Die Reiter: <code>Database Structure</code> zeigt Tabellen, Sichten und ihren CREATE-Text; <code>Browse Data</code> ist das Raster mit editierbaren Zellen; <code>Edit Pragmas</code> hat den Haken <em>Foreign Keys</em>.</span><span lang="en">The tabs: <code>Database Structure</code> shows tables, views and their CREATE text; <code>Browse Data</code> is the grid with editable cells; <code>Edit Pragmas</code> holds the <em>Foreign Keys</em> checkbox.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de"><code>Execute SQL</code>: Abfrage eingeben, <code>Ctrl+Return</code>. Bei mehreren Anweisungen läuft alles – oder nur die Markierung, wenn eine besteht. Dieselbe Regel wie in DataGrip, Lab 09.</span><span lang="en"><code>Execute SQL</code>: enter the query, <code>Ctrl+Return</code>. With several statements everything runs – or only the selection, if there is one. The same rule as in DataGrip, lab 09.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de"><code>Write Changes</code>: Bis hierhin ist in der Datei nichts geändert – DB Browser hält alles in einer offenen Transaktion. Solange sie offen ist, meldet jedes andere Programm beim Schreiben <code>database is locked</code>. Das Gegenstück zu <code>commit()</code> in Python und zu <code>Tx:Manual</code> in Lab 09.</span><span lang="en"><code>Write Changes</code>: up to here nothing in the file has changed – DB Browser keeps everything in an open transaction. As long as it is open, every other program reports <code>database is locked</code> when writing. The counterpart of <code>commit()</code> in Python and of <code>Tx:Manual</code> in lab 09.</span></span></li>
+    </ol>
+    <div data-befehl="B09"></div>
+
+    <h3><span lang="de">Kopiervorlagen</span><span lang="en">Templates</span></h3>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-06-velocity_sqlite.py" download><span class="symbol">📄</span><span><span class="datei">lab-06-velocity_sqlite.py</span><br><span class="was"><span lang="de">Liest data/velocity.json und legt velocity.db mit vier STRICT-Tabellen und der Sicht an</span><span lang="en">Reads data/velocity.json and creates velocity.db with four STRICT tables and the view</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-06-abfragen.sql" download><span class="symbol">📄</span><span><span class="datei">lab-06-abfragen.sql</span><br><span class="was"><span lang="de">Kommentierte Beispielabfragen: Aggregation, Monat, JOIN, Fensterfunktion, JSON</span><span lang="en">Commented example queries: aggregation, month, JOIN, window function, JSON</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-06-import.txt" download><span class="symbol">📄</span><span><span class="datei">lab-06-import.txt</span><br><span class="was"><span lang="de">Die sqlite3-Sitzung zum Nachtippen: .open, .read, .tables, .schema, .import, .dump</span><span lang="en">The sqlite3 session to type along: .open, .read, .tables, .schema, .import, .dump</span></span></span></a>
+    </div>
+    <div data-befehl="B10"></div>
+  </section>
+
+  <section class="section-block" id="typen">
+    <h2><span lang="de">Das Typsystem</span><span lang="en">The type system</span></h2>
+    <p>
+      <span lang="de">Hier liegt der eigentliche Unterschied zu allem, was DABA über Datentypen gesagt hat. SQLite
+        kennt <strong>fünf Speicherklassen</strong> – <code>NULL</code>, <code>INTEGER</code>, <code>REAL</code>,
+        <code>TEXT</code>, <code>BLOB</code> –, und sie beschreiben den <em>Wert</em>, nicht die Spalte. Eine Spalte
+        hat nur eine <strong>Affinity</strong>, einen Wunsch: Passt der Wert verlustfrei hinein, wird er gewandelt;
+        sonst wird er gespeichert, wie er kam. <code>'abc'</code> in einer <code>INTEGER</code>-Spalte ist kein Fehler,
+        sondern ein Text in einer Integer-Spalte. Die Dokumentation nennt das ausdrücklich ein Feature.</span>
+      <span lang="en">Here lies the real difference from everything DABA said about data types. SQLite has
+        <strong>five storage classes</strong> – <code>NULL</code>, <code>INTEGER</code>, <code>REAL</code>,
+        <code>TEXT</code>, <code>BLOB</code> – and they describe the <em>value</em>, not the column. A column has only
+        an <strong>affinity</strong>, a preference: if the value fits losslessly it is converted; otherwise it is stored
+        as it came. <code>'abc'</code> in an <code>INTEGER</code> column is not an error but a text in an integer
+        column. The documentation expressly calls that a feature.</span>
+    </p>
+    <p>
+      <span lang="de">Welche Affinity eine Spalte bekommt, entscheiden fünf Regeln über den <em>Namen</em> des Typs –
+        in dieser Reihenfolge, die erste passende gewinnt:</span>
+      <span lang="en">Which affinity a column gets is decided by five rules over the type's <em>name</em> – in this
+        order, the first match wins:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th><span lang="de">Der Typname enthält …</span><span lang="en">The type name contains …</span></th>
+            <th>Affinity</th>
+            <th><span lang="de">Beispiele – und Überraschungen</span><span lang="en">Examples – and surprises</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td><code>INT</code></td><td><code>INTEGER</code></td><td><span lang="de"><code>INTEGER</code>, <code>BIGINT</code>, <code>INT2</code> – und <code>FLOATING POINT</code>, weil in <em>POINT</em> ein INT steckt.</span><span lang="en"><code>INTEGER</code>, <code>BIGINT</code>, <code>INT2</code> – and <code>FLOATING POINT</code>, because <em>POINT</em> contains INT.</span></td></tr>
+          <tr><td>2</td><td><code>CHAR</code>, <code>CLOB</code>, <code>TEXT</code></td><td><code>TEXT</code></td><td><span lang="de"><code>VARCHAR(255)</code> → TEXT; die 255 wird ignoriert, nichts begrenzt die Länge.</span><span lang="en"><code>VARCHAR(255)</code> → TEXT; the 255 is ignored, nothing limits the length.</span></td></tr>
+          <tr><td>3</td><td><code>BLOB</code> <span lang="de">oder kein Typ</span><span lang="en">or no type</span></td><td><code>BLOB</code></td><td><span lang="de"><code>CREATE TABLE t (a, b)</code> ist erlaubt – ohne Typ, ohne Wandlung.</span><span lang="en"><code>CREATE TABLE t (a, b)</code> is allowed – without type, without conversion.</span></td></tr>
+          <tr><td>4</td><td><code>REAL</code>, <code>FLOA</code>, <code>DOUB</code></td><td><code>REAL</code></td><td><span lang="de"><code>REAL</code>, <code>DOUBLE PRECISION</code>, <code>FLOAT</code> – Gleitkomma, 8 Byte.</span><span lang="en"><code>REAL</code>, <code>DOUBLE PRECISION</code>, <code>FLOAT</code> – floating point, 8 bytes.</span></td></tr>
+          <tr><td>5</td><td><span lang="de">alles andere</span><span lang="en">anything else</span></td><td><code>NUMERIC</code></td><td><span lang="de"><code>DATE</code>, <code>DATETIME</code>, <code>BOOLEAN</code>, <code>DECIMAL(10,2)</code>, <code>NUMERIC(6,2)</code> – Zahlen werden INTEGER oder REAL, Texte bleiben Text. Ein Datum ist also Text.</span><span lang="en"><code>DATE</code>, <code>DATETIME</code>, <code>BOOLEAN</code>, <code>DECIMAL(10,2)</code>, <code>NUMERIC(6,2)</code> – numbers become INTEGER or REAL, texts stay text. So a date is text.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div data-befehl="B06"></div>
+    <div class="warn-box">
+      <h3><span lang="de"><code>NUMERIC(6,2)</code> ist in SQLite ein REAL – Geld in Cent</span><span lang="en"><code>NUMERIC(6,2)</code> is a REAL in SQLite – money in cents</span></h3>
+      <p><span lang="de">In Postgres (Lab 08) ist <code>numeric(6,2)</code> exakt: 1,10 + 2,20 ergibt 3,30. In SQLite
+        landet derselbe Typname bei Regel 5, ein Wert wie 1.1 wird als binärer Gleitkommawert gespeichert, und Summen
+        tragen Reste wie <code>1522.5000000000002</code>. Für die Anzeige hilft <code>round(x, 2)</code>; für eine
+        Abrechnung ist die Regel eine andere: <strong>Beträge in Cent als <code>INTEGER</code></strong> speichern –
+        <code>kosten_cent 4500</code> statt <code>kosten 45.00</code>. Genau so ist die Tabelle in Übung W06-03
+        gebaut. In <code>velocity.sqlite.sql</code> ist <code>preis_eur</code> bewusst ein REAL geblieben, damit der
+        Unterschied zu <code>velocity.sql</code> sichtbar ist.</span>
+      <span lang="en">In Postgres (lab 08) <code>numeric(6,2)</code> is exact: 1.10 + 2.20 gives 3.30. In SQLite the
+        same type name lands at rule 5, a value like 1.1 is stored as a binary floating-point value, and sums carry
+        remainders like <code>1522.5000000000002</code>. For display <code>round(x, 2)</code> helps; for invoicing the
+        rule is different: store <strong>amounts in cents as <code>INTEGER</code></strong> – <code>kosten_cent
+        4500</code> instead of <code>kosten 45.00</code>. That is exactly how the table in exercise W06-03 is built. In
+        <code>velocity.sqlite.sql</code>, <code>preis_eur</code> has deliberately stayed a REAL so that the difference
+        from <code>velocity.sql</code> is visible.</span></p>
+    </div>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">STRICT – seit 3.37</span><span lang="en">STRICT – since 3.37</span></div>
+        <p><span lang="de"><code>CREATE TABLE … (…) STRICT;</code> erlaubt nur <code>INT</code>, <code>INTEGER</code>,
+          <code>REAL</code>, <code>TEXT</code>, <code>BLOB</code>, <code>ANY</code> und weist unpassende Werte ab:
+          <code>cannot store TEXT value in INTEGER column wartung.kosten_cent</code>. <code>DATE</code> oder
+          <code>VARCHAR</code> geben schon beim Anlegen <code>unknown datatype</code>. Für eigene Tabellen die richtige
+          Voreinstellung.</span>
+        <span lang="en"><code>CREATE TABLE … (…) STRICT;</code> allows only <code>INT</code>, <code>INTEGER</code>,
+          <code>REAL</code>, <code>TEXT</code>, <code>BLOB</code>, <code>ANY</code> and rejects mismatching values:
+          <code>cannot store TEXT value in INTEGER column wartung.kosten_cent</code>. <code>DATE</code> or
+          <code>VARCHAR</code> already give <code>unknown datatype</code> at creation. The right default for your own
+          tables.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Kein BOOLEAN, kein DATE</span><span lang="en">No BOOLEAN, no DATE</span></div>
+        <p><span lang="de">Wahrheitswerte sind 0 und 1; <code>TRUE</code> und <code>FALSE</code> sind seit 3.23 nur
+          andere Schreibweisen dafür. Datum und Zeit sind <code>TEXT</code> nach ISO 8601 – <code>'2026-09-11'</code>,
+          <code>'2026-09-11 07:45:00'</code> – und die Funktionen <code>date()</code>, <code>datetime()</code>,
+          <code>strftime()</code> lesen genau dieses Format. Sortiert als Text richtig, vergleicht als Text
+          richtig.</span>
+        <span lang="en">Truth values are 0 and 1; <code>TRUE</code> and <code>FALSE</code> have only been alternative
+          spellings for them since 3.23. Date and time are <code>TEXT</code> in ISO 8601 – <code>'2026-09-11'</code>,
+          <code>'2026-09-11 07:45:00'</code> – and the functions <code>date()</code>, <code>datetime()</code>,
+          <code>strftime()</code> read exactly this format. Sorts correctly as text, compares correctly as text.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de"><code>INTEGER PRIMARY KEY</code> = rowid</span><span lang="en"><code>INTEGER PRIMARY KEY</code> = rowid</span></div>
+        <p><span lang="de">Genau diese Schreibweise macht die Spalte zum Alias der internen Zeilennummer: SQLite vergibt
+          den Wert selbst (Maximum + 1). <code>AUTOINCREMENT</code> verhindert zusätzlich, dass eine gelöschte Nummer
+          wiederverwendet wird – kostet aber Aufwand und ist laut Dokumentation „meist nicht nötig“.
+          <code>INT PRIMARY KEY</code> ist <em>kein</em> Alias. Ein Text in dieser Spalte gibt <code>datatype
+          mismatch</code>.</span>
+        <span lang="en">Exactly this spelling makes the column an alias of the internal row number: SQLite assigns the
+          value itself (maximum + 1). <code>AUTOINCREMENT</code> additionally prevents a deleted number from being
+          reused – but costs effort and is, per the documentation, “usually not needed”. <code>INT PRIMARY KEY</code>
+          is <em>not</em> an alias. A text in this column gives <code>datatype mismatch</code>.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Fremdschlüssel: standardmäßig aus</span><span lang="en">Foreign keys: off by default</span></div>
+        <p><span lang="de"><code>REFERENCES rad(rad_id)</code> wird nur geprüft, wenn die Verbindung
+          <code>PRAGMA foreign_keys = ON</code> gesetzt hat – aus Rücksicht auf ältere Anwendungen, und nicht in der
+          Datei gespeichert. Ohne das PRAGMA gelingt ein <code>INSERT</code> mit <code>'R-999'</code> still. Also: nach
+          jedem <code>connect()</code>, am Anfang jedes Skripts.</span>
+        <span lang="en"><code>REFERENCES rad(rad_id)</code> is checked only if the connection has set
+          <code>PRAGMA foreign_keys = ON</code> – out of consideration for older applications, and not stored in the
+          file. Without the PRAGMA an <code>INSERT</code> with <code>'R-999'</code> succeeds silently. So: after every
+          <code>connect()</code>, at the start of every script.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Doppelte Anführungszeichen</span><span lang="en">Double quotes</span></div>
+        <p><span lang="de">In SQL stehen Bezeichner in <code>"…"</code> und Zeichenketten in <code>'…'</code>. SQLite
+          ist nachsichtig: Passt <code>"Meier"</code> zu keiner Spalte, wird es <em>stillschweigend</em> zur
+          Zeichenkette. <code>SELECT "nicht_da" FROM station</code> liefert darum eine Spalte voller Text
+          <code>nicht_da</code> statt eines Fehlers. Gewohnheit: Strings immer in einfache Anführungszeichen – in
+          Postgres wäre <code>"Meier"</code> ein Fehler.</span>
+        <span lang="en">In SQL identifiers go in <code>"…"</code> and strings in <code>'…'</code>. SQLite is lenient: if
+          <code>"Meier"</code> matches no column, it <em>silently</em> becomes a string. <code>SELECT "nicht_da" FROM
+          station</code> therefore returns a column full of the text <code>nicht_da</code> instead of an error. Habit:
+          strings always in single quotes – in Postgres <code>"Meier"</code> would be an error.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">ALTER TABLE hat Grenzen</span><span lang="en">ALTER TABLE has limits</span></div>
+        <p><span lang="de">Möglich: <code>RENAME TO</code>, <code>RENAME COLUMN</code>, <code>ADD COLUMN</code>,
+          <code>DROP COLUMN</code>; seit 3.53 auch <code>NOT NULL</code>- und <code>CHECK</code>-Bedingungen nachträglich.
+          Nicht möglich: den Typ einer Spalte ändern, einen Primär- oder Fremdschlüssel hinzufügen, Spalten umordnen.
+          Dafür: neue Tabelle anlegen, <code>INSERT INTO neu SELECT … FROM alt</code>, alte löschen, umbenennen. Ein
+          Grund mehr, das Schema vorher richtig zu machen.</span>
+        <span lang="en">Possible: <code>RENAME TO</code>, <code>RENAME COLUMN</code>, <code>ADD COLUMN</code>,
+          <code>DROP COLUMN</code>; since 3.53 also adding <code>NOT NULL</code> and <code>CHECK</code> constraints
+          afterwards. Not possible: changing a column's type, adding a primary or foreign key, reordering columns. For
+          that: create a new table, <code>INSERT INTO neu SELECT … FROM alt</code>, drop the old one, rename. One more
+          reason to get the schema right first.</span></p>
+      </div>
+    </div>
+    <div data-befehl="B07"></div>
+    <div class="info-box">
+      <p><span lang="de">Der Bezug zur Fallstudie: In <code>data/velocity.sqlite.sql</code> sind <code>eroeffnet</code>,
+        <code>registriert</code> und <code>start_zeit</code> TEXT, <code>preis_eur</code> ein REAL, und das Skript
+        beginnt mit <code>PRAGMA foreign_keys = ON</code>. In <code>data/velocity.sql</code> für Postgres stehen an
+        denselben Stellen <code>date</code>, <code>timestamp</code> und <code>numeric(6,2)</code>. Beide Skripte laden
+        denselben Bestand – die Abfragen aus Lab 08 laufen hier unverändert, nur die Datumsfunktionen heißen
+        anders.</span>
+      <span lang="en">The link to the case study: in <code>data/velocity.sqlite.sql</code>, <code>eroeffnet</code>,
+        <code>registriert</code> and <code>start_zeit</code> are TEXT, <code>preis_eur</code> a REAL, and the script
+        begins with <code>PRAGMA foreign_keys = ON</code>. In <code>data/velocity.sql</code> for Postgres the same places
+        hold <code>date</code>, <code>timestamp</code> and <code>numeric(6,2)</code>. Both scripts load the same data –
+        the queries from lab 08 run here unchanged, only the date functions have different names.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="json">
+    <h2><span lang="de">JSON in SQLite</span><span lang="en">JSON in SQLite</span></h2>
+    <p>
+      <span lang="de">Die Brücke zu Lab 05. Seit Version 3.38 (02/2022) kann SQLite JSON-Text lesen, zerlegen und
+        erzeugen – ohne Erweiterung. Ein JSON-Dokument ist dabei einfach ein <code>TEXT</code>-Wert; die Funktionen
+        und die zwei Operatoren <code>-&gt;</code> und <code>-&gt;&gt;</code> greifen hinein. Das erlaubt einen
+        Arbeitsablauf, den Lab 10 <em>ELT</em> nennt: Rohdaten unverändert laden, erst in der Datenbank in Spalten
+        verwandeln.</span>
+      <span lang="en">The bridge to lab 05. Since version 3.38 (02/2022) SQLite can read, take apart and produce JSON
+        text – without an extension. A JSON document is simply a <code>TEXT</code> value; the functions and the two
+        operators <code>-&gt;</code> and <code>-&gt;&gt;</code> reach into it. That allows a workflow lab 10 calls
+        <em>ELT</em>: load raw data unchanged, turn it into columns only inside the database.</span>
+    </p>
+    <div class="kette">
+      <div class="glied hell"><span class="titel">fahrten.jsonl</span><span class="was"><span lang="de">eine Zeile = ein JSON-Dokument (Lab 05)</span><span lang="en">one line = one JSON document (lab 05)</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">fahrt_roh (doc TEXT)</span><span class="was"><span lang="de">Load: je Zeile ein Dokument, unverändert</span><span lang="en">Load: one document per row, unchanged</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">doc -&gt;&gt; '$.start.station_id'</span><span class="was"><span lang="de">Transform: Spalten per SQL</span><span lang="en">Transform: columns via SQL</span></span></div>
+      <span class="pfeil">→</span>
+      <div class="glied"><span class="titel">fahrt</span><span class="was"><span lang="de">die flache Tabelle – Lab 10 macht daraus die Pipeline</span><span lang="en">the flat table – lab 10 turns this into the pipeline</span></span></div>
+    </div>
+    <div data-befehl="B08"></div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Baustein</span><span lang="en">Building block</span></th>
+            <th><span lang="de">Liefert</span><span lang="en">Returns</span></th>
+            <th><span lang="de">Beispiel</span><span lang="en">Example</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>doc -&gt; '$.rad_id'</code></td><td><span lang="de">JSON-Text – Zeichenketten <em>mit</em> Anführungszeichen</span><span lang="en">JSON text – strings <em>with</em> quotation marks</span></td><td><code>"R-057"</code></td></tr>
+          <tr><td><code>doc -&gt;&gt; '$.rad_id'</code></td><td><span lang="de">SQL-Wert: TEXT, INTEGER, REAL oder NULL</span><span lang="en">SQL value: TEXT, INTEGER, REAL or NULL</span></td><td><code>R-057</code></td></tr>
+          <tr><td><code>json_extract(doc, '$.start.zeit')</code></td><td><span lang="de">wie <code>-&gt;&gt;</code>, als Funktion; mehrere Pfade → Array</span><span lang="en">like <code>-&gt;&gt;</code>, as a function; several paths → array</span></td><td><code>2025-10-05T07:58:00</code></td></tr>
+          <tr><td><code>json_each(doc, '$.raeder')</code></td><td><span lang="de">eine Tabelle: eine Zeile je Array-Element, Spalten <code>key</code>, <code>value</code>, <code>type</code></span><span lang="en">a table: one row per array element, columns <code>key</code>, <code>value</code>, <code>type</code></span></td><td><code>FROM station_roh, json_each(doc, '$.raeder')</code></td></tr>
+          <tr><td><code>json_group_array(name)</code></td><td><span lang="de">Aggregat: aus Zeilen ein JSON-Array</span><span lang="en">aggregate: rows become a JSON array</span></td><td><code>["Juliuspromenade","Hauptbahnhof","Residenz"]</code></td></tr>
+          <tr><td><code>json_object('k', v, …)</code></td><td><span lang="de">ein Objekt aus Paaren</span><span lang="en">an object from pairs</span></td><td><code>{"rad_id":"R-017","typ":"CITY"}</code></td></tr>
+          <tr><td><code>json_valid(doc)</code>, <code>json_type(doc, '$.start')</code></td><td><span lang="de">1/0 bzw. <code>object</code>, <code>array</code>, <code>integer</code>, <code>text</code> …</span><span lang="en">1/0 resp. <code>object</code>, <code>array</code>, <code>integer</code>, <code>text</code> …</span></td><td><code>object</code></td></tr>
+          <tr><td><code>jsonb(doc)</code></td><td><span lang="de">seit 3.45: binäre Form als BLOB, alle Funktionen als <code>jsonb_*</code></span><span lang="en">since 3.45: binary form as BLOB, all functions as <code>jsonb_*</code></span></td><td><code>typeof(jsonb(doc)) → blob</code></td></tr>
+          <tr><td><code>.mode json</code></td><td><span lang="de">nur in der CLI: Ergebnis als JSON-Array von Objekten</span><span lang="en">CLI only: result as a JSON array of objects</span></td><td><code>[{"station_id":1,"name":"Juliuspromenade"}, …]</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box">
+      <p><span lang="de">Der Pfad <code>'$.start.station_id'</code> ist dieselbe Schreibweise wie JSONPath in Lab 05:
+        <code>$</code> das Dokument, <code>.</code> ein Schlüssel, <code>[0]</code> ein Index. In Postgres (Lab 08)
+        gibt es <code>-&gt;</code> und <code>-&gt;&gt;</code> ebenfalls – dort aber nur mit Schlüssel oder Index als
+        rechtem Operanden, nicht mit <code>$</code>-Pfad; für Pfade nimmt Postgres <code>jsonb_path_query()</code>.
+        Übung W06-04 macht aus vier Dokumenten aus <code>fahrten.jsonl</code> drei Spalten.</span>
+      <span lang="en">The path <code>'$.start.station_id'</code> is the same notation as JSONPath in lab 05:
+        <code>$</code> the document, <code>.</code> a key, <code>[0]</code> an index. Postgres (lab 08) has
+        <code>-&gt;</code> and <code>-&gt;&gt;</code> as well – there, though, only with a key or index as the right
+        operand, not with a <code>$</code> path; for paths Postgres uses <code>jsonb_path_query()</code>. Exercise W06-04
+        turns four documents from <code>fahrten.jsonl</code> into three columns.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="postgres">
+    <h2><span lang="de">Unterschiede zu PostgreSQL, die im Kurs beißen</span><span lang="en">Differences from PostgreSQL that bite in this course</span></h2>
+    <p>
+      <span lang="de">Lab 07 und Lab 08 wechseln zu PostgreSQL – im Container und gehostet. Der Grund ist nicht, dass
+        SQL dort anders wäre: <code>SELECT</code>, <code>JOIN</code>, <code>GROUP BY</code>, Fensterfunktionen,
+        <code>RETURNING</code>, <code>UPSERT</code> sind gleich. Der Grund sind die drei Dinge, die eine Datei nicht
+        kann – viele Schreiber, Rechte, Netz – und die strengen Typen. Was beim Wechsel tatsächlich stolpern lässt,
+        ist kürzer, als man denkt (Stand 09/2026: SQLite 3.53, PostgreSQL 18):</span>
+      <span lang="en">Labs 07 and 08 switch to PostgreSQL – in a container and hosted. The reason is not that SQL is
+        different there: <code>SELECT</code>, <code>JOIN</code>, <code>GROUP BY</code>, window functions,
+        <code>RETURNING</code>, <code>UPSERT</code> are the same. The reason is the three things a file cannot do – many
+        writers, permissions, network – and the strict types. What actually trips you up on switching is shorter than you
+        think (as of 09/2026: SQLite 3.53, PostgreSQL 18):</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Thema</span><span lang="en">Topic</span></th>
+            <th>SQLite</th>
+            <th>PostgreSQL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><span lang="de">Zeichenketten verbinden</span><span lang="en">String concatenation</span></td><td><code>'a' || 'b'</code></td><td><code>'a' || 'b'</code> <span lang="de">– gleich (MySQL: <code>CONCAT</code>, SQL Server: <code>+</code>)</span><span lang="en">– same (MySQL: <code>CONCAT</code>, SQL Server: <code>+</code>)</span></td></tr>
+          <tr><td><span lang="de">Ganzzahldivision</span><span lang="en">Integer division</span></td><td><code>7/2 → 3</code></td><td><code>7/2 → 3</code> <span lang="de">– gleich; beide brauchen <code>7 * 1.0 / 2</code> oder <code>CAST</code></span><span lang="en">– same; both need <code>7 * 1.0 / 2</code> or <code>CAST</code></span></td></tr>
+          <tr><td><code>LIKE</code></td><td><span lang="de"><strong>ignoriert Groß/Klein</strong> (ASCII): <code>'ABC' LIKE 'abc'</code> ist wahr</span><span lang="en"><strong>ignores case</strong> (ASCII): <code>'ABC' LIKE 'abc'</code> is true</span></td><td><span lang="de">beachtet Groß/Klein; <code>ILIKE</code> ignoriert sie – die häufigste Falle beim Wechsel</span><span lang="en">respects case; <code>ILIKE</code> ignores it – the most common trap when switching</span></td></tr>
+          <tr><td><span lang="de">Schemata</span><span lang="en">Schemas</span></td><td><span lang="de">keine – eine Datei ist ein Schema; mehrere Dateien per <code>ATTACH</code></span><span lang="en">none – one file is one schema; several files via <code>ATTACH</code></span></td><td><code>public.fahrt</code>, <code>wawi.rechnung</code> <span lang="de">– Lab 08 und Lab 09 leben davon</span><span lang="en">– labs 08 and 09 live on that</span></td></tr>
+          <tr><td>BOOLEAN</td><td><span lang="de">0 und 1; <code>TRUE</code>/<code>FALSE</code> nur als Schreibweise</span><span lang="en">0 and 1; <code>TRUE</code>/<code>FALSE</code> only as spellings</span></td><td><span lang="de">echter Typ, Ausgabe <code>t</code>/<code>f</code></span><span lang="en">a real type, prints <code>t</code>/<code>f</code></span></td></tr>
+          <tr><td><span lang="de">Datum und Zeit</span><span lang="en">Date and time</span></td><td><code>strftime('%Y', d)</code>, <code>date(d, '+1 month')</code>, <span lang="de">TEXT-Werte</span><span lang="en">TEXT values</span></td><td><code>EXTRACT(YEAR FROM d)</code>, <code>d + INTERVAL '1 month'</code>, <code>date_trunc()</code>, <span lang="de">echte Typen</span><span lang="en">real types</span></td></tr>
+          <tr><td><span lang="de">Exakte Zahlen</span><span lang="en">Exact numbers</span></td><td><span lang="de"><code>NUMERIC(6,2)</code> ist ein REAL – Cent als INTEGER</span><span lang="en"><code>NUMERIC(6,2)</code> is a REAL – cents as INTEGER</span></td><td><code>numeric(6,2)</code> <span lang="de">ist exakt</span><span lang="en">is exact</span></td></tr>
+          <tr><td><span lang="de">Automatische Schlüssel</span><span lang="en">Automatic keys</span></td><td><code>INTEGER PRIMARY KEY</code></td><td><code>GENERATED ALWAYS AS IDENTITY</code> <span lang="de">(älter: <code>serial</code>)</span><span lang="en">(older: <code>serial</code>)</span></td></tr>
+          <tr><td><code>RETURNING</code> · UPSERT</td><td><span lang="de">seit 3.35 / 3.24, nach dem Vorbild von Postgres</span><span lang="en">since 3.35 / 3.24, modelled on Postgres</span></td><td><span lang="de">gleich: <code>INSERT … ON CONFLICT (k) DO UPDATE SET v = excluded.v</code></span><span lang="en">same: <code>INSERT … ON CONFLICT (k) DO UPDATE SET v = excluded.v</code></span></td></tr>
+          <tr><td><code>"Doppelte Anführungszeichen"</code></td><td><span lang="de">werden zur Zeichenkette, wenn kein Bezeichner passt</span><span lang="en">become a string if no identifier matches</span></td><td><span lang="de">immer Bezeichner; <code>"Meier"</code> → <code>column "Meier" does not exist</code></span><span lang="en">always an identifier; <code>"Meier"</code> → <code>column "Meier" does not exist</code></span></td></tr>
+          <tr><td><span lang="de">Platzhalter in Python</span><span lang="en">Placeholders in Python</span></td><td><code>?</code> <span lang="de">oder</span><span lang="en">or</span> <code>:name</code> (<code>sqlite3</code>)</td><td><code>%s</code> <span lang="de">oder</span><span lang="en">or</span> <code>%(name)s</code> (<code>psycopg</code>)</td></tr>
+          <tr><td><span lang="de">Rechte</span><span lang="en">Permissions</span></td><td><span lang="de">keine – Dateisystem</span><span lang="en">none – file system</span></td><td><span lang="de">Rollen, <code>GRANT</code>, Row Level Security (Lab 08)</span><span lang="en">roles, <code>GRANT</code>, row level security (lab 08)</span></td></tr>
+          <tr><td><span lang="de">Gleichzeitigkeit</span><span lang="en">Concurrency</span></td><td><span lang="de">ein Schreiber, Dateisperre</span><span lang="en">one writer, file lock</span></td><td><span lang="de">viele Schreiber, MVCC</span><span lang="en">many writers, MVCC</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <p><span lang="de"><strong>Ausblick.</strong> Lab 07 startet PostgreSQL in einem Container – der erste Server,
+        den Sie selbst betreiben, mit einem Volume für die Daten. Lab 08 lässt ihn jemand anderen betreiben und fügt
+        hinzu, was einer Datei fehlt: Rechte in der Datenbank. Lab 09 öffnet beides in DataGrip, auch Ihre
+        <code>velocity.db</code>. Lab 10 kehrt zu SQLite zurück – als Staging-Bereich auf dem Laptop, bevor die Daten in
+        den Server gehen. Und Lab 12 und Lab 13: Power BI und Tableau erreichen eine SQLite-Datei nur über einen
+        ODBC-Treiber, Postgres dagegen direkt.</span>
+      <span lang="en"><strong>Outlook.</strong> Lab 07 starts PostgreSQL in a container – the first server you run
+        yourself, with a volume for the data. Lab 08 has somebody else run it and adds what a file lacks: permissions
+        inside the database. Lab 09 opens both in DataGrip, your <code>velocity.db</code> included. Lab 10 returns to
+        SQLite – as a staging area on the laptop before the data goes into the server. And labs 12 and 13: Power BI and
+        Tableau reach a SQLite file only through an ODBC driver, Postgres directly.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="fehler">
+    <h2><span lang="de">Fehlermeldungen – wörtlich</span><span lang="en">Error messages – verbatim</span></h2>
+    <p>
+      <span lang="de">SQLite meldet knapp und in einer Zeile. Die Kommandozeile stellt <code>Error:</code> oder
+        <code>Parse error:</code> voran, Python verpackt dieselbe Meldung in <code>sqlite3.OperationalError</code>,
+        <code>sqlite3.IntegrityError</code> oder <code>sqlite3.ProgrammingError</code>. Die Zahl in Klammern in der
+        Kommandozeile – <code>(5)</code>, <code>(19)</code>, <code>(20)</code> – ist der Ergebniscode. Alle Meldungen
+        unten sind mit SQLite 3.49 bis 3.53 reproduziert.</span>
+      <span lang="en">SQLite reports tersely and in one line. The command line prefixes <code>Error:</code> or
+        <code>Parse error:</code>, Python wraps the same message in <code>sqlite3.OperationalError</code>,
+        <code>sqlite3.IntegrityError</code> or <code>sqlite3.ProgrammingError</code>. The number in parentheses on the
+        command line – <code>(5)</code>, <code>(19)</code>, <code>(20)</code> – is the result code. All messages below
+        were reproduced with SQLite 3.49 to 3.53.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Meldung</span><span lang="en">Message</span></th>
+            <th><span lang="de">Ursache</span><span lang="en">Cause</span></th>
+            <th><span lang="de">Abhilfe</span><span lang="en">Remedy</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>no such table: kunden</code></td>
+            <td><span lang="de">Die Tabelle heißt anders (<code>kunde</code>) – oder Sie haben die falsche Datei geöffnet: <code>connect("velocty.db")</code> hat still eine <em>leere</em> Datenbank angelegt.</span><span lang="en">The table has a different name (<code>kunde</code>) – or you opened the wrong file: <code>connect("velocty.db")</code> silently created an <em>empty</em> database.</span></td>
+            <td><span lang="de"><code>SELECT name FROM sqlite_master WHERE type = 'table'</code>; im Ordner nach einer zweiten <code>.db</code>-Datei suchen (<code>ls</code>, Lab 01).</span><span lang="en"><code>SELECT name FROM sqlite_master WHERE type = 'table'</code>; look for a second <code>.db</code> file in the folder (<code>ls</code>, lab 01).</span></td>
+          </tr>
+          <tr>
+            <td><code>no such column: name</code></td>
+            <td><span lang="de">Spalte falsch geschrieben oder in der falschen Tabelle gesucht – <code>kunde</code> hat keine Spalte <code>name</code>.</span><span lang="en">Column misspelled or looked for in the wrong table – <code>kunde</code> has no column <code>name</code>.</span></td>
+            <td><code>PRAGMA table_info(kunde)</code> <span lang="de">oder <code>.schema kunde</code></span><span lang="en">or <code>.schema kunde</code></span></td>
+          </tr>
+          <tr>
+            <td><code>near "SELEC": syntax error</code></td>
+            <td><span lang="de">Tippfehler; SQLite zeigt das Wort, an dem es hängen blieb. Auch bei <code>.tables</code> außerhalb der CLI: <code>near ".": syntax error</code>.</span><span lang="en">Typo; SQLite shows the word it got stuck on. Also with <code>.tables</code> outside the CLI: <code>near ".": syntax error</code>.</span></td>
+            <td><span lang="de">Das genannte Wort ansehen. Dot-Commands gibt es nur im Programm <code>sqlite3</code>.</span><span lang="en">Look at the word named. Dot-commands exist only in the <code>sqlite3</code> program.</span></td>
+          </tr>
+          <tr>
+            <td><code>database is locked</code></td>
+            <td><span lang="de">Eine andere Verbindung hält die Schreibsperre: DB Browser mit ungeschriebenen Änderungen, ein Notebook-Kernel mit offener Transaktion, ein zweites Skript.</span><span lang="en">Another connection holds the write lock: DB Browser with unwritten changes, a notebook kernel with an open transaction, a second script.</span></td>
+            <td><span lang="de"><em>Write Changes</em> klicken, <code>con.commit()</code> oder <code>con.close()</code>, Kernel neu starten. Für kurze Wartezeiten <code>connect(…, timeout=10)</code>; für Leser neben einem Schreiber der WAL-Modus.</span><span lang="en">Click <em>Write Changes</em>, <code>con.commit()</code> or <code>con.close()</code>, restart the kernel. For short waits <code>connect(…, timeout=10)</code>; for readers beside a writer, WAL mode.</span></td>
+          </tr>
+          <tr>
+            <td><code>unable to open database file</code></td>
+            <td><span lang="de">Der Ordner im Pfad existiert nicht, keine Schreibrechte, oder die Datei ist ein OneDrive-Platzhalter, der noch nicht heruntergeladen ist. Achtung: Ein falscher <em>Dateiname</em> in einem existierenden Ordner gibt diese Meldung nicht – er legt die Datei an.</span><span lang="en">The folder in the path does not exist, no write permission, or the file is a OneDrive placeholder not yet downloaded. Careful: a wrong <em>file name</em> in an existing folder does not give this message – it creates the file.</span></td>
+            <td><span lang="de">Pfad prüfen: <code>pwd</code> und <code>ls</code> (Lab 01); Arbeitsverzeichnis des Notebooks prüfen (Lab 04).</span><span lang="en">Check the path: <code>pwd</code> and <code>ls</code> (lab 01); check the notebook's working directory (lab 04).</span></td>
+          </tr>
+          <tr>
+            <td><code>cannot store TEXT value in INTEGER column wartung.kosten_cent</code></td>
+            <td><span lang="de">Eine STRICT-Tabelle lehnt einen Wert ab, der nicht zum Spaltentyp passt – etwa <code>'45,00'</code> mit Komma aus einer deutschen CSV.</span><span lang="en">A STRICT table rejects a value that does not match the column type – e.g. <code>'45,00'</code> with a comma from a German CSV.</span></td>
+            <td><span lang="de">Wert vor dem Einfügen wandeln: <code>int(…)</code>, <code>replace(',', '.')</code>. Die Meldung ist der Zweck von STRICT.</span><span lang="en">Convert the value before inserting: <code>int(…)</code>, <code>replace(',', '.')</code>. The message is what STRICT is for.</span></td>
+          </tr>
+          <tr>
+            <td><code>datatype mismatch</code></td>
+            <td><span lang="de">Ein Nicht-Integer soll in eine <code>INTEGER PRIMARY KEY</code>-Spalte – die ist die rowid und muss ganzzahlig sein. Nur dieser Fall trägt diese Meldung.</span><span lang="en">A non-integer is to go into an <code>INTEGER PRIMARY KEY</code> column – that is the rowid and must be an integer. Only this case carries this message.</span></td>
+            <td><span lang="de">Schlüssel weglassen (SQLite vergibt ihn) oder als Zahl übergeben.</span><span lang="en">Omit the key (SQLite assigns it) or pass it as a number.</span></td>
+          </tr>
+          <tr>
+            <td><code>FOREIGN KEY constraint failed</code></td>
+            <td><span lang="de">Bezug auf einen Schlüssel, den es nicht gibt – und <code>PRAGMA foreign_keys = ON</code> ist gesetzt. Ohne das PRAGMA wäre die Zeile still gespeichert worden.</span><span lang="en">Reference to a key that does not exist – and <code>PRAGMA foreign_keys = ON</code> is set. Without the PRAGMA the row would have been stored silently.</span></td>
+            <td><span lang="de">Reihenfolge beim Laden: erst <code>station</code>, dann <code>rad</code>, dann <code>fahrt</code>. Den Wert nachschlagen.</span><span lang="en">Order when loading: first <code>station</code>, then <code>rad</code>, then <code>fahrt</code>. Look the value up.</span></td>
+          </tr>
+          <tr>
+            <td><code>UNIQUE constraint failed: station.station_id</code></td>
+            <td><span lang="de">Ein Schlüssel zum zweiten Mal – typisch beim zweiten Lauf eines Skripts, das die Datei nicht vorher löscht.</span><span lang="en">A key for the second time – typical on the second run of a script that does not delete the file first.</span></td>
+            <td><span lang="de">Datei vorher löschen, <code>INSERT OR IGNORE</code>, oder UPSERT mit <code>ON CONFLICT … DO UPDATE</code>.</span><span lang="en">Delete the file first, <code>INSERT OR IGNORE</code>, or UPSERT with <code>ON CONFLICT … DO UPDATE</code>.</span></td>
+          </tr>
+          <tr>
+            <td><code>Incorrect number of bindings supplied. The current statement uses 1, and there are 4 supplied.</code></td>
+            <td><span lang="de">Nur Python: Der Parameter kam als String <code>"1975"</code> statt als Tupel – vier Zeichen, vier Werte. Mit einer Zahl statt eines Strings: <code>parameters are of unsupported type</code>.</span><span lang="en">Python only: the parameter came as the string <code>"1975"</code> instead of a tuple – four characters, four values. With a number instead of a string: <code>parameters are of unsupported type</code>.</span></td>
+            <td><span lang="de"><code>(1975,)</code> – das Komma macht das Tupel. Oder benannt: <code>{"jahr": 1975}</code> mit <code>:jahr</code>.</span><span lang="en"><code>(1975,)</code> – the comma makes the tuple. Or named: <code>{"jahr": 1975}</code> with <code>:jahr</code>.</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="challenge-box">
+      <h3><span lang="de">Drei Gewohnheiten, die eine Datei retten</span><span lang="en">Three habits that save a file</span></h3>
+      <ol>
+        <li><span lang="de"><strong>Ein Programm schreibt, alle anderen sind zu.</strong> Vor dem Skript DB Browser schließen oder <em>Write Changes</em> klicken; im Notebook <code>con.close()</code> am Ende jeder Zelle, die schreibt.</span><span lang="en"><strong>One program writes, all others are closed.</strong> Before the script, close DB Browser or click <em>Write Changes</em>; in the notebook <code>con.close()</code> at the end of every cell that writes.</span></li>
+        <li><span lang="de"><strong>Die Datei liegt lokal.</strong> Nicht im OneDrive-Ordner bearbeiten, nicht auf einem Netzlaufwerk teilen. Zum Weitergeben kopieren – dafür ist eine Datei da.</span><span lang="en"><strong>The file sits locally.</strong> Do not edit it in the OneDrive folder, do not share it on a network drive. Copy it to pass it on – that is what a file is for.</span></li>
+        <li><span lang="de"><strong>Nach jedem Import <code>typeof()</code>.</strong> Eine Spalte, in der <code>text</code> steht, wo <code>integer</code> stehen sollte, kostet später eine Stunde – und liefert bis dahin falsche Summen ohne Fehlermeldung.</span><span lang="en"><strong>After every import, <code>typeof()</code>.</strong> A column showing <code>text</code> where <code>integer</code> should be costs an hour later – and until then yields wrong sums without an error message.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section-block" id="spielplatz">
+    <h2><span lang="de">Spielplatz</span><span lang="en">Playground</span></h2>
+    <p>
+      <span lang="de">Die Datenbank dieser Seite ist ein vollständiges SQLite 3.49.1 mit dem Bestand von Velo City:
+        Stationen, Räder, Kundschaft und 1.500 Fahrten – dieselben Tabellen wie in Lab 08, nur mit den Typen aus
+        <code>velocity.sqlite.sql</code>. Was Sie hier schreiben, wirkt nur in diesem Fenster; der Knopf
+        <em>Datenbank zurücksetzen</em> im Statusband oben stellt den Ausgangsbestand wieder her. Die Startabfrage
+        zeigt, was das Typsystem mit einem Datum macht.</span>
+      <span lang="en">This page's database is a complete SQLite 3.49.1 with the Velo City data: stations, bikes,
+        customers and 1,500 rides – the same tables as in lab 08, only with the types from
+        <code>velocity.sqlite.sql</code>. What you write here has effect only in this window; the <em>reset
+        database</em> button in the status band above restores the initial state. The starting query shows what the
+        type system does with a date.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Tabelle</span><span lang="en">Table</span></th>
+            <th><span lang="de">Spalten</span><span lang="en">Columns</span></th>
+            <th><span lang="de">Zeilen</span><span lang="en">Rows</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>station</code></td><td><code>station_id · name · bezirk · plaetze · eroeffnet</code> <span lang="de">(TEXT)</span><span lang="en">(TEXT)</span></td><td>10</td></tr>
+          <tr><td><code>rad</code></td><td><code>rad_id · typ · baujahr · heimstation · status</code></td><td>60</td></tr>
+          <tr><td><code>kunde</code></td><td><code>kunde_id · tarif · registriert · bezirk</code></td><td>200</td></tr>
+          <tr><td><code>fahrt</code></td><td><code>fahrt_id · rad_id · kunde_id · start_station · ziel_station · start_zeit</code> <span lang="de">(TEXT)</span><span lang="en">(TEXT)</span> <code>· dauer_min · preis_eur</code> <span lang="de">(REAL)</span><span lang="en">(REAL)</span></td><td>1.500</td></tr>
+          <tr><td><code>fahrt_mit_typ</code></td><td><span lang="de">Sicht: <code>fahrt</code> mit <code>rad_typ</code>, <code>start_name</code>, <code>ziel_name</code></span><span lang="en">View: <code>fahrt</code> with <code>rad_typ</code>, <code>start_name</code>, <code>ziel_name</code></span></td><td>1.500</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <p><span lang="de">Dot-Commands wie <code>.tables</code> oder <code>.schema</code> gibt es nur im Programm
+        <code>sqlite3</code>, nicht in SQL – hier antworten sie mit <code>near ".": syntax error</code>. Der SQL-Weg,
+        der überall funktioniert: <code>SELECT name FROM sqlite_master WHERE type = 'table';</code> für die Tabellen
+        und <code>SELECT sql FROM sqlite_master WHERE name = 'fahrt';</code> für den CREATE-Text.</span>
+      <span lang="en">Dot-commands such as <code>.tables</code> or <code>.schema</code> exist only in the
+        <code>sqlite3</code> program, not in SQL – here they answer with <code>near ".": syntax error</code>. The SQL
+        route that works everywhere: <code>SELECT name FROM sqlite_master WHERE type = 'table';</code> for the tables and
+        <code>SELECT sql FROM sqlite_master WHERE name = 'fahrt';</code> for the CREATE text.</span></p>
+    </div>
+    <div data-sql-konsole data-start="SELECT name, typeof(eroeffnet), eroeffnet FROM station LIMIT 3;"></div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: vier SQL-Aufgaben in der Datenbank dieser Seite – Aggregation, Datum als Text,
+        eine STRICT-Tabelle, JSON in Spalten –, ein Quiz zu Typen und Sperren und eine Zuordnung von Fehlermeldungen
+        zu ihren Ursachen.</span>
+      <span lang="en">Six exercises: four SQL tasks in this page's database – aggregation, date as text, a STRICT
+        table, JSON into columns –, a quiz on types and locks and a matching exercise on error messages and their
+        causes.</span>
+    </p>
+    <div data-uebung="W06-01"></div>
+    <div data-uebung="W06-02"></div>
+    <div data-uebung="W06-03"></div>
+    <div data-uebung="W06-04"></div>
+    <div data-uebung="W06-05"></div>
+    <div data-uebung="W06-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">SQLite ist eine Bibliothek, kein Server: eine Datei ist eine Datenbank, geöffnet über ihren Pfad, ohne Dienst, Port oder Passwort. Public Domain, in jedem Telefon, Browser und in Python enthalten.</span><span lang="en">SQLite is a library, not a server: one file is one database, opened via its path, without service, port or password. Public domain, contained in every phone, browser and in Python.</span></li>
+      <li><span lang="de">Zu jedem Zeitpunkt schreibt genau ein Prozess. <code>database is locked</code> heißt: Ein anderes Programm – DB Browser ohne <em>Write Changes</em>, ein Notebook ohne <code>commit()</code> – hält die Datei. Netzlaufwerke und OneDrive sind kein Ort für eine gemeinsam genutzte Datei.</span><span lang="en">At any instant exactly one process writes. <code>database is locked</code> means: another program – DB Browser without <em>Write Changes</em>, a notebook without <code>commit()</code> – holds the file. Network drives and OneDrive are no place for a shared file.</span></li>
+      <li><span lang="de">Der Typ hängt am Wert, nicht an der Spalte: <code>'abc'</code> passt in eine INTEGER-Spalte, <code>NUMERIC(6,2)</code> ist ein REAL, ein Datum ist ISO-Text. <code>STRICT</code> hinter der Klammer macht daraus Prüfungen; Geld gehört in Cent als INTEGER.</span><span lang="en">The type belongs to the value, not the column: <code>'abc'</code> fits into an INTEGER column, <code>NUMERIC(6,2)</code> is a REAL, a date is ISO text. <code>STRICT</code> after the parenthesis turns that into checks; money belongs in cents as INTEGER.</span></li>
+      <li><span lang="de">Fremdschlüssel gelten nur mit <code>PRAGMA foreign_keys = ON</code> – je Verbindung, nach jedem <code>connect()</code>. Parameter kommen als Tupel <code>(1975,)</code>, und <code>with con:</code> schließt die Transaktion ab, nicht die Verbindung.</span><span lang="en">Foreign keys apply only with <code>PRAGMA foreign_keys = ON</code> – per connection, after every <code>connect()</code>. Parameters come as a tuple <code>(1975,)</code>, and <code>with con:</code> closes the transaction, not the connection.</span></li>
+      <li><span lang="de">Nach jedem CSV-Import <code>typeof()</code> prüfen: Legt <code>.import</code> die Tabelle an, ist alles TEXT. Tabelle zuerst mit Typen anlegen, dann <code>--skip 1</code> für die Kopfzeile.</span><span lang="en">After every CSV import check with <code>typeof()</code>: if <code>.import</code> creates the table, everything is TEXT. Create the table with types first, then <code>--skip 1</code> for the header.</span></li>
+      <li><span lang="de">JSON ist ein TEXT-Wert, in den <code>-&gt;&gt;</code>, <code>json_extract()</code> und <code>json_each()</code> hineingreifen – die Rohtabelle mit einem Dokument je Zeile ist ELT im Kleinen und der Anschluss an Lab 05 und Lab 10.</span><span lang="en">JSON is a TEXT value that <code>-&gt;&gt;</code>, <code>json_extract()</code> and <code>json_each()</code> reach into – the raw table with one document per row is ELT in miniature and the link to labs 05 and 10.</span></li>
+      <li><span lang="de">Die Grenze ist klar: viele Schreiber, Rechte, Netz. Ab da PostgreSQL – im Container (Lab 07), gehostet (Lab 08), in DataGrip (Lab 09). SQLite bleibt der Staging-Bereich auf dem Laptop (Lab 10) und ist auf einem Free Web Service (Lab 11) nach jedem Redeploy weg.</span><span lang="en">The limit is clear: many writers, permissions, network. From there PostgreSQL – in a container (lab 07), hosted (lab 08), in DataGrip (lab 09). SQLite remains the staging area on the laptop (lab 10) and is gone after every redeploy on a free web service (lab 11).</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 06 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 06 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

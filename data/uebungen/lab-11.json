@@ -1,0 +1,306 @@
+{
+  "repo": {
+    "name": "velocity-api",
+    "url": "https://github.com/studi/velocity-api",
+    "liest": ["DATABASE_URL"],
+    "dateien": {
+      "main.py": "\"\"\"velocity-api – Kennzahlen der Fallstudie Velo City als JSON.\"\"\"\nimport os\n\nimport psycopg\nfrom fastapi import FastAPI, Query\n\nDATENBANK = os.environ[\"DATABASE_URL\"]  # bewusst ohne Default\n\napp = FastAPI(title=\"velocity-api\", version=\"1.0\")\n\n\ndef abfrage(sql: str, parameter: tuple = ()) -> list[dict]:\n    \"\"\"Je Zeile ein dict (Spaltenname -> Wert).\"\"\"\n    with psycopg.connect(DATENBANK) as verbindung:\n        with verbindung.cursor() as cursor:\n            cursor.execute(sql, parameter)\n            spalten = [s.name for s in cursor.description]\n            return [dict(zip(spalten, zeile)) for zeile in cursor.fetchall()]\n\n\n@app.get(\"/\")\ndef status() -> dict:\n    \"\"\"Health Check Path – antwortet ohne Datenbankzugriff.\"\"\"\n    return {\"dienst\": \"velocity-api\", \"status\": \"ok\"}\n\n\n@app.get(\"/stationen\")\ndef stationen() -> list[dict]:\n    return abfrage(\n        \"SELECT station_id, name, bezirk, plaetze, eroeffnet \"\n        \"FROM station ORDER BY station_id\"\n    )\n\n\n@app.get(\"/fahrten\")\ndef fahrten(limit: int = Query(20, ge=1, le=200)) -> list[dict]:\n    return abfrage(\n        \"SELECT fahrt_id, rad_id, rad_typ, start_name, ziel_name, \"\n        \"       start_zeit, dauer_min, preis_eur \"\n        \"FROM fahrt_mit_typ ORDER BY start_zeit DESC LIMIT %s\",\n        (limit,),\n    )\n\n\n@app.get(\"/kennzahlen\")\ndef kennzahlen() -> list[dict]:\n    return abfrage(\n        \"SELECT rad_typ, count(*) AS fahrten, sum(preis_eur) AS umsatz \"\n        \"FROM fahrt_mit_typ GROUP BY rad_typ ORDER BY umsatz DESC\"\n    )\n\n\n# Start: uvicorn main:app --host 0.0.0.0 --port $PORT\n# (nie „python main.py“ – das definiert nur die App und endet sofort)\n",
+      "requirements.txt": "fastapi>=0.115,<1\nuvicorn[standard]>=0.30,<1\npsycopg[binary]>=3.2,<4\n",
+      "render.yaml": "services:\n  - type: web\n    name: velocity-api\n    runtime: python\n    plan: free\n    region: frankfurt\n    branch: main\n    buildCommand: pip install -r requirements.txt\n    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT\n    healthCheckPath: /\n    autoDeployTrigger: commit\n    envVars:\n      - key: PYTHON_VERSION\n        value: 3.13.5\n      - key: DATABASE_URL\n        sync: false\n",
+      "Dockerfile": "FROM python:3.13-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 10000\nCMD [\"sh\", \"-c\", \"uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}\"]\n",
+      ".gitignore": "# Geheimnisse und Lokales bleiben draußen (Lab 02)\n.env\n.venv/\n__pycache__/\n*.sqlite\n",
+      "README.md": "# velocity-api\n\nKennzahlen der Fallstudie Velo City als JSON (FastAPI, PostgreSQL bei Supabase).\n\n## Lokal\n\n    python -m venv .venv && source .venv/bin/activate\n    pip install -r requirements.txt\n    cp .env.beispiel .env        # DATABASE_URL eintragen\n    uvicorn main:app --reload --env-file .env\n\n## Endpunkte\n\n| Pfad          | Antwort                          |\n|---------------|----------------------------------|\n| /             | Status                           |\n| /stationen    | alle Stationen                   |\n| /fahrten      | jüngste Fahrten, ?limit=20       |\n| /kennzahlen   | Fahrten und Umsatz je Radtyp     |\n\n## Render\n\nBuild Command  `pip install -r requirements.txt`\nStart Command  `uvicorn main:app --host 0.0.0.0 --port $PORT`\nEnvironment    `DATABASE_URL`, `PYTHON_VERSION=3.13.5`\n"
+    }
+  },
+  "spielplaetze": {
+    "frei": {
+      "startEingaben": { "runtime": "python", "rootDir": "", "build": "", "start": "", "env": [] }
+    }
+  },
+  "befehle": {
+    "B01": {
+      "titel": { "de": "main.py – der Dienst, der deployt wird (Auszug)", "en": "main.py – the service being deployed (excerpt)" },
+      "prompt": "📄",
+      "befehl": "import os\nimport psycopg\nfrom fastapi import FastAPI, Query\n\nDATENBANK = os.environ[\"DATABASE_URL\"]      # bewusst ohne Default\napp = FastAPI(title=\"velocity-api\")\n\ndef abfrage(sql, parameter=()):\n    with psycopg.connect(DATENBANK) as verbindung:\n        with verbindung.cursor() as cursor:\n            cursor.execute(sql, parameter)\n            spalten = [s.name for s in cursor.description]\n            return [dict(zip(spalten, z)) for z in cursor.fetchall()]\n\n@app.get(\"/\")                                 # Health Check Path\ndef status():\n    return {\"dienst\": \"velocity-api\", \"status\": \"ok\"}\n\n@app.get(\"/kennzahlen\")\ndef kennzahlen():\n    return abfrage(\"SELECT rad_typ, count(*) AS fahrten, sum(preis_eur) AS umsatz \"\n                   \"FROM fahrt_mit_typ GROUP BY rad_typ ORDER BY umsatz DESC\")",
+      "teile": [
+        { "was": "os.environ[\"DATABASE_URL\"]", "bedeutet": { "de": "Liest die Verbindungszeichenkette aus der Umgebung – nie aus dem Quelltext (Lab 02, Lab 08). Mit eckigen Klammern statt .get(): Fehlt die Variable, bricht der Start mit KeyError ab, und der Fehler steht im Protokoll genau dort, wo er entstanden ist. Ein Default würde ihn verstecken.", "en": "Reads the connection string from the environment – never from source code (labs 02 and 08). With square brackets instead of .get(): if the variable is missing, the start aborts with KeyError, and the error sits in the log exactly where it arose. A default would hide it." } },
+        { "was": "psycopg.connect(…)", "bedeutet": { "de": "psycopg 3, der PostgreSQL-Treiber. Die Zeichenkette ist die des Session Poolers aus dem Connect-Dialog von Supabase: Port 5432, Benutzer postgres.[REF], am Ende ?sslmode=require. Je Anfrage eine Verbindung – für einen Free-Dienst mit wenigen Aufrufen ausreichend.", "en": "psycopg 3, the PostgreSQL driver. The string is the session pooler's from Supabase's Connect dialogue: port 5432, user postgres.[REF], ?sslmode=require at the end. One connection per request – sufficient for a free service with few calls." } },
+        { "was": "@app.get(\"/\")", "bedeutet": { "de": "Der Wurzelpfad antwortet ohne Datenbankzugriff – deshalb eignet er sich als Health Check Path: Render prüft ihn nach jedem Deploy und lenkt erst dann Verkehr auf die neue Instanz, wenn er 2xx liefert.", "en": "The root path answers without touching the database – which is why it suits as the health check path: Render probes it after every deploy and only routes traffic to the new instance once it returns 2xx." } },
+        { "was": "list[dict] → JSON", "bedeutet": { "de": "FastAPI wandelt Listen und Wörterbücher selbst in JSON um – auch Decimal (Umsatz) und Datumswerte. Die Struktur ist dieselbe wie im Export aus Lab 05: ein Objekt je Zeile, Schlüssel = Spaltenname.", "en": "FastAPI turns lists and dictionaries into JSON by itself – Decimal (revenue) and date values included. The structure is the same as the export in lab 05: one object per row, key = column name." } },
+        { "was": "Query(20, ge=1, le=200)", "bedeutet": { "de": "In /fahrten?limit=… der Abfrageparameter mit Vorgabe und Grenzen. Außerhalb von 1–200 antwortet FastAPI mit 422 und einer Fehlerbeschreibung – die Validierung kommt aus der Typangabe, nicht aus eigenem Code.", "en": "In /fahrten?limit=… the query parameter with default and bounds. Outside 1–200 FastAPI answers 422 with an error description – the validation comes from the type annotation, not from your own code." } }
+      ]
+    },
+    "B02": {
+      "titel": { "de": "requirements.txt – was Render installiert", "en": "requirements.txt – what Render installs" },
+      "prompt": "📄",
+      "befehl": "fastapi>=0.115,<1\nuvicorn[standard]>=0.30,<1\npsycopg[binary]>=3.2,<4",
+      "teile": [
+        { "was": "fastapi", "bedeutet": { "de": "Der Web-Rahmen: Routen, Validierung, JSON-Antworten. Er startet keinen Server – dafür braucht es Uvicorn.", "en": "The web framework: routes, validation, JSON responses. It starts no server – that takes Uvicorn." } },
+        { "was": "uvicorn[standard]", "bedeutet": { "de": "Der Server, der die App ausführt und den Port öffnet. Er ist der Start Command bei Render. Der Zusatz [standard] bringt schnellere Bausteine mit, unter anderem für die Änderungsüberwachung von --reload.", "en": "The server that runs the app and opens the port. It is the start command on Render. The [standard] extra adds faster building blocks, among them the file watcher behind --reload." } },
+        { "was": "psycopg[binary]", "bedeutet": { "de": "Der PostgreSQL-Treiber in Version 3. [binary] liefert die C-Bibliothek libpq fertig mit – ohne diesen Zusatz müsste sie auf dem Build-Rechner von Render vorhanden sein, und das ist sie nicht immer.", "en": "The PostgreSQL driver, version 3. [binary] ships the C library libpq ready-made – without that extra it would have to exist on Render's build machine, and it does not always." } },
+        { "was": ">=…,<…", "bedeutet": { "de": "Unter- und Obergrenze wie in Lab 03. Render installiert bei jedem Build neu; ohne Obergrenze scheitert ein Deploy an dem Tag, an dem ein Paket eine neue Hauptversion bekommt – ohne dass sich am eigenen Code etwas geändert hat. pip freeze > requirements.txt friert die lokal getesteten Versionen exakt ein.", "en": "Lower and upper bound as in lab 03. Render installs afresh on every build; without an upper bound a deploy fails on the day a package gets a new major version – with nothing changed in your own code. pip freeze > requirements.txt pins the locally tested versions exactly." } }
+      ]
+    },
+    "B03": {
+      "titel": { "de": "Lokal starten – mit derselben Regel wie draußen", "en": "Run locally – by the same rule as outside" },
+      "befehl": "python -m venv .venv && source .venv/bin/activate     # Windows: .venv\\Scripts\\activate\npip install -r requirements.txt\n\n# .env anlegen (steht in .gitignore):\n#   DATABASE_URL=postgresql://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require\n\nuvicorn main:app --reload --env-file .env\n#   -> Uvicorn running on http://127.0.0.1:8000\n\ncurl http://127.0.0.1:8000/kennzahlen\n\n# So, wie Render es startet – PORT von Hand setzen:\nPORT=10000 uvicorn main:app --host 0.0.0.0 --port $PORT",
+      "teile": [
+        { "was": "--env-file .env", "bedeutet": { "de": "Uvicorn liest die Datei und setzt die Variablen, bevor main.py läuft. Ohne diese Angabe ist DATABASE_URL leer, und der Start endet mit KeyError – lokal genau derselbe Fehler wie bei Render ohne Environment Variable.", "en": "Uvicorn reads the file and sets the variables before main.py runs. Without it DATABASE_URL is empty and the start ends with KeyError – locally exactly the same error as on Render without an environment variable." } },
+        { "was": "--reload", "bedeutet": { "de": "Startet den Server bei jeder Änderung an einer .py-Datei neu. Nur für die Entwicklung – im Start Command bei Render hat es nichts verloren.", "en": "Restarts the server on every change to a .py file. Development only – it does not belong in the start command on Render." } },
+        { "was": "127.0.0.1:8000", "bedeutet": { "de": "Die Voreinstellung von Uvicorn: nur vom eigenen Rechner erreichbar, Port 8000. Lokal richtig, bei Render falsch – dort muss es 0.0.0.0 und $PORT sein. Die letzte Zeile probt genau diesen Aufruf.", "en": "Uvicorn's default: reachable from your own machine only, port 8000. Right locally, wrong on Render – there it has to be 0.0.0.0 and $PORT. The last line rehearses exactly that call." } },
+        { "was": "PORT=10000 …", "bedeutet": { "de": "Setzt die Variable nur für diesen einen Befehl (Unix-Shells). In PowerShell: $env:PORT=10000, dann der Befehl in einer eigenen Zeile. 10000 ist der Standardwert, den Render vergibt.", "en": "Sets the variable for this one command only (Unix shells). In PowerShell: $env:PORT=10000, then the command on its own line. 10000 is the default value Render assigns." } }
+      ]
+    },
+    "B04": {
+      "titel": { "de": "Klickweg: den Web Service anlegen", "en": "Click path: create the web service" },
+      "prompt": "🖱",
+      "befehl": "dashboard.render.com → + New → Web Service\n  Source Code: Git Provider → GitHub → velocity-api → Connect\n  Name             velocity-api\n  Language         Python 3\n  Branch           main\n  Region           Frankfurt (EU Central)\n  Root Directory   (leer – oder api bei einem Monorepo)\n  Build Command    pip install -r requirements.txt\n  Start Command    uvicorn main:app --host 0.0.0.0 --port $PORT\n  Instance Type    Free\n  Environment Variables\n     DATABASE_URL     postgresql://…?sslmode=require\n     PYTHON_VERSION   3.13.5\n→ Deploy Web Service",
+      "teile": [
+        { "was": "Git Provider → GitHub", "bedeutet": { "de": "Beim ersten Mal installiert Render seine GitHub-App. Im Dialog „Repository access“ nur die Repositories freigeben, die deployt werden sollen – nicht „All repositories“. Zugriff nachträglich unter Account Settings → Git Deployment Credentials.", "en": "The first time, Render installs its GitHub app. In the “Repository access” dialogue grant only the repositories to be deployed – not “All repositories”. Access can be changed later under Account Settings → Git Deployment Credentials." } },
+        { "was": "Region", "bedeutet": { "de": "Die Voreinstellung ist Oregon. Frankfurt ist bei der Anlage zu wählen – die Region eines bestehenden Service lässt sich nicht ändern; der Weg zurück ist Löschen und Neuanlegen.", "en": "The default is Oregon. Frankfurt has to be chosen at creation – an existing service's region cannot be changed; the way back is delete and recreate." } },
+        { "was": "Root Directory", "bedeutet": { "de": "Der Ordner im Repository, in dem Render baut und startet. Leer = Wurzel. Liegt der Dienst in einem Unterordner (api/), gehört der hierher – Dateien außerhalb sieht der Service weder beim Build noch zur Laufzeit.", "en": "The folder inside the repository Render builds and starts in. Empty = root. If the service lives in a subfolder (api/), that goes here – files outside it are invisible to the service at build time and at runtime." } },
+        { "was": "Instance Type · Free", "bedeutet": { "de": "0.1 CPU, 512 MB, Spin-down nach 15 Minuten ohne Verkehr. Der Abschnitt heißt in der Dokumentation „Compute“, im Formular je nach Stand „Instance Type“ (Stand 09/2026). Kein Zahlungsmittel nötig.", "en": "0.1 CPU, 512 MB, spin-down after 15 minutes without traffic. The documentation calls the section “Compute”, the form – depending on its state – “Instance Type” (as of 09/2026). No payment method needed." } },
+        { "was": "Environment Variables", "bedeutet": { "de": "Hier landet, was lokal in .env stand. Der Wert von DATABASE_URL wird nach dem Speichern verdeckt angezeigt. Auch später erreichbar über Service → Environment → + Add Environment Variable; „Add from .env“ übernimmt eine ganze Datei.", "en": "This is where what sat in .env locally goes. The value of DATABASE_URL is masked after saving. Also reachable later via Service → Environment → + Add Environment Variable; “Add from .env” imports a whole file." } },
+        { "was": "Deploy Web Service", "bedeutet": { "de": "Der Knopf am Ende des Formulars (in der Dokumentation kurz „Deploy“). Danach öffnet sich das Protokoll – und genau das ist der Abschnitt, der als Nächstes kommt.", "en": "The button at the bottom of the form (the documentation just says “Deploy”). Then the log opens – and that is exactly the section coming next." } }
+      ]
+    },
+    "B05": {
+      "titel": { "de": "Klickweg: nach dem ersten Deploy", "en": "Click path: after the first deploy" },
+      "prompt": "🖱",
+      "befehl": "Service → Settings → Build & Deploy\n  Auto-Deploy        On Commit  |  After CI Checks Pass  |  Off\n  Health Check Path  /\n  Custom Domains     + Add Custom Domain → Verify\n\nService → Manual Deploy ▾\n  Deploy latest commit\n  Deploy a specific commit\n  Clear build cache & deploy\n  Restart service\n\nService → Logs          # Build und Laufzeit, 7 Tage im Hobby-Workspace\nService → Environment   # Variablen ändern → Save, rebuild, and deploy\n\ngit commit -m \"README ergänzt [skip render]\"   # Push ohne Deploy",
+      "teile": [
+        { "was": "Auto-Deploy: On Commit", "bedeutet": { "de": "Die Voreinstellung: Jeder Push auf den verbundenen Branch löst Build und Start aus. „After CI Checks Pass“ wartet auf grüne GitHub-Checks (Lab 02), „Off“ überlässt alles dem Manual Deploy.", "en": "The default: every push to the linked branch triggers build and start. “After CI Checks Pass” waits for green GitHub checks (lab 02), “Off” leaves everything to manual deploys." } },
+        { "was": "[skip render]", "bedeutet": { "de": "In der Commit-Nachricht: Dieser Push löst keinen Deploy aus. Für Änderungen an README oder Notebooks, die den Dienst nicht berühren – schont die 500 Build-Minuten des Hobby-Workspace. Gleichbedeutend: [render skip], [skip deploy].", "en": "In the commit message: this push triggers no deploy. For changes to README or notebooks that do not touch the service – saves the Hobby workspace's 500 build minutes. Equivalent: [render skip], [skip deploy]." } },
+        { "was": "Clear build cache & deploy", "bedeutet": { "de": "Der zweite Griff, wenn ein Deploy nach einer Änderung an requirements.txt oder PYTHON_VERSION merkwürdig scheitert: Render baut dann ohne die zwischengespeicherten Pakete neu.", "en": "The second thing to reach for when a deploy fails oddly after a change to requirements.txt or PYTHON_VERSION: Render then rebuilds without the cached packages." } },
+        { "was": "Health Check Path", "bedeutet": { "de": "Ein Pfad, der mit / beginnt und 2xx oder 3xx innerhalb von fünf Sekunden liefert. Render lenkt Verkehr erst auf die neue Instanz, wenn er antwortet; antwortet er 15 Minuten nicht, wird der Deploy abgebrochen – die alte Instanz läuft weiter.", "en": "A path starting with / that returns 2xx or 3xx within five seconds. Render routes traffic to the new instance only once it answers; if it does not for 15 minutes the deploy is cancelled – the old instance keeps running." } },
+        { "was": "Save, rebuild, and deploy", "bedeutet": { "de": "Eine geänderte Environment Variable wirkt erst nach einem neuen Deploy – der Prozess muss neu starten, um sie zu lesen. „Save only“ speichert, ohne zu deployen.", "en": "A changed environment variable takes effect only after a new deploy – the process has to restart to read it. “Save only” saves without deploying." } }
+      ]
+    },
+    "B06": {
+      "titel": { "de": "render.yaml – das Formular als Datei", "en": "render.yaml – the form as a file" },
+      "prompt": "📄",
+      "befehl": "services:\n  - type: web\n    name: velocity-api\n    runtime: python\n    plan: free\n    region: frankfurt\n    branch: main\n    buildCommand: pip install -r requirements.txt\n    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT\n    healthCheckPath: /\n    autoDeployTrigger: commit\n    envVars:\n      - key: PYTHON_VERSION\n        value: 3.13.5\n      - key: DATABASE_URL\n        sync: false          # Wert wird beim Anlegen im Dashboard abgefragt",
+      "teile": [
+        { "was": "type: web · runtime: python · plan: free", "bedeutet": { "de": "Service-Typ, Laufzeit und Compute-Plan – die drei Auswahlfelder des Formulars. Weitere Typen: pserv, worker, cron, keyvalue; Static Site = type web mit runtime static. Compute-Pläne heißen seit 08/2026 free, 0.5c-512mb, 1c-2g … (vorher Free, Starter, Standard).", "en": "Service type, runtime and compute plan – the form's three select fields. Other types: pserv, worker, cron, keyvalue; static site = type web with runtime static. Compute plans have been named free, 0.5c-512mb, 1c-2g … since 08/2026 (previously Free, Starter, Standard)." } },
+        { "was": "region: frankfurt", "bedeutet": { "de": "Ohne diese Zeile: oregon. Gültige Werte: oregon, ohio, virginia, frankfurt, singapore. Auch per Blueprint gilt: nachträglich nicht änderbar.", "en": "Without this line: oregon. Valid values: oregon, ohio, virginia, frankfurt, singapore. Via blueprint too: not changeable afterwards." } },
+        { "was": "sync: false", "bedeutet": { "de": "Die Variable wird angelegt, aber ihr Wert steht nicht in der Datei – Render fragt ihn beim Einlesen des Blueprints im Dashboard ab. So bleibt das Datenbankpasswort aus dem Repository (Lab 02). Alternative für Render-Postgres: fromDatabase mit name und property: connectionString.", "en": "The variable is created, but its value is not in the file – Render prompts for it in the dashboard when reading the blueprint. That keeps the database password out of the repository (lab 02). Alternative for Render Postgres: fromDatabase with name and property: connectionString." } },
+        { "was": "autoDeployTrigger", "bedeutet": { "de": "commit, checksPass oder off – das Feld Auto-Deploy aus dem Dashboard. Ältere Beispiele schreiben autoDeploy: false; das ist die frühere Schreibweise.", "en": "commit, checksPass or off – the Auto-Deploy field from the dashboard. Older examples write autoDeploy: false; that is the earlier notation." } },
+        { "was": "+ New → Blueprint", "bedeutet": { "de": "So wird die Datei eingelesen: Repository verbinden, Render zeigt die beschriebenen Ressourcen, fragt die sync: false-Werte ab und legt alles an. Auto Sync: Ein Push, der render.yaml ändert, passt die Dienste an – und löscht nie eine bestehende Ressource.", "en": "This is how the file is read in: connect the repository, Render shows the described resources, prompts for the sync: false values and creates everything. Auto Sync: a push changing render.yaml adjusts the services – and never deletes an existing resource." } }
+      ]
+    },
+    "B07": {
+      "titel": { "de": "Dockerfile – dieselbe Port-Regel, anderer Weg", "en": "Dockerfile – the same port rule, a different route" },
+      "prompt": "📄",
+      "befehl": "FROM python:3.13-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 10000\nCMD [\"sh\", \"-c\", \"uvicorn main:app --host 0.0.0.0 --port ${PORT:-10000}\"]",
+      "teile": [
+        { "was": "Language: Docker", "bedeutet": { "de": "Im Formular verschwinden Build Command und Start Command: Render baut das Image aus dem Dockerfile und startet, was in CMD steht. Optional: Dockerfile Path, wenn die Datei nicht im Root Directory liegt, und Docker Command, um CMD zu überschreiben.", "en": "In the form, build command and start command disappear: Render builds the image from the Dockerfile and starts what CMD says. Optional: Dockerfile Path if the file is not in the root directory, and Docker Command to override CMD." } },
+        { "was": "sh -c \"… ${PORT:-10000}\"", "bedeutet": { "de": "Die Port-Regel gilt in Docker unverändert. Die Shell-Form ist nötig, damit ${PORT} eingesetzt wird – in der reinen Exec-Form [\"uvicorn\", …, \"$PORT\"] bliebe $PORT ein wörtlicher Text. :-10000 nimmt 10000, wenn die Variable fehlt, etwa lokal mit docker run -p 10000:10000.", "en": "The port rule applies unchanged in Docker. The shell form is needed so ${PORT} gets substituted – in the plain exec form [\"uvicorn\", …, \"$PORT\"] $PORT would stay literal text. :-10000 takes 10000 when the variable is absent, e.g. locally with docker run -p 10000:10000." } },
+        { "was": "EXPOSE", "bedeutet": { "de": "Dokumentiert nur. Render liest EXPOSE nicht; entscheidend ist, dass der Prozess an 0.0.0.0:$PORT hört. Ein Dockerfile ohne CMD oder ENTRYPOINT lässt den Deploy endlos hängen.", "en": "Documentation only. Render does not read EXPOSE; what matters is that the process listens on 0.0.0.0:$PORT. A Dockerfile without CMD or ENTRYPOINT leaves the deploy hanging indefinitely." } },
+        { "was": "Environment Variables → Build Args", "bedeutet": { "de": "Bei Docker reicht Render jede Environment Variable zusätzlich als Build-Argument in den Bau. Ein Geheimnis, das im Dockerfile per ARG oder ENV verwendet wird, landet in einer Schicht des Images (Lab 07: docker history). Geheimnisse nur zur Laufzeit lesen – wie main.py es tut.", "en": "With Docker, Render additionally passes every environment variable into the build as a build argument. A secret used in the Dockerfile via ARG or ENV ends up in an image layer (lab 07: docker history). Read secrets at runtime only – as main.py does." } }
+      ]
+    },
+    "B08": {
+      "titel": { "de": "Python-Version festnageln – zwei Wege", "en": "Pin the Python version – two routes" },
+      "prompt": "📄",
+      "befehl": "# Weg 1 – Environment Variable im Dashboard oder in render.yaml (vollständig):\nPYTHON_VERSION=3.13.5\n\n# Weg 2 – Datei .python-version im Root Directory (Nebenversion genügt):\n3.13\n\n# Vorrang: Variable vor Datei. Ohne beides (Stand 09/2026): Python 3.14.x\n# für alle Services, die seit dem 11.02.2026 angelegt wurden.",
+      "teile": [
+        { "was": "3.13.5 vollständig", "bedeutet": { "de": "Die Variable verlangt major.minor.patch; „3.13“ allein wird nicht angenommen. Welcher Patch-Stand aktuell ist, sagt python.org – lokal python --version.", "en": "The variable demands major.minor.patch; “3.13” alone is not accepted. python.org says which patch level is current – locally python --version." } },
+        { "was": ".python-version", "bedeutet": { "de": "Eine Datei mit einer Zeile, die auch pyenv und uv lesen. Hier genügt 3.13; Render ergänzt den Patch-Stand. Nur der Inhalt gehört in die Datei – keine Kommentare.", "en": "A one-line file that pyenv and uv read as well. Here 3.13 is enough; Render fills in the patch level. Only the content belongs in the file – no comments." } },
+        { "was": "3.14 als Default", "bedeutet": { "de": "Warum das wichtig ist: Ein Paket, das für 3.14 noch keine fertigen Wheels hat, muss beim Build aus dem Quelltext übersetzt werden – und das scheitert auf dem Build-Rechner mit Meldungen, die nach allem Möglichen aussehen, nur nicht nach einer Versionsfrage. Regel: dieselbe Version wie lokal.", "en": "Why it matters: a package without ready-made wheels for 3.14 has to be compiled from source during the build – and that fails on the build machine with messages that look like anything but a version question. Rule: the same version as locally." } }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W11-01",
+      "typ": "deploy",
+      "titel": { "de": "Der erste Deploy", "en": "The first deploy" },
+      "aufgabe": {
+        "de": "<p>Das Repository <code>velocity-api</code> liegt auf GitHub, das Formular ist halb ausgefüllt – so, wie es im Kurs regelmäßig abgeschickt wird. Deployen Sie <strong>viermal</strong> und lesen Sie jedes Mal das Protokoll bis zur letzten Zeile, bevor Sie etwas ändern:</p><ol><li>So, wie es ist. Der Build gelingt, der Start endet mit <code>KeyError: 'DATABASE_URL'</code> – die <code>.env</code>-Datei liegt nicht im Repository. Legen Sie die Environment Variable <code>DATABASE_URL</code> an (ein beliebiger, nicht leerer Wert genügt der Nachbildung).</li><li>Erneut mit <code>python main.py</code>. Das Skript läuft durch und endet – ein Web Service muss einen Port öffnen und laufen bleiben.</li><li>Mit <code>uvicorn main:app --host 127.0.0.1 --port 8000</code>. Der Server läuft, aber Render findet keinen Port: <code>No open ports detected</code>.</li><li>Richtig: Build Command <code>pip install -r requirements.txt</code>, Start Command mit <code>--host 0.0.0.0 --port $PORT</code>. Die Zielzeile lautet <code>Your service is live</code>, ohne Warnung.</li></ol><p>Befehlskarte B04 zeigt die vollständigen Felder.</p>",
+        "en": "<p>The repository <code>velocity-api</code> is on GitHub, the form is half filled in – the way it regularly gets submitted in the course. Deploy <strong>four times</strong> and read the log down to the last line each time before changing anything:</p><ol><li>As it is. The build succeeds, the start ends with <code>KeyError: 'DATABASE_URL'</code> – the <code>.env</code> file is not in the repository. Add the environment variable <code>DATABASE_URL</code> (any non-empty value satisfies the model).</li><li>Again with <code>python main.py</code>. The script runs through and ends – a web service has to open a port and keep running.</li><li>With <code>uvicorn main:app --host 127.0.0.1 --port 8000</code>. The server runs, but Render finds no port: <code>No open ports detected</code>.</li><li>Correctly: build command <code>pip install -r requirements.txt</code>, start command with <code>--host 0.0.0.0 --port $PORT</code>. The target line reads <code>Your service is live</code>, with no warning.</li></ol><p>Command card B04 shows the complete fields.</p>"
+      },
+      "startEingaben": { "runtime": "python", "rootDir": "", "build": "", "start": "python main.py", "env": [] },
+      "soll": { "runtime": "python", "build": "pip install -r requirements\\.txt", "start": "uvicorn main:app.*--host 0\\.0\\.0\\.0.*--port \\$PORT", "env": ["DATABASE_URL"], "ohneWarnung": true },
+      "loesungEingaben": {
+        "runtime": "python", "rootDir": "",
+        "build": "pip install -r requirements.txt",
+        "start": "uvicorn main:app --host 0.0.0.0 --port $PORT",
+        "env": [
+          { "name": "DATABASE_URL", "value": "postgresql://postgres.abcdefghijkl:PASSWORT@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require" },
+          { "name": "PYTHON_VERSION", "value": "3.13.5" }
+        ]
+      },
+      "rueckmeldung": {
+        "de": "Drei Fehler, drei verschiedene Stellen im Protokoll: Der KeyError steht direkt über „Exited with status 1“ – die Ursache steht immer oberhalb der Statuszeile. Das durchlaufende Skript meldet „Exited with status 0“: kein Absturz, sondern ein Programm, das fertig war – für einen Web Service genauso falsch. Und 127.0.0.1 erzeugt gar keinen Fehler im Code, sondern einen Port-Scan, der nach einer Weile aufgibt. Die drei Regeln aus Abschnitt „Der Dienst“ decken alle drei ab.",
+        "en": "Three errors, three different places in the log: the KeyError sits directly above “Exited with status 1” – the cause always stands above the status line. The script that ran through reports “Exited with status 0”: no crash but a program that was done – just as wrong for a web service. And 127.0.0.1 produces no error in the code at all but a port scan that eventually gives up. The three rules from the section “The service” cover all three."
+      }
+    },
+    {
+      "id": "W11-02",
+      "typ": "deploy",
+      "titel": { "de": "Monorepo: das Root Directory", "en": "Monorepo: the root directory" },
+      "aufgabe": {
+        "de": "<p>Dieses Repository sieht anders aus: Der Dienst liegt im Unterordner <code>api/</code>, daneben Notebooks und ein README. Build Command, Start Command und <code>DATABASE_URL</code> sind bereits richtig – trotzdem scheitert der Deploy. Führen Sie ihn aus, lesen Sie die Fehlerzeile und beheben Sie die Ursache mit <strong>einer</strong> Eingabe. Der Build Command bleibt, wie er ist.</p>",
+        "en": "<p>This repository looks different: the service lives in the subfolder <code>api/</code>, beside notebooks and a README. Build command, start command and <code>DATABASE_URL</code> are already correct – yet the deploy fails. Run it, read the error line and fix the cause with <strong>one</strong> entry. The build command stays as it is.</p>"
+      },
+      "repo": {
+        "name": "velocity-monorepo",
+        "url": "https://github.com/studi/velocity-monorepo",
+        "liest": ["DATABASE_URL"],
+        "dateien": {
+          "api/main.py": "\"\"\"velocity-api – im Unterordner api/ eines Monorepos.\"\"\"\nimport os\n\nimport psycopg\nfrom fastapi import FastAPI\n\nDATENBANK = os.environ[\"DATABASE_URL\"]\napp = FastAPI(title=\"velocity-api\")\n\n\n@app.get(\"/\")\ndef status() -> dict:\n    return {\"dienst\": \"velocity-api\", \"status\": \"ok\"}\n\n\n@app.get(\"/kennzahlen\")\ndef kennzahlen() -> list[dict]:\n    with psycopg.connect(DATENBANK) as verbindung:\n        with verbindung.cursor() as cursor:\n            cursor.execute(\n                \"SELECT rad_typ, count(*) AS fahrten, sum(preis_eur) AS umsatz \"\n                \"FROM fahrt_mit_typ GROUP BY rad_typ ORDER BY umsatz DESC\"\n            )\n            spalten = [s.name for s in cursor.description]\n            return [dict(zip(spalten, z)) for z in cursor.fetchall()]\n",
+          "api/requirements.txt": "fastapi>=0.115,<1\nuvicorn[standard]>=0.30,<1\npsycopg[binary]>=3.2,<4\n",
+          "README.md": "# velocity-monorepo\n\nEin Repository, mehrere Teile:\n\n    api/         FastAPI-Dienst (Deploy bei Render, Root Directory: api)\n    notebooks/   Auswertungen aus Lab 04 und Lab 10\n\nRender baut relativ zum Root Directory des Service. Dateien außerhalb\nsieht der Service weder beim Build noch zur Laufzeit.\n",
+          "notebooks/analyse.ipynb": "{\n  \"cells\": [\n    {\n      \"cell_type\": \"code\",\n      \"source\": [\n        \"import pandas as pd\\n\",\n        \"fahrten = pd.read_json('../data/fahrten.jsonl', lines=True)\\n\",\n        \"fahrten.groupby('rad_typ')['preis_eur'].sum()\"\n      ]\n    }\n  ],\n  \"nbformat\": 4,\n  \"nbformat_minor\": 5\n}\n"
+        }
+      },
+      "startEingaben": {
+        "runtime": "python", "rootDir": "",
+        "build": "pip install -r requirements.txt",
+        "start": "uvicorn main:app --host 0.0.0.0 --port $PORT",
+        "env": [ { "name": "DATABASE_URL", "value": "postgresql://postgres.abcdefghijkl:PASSWORT@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require" } ]
+      },
+      "soll": { "runtime": "python", "rootDir": "api", "build": "pip install -r requirements\\.txt", "start": "uvicorn main:app.*--host 0\\.0\\.0\\.0.*--port \\$PORT", "env": ["DATABASE_URL"], "ohneWarnung": true },
+      "loesungEingaben": {
+        "runtime": "python", "rootDir": "api",
+        "build": "pip install -r requirements.txt",
+        "start": "uvicorn main:app --host 0.0.0.0 --port $PORT",
+        "env": [ { "name": "DATABASE_URL", "value": "postgresql://postgres.abcdefghijkl:PASSWORT@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require" } ]
+      },
+      "rueckmeldung": {
+        "de": "„Could not open requirements file: No such file or directory: 'requirements.txt'“ – die Datei existiert, nur nicht dort, wo Render sucht. Root Directory api verschiebt den Bezugspunkt für Build Command, Start Command und alle Pfade; deshalb bleibt „pip install -r requirements.txt“ unverändert und „main:app“ auch. Der verbreitete Umweg „pip install -r api/requirements.txt“ und „uvicorn api.main:app“ funktioniert zwar für den Build, führt aber bei jedem relativen Pfad im Code in die Irre – und vor allem sieht der Service ohne Root Directory Dateien außerhalb nicht.",
+        "en": "“Could not open requirements file: No such file or directory: 'requirements.txt'” – the file exists, just not where Render looks. Root directory api moves the reference point for build command, start command and all paths; that is why “pip install -r requirements.txt” stays unchanged and so does “main:app”. The common workaround “pip install -r api/requirements.txt” plus “uvicorn api.main:app” does get through the build but misleads every relative path in the code – and above all, without a root directory the service does not see files outside it."
+      }
+    },
+    {
+      "id": "W11-03",
+      "typ": "quiz",
+      "titel": { "de": "Was der Free-Plan bedeutet", "en": "What the free plan means" },
+      "aufgabe": {
+        "de": "<p>Fünf Fragen zu Grenzen, die im Kurs jedes Semester jemanden überraschen. Alle Angaben Stand 09/2026. Frage 4 hat mehrere richtige Antworten.</p>",
+        "en": "<p>Five questions on limits that surprise somebody in the course every semester. All figures as of 09/2026. Question 4 has several correct answers.</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Der Dienst lief gestern Abend einwandfrei. Heute Morgen lädt der erste Aufruf von <code>/kennzahlen</code> fast eine Minute, zeigt kurz eine Render-Seite und antwortet dann normal. Was ist passiert?", "en": "The service ran fine last night. This morning the first call to <code>/kennzahlen</code> loads for almost a minute, briefly shows a Render page and then answers normally. What happened?" },
+          "optionen": [
+            { "de": "Nichts Ungewöhnliches: Ein Free Web Service wird nach 15 Minuten ohne eingehenden Verkehr heruntergefahren (Spin-down). Die nächste Anfrage weckt ihn – das dauert etwa eine Minute, und solange zeigt Render eine Ladeseite.", "en": "Nothing unusual: a free web service is spun down after 15 minutes without inbound traffic. The next request wakes it – that takes about a minute, and Render shows a loading page meanwhile." },
+            { "de": "Der Deploy ist über Nacht fehlgeschlagen und wurde automatisch wiederholt.", "en": "The deploy failed overnight and was retried automatically." },
+            { "de": "Die 750 Free-Instance-Stunden des Monats sind aufgebraucht.", "en": "The month's 750 free instance hours are used up." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Spin-down ist der Preis des Free-Plans, kein Fehler. Ein Deploy wiederholt sich nicht von selbst, und aufgebrauchte Instance-Stunden führen nicht zu Verzögerung, sondern zur Aussetzung bis zum Monatsanfang. Wer die Verzögerung nicht will, zahlt für 0.5c-512mb (7 $/Monat) – Uptime-Pinger, die den Dienst alle paar Minuten anstoßen, unterlaufen den Sinn des Free-Plans und verbrauchen die 750 Stunden.",
+            "en": "Spin-down is the price of the free plan, not an error. A deploy does not repeat itself, and exhausted instance hours lead not to a delay but to suspension until the start of the month. Whoever does not want the delay pays for 0.5c-512mb ($7/month) – uptime pingers that nudge the service every few minutes defeat the point of the free plan and burn the 750 hours."
+          }
+        },
+        {
+          "frage": { "de": "Eine Projektgruppe deployt zwei Free Web Services in einem Hobby-Workspace und hält beide mit einem Pinger dauerhaft wach. Was passiert gegen Ende des Monats?", "en": "A project group deploys two free web services in one Hobby workspace and keeps both permanently awake with a pinger. What happens towards the end of the month?" },
+          "optionen": [
+            { "de": "Zwei Dienste rund um die Uhr verbrauchen rund 1.440 Stunden – mehr als die 750 Free-Instance-Stunden je Workspace und Monat. Render setzt alle Free Web Services des Workspace bis zum Monatsanfang aus.", "en": "Two services around the clock consume roughly 1,440 hours – more than the 750 free instance hours per workspace and month. Render suspends all of the workspace's free web services until the start of the next month." },
+            { "de": "Nichts – die 750 Stunden gelten je Service.", "en": "Nothing – the 750 hours apply per service." },
+            { "de": "Render stellt die Dienste automatisch auf einen bezahlten Plan um.", "en": "Render moves the services to a paid plan automatically." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Die 750 Stunden gelten je Workspace, und heruntergefahrene Dienste verbrauchen keine. Ein einzelner Dienst kommt mit Spin-down bequem durch den Monat (ein Monat hat höchstens 744 Stunden); zwei dauerhaft wache nicht. Auf einen bezahlten Plan wechselt Render nie von selbst – ohne Zahlungsmittel wird ausgesetzt.",
+            "en": "The 750 hours apply per workspace, and spun-down services consume none. A single service with spin-down gets through the month comfortably (a month has at most 744 hours); two permanently awake ones do not. Render never moves to a paid plan by itself – without a payment method it suspends."
+          }
+        },
+        {
+          "frage": { "de": "Der Dienst aus Lab 06 schreibt seine Daten in eine SQLite-Datei <code>velocity.sqlite</code> neben <code>main.py</code>. Auf dem Free Web Service funktioniert das zunächst. Was ist zu erwarten?", "en": "The service from lab 06 writes its data to an SQLite file <code>velocity.sqlite</code> beside <code>main.py</code>. On the free web service that works at first. What is to be expected?" },
+          "optionen": [
+            { "de": "Die Datei liegt auf dem flüchtigen Dateisystem der Instanz: Bei jedem Redeploy, Neustart und Spin-down ist sie weg – Render nennt ausdrücklich „local SQLite databases“. Für Daten, die bleiben sollen, braucht es eine Datenbank außerhalb (Lab 08) oder eine Persistent Disk (nicht im Free-Plan).", "en": "The file sits on the instance's ephemeral file system: on every redeploy, restart and spin-down it is gone – Render explicitly names “local SQLite databases”. Data that should stay needs a database outside (lab 08) or a persistent disk (not on the free plan)." },
+            { "de": "Die Datei bleibt erhalten, solange der Dienst nicht gelöscht wird.", "en": "The file stays as long as the service is not deleted." },
+            { "de": "SQLite ist auf Render nicht installierbar.", "en": "SQLite cannot be installed on Render." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Dieselbe Unterscheidung wie in Lab 04 (Laufzeit vs. Drive) und Lab 07 (Container vs. Volume): Das Dateisystem gehört der Instanz und geht mit ihr. SQLite selbst ist Teil von Python und läuft problemlos – nur der Ort ist falsch. Deshalb liest velocity-api aus Supabase.",
+            "en": "The same distinction as in lab 04 (runtime vs. Drive) and lab 07 (container vs. volume): the file system belongs to the instance and goes with it. SQLite itself is part of Python and runs fine – only the location is wrong. That is why velocity-api reads from Supabase."
+          }
+        },
+        {
+          "frage": { "de": "Welche Aussagen über eine <strong>Free Render Postgres</strong> treffen zu? Mehrere Antworten sind richtig.", "en": "Which statements about a <strong>free Render Postgres</strong> are correct? Several answers are correct." },
+          "mehrfach": true,
+          "optionen": [
+            { "de": "Sie läuft 30 Tage nach der Anlage ab; danach ist sie 14 Tage lang nur noch durch ein Upgrade zu retten, dann wird sie samt Daten gelöscht.", "en": "It expires 30 days after creation; afterwards it can be rescued only by an upgrade for 14 days, then it is deleted along with its data." },
+            { "de": "Sie hat 1 GB Speicher, und je Workspace kann nur eine aktiv sein.", "en": "It has 1 GB of storage, and only one can be active per workspace." },
+            { "de": "Es gibt keine automatischen Sicherungen.", "en": "There are no automatic backups." },
+            { "de": "Sie läuft unbegrenzt, solange regelmäßig darauf zugegriffen wird.", "en": "It runs indefinitely as long as it is accessed regularly." }
+          ],
+          "richtig": [0, 1, 2],
+          "erklaerung": {
+            "de": "Die letzte Aussage verwechselt Render mit Supabase: Dort pausiert ein Free-Projekt bei Inaktivität, bleibt aber erhalten. Bei Render läuft die Frist ab dem Tag der Anlage, unabhängig von der Nutzung – ein Semester ist länger als 44 Tage. Deshalb liegt die Datenbank des Kurses bei Supabase (Lab 08), und Render betreibt nur den Dienst. Wer Render-Postgres braucht, zahlt ab 6 $/Monat (0.1c-256mb) oder zieht vor Ablauf mit pg_dump um.",
+            "en": "The last statement confuses Render with Supabase: there a free project pauses on inactivity but is kept. On Render the period runs from the day of creation regardless of use – a semester is longer than 44 days. That is why the course's database lives on Supabase (lab 08) and Render runs only the service. Whoever needs Render Postgres pays from $6/month (0.1c-256mb) or moves out with pg_dump before expiry."
+          }
+        },
+        {
+          "frage": { "de": "Eine Gruppe legt den Web Service in Frankfurt an, die zugehörige Render-Postgres aber mit der Voreinstellung Oregon. Später soll die Region der Datenbank geändert werden. Wie ist die Lage?", "en": "A group creates the web service in Frankfurt but the associated Render Postgres with the default Oregon. Later the database's region is to be changed. What is the situation?" },
+          "optionen": [
+            { "de": "Die Region eines bestehenden Service oder einer Datenbank lässt sich nicht ändern. Der Weg ist Neuanlage in Frankfurt und Umzug der Daten (pg_dump/pg_restore). Region für Dienst und Datenbank gehört von Anfang an gleich gesetzt – auch weil das Private Network nur innerhalb einer Region funktioniert.", "en": "The region of an existing service or database cannot be changed. The route is recreation in Frankfurt and migrating the data (pg_dump/pg_restore). The region for service and database belongs set identically from the start – also because the private network works only within one region." },
+            { "de": "Unter Settings → Region lässt sich die Datenbank nach Frankfurt verschieben; Render kopiert die Daten.", "en": "Under Settings → Region the database can be moved to Frankfurt; Render copies the data." },
+            { "de": "Die Region spielt für den Datenschutz keine Rolle, da Render nach dem EU-US Data Privacy Framework zertifiziert ist.", "en": "The region is irrelevant for data protection because Render is certified under the EU-US Data Privacy Framework." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Render sagt es wörtlich: „Render doesn't currently support changing the region for an existing service or database.“ Die DPF-Zertifizierung (seit 01/2025) und das DPA in den Nutzungsbedingungen sichern den Drittlandtransfer rechtlich ab – sie ersetzen aber nicht die Frage, wo die Daten physisch liegen. Vertragspartner bleibt ein US-Unternehmen; Protokolle, Support-Zugriff und Subprozessoren können US-Bezug haben. Für den Kurs die einfache Regel: Frankfurt für alles, und nur synthetische Daten.",
+            "en": "Render says it verbatim: “Render doesn't currently support changing the region for an existing service or database.” The DPF certification (since 01/2025) and the DPA in the terms of service legally cover the third-country transfer – but they do not replace the question of where the data physically resides. The contracting party remains a US company; logs, support access and sub-processors may have a US connection. For the course the simple rule: Frankfurt for everything, and synthetic data only."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W11-04",
+      "typ": "reihenfolge",
+      "titel": { "de": "Vom Repository zum laufenden Dienst", "en": "From repository to running service" },
+      "aufgabe": {
+        "de": "<p>Sechs Schritte, in der Reihenfolge, in der sie draußen kommen. Zwei davon passieren vor dem ersten Klick bei Render – und genau die werden am häufigsten übersprungen.</p>",
+        "en": "<p>Six steps, in the order they happen outside. Two of them take place before the first click on Render – and those are exactly the ones skipped most often.</p>"
+      },
+      "eintraege": [
+        { "id": "vorbereiten", "text": { "de": "<code>.env</code> in die <code>.gitignore</code> eintragen und <code>requirements.txt</code> mit Versionsgrenzen einfrieren", "en": "Add <code>.env</code> to <code>.gitignore</code> and freeze <code>requirements.txt</code> with version bounds" } },
+        { "id": "push", "text": { "de": "Commit und Push zu GitHub – Render baut aus dem, was dort liegt", "en": "Commit and push to GitHub – Render builds from what is there" } },
+        { "id": "neu", "text": { "de": "Render: <code>+ New → Web Service</code>, Repository verbinden und auswählen", "en": "Render: <code>+ New → Web Service</code>, connect and select the repository" } },
+        { "id": "felder", "text": { "de": "Language, Region Frankfurt, Root Directory, Build Command und Start Command eintragen", "en": "Enter language, region Frankfurt, root directory, build command and start command" } },
+        { "id": "env", "text": { "de": "Environment Variables setzen: <code>DATABASE_URL</code>, <code>PYTHON_VERSION</code>", "en": "Set environment variables: <code>DATABASE_URL</code>, <code>PYTHON_VERSION</code>" } },
+        { "id": "deploy", "text": { "de": "<code>Deploy Web Service</code> – und das Protokoll bis „Your service is live“ lesen", "en": "<code>Deploy Web Service</code> – and read the log through to “Your service is live”" } }
+      ],
+      "richtig": ["vorbereiten", "push", "neu", "felder", "env", "deploy"],
+      "start": ["deploy", "felder", "vorbereiten", "env", "push", "neu"],
+      "rueckmeldung": {
+        "de": "Die ersten beiden Schritte entscheiden über die späteren: Ohne Push baut Render den alten Stand, und ohne .env in der .gitignore liegt das Datenbankpasswort im Repository – auf GitHub und im Build-Protokoll. Environment Variables kommen vor dem Deploy, nicht danach: Eine nachträglich gesetzte Variable wirkt erst mit dem nächsten Deploy. Und der letzte Schritt heißt nicht „Deploy“, sondern „Deploy und lesen“.",
+        "en": "The first two steps decide the later ones: without a push Render builds the old state, and without .env in .gitignore the database password sits in the repository – on GitHub and in the build log. Environment variables come before the deploy, not after: a variable set afterwards takes effect only with the next deploy. And the last step is not “deploy” but “deploy and read”."
+      }
+    },
+    {
+      "id": "W11-05",
+      "typ": "zuordnen",
+      "titel": { "de": "Protokollzeile und Ursache", "en": "Log line and cause" },
+      "aufgabe": {
+        "de": "<p>Sechs Zeilen, wie sie im Protokoll eines Deploys stehen. Ordnen Sie jeder die Ursache zu. Eine davon ist gar kein Fehler – der Dienst ist online, und trotzdem sollte man sie nicht stehen lassen.</p>",
+        "en": "<p>Six lines as they appear in a deploy's log. Assign the cause to each. One of them is not an error at all – the service is live, and yet it should not be left standing.</p>"
+      },
+      "ziele": [
+        { "id": "lokal", "text": { "de": "Server bindet an 127.0.0.1 statt an 0.0.0.0", "en": "Server binds to 127.0.0.1 instead of 0.0.0.0" } },
+        { "id": "skript", "text": { "de": "Start Command startet keinen Server – das Skript läuft durch und endet", "en": "Start command starts no server – the script runs through and ends" } },
+        { "id": "datei", "text": { "de": "requirements.txt liegt nicht im Root Directory", "en": "requirements.txt is not in the root directory" } },
+        { "id": "env", "text": { "de": "Environment Variable nicht gesetzt – die .env liegt nicht im Repository", "en": "Environment variable not set – the .env is not in the repository" } },
+        { "id": "docker", "text": { "de": "Language Docker gewählt, aber kein Dockerfile im Root Directory", "en": "Language Docker chosen, but no Dockerfile in the root directory" } },
+        { "id": "fest", "text": { "de": "Fester Port statt $PORT – läuft, aber zerbrechlich", "en": "Fixed port instead of $PORT – runs, but fragile" } }
+      ],
+      "paare": [
+        { "begriff": { "de": "==> Port scan timeout reached, no open ports detected. Bind your service to at least one port.", "en": "==> Port scan timeout reached, no open ports detected. Bind your service to at least one port." }, "ziel": "lokal" },
+        { "begriff": { "de": "==> Exited with status 0 — Web services must bind to a port and stay running.", "en": "==> Exited with status 0 — Web services must bind to a port and stay running." }, "ziel": "skript" },
+        { "begriff": { "de": "ERROR: Could not open requirements file: [Errno 2] No such file or directory: 'requirements.txt'", "en": "ERROR: Could not open requirements file: [Errno 2] No such file or directory: 'requirements.txt'" }, "ziel": "datei" },
+        { "begriff": { "de": "KeyError: 'DATABASE_URL' — ==> Exited with status 1", "en": "KeyError: 'DATABASE_URL' — ==> Exited with status 1" }, "ziel": "env" },
+        { "begriff": { "de": "==> Build failed: failed to read dockerfile: open Dockerfile: no such file or directory", "en": "==> Build failed: failed to read dockerfile: open Dockerfile: no such file or directory" }, "ziel": "docker" },
+        { "begriff": { "de": "==> Detected service running on port 8000 — ==> Docs on specifying a port: render.com/docs/web-services#port-binding", "en": "==> Detected service running on port 8000 — ==> Docs on specifying a port: render.com/docs/web-services#port-binding" }, "ziel": "fest" }
+      ],
+      "rueckmeldung": {
+        "de": "Die Statuszeile allein sagt wenig – „Exited with status 1“ heißt nur „abgebrochen“, „status 0“ nur „fertig“. Die Ursache steht immer in den Zeilen darüber: der Traceback mit dem KeyError, die pip-Meldung mit dem Dateinamen, der Docker-Build mit dem fehlenden Dockerfile. Der Port-Scan ist die Ausnahme: Er meldet, was Render nicht findet, nicht, was der Code tut. Und die letzte Zeile ist ein „Your service is live“ mit Warnung: Render hat den festen Port gefunden – bis zur nächsten Plattformänderung.",
+        "en": "The status line alone says little – “Exited with status 1” means only “aborted”, “status 0” only “finished”. The cause always sits in the lines above: the traceback with the KeyError, the pip message with the file name, the Docker build with the missing Dockerfile. The port scan is the exception: it reports what Render does not find, not what the code does. And the last line is a “Your service is live” with a warning: Render found the fixed port – until the next platform change."
+      }
+    }
+  ]
+}

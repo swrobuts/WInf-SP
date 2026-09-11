@@ -1,0 +1,967 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": {
+        "de": "Staging mit jsonb – und das Dokument entpacken",
+        "en": "Staging with jsonb – and unpacking the document"
+      },
+      "prompt": "SQL",
+      "befehl": "-- 1) Rohschicht: ein Dokument je Zeile, unverändert, mit Herkunft\nCREATE SCHEMA IF NOT EXISTS staging;\nCREATE TABLE IF NOT EXISTS staging.export_roh (\n  doc         jsonb        NOT NULL,\n  source_file text         NOT NULL,\n  loaded_at   timestamptz  NOT NULL DEFAULT now()\n);\n\n-- 2) Entpacken: aus dem Export-Dokument eine Zeile je Fahrt\nSELECT (f->>'fahrt_id')::int                 AS fahrt_id,\n       f->>'rad_id'                          AS rad_id,\n       (f->'start'->>'station_id')::int      AS start_station,\n       (f->'start'->>'zeit')::timestamp      AS start_zeit,\n       (f->>'preis_eur')::numeric(6,2)       AS preis_eur,\n       r.source_file, r.loaded_at\nFROM staging.export_roh r,\n     jsonb_array_elements(r.doc->'fahrten') AS f;",
+      "teile": [
+        {
+          "was": "jsonb",
+          "bedeutet": {
+            "de": "Der binäre JSON-Typ von PostgreSQL: indexierbar, mit Operatoren zum Navigieren. Die Rohschicht speichert das Dokument, wie es kam – nichts wird beim Laden verändert oder verworfen.",
+            "en": "PostgreSQL's binary JSON type: indexable, with operators for navigating. The raw layer stores the document as it arrived – nothing is changed or discarded on load."
+          }
+        },
+        {
+          "was": "loaded_at, source_file",
+          "bedeutet": {
+            "de": "Die zwei Herkunftsspalten jeder Staging-Tabelle. Sie beantworten „seit wann“ und „woher“ – ohne sie ist eine Deduplizierung nach Aktualität und jede Fehlersuche unmöglich.",
+            "en": "The two provenance columns of every staging table. They answer “since when” and “from where” – without them, deduplication by recency and any troubleshooting are impossible."
+          }
+        },
+        {
+          "was": "jsonb_array_elements",
+          "bedeutet": {
+            "de": "Zerlegt ein JSON-Array in Zeilen: aus dem Feld fahrten mit 1.500 Objekten werden 1.500 Zeilen. Das Komma in der FROM-Klausel ist ein Kreuzprodukt je Dokument – das pandas-Gegenstück ist json_normalize.",
+            "en": "Splits a JSON array into rows: the field fahrten with 1,500 objects becomes 1,500 rows. The comma in the FROM clause is a cross product per document – the pandas counterpart is json_normalize."
+          }
+        },
+        {
+          "was": "-> und ->>",
+          "bedeutet": {
+            "de": "-> liefert JSON (zum Weiternavigieren), ->> liefert Text (zum Casten). f->'start'->>'station_id' geht also eine Ebene hinein und holt dann den Wert als Text, der mit ::int typisiert wird.",
+            "en": "-> returns JSON (for further navigation), ->> returns text (for casting). f->'start'->>'station_id' thus steps one level in and then fetches the value as text, which ::int types."
+          }
+        },
+        {
+          "was": "::timestamp",
+          "bedeutet": {
+            "de": "Die Zeiten im Export sind Ortszeiten ohne Zone. Wer sie als timestamptz braucht, kennzeichnet sie ausdrücklich: (…)::timestamp AT TIME ZONE 'Europe/Berlin'. Ohne diese Angabe würde Postgres die Zone der Sitzung annehmen.",
+            "en": "The times in the export are local times without a zone. If you need them as timestamptz, mark them explicitly: (…)::timestamp AT TIME ZONE 'Europe/Berlin'. Without it Postgres would assume the session's zone."
+          }
+        }
+      ]
+    },
+    "B02": {
+      "titel": {
+        "de": "Schicht neu bauen oder einen Zeitraum nachladen",
+        "en": "Rebuild a layer or reload one period"
+      },
+      "prompt": "SQL",
+      "befehl": "-- Vollständiger Neuaufbau: einfach und von selbst idempotent\nDROP TABLE IF EXISTS clean.fahrt;\nCREATE TABLE clean.fahrt AS\nSELECT fahrt_id, rad_id, kunde_id, start_station, ziel_station,\n       start_zeit, dauer_min, preis_eur::numeric(6,2) AS preis_eur\nFROM staging.fahrt;\n\n-- Einen Monat nachladen: erst löschen, dann einfügen, in EINER Transaktion\nBEGIN;\nDELETE FROM clean.fahrt\n WHERE start_zeit >= DATE '2026-08-01' AND start_zeit < DATE '2026-09-01';\nINSERT INTO clean.fahrt (fahrt_id, rad_id, kunde_id, start_station, ziel_station,\n                         start_zeit, dauer_min, preis_eur)\nSELECT fahrt_id, rad_id, kunde_id, start_station, ziel_station,\n       start_zeit, dauer_min, preis_eur\nFROM staging.fahrt\n WHERE start_zeit >= DATE '2026-08-01' AND start_zeit < DATE '2026-09-01';\nCOMMIT;",
+      "teile": [
+        {
+          "was": "CREATE TABLE … AS",
+          "bedeutet": {
+            "de": "Legt die Tabelle aus dem Ergebnis der Abfrage an – Spaltentypen inklusive. Für kleine Bestände die einfachste Form eines Full Load: Jeder Lauf ersetzt alles, ein zweiter Lauf erzeugt keine Duplikate. In SQLite identisch.",
+            "en": "Creates the table from the query result – column types included. For small data the simplest form of a full load: every run replaces everything, a second run creates no duplicates. Identical in SQLite."
+          }
+        },
+        {
+          "was": "DELETE … INSERT … SELECT",
+          "bedeutet": {
+            "de": "Das Muster für inkrementelles Laden nach Zeitraum: Der Abschnitt wird gelöscht und aus der Staging-Schicht neu eingefügt. Wiederholbar, weil das Ergebnis nach dem zweiten Lauf dasselbe ist wie nach dem ersten.",
+            "en": "The pattern for incremental loading by period: the slice is deleted and re-inserted from the staging layer. Repeatable, because the result after the second run equals the result after the first."
+          }
+        },
+        {
+          "was": "BEGIN … COMMIT",
+          "bedeutet": {
+            "de": "Beides in einer Transaktion. Bricht der INSERT ab, bleibt der DELETE nicht allein stehen – sonst fehlte ein Monat im Bericht, und niemand merkt es.",
+            "en": "Both in one transaction. If the INSERT fails, the DELETE does not stand alone – otherwise a month would be missing from the report, and nobody would notice."
+          }
+        },
+        {
+          "was": ">= … AND < …",
+          "bedeutet": {
+            "de": "Halboffenes Intervall statt BETWEEN: Der 1. September um 00:00 gehört zum September, nicht zum August. Mit BETWEEN '2026-08-01' AND '2026-08-31' fehlt der 31. August ab 00:00:01.",
+            "en": "Half-open interval instead of BETWEEN: 1 September at 00:00 belongs to September, not to August. With BETWEEN '2026-08-01' AND '2026-08-31' the 31st of August after 00:00:01 is missing."
+          }
+        }
+      ]
+    },
+    "B03": {
+      "titel": {
+        "de": "Upsert – Dimension einspielen, ohne Duplikate",
+        "en": "Upsert – load a dimension without duplicates"
+      },
+      "prompt": "SQL",
+      "befehl": "INSERT INTO mart.dim_station (station_id, name, bezirk)\nSELECT station_id, name, bezirk\nFROM staging.station\nON CONFLICT (station_id) DO UPDATE\n   SET name   = EXCLUDED.name,\n       bezirk = EXCLUDED.bezirk;\n\n-- Nur einfügen, was fehlt, Vorhandenes unangetastet lassen:\n-- … ON CONFLICT (station_id) DO NOTHING;\n\n-- SQLite (ab 3.24): identische Schreibweise, nur excluded.name klein.",
+      "teile": [
+        {
+          "was": "ON CONFLICT (station_id)",
+          "bedeutet": {
+            "de": "Das Konfliktziel muss eine UNIQUE-Spalte oder ein Primärschlüssel sein – hier der natürliche Schlüssel der Dimension. Ohne diese Einschränkung lehnt Postgres die Anweisung ab.",
+            "en": "The conflict target must be a UNIQUE column or a primary key – here the dimension's natural key. Without that constraint Postgres rejects the statement."
+          }
+        },
+        {
+          "was": "DO UPDATE SET …",
+          "bedeutet": {
+            "de": "Trifft die Zeile auf einen vorhandenen Schlüssel, wird sie aktualisiert statt eingefügt. Das ist SCD Typ 1: Der neue Name überschreibt den alten, Geschichte wird nicht aufbewahrt.",
+            "en": "If the row hits an existing key, it is updated instead of inserted. That is SCD type 1: the new name overwrites the old one, history is not kept."
+          }
+        },
+        {
+          "was": "EXCLUDED",
+          "bedeutet": {
+            "de": "Die Zeile, die eingefügt worden wäre. EXCLUDED.name ist also der Wert aus der Quelle, name allein der Wert, der schon in der Tabelle steht.",
+            "en": "The row that would have been inserted. EXCLUDED.name is therefore the value from the source, name alone the value already in the table."
+          }
+        },
+        {
+          "was": "Warum nicht INSERT?",
+          "bedeutet": {
+            "de": "Ein reines INSERT funktioniert beim ersten Lauf und scheitert beim zweiten am UNIQUE – oder, ohne UNIQUE, verdoppelt es stillschweigend. Airflows Regel für Wiederholungen: „Replace it with UPSERT.“",
+            "en": "A plain INSERT works on the first run and fails on the second at the UNIQUE – or, without UNIQUE, silently doubles. Airflow's rule for re-runs: “Replace it with UPSERT.”"
+          }
+        }
+      ]
+    },
+    "B04": {
+      "titel": {
+        "de": "MERGE – der SQL-Standard für dasselbe (Postgres 15+)",
+        "en": "MERGE – the SQL standard for the same thing (Postgres 15+)"
+      },
+      "prompt": "SQL",
+      "befehl": "MERGE INTO mart.dim_station AS t\nUSING staging.station AS s\n   ON t.station_id = s.station_id\nWHEN MATCHED AND t.name IS DISTINCT FROM s.name THEN\n  UPDATE SET name = s.name, bezirk = s.bezirk\nWHEN NOT MATCHED THEN\n  INSERT (station_id, name, bezirk)\n  VALUES (s.station_id, s.name, s.bezirk);",
+      "teile": [
+        {
+          "was": "MERGE INTO … USING … ON",
+          "bedeutet": {
+            "de": "Ziel, Quelle und Verbundbedingung in einer Anweisung; je Zeile entscheidet WHEN MATCHED / WHEN NOT MATCHED. Seit PostgreSQL 15; seit 17 auch WHEN NOT MATCHED BY SOURCE für Löschungen. Auf Supabase (Postgres 17, Stand 09/2026) verfügbar.",
+            "en": "Target, source and join condition in one statement; per row WHEN MATCHED / WHEN NOT MATCHED decides. Since PostgreSQL 15; since 17 also WHEN NOT MATCHED BY SOURCE for deletions. Available on Supabase (Postgres 17, as of 09/2026)."
+          }
+        },
+        {
+          "was": "IS DISTINCT FROM",
+          "bedeutet": {
+            "de": "Ein Vergleich, der NULL wie einen Wert behandelt. Mit <> wären zwei NULL-Namen „nicht ungleich“ und würden nie aktualisiert.",
+            "en": "A comparison that treats NULL like a value. With <> two NULL names would be “not unequal” and never get updated."
+          }
+        },
+        {
+          "was": "Nicht in SQLite",
+          "bedeutet": {
+            "de": "SQLite kennt kein MERGE – dort bleibt INSERT … ON CONFLICT (B03) der Weg. Die Postgres-Dokumentation nennt beide ausdrücklich „not interchangeable“: ON CONFLICT ist gegen gleichzeitige Einfügungen abgesichert, MERGE nicht.",
+            "en": "SQLite has no MERGE – there INSERT … ON CONFLICT (B03) remains the route. The Postgres docs explicitly call the two “not interchangeable”: ON CONFLICT is protected against concurrent inserts, MERGE is not."
+          }
+        }
+      ]
+    },
+    "B05": {
+      "titel": {
+        "de": "Deduplizieren – die neueste Fassung je Schlüssel",
+        "en": "Deduplicate – the newest version per key"
+      },
+      "prompt": "SQL",
+      "befehl": "WITH nummeriert AS (\n  SELECT *,\n         row_number() OVER (PARTITION BY fahrt_id\n                            ORDER BY loaded_at DESC) AS rn\n  FROM staging.fahrt\n)\nSELECT fahrt_id, rad_id, start_zeit, preis_eur\nFROM nummeriert\nWHERE rn = 1;",
+      "teile": [
+        {
+          "was": "row_number() OVER (…)",
+          "bedeutet": {
+            "de": "Eine Fensterfunktion: Sie nummeriert Zeilen innerhalb einer Gruppe, ohne die Gruppe zu verdichten. PARTITION BY fahrt_id bildet die Gruppen, ORDER BY loaded_at DESC macht die zuletzt geladene Zeile zur Nummer 1.",
+            "en": "A window function: it numbers rows within a group without collapsing the group. PARTITION BY fahrt_id forms the groups, ORDER BY loaded_at DESC makes the most recently loaded row number 1."
+          }
+        },
+        {
+          "was": "WHERE rn = 1",
+          "bedeutet": {
+            "de": "Behält je Schlüssel genau eine Zeile. DISTINCT könnte das nicht: Es entfernt nur Zeilen, die in allen Spalten gleich sind – zwei Fassungen derselben Fahrt mit verschiedenem Preis bleiben beide stehen.",
+            "en": "Keeps exactly one row per key. DISTINCT could not do that: it removes only rows equal in all columns – two versions of the same ride with different prices both remain."
+          }
+        },
+        {
+          "was": "Das pandas-Gegenstück",
+          "bedeutet": {
+            "de": "df.sort_values('loaded_at').drop_duplicates(subset=['fahrt_id'], keep='last') – gleiche Idee, gleiche Reihenfolge der Entscheidungen. Auch in SQLite (ab 3.25) funktioniert row_number().",
+            "en": "df.sort_values('loaded_at').drop_duplicates(subset=['fahrt_id'], keep='last') – same idea, same order of decisions. row_number() also works in SQLite (from 3.25)."
+          }
+        }
+      ]
+    },
+    "B06": {
+      "titel": {
+        "de": "Datumsdimension mit generate_series – und date_trunc",
+        "en": "Date dimension with generate_series – and date_trunc"
+      },
+      "prompt": "SQL",
+      "befehl": "CREATE TABLE mart.dim_datum AS\nSELECT to_char(d, 'YYYYMMDD')::int        AS datum_key,\n       d::date                            AS datum,\n       extract(year    FROM d)::int       AS jahr,\n       extract(month   FROM d)::int       AS monat,\n       extract(week    FROM d)::int       AS kw_iso,\n       extract(isodow  FROM d)::int       AS wochentag,   -- 1 = Montag\n       extract(isodow  FROM d) >= 6       AS wochenende\nFROM generate_series(DATE '2025-09-01', DATE '2026-08-31', interval '1 day') AS d;\n\nALTER TABLE mart.dim_datum ADD PRIMARY KEY (datum_key);\nINSERT INTO mart.dim_datum (datum_key, wochenende) VALUES (-1, false);   -- Unbekannt\n\n-- Auf den Monat abschneiden: der Klassiker jedes Berichts\nSELECT date_trunc('month', start_zeit)::date AS monat, count(*) AS fahrten\nFROM fahrt GROUP BY 1 ORDER BY 1;",
+      "teile": [
+        {
+          "was": "generate_series(von, bis, Schritt)",
+          "bedeutet": {
+            "de": "Erzeugt eine Zeile je Tag – ohne Quelltabelle. Genau das braucht eine Datumsdimension: Auch Tage ohne Fahrt müssen darin stehen, sonst fehlen sie später im Diagramm. SQLite hat die Funktion nicht garantiert; dort erzeugt eine rekursive CTE die Tage.",
+            "en": "Generates one row per day – without a source table. Exactly what a date dimension needs: days without a ride must be in it too, otherwise they are missing from the chart later. SQLite does not guarantee the function; there a recursive CTE generates the days."
+          }
+        },
+        {
+          "was": "to_char(d, 'YYYYMMDD')::int",
+          "bedeutet": {
+            "de": "Der sprechende Schlüssel 20260901. Die einzige Dimension, bei der Kimball einen fachlichen statt eines Surrogatschlüssels erlaubt – gefiltert und gruppiert wird trotzdem über die Attribute, nicht über den Schlüssel.",
+            "en": "The smart key 20260901. The only dimension where Kimball permits a business key instead of a surrogate – filtering and grouping still go through the attributes, not the key."
+          }
+        },
+        {
+          "was": "isodow",
+          "bedeutet": {
+            "de": "Wochentag nach ISO: 1 = Montag bis 7 = Sonntag. dow dagegen zählt 0 = Sonntag. Wer die beiden verwechselt, verschiebt jede Wochenauswertung um einen Tag.",
+            "en": "ISO weekday: 1 = Monday to 7 = Sunday. dow, by contrast, counts 0 = Sunday. Mixing the two shifts every weekly analysis by one day."
+          }
+        },
+        {
+          "was": "-1 = Unbekannt",
+          "bedeutet": {
+            "de": "Die Sonderzeile für Fakten ohne gültiges Datum. Ein LEFT JOIN mit COALESCE(datum_key, -1) beim Laden sorgt dafür, dass keine Fahrt stillschweigend verschwindet.",
+            "en": "The special row for facts without a valid date. A LEFT JOIN with COALESCE(datum_key, -1) at load time ensures that no ride silently disappears."
+          }
+        },
+        {
+          "was": "date_trunc('month', …)",
+          "bedeutet": {
+            "de": "Schneidet einen Zeitstempel auf den Monatsanfang ab; ::date entfernt die Uhrzeit. Bei timestamptz gibt es ein drittes Argument: date_trunc('day', ts, 'Europe/Berlin') schneidet in Ortszeit ab – sonst gilt die Zone der Sitzung, auf Supabase UTC.",
+            "en": "Truncates a timestamp to the start of the month; ::date removes the time. With timestamptz there is a third argument: date_trunc('day', ts, 'Europe/Berlin') truncates in local time – otherwise the session's zone applies, UTC on Supabase."
+          }
+        }
+      ]
+    },
+    "B07": {
+      "titel": {
+        "de": "Materialized View – das leichte Mart",
+        "en": "Materialized view – the lightweight mart"
+      },
+      "prompt": "SQL",
+      "befehl": "CREATE MATERIALIZED VIEW mart.fahrten_station_tag AS\nSELECT f.start_zeit::date AS tag,\n       s.name             AS station,\n       count(*)           AS fahrten,\n       sum(f.preis_eur)   AS umsatz\nFROM fahrt f\nJOIN station s ON s.station_id = f.start_station\nGROUP BY 1, 2;\n\n-- Pflicht für CONCURRENTLY: ein UNIQUE-Index über alle Zeilen\nCREATE UNIQUE INDEX fahrten_station_tag_uq\n  ON mart.fahrten_station_tag (tag, station);\n\nREFRESH MATERIALIZED VIEW CONCURRENTLY mart.fahrten_station_tag;\n\n-- Nächtlich auf Supabase (pg_cron, Zeiten in UTC):\n-- SELECT cron.schedule('refresh-fahrten', '15 2 * * *',\n--   $$REFRESH MATERIALIZED VIEW CONCURRENTLY mart.fahrten_station_tag$$);",
+      "teile": [
+        {
+          "was": "CREATE MATERIALIZED VIEW",
+          "bedeutet": {
+            "de": "Wie CREATE TABLE AS, nur merkt sich Postgres die Abfrage. Das Ergebnis liegt gespeichert vor – Power BI oder Tableau lesen eine fertige Tabelle statt jedes Mal 1.500 Fahrten zu verdichten.",
+            "en": "Like CREATE TABLE AS, except Postgres remembers the query. The result is stored – Power BI or Tableau read a finished table instead of aggregating 1,500 rides every time."
+          }
+        },
+        {
+          "was": "REFRESH … CONCURRENTLY",
+          "bedeutet": {
+            "de": "Aktualisiert, ohne Lesende auszusperren. Bedingung laut Dokumentation: mindestens ein UNIQUE-Index, der nur Spaltennamen verwendet und alle Zeilen umfasst, und die Sicht muss schon einmal gefüllt sein. Ohne CONCURRENTLY ist der Refresh schneller, sperrt aber jede Abfrage so lange.",
+            "en": "Refreshes without locking out readers. Condition per the docs: at least one UNIQUE index that uses only column names and covers all rows, and the view must already be populated. Without CONCURRENTLY the refresh is faster but blocks every query meanwhile."
+          }
+        },
+        {
+          "was": "cron.schedule('…', '15 2 * * *', $$…$$)",
+          "bedeutet": {
+            "de": "Die Erweiterung pg_cron (auf Supabase unter Database → Extensions einschaltbar) plant SQL innerhalb der Datenbank. Die fünf Felder: Minute Stunde Tag Monat Wochentag. Wichtig: pg_cron rechnet in UTC – 02:15 UTC ist in Würzburg 04:15 im Sommer und 03:15 im Winter.",
+            "en": "The pg_cron extension (on Supabase enabled under Database → Extensions) schedules SQL inside the database. The five fields: minute hour day month weekday. Important: pg_cron works in UTC – 02:15 UTC is 04:15 in Würzburg in summer and 03:15 in winter."
+          }
+        },
+        {
+          "was": "SQLite",
+          "bedeutet": {
+            "de": "Hat keine materialisierten Sichten. Das Gegenstück ist eine gewöhnliche Tabelle, die der Ladelauf mit DROP TABLE + CREATE TABLE AS neu baut.",
+            "en": "Has no materialized views. The counterpart is an ordinary table that the load run rebuilds with DROP TABLE + CREATE TABLE AS."
+          }
+        }
+      ]
+    },
+    "B08": {
+      "titel": {
+        "de": "vorlagen/lab-10-sternschema.sql – das ganze Mart in einem Skript",
+        "en": "vorlagen/lab-10-sternschema.sql – the whole mart in one script"
+      },
+      "prompt": "📄",
+      "befehl": "-- ===========================================================================\n-- WInf-SP-Lab · Lab 10 · Sternschema \"Velo City\" für PostgreSQL (Supabase)\n--\n-- Das ist der Teil \"T\" und \"L\" einer ELT-Pipeline: Die Rohdaten liegen\n-- bereits im Schema staging (geladen von vorlagen/lab-10-etl.py), die\n-- Umformung findet hier, in der Zieldatenbank, in SQL statt.\n--\n-- Grain der Faktentabelle: EINE ZEILE = EINE FAHRT.\n--\n-- Das Skript ist idempotent: Es darf beliebig oft laufen. Tabellen werden\n-- nur angelegt, wenn sie fehlen (IF NOT EXISTS), Dimensionen werden per\n-- Upsert (ON CONFLICT … DO UPDATE) aktualisiert, Fakten werden nur\n-- eingefügt, wenn die Fahrt noch fehlt (ON CONFLICT … DO NOTHING).\n--\n-- Voraussetzung: staging.station, staging.rad, staging.kunde, staging.fahrt\n-- mit den Spalten, die lab-10-etl.py schreibt. In staging.fahrt heißen die\n-- entpackten Spalten start_station_id, start_zeit (timestamptz, UTC),\n-- ziel_station_id; dazu loaded_at und source_file.\n--\n-- Ausführen: im SQL Editor von Supabase (Lab 08) oder in DataGrip (Lab 09).\n-- ===========================================================================\n\nCREATE SCHEMA IF NOT EXISTS mart;\n\n-- ---------------------------------------------------------------------------\n-- 1. Datumsdimension\n--    Schlüssel YYYYMMDD als Ganzzahl (die einzige Dimension, bei der ein\n--    sprechender Schlüssel üblich ist). Eine Zeile -1 für \"unbekannt\", damit\n--    ein Fakt ohne gültiges Datum nicht verloren geht.\n-- ---------------------------------------------------------------------------\n\nCREATE TABLE IF NOT EXISTS mart.dim_datum (\n  datum_key       integer PRIMARY KEY,      -- 20260901, -1 = unbekannt\n  datum           date,\n  jahr            integer,\n  quartal         integer,\n  monat           integer,\n  monat_name      text,\n  kw_iso          integer,\n  wochentag       integer,                  -- ISO: 1 = Montag … 7 = Sonntag\n  wochentag_name  text,\n  wochenende      boolean NOT NULL DEFAULT false\n);\n\nINSERT INTO mart.dim_datum\n  (datum_key, datum, jahr, quartal, monat, monat_name, kw_iso, wochentag, wochentag_name, wochenende)\nSELECT\n  to_char(d, 'YYYYMMDD')::int,\n  d::date,\n  extract(year    FROM d)::int,\n  extract(quarter FROM d)::int,\n  extract(month   FROM d)::int,\n  (ARRAY['Januar','Februar','März','April','Mai','Juni','Juli','August',\n         'September','Oktober','November','Dezember'])[extract(month FROM d)::int],\n  extract(week    FROM d)::int,\n  extract(isodow  FROM d)::int,\n  (ARRAY['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'])\n         [extract(isodow FROM d)::int],\n  extract(isodow  FROM d) >= 6\nFROM generate_series(DATE '2024-01-01', DATE '2027-12-31', interval '1 day') AS d\nON CONFLICT (datum_key) DO NOTHING;\n\nINSERT INTO mart.dim_datum (datum_key, monat_name, wochentag_name)\nVALUES (-1, 'Unbekannt', 'Unbekannt')\nON CONFLICT (datum_key) DO NOTHING;\n\n-- ---------------------------------------------------------------------------\n-- 2. Stationsdimension\n--    Surrogatschlüssel station_sk (vom System vergeben), natürlicher\n--    Schlüssel station_id (aus der Quelle) bleibt als Attribut mit UNIQUE.\n--    Der Upsert ist SCD Typ 1: Ein neuer Stationsname überschreibt den alten.\n-- ---------------------------------------------------------------------------\n\nCREATE TABLE IF NOT EXISTS mart.dim_station (\n  station_sk  integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  station_id  integer NOT NULL UNIQUE,      -- natürlicher Schlüssel\n  name        text    NOT NULL,\n  bezirk      text    NOT NULL,\n  plaetze     integer,\n  eroeffnet   date\n);\n\n-- Die Unbekannt-Zeile bekommt ausdrücklich den Schlüssel -1. Bei einer\n-- Identity-Spalte geht das nur mit OVERRIDING SYSTEM VALUE.\nINSERT INTO mart.dim_station (station_sk, station_id, name, bezirk)\nOVERRIDING SYSTEM VALUE\nVALUES (-1, -1, 'Unbekannt', 'Unbekannt')\nON CONFLICT (station_id) DO NOTHING;\n\nINSERT INTO mart.dim_station (station_id, name, bezirk, plaetze, eroeffnet)\nSELECT station_id, name, bezirk, plaetze, eroeffnet::date\nFROM staging.station\nON CONFLICT (station_id) DO UPDATE\n   SET name      = EXCLUDED.name,\n       bezirk    = EXCLUDED.bezirk,\n       plaetze   = EXCLUDED.plaetze,\n       eroeffnet = EXCLUDED.eroeffnet;\n\n-- ---------------------------------------------------------------------------\n-- 3. Raddimension\n-- ---------------------------------------------------------------------------\n\nCREATE TABLE IF NOT EXISTS mart.dim_rad (\n  rad_sk       integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  rad_id       text    NOT NULL UNIQUE,     -- natürlicher Schlüssel, z. B. R-017\n  typ          text    NOT NULL,            -- CITY, EBIKE, CARGO\n  baujahr      integer,\n  heimstation  integer,\n  status       text\n);\n\nINSERT INTO mart.dim_rad (rad_sk, rad_id, typ)\nOVERRIDING SYSTEM VALUE\nVALUES (-1, 'UNBEKANNT', 'Unbekannt')\nON CONFLICT (rad_id) DO NOTHING;\n\nINSERT INTO mart.dim_rad (rad_id, typ, baujahr, heimstation, status)\nSELECT rad_id, typ, baujahr, heimstation, status\nFROM staging.rad\nON CONFLICT (rad_id) DO UPDATE\n   SET typ         = EXCLUDED.typ,\n       baujahr     = EXCLUDED.baujahr,\n       heimstation = EXCLUDED.heimstation,\n       status      = EXCLUDED.status;\n\n-- ---------------------------------------------------------------------------\n-- 4. Kundendimension\n--    Enthält keine Namen oder Adressen – die Quelle liefert nur Tarif,\n--    Registrierungsdatum und Bezirk. Personenbezogene Felder würde man\n--    VOR dem Laden entfernen (das wäre der ETL-Fall), nicht hier.\n-- ---------------------------------------------------------------------------\n\nCREATE TABLE IF NOT EXISTS mart.dim_kunde (\n  kunde_sk     integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  kunde_id     integer NOT NULL UNIQUE,     -- natürlicher Schlüssel\n  tarif        text    NOT NULL,            -- Basis, Plus, Jahr\n  registriert  date,\n  bezirk       text\n);\n\nINSERT INTO mart.dim_kunde (kunde_sk, kunde_id, tarif)\nOVERRIDING SYSTEM VALUE\nVALUES (-1, -1, 'Unbekannt')\nON CONFLICT (kunde_id) DO NOTHING;\n\nINSERT INTO mart.dim_kunde (kunde_id, tarif, registriert, bezirk)\nSELECT kunde_id, tarif, registriert::date, bezirk\nFROM staging.kunde\nON CONFLICT (kunde_id) DO UPDATE\n   SET tarif       = EXCLUDED.tarif,\n       registriert = EXCLUDED.registriert,\n       bezirk      = EXCLUDED.bezirk;\n\n-- ---------------------------------------------------------------------------\n-- 5. Faktentabelle – Grain: eine Zeile je Fahrt\n--    Fremdschlüssel zeigen auf die Surrogatschlüssel der Dimensionen.\n--    fahrt_id bleibt als degenerierte Dimension in der Faktentabelle und\n--    sichert als UNIQUE, dass ein zweiter Lauf keine Fahrt doppelt anlegt.\n-- ---------------------------------------------------------------------------\n\nCREATE TABLE IF NOT EXISTS mart.fact_fahrt (\n  fahrt_id          integer PRIMARY KEY,                             -- natürlicher Schlüssel\n  datum_key         integer NOT NULL REFERENCES mart.dim_datum   (datum_key),\n  start_station_sk  integer NOT NULL REFERENCES mart.dim_station (station_sk),\n  ziel_station_sk   integer NOT NULL REFERENCES mart.dim_station (station_sk),\n  rad_sk            integer NOT NULL REFERENCES mart.dim_rad     (rad_sk),\n  kunde_sk          integer NOT NULL REFERENCES mart.dim_kunde   (kunde_sk),\n  start_zeit        timestamptz NOT NULL,\n  stunde            integer NOT NULL,                                -- Ortszeit Europe/Berlin\n  dauer_min         integer NOT NULL,                                -- Measure\n  preis_eur         numeric(6,2) NOT NULL,                           -- Measure, exakt\n  loaded_at         timestamptz NOT NULL DEFAULT now()\n);\n\n-- Deduplizieren: Kommt eine Fahrt in staging mehrfach vor (zwei Läufe,\n-- zwei Exportdateien), zählt die zuletzt geladene Fassung.\nWITH nummeriert AS (\n  SELECT f.*,\n         row_number() OVER (PARTITION BY f.fahrt_id ORDER BY f.loaded_at DESC) AS rn\n  FROM staging.fahrt f\n),\nbereinigt AS (\n  SELECT * FROM nummeriert WHERE rn = 1\n)\nINSERT INTO mart.fact_fahrt\n  (fahrt_id, datum_key, start_station_sk, ziel_station_sk, rad_sk, kunde_sk,\n   start_zeit, stunde, dauer_min, preis_eur)\nSELECT\n  b.fahrt_id,\n  COALESCE(d.datum_key, -1),\n  COALESCE(s1.station_sk, -1),\n  COALESCE(s2.station_sk, -1),\n  COALESCE(r.rad_sk, -1),\n  COALESCE(k.kunde_sk, -1),\n  b.start_zeit,\n  extract(hour FROM (b.start_zeit AT TIME ZONE 'Europe/Berlin'))::int,\n  b.dauer_min,\n  b.preis_eur::numeric(6,2)\nFROM bereinigt b\nLEFT JOIN mart.dim_datum   d  ON d.datum      = (b.start_zeit AT TIME ZONE 'Europe/Berlin')::date\nLEFT JOIN mart.dim_station s1 ON s1.station_id = b.start_station_id\nLEFT JOIN mart.dim_station s2 ON s2.station_id = b.ziel_station_id\nLEFT JOIN mart.dim_rad     r  ON r.rad_id      = b.rad_id\nLEFT JOIN mart.dim_kunde   k  ON k.kunde_id    = b.kunde_id\nON CONFLICT (fahrt_id) DO NOTHING;\n\n-- ---------------------------------------------------------------------------\n-- 6. Ein leichtes Mart als Materialized View: Fahrten je Station und Tag.\n--    Der UNIQUE-Index ist Pflicht, sonst ist REFRESH … CONCURRENTLY nicht\n--    erlaubt. CONCURRENTLY sperrt Lesende nicht aus – Power BI und Tableau\n--    (Lab 12/13) können während der Aktualisierung weiter abfragen.\n-- ---------------------------------------------------------------------------\n\nCREATE MATERIALIZED VIEW IF NOT EXISTS mart.fahrten_station_tag AS\nSELECT\n  d.datum,\n  d.wochentag_name,\n  d.wochenende,\n  s.name                    AS station,\n  s.bezirk,\n  count(*)                  AS fahrten,\n  sum(f.dauer_min)          AS minuten,\n  sum(f.preis_eur)          AS umsatz_eur\nFROM mart.fact_fahrt f\nJOIN mart.dim_datum   d ON d.datum_key  = f.datum_key\nJOIN mart.dim_station s ON s.station_sk = f.start_station_sk\nGROUP BY d.datum, d.wochentag_name, d.wochenende, s.name, s.bezirk;\n\nCREATE UNIQUE INDEX IF NOT EXISTS fahrten_station_tag_uq\n  ON mart.fahrten_station_tag (datum, station);\n\nREFRESH MATERIALIZED VIEW CONCURRENTLY mart.fahrten_station_tag;\n\n-- ---------------------------------------------------------------------------\n-- 7. Datenqualität als SQL-Zusicherungen (dieselben vier Tests wie in dbt:\n--    unique, not_null, accepted_values, relationships). Jede Abfrage muss\n--    0 liefern; alles andere ist ein Befund, der den Lauf stoppen sollte.\n-- ---------------------------------------------------------------------------\n\nSELECT 'unique fahrt_id'        AS test, count(*) - count(DISTINCT fahrt_id) AS befunde FROM mart.fact_fahrt\nUNION ALL\nSELECT 'not_null preis_eur',       count(*) FROM mart.fact_fahrt WHERE preis_eur IS NULL\nUNION ALL\nSELECT 'accepted_values typ',      count(*) FROM mart.dim_rad WHERE typ NOT IN ('CITY','EBIKE','CARGO','Unbekannt')\nUNION ALL\nSELECT 'relationships station',    count(*) FROM mart.fact_fahrt f\n                                   LEFT JOIN mart.dim_station s ON s.station_sk = f.start_station_sk\n                                   WHERE s.station_sk IS NULL\nUNION ALL\nSELECT 'unbekannte Schlüssel',     count(*) FROM mart.fact_fahrt\n                                   WHERE -1 IN (datum_key, start_station_sk, ziel_station_sk, rad_sk, kunde_sk);\n\n-- ---------------------------------------------------------------------------\n-- 8. Nächtliche Aktualisierung auf Supabase mit pg_cron\n--    (Erweiterung unter Database → Extensions einschalten; Zeiten in UTC,\n--    also 02:15 UTC = 04:15 Sommerzeit / 03:15 Winterzeit in Würzburg).\n--    Das Auskommentieren aufheben, wenn pg_cron aktiv ist:\n--\n-- SELECT cron.schedule(\n--   'refresh-fahrten-station-tag',                                  -- Name des Jobs\n--   '15 2 * * *',                                                   -- täglich 02:15 UTC\n--   $$REFRESH MATERIALIZED VIEW CONCURRENTLY mart.fahrten_station_tag$$\n-- );\n-- SELECT * FROM cron.job;                  -- eingerichtete Jobs\n-- SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 10;   -- Protokoll\n-- ---------------------------------------------------------------------------",
+      "teile": [
+        {
+          "was": "IF NOT EXISTS + ON CONFLICT",
+          "bedeutet": {
+            "de": "Das Skript darf beliebig oft laufen: Tabellen entstehen nur, wenn sie fehlen, Dimensionen werden per Upsert aktualisiert, Fakten nur eingefügt, wenn die fahrt_id neu ist. Das ist Idempotenz in SQL.",
+            "en": "The script may run any number of times: tables are created only if missing, dimensions are updated by upsert, facts are inserted only if the fahrt_id is new. That is idempotency in SQL."
+          }
+        },
+        {
+          "was": "GENERATED ALWAYS AS IDENTITY",
+          "bedeutet": {
+            "de": "Der Surrogatschlüssel station_sk wird vom System vergeben. Der natürliche Schlüssel station_id bleibt als Attribut mit UNIQUE erhalten – über ihn findet der Upsert die Zeile.",
+            "en": "The surrogate key station_sk is assigned by the system. The natural key station_id stays as an attribute with UNIQUE – the upsert finds the row through it."
+          }
+        },
+        {
+          "was": "OVERRIDING SYSTEM VALUE",
+          "bedeutet": {
+            "de": "Nur so lässt sich in eine Identity-Spalte ein eigener Wert schreiben – hier die Unbekannt-Zeile mit dem Schlüssel -1, auf die COALESCE(…, -1) beim Laden der Fakten zeigt.",
+            "en": "The only way to write your own value into an identity column – here the unknown row with key -1, which COALESCE(…, -1) points to when loading the facts."
+          }
+        },
+        {
+          "was": "AT TIME ZONE 'Europe/Berlin'",
+          "bedeutet": {
+            "de": "Die Fakten tragen start_zeit als timestamptz (UTC). Für datum_key und stunde wird in Ortszeit umgerechnet – eine Fahrt um 00:30 Ortszeit gehört zum richtigen Tag, nicht zum Vortag.",
+            "en": "The facts carry start_zeit as timestamptz (UTC). For datum_key and stunde the value is converted to local time – a ride at 00:30 local time belongs to the right day, not the day before."
+          }
+        },
+        {
+          "was": "Abschnitt 7: Tests",
+          "bedeutet": {
+            "de": "Vier Zusicherungen, die 0 liefern müssen – dieselben, die dbt als unique, not_null, accepted_values und relationships mitbringt. Eine Pipeline ohne diese Zeilen meldet Fehler erst, wenn die Zahlen im Dashboard falsch sind.",
+            "en": "Four assertions that must return 0 – the same ones dbt ships as unique, not_null, accepted_values and relationships. A pipeline without these lines reports errors only once the numbers in the dashboard are wrong."
+          }
+        }
+      ]
+    },
+    "B09": {
+      "titel": {
+        "de": "Der Werkzeugkasten: requests → pandas → to_sql",
+        "en": "The toolkit: requests → pandas → to_sql"
+      },
+      "prompt": "Python",
+      "befehl": "import os, logging, requests, pandas as pd\nfrom dotenv import load_dotenv\nfrom sqlalchemy import create_engine, Numeric\n\nload_dotenv()                                   # .env → os.environ\nlog = logging.getLogger(\"etl\")\n\n# Extract\nr = requests.get(os.environ[\"VELOCITY_QUELLE\"], timeout=30)\nr.raise_for_status()\nexport = r.json()\n\n# Transform (leicht: Struktur, Typen, Duplikate)\ndf = pd.json_normalize(export[\"fahrten\"], sep=\"_\")\ndf[\"start_zeit\"] = (pd.to_datetime(df[\"start_zeit\"])\n                      .dt.tz_localize(\"Europe/Berlin\").dt.tz_convert(\"UTC\"))\ndf = df.astype({\"fahrt_id\": \"int64\", \"dauer_min\": \"int64\"})\ndf = df.drop_duplicates(subset=[\"fahrt_id\"], keep=\"last\")\ndf[\"loaded_at\"] = pd.Timestamp.now(tz=\"UTC\")\n\n# Load\nengine = create_engine(os.environ[\"DATABASE_URL\"])\n#   sqlite:///velocity.db            – Datei im Arbeitsverzeichnis\n#   postgresql+psycopg://user:pw@host:5432/postgres?sslmode=require\nn = df.to_sql(\"fahrt\", engine, schema=\"staging\", if_exists=\"replace\",\n              index=False, chunksize=500, method=\"multi\",\n              dtype={\"preis_eur\": Numeric(6, 2)})\nlog.info(\"fahrt: %s Zeilen geladen\", n)",
+      "teile": [
+        {
+          "was": "json_normalize(…, sep=\"_\")",
+          "bedeutet": {
+            "de": "Klappt verschachtelte Objekte flach: aus start.station_id wird start_station_id. Mit record_path=\"raeder\" und meta=[\"station_id\"] wird eine innere Liste zu einer eigenen Tabelle – das Gegenstück zu jsonb_array_elements (B01).",
+            "en": "Flattens nested objects: start.station_id becomes start_station_id. With record_path=\"raeder\" and meta=[\"station_id\"] an inner list becomes its own table – the counterpart to jsonb_array_elements (B01)."
+          }
+        },
+        {
+          "was": "tz_localize → tz_convert",
+          "bedeutet": {
+            "de": "Naive Ortszeit erst kennzeichnen, dann umrechnen. pd.to_datetime(…, utc=True) ist nur für Werte richtig, die schon eine Zone tragen („+02:00“) – bei naiven Werten liest es sie als UTC und verschiebt alles um ein bis zwei Stunden.",
+            "en": "Mark naive local time first, then convert. pd.to_datetime(…, utc=True) is right only for values that already carry a zone (“+02:00”) – with naive values it reads them as UTC and shifts everything by one or two hours."
+          }
+        },
+        {
+          "was": "to_sql(name, con, schema=…, if_exists=…)",
+          "bedeutet": {
+            "de": "Signatur laut pandas 3.0: to_sql(name, con, *, schema=None, if_exists='fail', index=True, chunksize=None, dtype=None, method=None). if_exists: 'fail' (Standard, Fehler), 'replace' (Tabelle löschen und neu anlegen – auch Indizes und Constraints sind weg), 'append' (anhängen – Duplikate bei Wiederholung), 'delete_rows' (Zeilen löschen, Tabellendefinition behalten; pandas 3.0).",
+            "en": "Signature per pandas 3.0: to_sql(name, con, *, schema=None, if_exists='fail', index=True, chunksize=None, dtype=None, method=None). if_exists: 'fail' (default, error), 'replace' (drop and recreate the table – indexes and constraints are gone too), 'append' (add rows – duplicates on re-run), 'delete_rows' (delete rows, keep the table definition; pandas 3.0)."
+          }
+        },
+        {
+          "was": "chunksize, method=\"multi\"",
+          "bedeutet": {
+            "de": "chunksize sendet 500 Zeilen je Paket statt alles auf einmal; method=\"multi\" packt mehrere Zeilen in ein INSERT. Bei 1.500 Zeilen egal, bei 1,5 Millionen der Unterschied zwischen Minuten und Stunden.",
+            "en": "chunksize sends 500 rows per batch instead of everything at once; method=\"multi\" puts several rows into one INSERT. Irrelevant for 1,500 rows, the difference between minutes and hours for 1.5 million."
+          }
+        },
+        {
+          "was": "dtype={\"preis_eur\": Numeric(6, 2)}",
+          "bedeutet": {
+            "de": "Ohne diese Angabe schreibt pandas einen float64 als double precision – Gleitkomma-Geld. Der dtype-Parameter erzwingt den exakten Typ in der Zieltabelle.",
+            "en": "Without this, pandas writes a float64 as double precision – floating-point money. The dtype parameter forces the exact type in the target table."
+          }
+        },
+        {
+          "was": "postgresql+psycopg://",
+          "bedeutet": {
+            "de": "Dialekt plus Treiber in der SQLAlchemy-URL: psycopg 3 (pip install \"psycopg[binary]\"). Ohne das Plus-Suffix erwartet SQLAlchemy psycopg2. sqlite:///pfad.db mit drei Schrägstrichen ist ein relativer Pfad, vier sind ein absoluter.",
+            "en": "Dialect plus driver in the SQLAlchemy URL: psycopg 3 (pip install \"psycopg[binary]\"). Without the plus suffix SQLAlchemy expects psycopg2. sqlite:///path.db with three slashes is a relative path, four an absolute one."
+          }
+        },
+        {
+          "was": "load_dotenv()",
+          "bedeutet": {
+            "de": "python-dotenv liest die Datei .env in os.environ – vorhandene Variablen bleiben unangetastet. Auf einem Server (Lab 11) gibt es keine .env; dort kommen dieselben Namen aus dem Dashboard.",
+            "en": "python-dotenv reads the .env file into os.environ – existing variables stay untouched. On a server (lab 11) there is no .env; there the same names come from the dashboard."
+          }
+        }
+      ]
+    },
+    "B10": {
+      "titel": {
+        "de": "vorlagen/lab-10-etl.py – das vollständige Skript",
+        "en": "vorlagen/lab-10-etl.py – the complete script"
+      },
+      "prompt": "📄",
+      "befehl": "\"\"\"Velo City – Extract, (leichtes) Transform, Load.\n\nLab 10 der WInf-SP-Lab. Das Skript holt den verschachtelten JSON-Export\n(Lab 05), klappt ihn mit pandas in vier flache Tabellen auf, setzt Typen\nund Zeitzonen richtig, entfernt Duplikate und lädt das Ergebnis\n\n  1. in eine SQLite-Datei als Staging auf dem Laptop (Lab 06) und\n  2. in das Schema \"staging\" einer Postgres-Datenbank (Supabase, Lab 08).\n\nDie fachliche Umformung zum Sternschema passiert danach in SQL, in der\nZieldatenbank: vorlagen/lab-10-sternschema.sql. Das Muster heißt EtLT:\nkleines t vor dem Laden (Typen, Zeitzone, Duplikate), großes T danach.\n\nDas Skript ist wiederholbar: Jeder Lauf ersetzt die Staging-Tabellen\nvollständig (if_exists=\"replace\"). Duplikate durch mehrfaches Ausführen\nentstehen so nicht.\n\nVoraussetzungen (requirements.txt):\n    pandas  sqlalchemy  \"psycopg[binary]\"  python-dotenv  requests\n\nAufruf:\n    python lab-10-etl.py\nDie Zugangsdaten kommen aus der Datei .env (siehe lab-10-env.example),\nnie aus dem Quelltext.\n\"\"\"\n\nimport json\nimport logging\nimport os\nimport sys\nfrom pathlib import Path\n\nimport pandas as pd\nimport requests\nfrom dotenv import load_dotenv\nfrom sqlalchemy import DateTime, Numeric, create_engine, text\n\n# ------------------------------------------------------------------ Setup\n\n# .env in die Umgebung laden. Vorhandene Variablen werden nicht\n# überschrieben – auf einem Server (Lab 11) gewinnt also das Dashboard.\nload_dotenv()\n\nlogging.basicConfig(\n    level=logging.INFO,\n    format=\"%(asctime)s  %(levelname)-7s  %(message)s\",\n    datefmt=\"%H:%M:%S\",\n)\nlog = logging.getLogger(\"etl\")\n\nQUELLE = os.getenv(\"VELOCITY_QUELLE\", \"data/velocity.json\")\nSTAGING_DB = os.getenv(\"STAGING_DB\", \"sqlite:///velocity-staging.db\")\nDATABASE_URL = os.getenv(\"DATABASE_URL\")          # None, wenn nicht gesetzt\nZEITZONE_QUELLE = \"Europe/Berlin\"                 # die Zeiten im Export sind Ortszeit\n\n\n# ---------------------------------------------------------------- Extract\n\ndef extract(quelle: str) -> dict:\n    \"\"\"Liest den Export aus einer Datei oder von einer URL – unverändert.\"\"\"\n    if quelle.startswith((\"http://\", \"https://\")):\n        antwort = requests.get(quelle, timeout=30)\n        antwort.raise_for_status()               # 4xx/5xx wird zum Fehler\n        export = antwort.json()\n    else:\n        with Path(quelle).open(encoding=\"utf-8\") as datei:\n            export = json.load(datei)\n    log.info(\n        \"Extract: %s – Quelle %r, exportiert am %s\",\n        quelle, export.get(\"quelle\"), export.get(\"exportiert_am\"),\n    )\n    return export\n\n\n# -------------------------------------------------------------- Transform\n\ndef transform(export: dict, quelle: str) -> dict[str, pd.DataFrame]:\n    \"\"\"Klappt das verschachtelte Dokument in vier flache Tabellen auf.\n\n    Hier passiert nur das leichte t: Struktur, Typen, Zeitzone, Duplikate.\n    Fachliche Logik (Sternschema, Kennzahlen) gehört in SQL, siehe\n    lab-10-sternschema.sql.\n    \"\"\"\n    loaded_at = pd.Timestamp.now(tz=\"UTC\")       # ein Zeitstempel je Lauf\n    source_file = Path(quelle).name\n\n    # Stationen: die innere Liste \"raeder\" wird zu einer eigenen Tabelle.\n    station = pd.json_normalize(export[\"stationen\"]).drop(columns=[\"raeder\"])\n    station = station.astype({\"station_id\": \"int64\", \"plaetze\": \"int64\"})\n    station[\"eroeffnet\"] = pd.to_datetime(station[\"eroeffnet\"]).dt.date\n\n    # Räder: eine Zeile je Rad, die Station der äußeren Ebene wird wiederholt.\n    rad = pd.json_normalize(\n        export[\"stationen\"], record_path=\"raeder\", meta=[\"station_id\"]\n    ).rename(columns={\"station_id\": \"heimstation\"})\n    rad = rad.astype({\"baujahr\": \"int64\", \"heimstation\": \"int64\"})\n\n    kunde = pd.json_normalize(export[\"kunden\"]).astype({\"kunde_id\": \"int64\"})\n    kunde[\"registriert\"] = pd.to_datetime(kunde[\"registriert\"]).dt.date\n\n    # Fahrten: verschachtelte Felder werden zu start_station_id, start_zeit,\n    # ziel_station_id (sep=\"_\" statt des Standards \".\").\n    fahrt = pd.json_normalize(export[\"fahrten\"], sep=\"_\")\n    fahrt = fahrt.astype({\n        \"fahrt_id\": \"int64\", \"kunde_id\": \"int64\", \"dauer_min\": \"int64\",\n        \"start_station_id\": \"int64\", \"ziel_station_id\": \"int64\",\n    })\n\n    # Zeitzone: Der Export enthält naive Ortszeiten (\"2025-10-05T07:58:00\").\n    # Erst als Europe/Berlin kennzeichnen, dann nach UTC umrechnen – so\n    # steht in der Datenbank ein eindeutiger Zeitpunkt (timestamptz).\n    # to_datetime(..., utc=True) allein wäre hier FALSCH: Es würde die\n    # Ortszeit als UTC lesen und alles um ein bis zwei Stunden verschieben.\n    fahrt[\"start_zeit\"] = (\n        pd.to_datetime(fahrt[\"start_zeit\"])\n        .dt.tz_localize(ZEITZONE_QUELLE, ambiguous=\"NaT\", nonexistent=\"shift_forward\")\n        .dt.tz_convert(\"UTC\")\n    )\n    unklar = int(fahrt[\"start_zeit\"].isna().sum())\n    if unklar:\n        log.warning(\"Transform: %d Zeitstempel in der Umstellungsstunde nicht eindeutig\", unklar)\n\n    # Geld: zwei Nachkommastellen; in der Datenbank wird es numeric(6,2),\n    # nicht double precision (siehe dtype beim Laden).\n    fahrt[\"preis_eur\"] = fahrt[\"preis_eur\"].round(2)\n\n    # Duplikate: kommt eine fahrt_id doppelt vor, gilt die letzte Fassung.\n    vorher = len(fahrt)\n    fahrt = fahrt.drop_duplicates(subset=[\"fahrt_id\"], keep=\"last\")\n    log.info(\"Transform: %d Fahrten, davon %d Duplikate entfernt\", vorher, vorher - len(fahrt))\n\n    # Herkunftsspalten in jeder Staging-Tabelle: Wann und woher.\n    tabellen = {\"station\": station, \"rad\": rad, \"kunde\": kunde, \"fahrt\": fahrt}\n    for df in tabellen.values():\n        df[\"loaded_at\"] = loaded_at\n        df[\"source_file\"] = source_file\n\n    # Der aware Zeitstempel des Exports: hier ist utc=True richtig, weil\n    # der Wert eine Zone trägt (\"+02:00\") und nur umgerechnet wird.\n    exportiert = pd.to_datetime(export[\"exportiert_am\"], utc=True)\n    log.info(\"Transform: Export vom %s (UTC)\", exportiert.isoformat())\n\n    for name, df in tabellen.items():\n        log.info(\"Transform: %-8s %5d Zeilen, %d Spalten\", name, len(df), df.shape[1])\n    return tabellen\n\n\n# ------------------------------------------------------------------- Load\n\n# Spaltentypen, die pandas nicht von allein richtig wählt: Geld exakt,\n# Zeitstempel mit Zeitzone. Gilt für beide Ziele.\nTYPEN = {\n    \"fahrt\": {\"preis_eur\": Numeric(6, 2), \"start_zeit\": DateTime(timezone=True)},\n}\n\n\ndef load(tabellen: dict[str, pd.DataFrame], url: str, schema: str | None) -> None:\n    \"\"\"Schreibt jede Tabelle vollständig neu in die Datenbank hinter url.\n\n    if_exists=\"replace\" löscht die Tabelle samt Indizes und legt sie neu an.\n    Für eine Staging-Schicht ist das gewollt: Sie ist eine Kopie der\n    Quelle, kein Bestand, der wächst. Für Fakten- und Dimensionstabellen\n    wäre es falsch – dort arbeitet lab-10-sternschema.sql mit Upserts.\n    \"\"\"\n    engine = create_engine(url)\n    if schema:\n        with engine.begin() as verbindung:\n            verbindung.execute(text(f\"CREATE SCHEMA IF NOT EXISTS {schema}\"))\n    for name, df in tabellen.items():\n        zeilen = df.to_sql(\n            name, engine,\n            schema=schema,\n            if_exists=\"replace\",\n            index=False,\n            chunksize=500,           # 500 Zeilen je INSERT-Paket\n            method=\"multi\",          # mehrere Zeilen je INSERT\n            dtype=TYPEN.get(name),\n        )\n        ziel = f\"{schema}.{name}\" if schema else name\n        log.info(\"Load: %-16s %5s Zeilen → %s\", ziel, zeilen, engine.url.render_as_string(hide_password=True))\n    engine.dispose()\n\n\n# ------------------------------------------------------------------- main\n\ndef main() -> int:\n    export = extract(QUELLE)\n    tabellen = transform(export, QUELLE)\n\n    # 1. Staging auf dem Laptop: SQLite kennt keine Schemata, daher schema=None.\n    load(tabellen, STAGING_DB, schema=None)\n\n    # 2. Staging in Postgres: nur, wenn DATABASE_URL gesetzt ist.\n    if not DATABASE_URL:\n        log.warning(\"Load: DATABASE_URL nicht gesetzt – Postgres übersprungen (siehe .env)\")\n        return 0\n    load(tabellen, DATABASE_URL, schema=\"staging\")\n    log.info(\"Fertig. Nächster Schritt: lab-10-sternschema.sql in der Zieldatenbank ausführen.\")\n    return 0\n\n\nif __name__ == \"__main__\":\n    sys.exit(main())",
+      "teile": [
+        {
+          "was": "extract / transform / load",
+          "bedeutet": {
+            "de": "Drei Funktionen, drei Schritte. Jede protokolliert Zeilenzahlen – der Lauf hinterlässt eine Spur, an der sich Abweichungen erkennen lassen („gestern 1.500 Fahrten, heute 300“).",
+            "en": "Three functions, three steps. Each logs row counts – the run leaves a trail on which deviations can be spotted (“1,500 rides yesterday, 300 today”)."
+          }
+        },
+        {
+          "was": "Datei oder URL",
+          "bedeutet": {
+            "de": "extract() liest einen Pfad oder eine http(s)-Adresse – die Quelle steht in VELOCITY_QUELLE, nicht im Code. raise_for_status() macht aus einem 404 einen Fehler, statt leere Tabellen zu laden.",
+            "en": "extract() reads a path or an http(s) address – the source sits in VELOCITY_QUELLE, not in the code. raise_for_status() turns a 404 into an error instead of loading empty tables."
+          }
+        },
+        {
+          "was": "if_exists=\"replace\" für Staging",
+          "bedeutet": {
+            "de": "Die Staging-Tabellen sind eine Kopie der Quelle und werden je Lauf ersetzt – so entstehen keine Duplikate. Für das Mart wäre replace falsch; dort arbeitet lab-10-sternschema.sql mit Upserts.",
+            "en": "The staging tables are a copy of the source and are replaced per run – so no duplicates arise. For the mart, replace would be wrong; there lab-10-sternschema.sql works with upserts."
+          }
+        },
+        {
+          "was": "Zwei Ziele, ein Code",
+          "bedeutet": {
+            "de": "Dieselbe load()-Funktion schreibt nach SQLite (Lab 06, schema=None, weil SQLite keine Schemata kennt) und nach Postgres (Lab 08, schema=\"staging\"). Nur die URL unterscheidet sich.",
+            "en": "The same load() function writes to SQLite (lab 06, schema=None because SQLite has no schemas) and to Postgres (lab 08, schema=\"staging\"). Only the URL differs."
+          }
+        },
+        {
+          "was": "DATABASE_URL fehlt?",
+          "bedeutet": {
+            "de": "Dann läuft das Skript bis SQLite und meldet, dass Postgres übersprungen wurde. Kein Absturz mit KeyError – aber auch kein stilles Weglassen: Die Warnung steht im Protokoll.",
+            "en": "Then the script runs up to SQLite and reports that Postgres was skipped. No crash with KeyError – but no silent omission either: the warning is in the log."
+          }
+        }
+      ]
+    },
+    "B11": {
+      "titel": {
+        "de": "vorlagen/lab-10-env.example – Zugangsdaten außerhalb des Codes",
+        "en": "vorlagen/lab-10-env.example – credentials outside the code"
+      },
+      "prompt": "📄",
+      "befehl": "# ===========================================================================\n# WInf-SP-Lab · Lab 10 · Vorlage für die Datei .env\n#\n# So verwenden:\n#   1. Diese Datei als \".env\" in den Projektordner kopieren (ohne \".example\").\n#   2. Die Platzhalter [REF] und [PASSWORT] ersetzen.\n#   3. \".env\" in die .gitignore eintragen (Lab 02) – sie darf NIE in ein\n#      Repository. Diese Vorlage hier darf es, weil sie keine Geheimnisse\n#      enthält.\n#\n# Das Skript lab-10-etl.py liest die Datei mit load_dotenv() ein; die\n# Werte landen in der Umgebung (os.environ) und nicht im Quelltext.\n# Dieselben Namen werden in Lab 11 (Render) als Environment Variables\n# im Dashboard eingetragen – dort gibt es keine .env-Datei.\n# ===========================================================================\n\n# Verbindung zur Zieldatenbank (Supabase, Lab 08) als SQLAlchemy-URL.\n#\n#   postgresql+psycopg   Dialekt (PostgreSQL) + Treiber (psycopg 3).\n#                        Ohne \"+psycopg\" nimmt SQLAlchemy psycopg2.\n#   postgres.[REF]       Benutzername beim Pooler: \"postgres.\" plus die\n#                        Projektkennung – nicht nur \"postgres\".\n#   [PASSWORT]           Das Datenbankpasswort aus der Projektanlage.\n#                        Sonderzeichen darin (z. B. @, #, /) müssen\n#                        URL-kodiert werden: @ → %40, # → %23, / → %2F.\n#   aws-0-eu-central-1.pooler.supabase.com:5432\n#                        Session Pooler, Port 5432, erreichbar über IPv4.\n#                        Die genaue Adresse steht im Dashboard unter\n#                        \"Connect\" → \"Session pooler\"; Region Frankfurt\n#                        ist eu-central-1. Port 6543 (Transaction Pooler)\n#                        ist für dieses Skript nicht geeignet.\n#   /postgres            Name der Datenbank.\n#   ?sslmode=require     Verschlüsselte Verbindung erzwingen.\nDATABASE_URL=postgresql+psycopg://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:5432/postgres?sslmode=require\n\n# Quelle des Exports: ein lokaler Pfad oder eine http(s)-Adresse.\nVELOCITY_QUELLE=data/velocity.json\n\n# Staging auf dem Laptop (Lab 06): eine SQLite-Datei, wird bei Bedarf angelegt.\nSTAGING_DB=sqlite:///velocity-staging.db",
+      "teile": [
+        {
+          "was": ".env.example vs. .env",
+          "bedeutet": {
+            "de": "Die Vorlage mit Platzhaltern darf ins Repository, die ausgefüllte .env nie. Deshalb steht .env in der .gitignore (Lab 02) – und die Vorlage heißt anders, damit die Regel greift.",
+            "en": "The template with placeholders may go into the repository, the filled-in .env never. That is why .env is in the .gitignore (lab 02) – and the template is named differently so the rule applies."
+          }
+        },
+        {
+          "was": "postgres.[REF]",
+          "bedeutet": {
+            "de": "Beim Session Pooler enthält der Benutzername die Projektkennung (Lab 08). Nur postgres führt zu einem Anmeldefehler.",
+            "en": "With the session pooler the user name contains the project reference (lab 08). Just postgres leads to an authentication error."
+          }
+        },
+        {
+          "was": "Sonderzeichen im Passwort",
+          "bedeutet": {
+            "de": "In einer URL sind @, #, / und : Trennzeichen. Ein Passwort mit solchen Zeichen muss URL-kodiert werden (@ → %40), sonst zerlegt SQLAlchemy die Zeichenkette falsch – mit einer Fehlermeldung, die nach falschem Host aussieht.",
+            "en": "In a URL, @, #, / and : are separators. A password containing them must be URL-encoded (@ → %40), otherwise SQLAlchemy splits the string wrongly – with an error that looks like a wrong host."
+          }
+        },
+        {
+          "was": "12-factor",
+          "bedeutet": {
+            "de": "„The twelve-factor app stores config in environment variables.“ Der Lackmustest: Könnte der Code jederzeit veröffentlicht werden, ohne ein Geheimnis preiszugeben? Mit .env in der .gitignore: ja.",
+            "en": "“The twelve-factor app stores config in environment variables.” The litmus test: could the code be published at any moment without exposing a secret? With .env in the .gitignore: yes."
+          }
+        }
+      ]
+    },
+    "B12": {
+      "titel": {
+        "de": "DuckDB – SQL auf Dateien, ohne Server",
+        "en": "DuckDB – SQL on files, no server"
+      },
+      "prompt": "Python",
+      "befehl": "import duckdb                                   # pip install duckdb\n\ncon = duckdb.connect()                          # im Speicher, kein Server\n\n# JSON direkt abfragen – Struktur und Typen werden erkannt\ncon.sql(\"\"\"\n  SELECT f.fahrt_id, f.start.station_id AS start_station,\n         f.start.zeit::TIMESTAMP        AS start_zeit, f.preis_eur\n  FROM (SELECT unnest(fahrten) AS f FROM read_json('data/velocity.json'))\n\"\"\").show()\n\n# Ergebnis nach Postgres schreiben – DuckDB als T, Postgres als L\ncon.sql(\"INSTALL postgres; LOAD postgres;\")\ncon.sql(\"ATTACH 'dbname=postgres user=postgres.[REF] host=aws-0-eu-central-1.pooler.supabase.com password=…' AS pg (TYPE postgres)\")\ncon.sql(\"CREATE OR REPLACE TABLE pg.staging.fahrt_duck AS SELECT unnest(fahrten, recursive := true) FROM read_json('data/velocity.json')\")",
+      "teile": [
+        {
+          "was": "read_json('…')",
+          "bedeutet": {
+            "de": "Liest eine JSON-Datei als Tabelle; Format (Array, JSON Lines) und Typen werden erkannt. Dasselbe gibt es für CSV (read_csv, auch mit Platzhaltern wie 'fahrten-2026-*.csv') und Parquet. DuckDB 1.5, Stand 09/2026.",
+            "en": "Reads a JSON file as a table; format (array, JSON Lines) and types are detected. The same exists for CSV (read_csv, also with globs like 'fahrten-2026-*.csv') and Parquet. DuckDB 1.5, as of 09/2026."
+          }
+        },
+        {
+          "was": "unnest(fahrten)",
+          "bedeutet": {
+            "de": "Das DuckDB-Gegenstück zu jsonb_array_elements: aus der Liste werden Zeilen. Mit recursive := true werden verschachtelte Objekte gleich zu Spalten aufgeklappt.",
+            "en": "DuckDB's counterpart to jsonb_array_elements: the list becomes rows. With recursive := true nested objects are flattened into columns right away."
+          }
+        },
+        {
+          "was": "ATTACH … (TYPE postgres)",
+          "bedeutet": {
+            "de": "Bindet eine Postgres-Datenbank als Schema ein; danach sind INSERT INTO pg.… und CREATE TABLE pg.… AS gewöhnliches SQL. Zugangsdaten gehören auch hier in die Umgebung (PGPASSWORD) oder in ein DuckDB-Secret, nicht in die Zeichenkette.",
+            "en": "Attaches a Postgres database as a schema; afterwards INSERT INTO pg.… and CREATE TABLE pg.… AS are ordinary SQL. Credentials belong in the environment (PGPASSWORD) or a DuckDB secret here too, not in the string."
+          }
+        },
+        {
+          "was": "Wann DuckDB?",
+          "bedeutet": {
+            "de": "Wenn die Umformung auf dem Laptop stattfinden soll, aber in SQL statt in pandas – etwa weil SQLite als Ziel zu schwach ist (Microsofts „constrained target“). DuckDB ist dann die T-Maschine, Postgres bleibt das gemeinsame Ziel.",
+            "en": "When the transformation should happen on the laptop, but in SQL rather than pandas – for instance because SQLite is too weak as a target (Microsoft's “constrained target”). DuckDB is then the T engine, Postgres stays the shared target."
+          }
+        }
+      ]
+    },
+    "B13": {
+      "titel": {
+        "de": "dbt – Umformung als versionierte SQL-Modelle",
+        "en": "dbt – transformation as versioned SQL models"
+      },
+      "prompt": "$",
+      "befehl": "# Installation – Stand 09/2026 mit oberer Versionsgrenze (siehe Erläuterung)\npip install \"dbt-core<2\" \"dbt-postgres<2\"\ndbt init velocity           # legt dbt_project.yml und models/ an\n\n# Projektstruktur\nvelocity/\n  dbt_project.yml\n  models/\n    staging/\n      __sources.yml       # deklariert staging.fahrt als Quelle\n      stg_fahrt.sql       # typisiert, dedupliziert\n    marts/\n      dim_station.sql\n      fct_fahrt.sql\n  tests/                  # eigene SQL-Tests (Zeilen = Befunde)\n\n# models/staging/__sources.yml\nsources:\n  - name: staging\n    schema: staging\n    tables:\n      - name: fahrt\n        loaded_at_field: loaded_at\n        columns:\n          - name: fahrt_id\n            data_tests: [unique, not_null]\n\n# models/marts/fct_fahrt.sql\nselect f.fahrt_id,\n       to_char(f.start_zeit at time zone 'Europe/Berlin', 'YYYYMMDD')::int as datum_key,\n       s.station_sk as start_station_sk, f.dauer_min, f.preis_eur\nfrom {{ ref('stg_fahrt') }} f\nleft join {{ ref('dim_station') }} s on s.station_id = f.start_station_id\n\ndbt run                     # Modelle in Abhängigkeitsreihenfolge bauen\ndbt test                    # unique, not_null, accepted_values, relationships\ndbt build                   # run + test, in DAG-Reihenfolge",
+      "teile": [
+        {
+          "was": "\"dbt-core<2\" \"dbt-postgres<2\"",
+          "bedeutet": {
+            "de": "Stand 09/2026: dbt Core 1.12 (Python) ist die Fassung mit stabilem Postgres-Adapter. dbt Core v2 – der in Rust geschriebene Fusion-Engine, seit 06/2026 unter Apache 2.0 im dbt-core-Repository, als Release Candidate – führt Postgres noch ohne Freigabestatus. Ohne obere Grenze zog pip zeitweise die v2-Vorabversion, und der Postgres-Adapter meldete „not yet supported“. Vor dem Termin unter docs.getdbt.com/docs/supported-data-platforms erneut prüfen.",
+            "en": "As of 09/2026: dbt Core 1.12 (Python) is the version with a stable Postgres adapter. dbt Core v2 – the Rust-written Fusion engine, under Apache 2.0 in the dbt-core repository since 06/2026, as a release candidate – lists Postgres without a release status yet. Without an upper bound, pip at times pulled the v2 pre-release, and the Postgres adapter reported “not yet supported”. Re-check docs.getdbt.com/docs/supported-data-platforms before the session."
+          }
+        },
+        {
+          "was": "Fivetran und dbt Labs",
+          "bedeutet": {
+            "de": "Seit 06/2026 ein Unternehmen (Zusammenschluss angekündigt 10/2025, vollzogen 01.06.2026). Für dieses Lab ändert das nichts: dbt Core bleibt laut Lizenz-FAQ unter Apache 2.0.",
+            "en": "One company since 06/2026 (merger announced 10/2025, completed 1 June 2026). For this lab nothing changes: per the licensing FAQ dbt Core stays under Apache 2.0."
+          }
+        },
+        {
+          "was": "source() und ref()",
+          "bedeutet": {
+            "de": "source('staging', 'fahrt') wird zu staging.fahrt, ref('stg_fahrt') zum Namen des Modells. Aus diesen Verweisen baut dbt den Abhängigkeitsgraphen – Lineage entsteht nebenbei, und dbt run baut die Modelle in der richtigen Reihenfolge.",
+            "en": "source('staging', 'fahrt') compiles to staging.fahrt, ref('stg_fahrt') to the model's name. From these references dbt builds the dependency graph – lineage comes for free, and dbt run builds the models in the right order."
+          }
+        },
+        {
+          "was": "data_tests: [unique, not_null]",
+          "bedeutet": {
+            "de": "Die vier mitgelieferten Tests: unique, not_null, accepted_values, relationships. Sie stehen im YAML neben der Spalte, dbt test führt sie aus. Ohne dbt sind es dieselben SELECT count(*)-Zusicherungen wie in Abschnitt 7 der SQL-Vorlage.",
+            "en": "The four built-in tests: unique, not_null, accepted_values, relationships. They sit in the YAML next to the column, dbt test runs them. Without dbt they are the same SELECT count(*) assertions as in section 7 of the SQL template."
+          }
+        },
+        {
+          "was": "profiles.yml",
+          "bedeutet": {
+            "de": "Enthält die Verbindung – das Passwort dort als \"{{ env_var('PGPASSWORD') }}\", nie im Klartext. Dieselbe Regel wie bei .env.",
+            "en": "Contains the connection – the password there as \"{{ env_var('PGPASSWORD') }}\", never in plain text. The same rule as with .env."
+          }
+        }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W10-01",
+      "typ": "reihenfolge",
+      "titel": {
+        "de": "Die Schritte einer ELT-Pipeline",
+        "en": "The steps of an ELT pipeline"
+      },
+      "aufgabe": {
+        "de": "<p>Ein nächtlicher Lauf soll den Velo-City-Export in das Sternschema bringen. Bringen Sie die sieben Schritte in die Reihenfolge, in der eine ELT-Pipeline sie ausführt. Achten Sie darauf, wo die Rohdaten liegen, bevor irgendetwas umgeformt wird – und was zuletzt kommt.</p>",
+        "en": "<p>A nightly run is to bring the Velo City export into the star schema. Put the seven steps into the order in which an ELT pipeline executes them. Pay attention to where the raw data sits before anything is transformed – and what comes last.</p>"
+      },
+      "eintraege": [
+        {
+          "id": "extract",
+          "text": {
+            "de": "Extract: den Export aus der API oder Datei holen",
+            "en": "Extract: fetch the export from the API or file"
+          }
+        },
+        {
+          "id": "staging",
+          "text": {
+            "de": "Rohdaten unverändert in die Staging-Schicht laden, mit <code>loaded_at</code>",
+            "en": "Load the raw data unchanged into the staging layer, with <code>loaded_at</code>"
+          }
+        },
+        {
+          "id": "clean",
+          "text": {
+            "de": "Bereinigen und typisieren – in SQL, in der Zieldatenbank",
+            "en": "Clean and type – in SQL, inside the target database"
+          }
+        },
+        {
+          "id": "dims",
+          "text": {
+            "de": "Dimensionen laden (Upsert: <code>ON CONFLICT DO UPDATE</code>)",
+            "en": "Load the dimensions (upsert: <code>ON CONFLICT DO UPDATE</code>)"
+          }
+        },
+        {
+          "id": "facts",
+          "text": {
+            "de": "Fakten laden – mit Fremdschlüsseln auf die Dimensionen",
+            "en": "Load the facts – with foreign keys to the dimensions"
+          }
+        },
+        {
+          "id": "mart",
+          "text": {
+            "de": "Materialized View / Mart aktualisieren (<code>REFRESH</code>)",
+            "en": "Refresh the materialized view / mart (<code>REFRESH</code>)"
+          }
+        },
+        {
+          "id": "tests",
+          "text": {
+            "de": "Datenqualität prüfen und Zeilenzahlen protokollieren",
+            "en": "Check data quality and log row counts"
+          }
+        }
+      ],
+      "richtig": [
+        "extract",
+        "staging",
+        "clean",
+        "dims",
+        "facts",
+        "mart",
+        "tests"
+      ],
+      "start": [
+        "clean",
+        "facts",
+        "extract",
+        "tests",
+        "dims",
+        "staging",
+        "mart"
+      ],
+      "rueckmeldung": {
+        "de": "Zwei Stellen entscheiden: Die Rohdaten kommen <em>vor</em> jeder Umformung in die Staging-Schicht – das ist das L vor dem T, das ELT ausmacht, und es erlaubt, eine korrigierte Umformung ohne neuen Extract zu wiederholen. Und die Dimensionen kommen vor den Fakten, weil die Fakten deren Surrogatschlüssel brauchen. Tests und Protokoll stehen am Ende, gehören aber im Ernstfall nach jedem Schritt.",
+        "en": "Two places decide: the raw data goes into the staging layer <em>before</em> any transformation – that is the L before the T that makes ELT, and it allows a corrected transformation to be repeated without a new extract. And the dimensions come before the facts, because the facts need their surrogate keys. Tests and logging stand at the end, but in practice belong after every step."
+      }
+    },
+    {
+      "id": "W10-02",
+      "typ": "sql",
+      "titel": {
+        "de": "Entpacken: aus jsonb werden typisierte Zeilen",
+        "en": "Unpack: jsonb becomes typed rows"
+      },
+      "aufgabe": {
+        "de": "<p>Die Staging-Tabelle <code>staging.fahrt_roh</code> enthält fünf Fahrten als <code>jsonb</code>-Dokumente in der Spalte <code>doc</code> – genau die Struktur aus <code>data/fahrten.jsonl</code> (Lab 05). Schreiben Sie die Abfrage, die daraus typisierte Zeilen macht.</p><p>Spalten in dieser Reihenfolge und mit diesen Typen: <code>fahrt_id</code> (<code>int</code>), <code>start_station</code> (<code>int</code>, aus <code>doc-&gt;'start'-&gt;&gt;'station_id'</code>), <code>start_zeit</code> (<code>timestamp</code>), <code>dauer_min</code> (<code>int</code>), <code>preis_eur</code> (<code>numeric</code>). Sortiert nach <code>fahrt_id</code>.</p>",
+        "en": "<p>The staging table <code>staging.fahrt_roh</code> holds five rides as <code>jsonb</code> documents in the column <code>doc</code> – exactly the structure from <code>data/fahrten.jsonl</code> (lab 05). Write the query that turns them into typed rows.</p><p>Columns in this order and with these types: <code>fahrt_id</code> (<code>int</code>), <code>start_station</code> (<code>int</code>, from <code>doc-&gt;'start'-&gt;&gt;'station_id'</code>), <code>start_zeit</code> (<code>timestamp</code>), <code>dauer_min</code> (<code>int</code>), <code>preis_eur</code> (<code>numeric</code>). Sorted by <code>fahrt_id</code>.</p>"
+      },
+      "vorher": "DROP SCHEMA IF EXISTS staging CASCADE;\nCREATE SCHEMA staging;\nCREATE TABLE staging.fahrt_roh (\n  doc        jsonb        NOT NULL,\n  loaded_at  timestamptz  NOT NULL DEFAULT now()\n);\nINSERT INTO staging.fahrt_roh (doc) VALUES\n  ('{\"fahrt_id\":1,\"rad_id\":\"R-057\",\"kunde_id\":13,\"start\":{\"station_id\":6,\"zeit\":\"2025-10-05T07:58:00\"},\"ziel\":{\"station_id\":3},\"dauer_min\":7,\"preis_eur\":1.2}'),\n  ('{\"fahrt_id\":2,\"rad_id\":\"R-035\",\"kunde_id\":194,\"start\":{\"station_id\":5,\"zeit\":\"2026-07-04T16:29:00\"},\"ziel\":{\"station_id\":6},\"dauer_min\":6,\"preis_eur\":1.1}'),\n  ('{\"fahrt_id\":3,\"rad_id\":\"R-049\",\"kunde_id\":82,\"start\":{\"station_id\":7,\"zeit\":\"2025-12-25T18:26:00\"},\"ziel\":{\"station_id\":1},\"dauer_min\":22,\"preis_eur\":4.08}'),\n  ('{\"fahrt_id\":4,\"rad_id\":\"R-030\",\"kunde_id\":128,\"start\":{\"station_id\":9,\"zeit\":\"2025-11-15T16:59:00\"},\"ziel\":{\"station_id\":3},\"dauer_min\":5,\"preis_eur\":2.4}'),\n  ('{\"fahrt_id\":5,\"rad_id\":\"R-057\",\"kunde_id\":157,\"start\":{\"station_id\":1,\"zeit\":\"2025-11-06T16:35:00\"},\"ziel\":{\"station_id\":8},\"dauer_min\":12,\"preis_eur\":1.7}');",
+      "start": "SELECT (doc->>'fahrt_id')::int AS fahrt_id\nFROM staging.fahrt_roh\n",
+      "loesung": "SELECT (doc->>'fahrt_id')::int              AS fahrt_id,\n       (doc->'start'->>'station_id')::int   AS start_station,\n       (doc->'start'->>'zeit')::timestamp   AS start_zeit,\n       (doc->>'dauer_min')::int             AS dauer_min,\n       (doc->>'preis_eur')::numeric         AS preis_eur\nFROM staging.fahrt_roh\nORDER BY fahrt_id;",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p><code>-&gt;&gt;</code> liefert Text, <code>-&gt;</code> liefert JSON. Für ein verschachteltes Feld erst mit <code>-&gt;</code> eine Ebene hinein, dann mit <code>-&gt;&gt;</code> den Wert holen: <code>doc-&gt;'start'-&gt;&gt;'zeit'</code>. Danach mit <code>::int</code>, <code>::timestamp</code>, <code>::numeric</code> typisieren. Die Klammern um den Ausdruck sind nötig, weil <code>::</code> stärker bindet als <code>-&gt;&gt;</code>.</p>",
+        "en": "<p><code>-&gt;&gt;</code> returns text, <code>-&gt;</code> returns JSON. For a nested field first step one level in with <code>-&gt;</code>, then fetch the value with <code>-&gt;&gt;</code>: <code>doc-&gt;'start'-&gt;&gt;'zeit'</code>. Then type with <code>::int</code>, <code>::timestamp</code>, <code>::numeric</code>. The parentheses around the expression are needed because <code>::</code> binds more tightly than <code>-&gt;&gt;</code>.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Das ist das T von ELT im Kleinen: Die Rohdaten liegen unverändert in <code>fahrt_roh</code>, die Typisierung ist eine Abfrage – und wenn sich herausstellt, dass <code>preis_eur</code> doch <code>numeric(6,2)</code> sein sollte, ändern Sie die Abfrage und nicht den Extract. Genau diese Abfrage wird in der Vorlage zur Tabelle <code>staging.fahrt</code>, aus der das Sternschema lädt.",
+        "en": "That is the T of ELT in miniature: the raw data sits unchanged in <code>fahrt_roh</code>, the typing is a query – and if it turns out <code>preis_eur</code> should be <code>numeric(6,2)</code> after all, you change the query, not the extract. Exactly this query becomes the table <code>staging.fahrt</code> in the template, from which the star schema loads."
+      }
+    },
+    {
+      "id": "W10-03",
+      "typ": "sql",
+      "titel": {
+        "de": "Dimension per Upsert",
+        "en": "Dimension by upsert"
+      },
+      "aufgabe": {
+        "de": "<p><code>mart.dim_station</code> existiert bereits und enthält drei Stationen mit <strong>veralteten Namen</strong>. Spielen Sie alle zehn Stationen aus der Quelltabelle <code>station</code> ein: Neue Stationen werden angelegt, vorhandene bekommen den aktuellen Namen und Bezirk – ohne dass eine <code>station_id</code> doppelt entsteht.</p><p>Verwenden Sie <code>INSERT … SELECT … ON CONFLICT (station_id) DO UPDATE SET name = EXCLUDED.name, bezirk = EXCLUDED.bezirk</code>. Geprüft wird der Inhalt der Tabelle danach: zehn Zeilen, aktuelle Namen.</p>",
+        "en": "<p><code>mart.dim_station</code> already exists and holds three stations with <strong>outdated names</strong>. Load all ten stations from the source table <code>station</code>: new stations are created, existing ones receive the current name and district – without any <code>station_id</code> being duplicated.</p><p>Use <code>INSERT … SELECT … ON CONFLICT (station_id) DO UPDATE SET name = EXCLUDED.name, bezirk = EXCLUDED.bezirk</code>. What is checked is the table's content afterwards: ten rows, current names.</p>"
+      },
+      "vorher": "DROP SCHEMA IF EXISTS mart CASCADE;\nCREATE SCHEMA mart;\nCREATE TABLE mart.dim_station (\n  station_sk  int  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  station_id  int  NOT NULL UNIQUE,\n  name        text NOT NULL,\n  bezirk      text NOT NULL\n);\nINSERT INTO mart.dim_station (station_id, name, bezirk) VALUES\n  (1, 'Juliuspromenade (alt)', 'Altstadt'),\n  (2, 'Bahnhof', 'Altstadt'),\n  (5, 'Klinikum', 'Grombuehl');",
+      "start": "INSERT INTO mart.dim_station (station_id, name, bezirk)\nSELECT station_id, name, bezirk\nFROM station\n",
+      "loesung": "INSERT INTO mart.dim_station (station_id, name, bezirk)\nSELECT station_id, name, bezirk\nFROM station\nON CONFLICT (station_id) DO UPDATE\n   SET name   = EXCLUDED.name,\n       bezirk = EXCLUDED.bezirk;",
+      "kontrolle": "SELECT station_id, name, bezirk FROM mart.dim_station ORDER BY station_id",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p>Ohne <code>ON CONFLICT</code> scheitert das <code>INSERT</code> an der UNIQUE-Bedingung auf <code>station_id</code> – die Fehlermeldung lautet <code>duplicate key value violates unique constraint</code>. Mit <code>DO NOTHING</code> blieben die alten Namen stehen; erst <code>DO UPDATE SET … = EXCLUDED.…</code> überschreibt sie. Befehlskarte B03 zeigt die vollständige Form.</p>",
+        "en": "<p>Without <code>ON CONFLICT</code> the <code>INSERT</code> fails at the UNIQUE constraint on <code>station_id</code> – the error reads <code>duplicate key value violates unique constraint</code>. With <code>DO NOTHING</code> the old names would remain; only <code>DO UPDATE SET … = EXCLUDED.…</code> overwrites them. Command card B03 shows the complete form.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Der Upsert ist die Antwort auf die Frage „Was passiert beim zweiten Lauf?“ Führen Sie Ihre Anweisung noch einmal aus: Das Ergebnis bleibt gleich – zehn Zeilen, dieselben Namen. Das ist Idempotenz. Beachten Sie auch, was <em>nicht</em> passiert: <code>station_sk</code> der drei alten Zeilen bleibt erhalten. Fakten, die schon darauf zeigen, bleiben gültig.",
+        "en": "The upsert answers the question “what happens on the second run?” Run your statement again: the result stays the same – ten rows, the same names. That is idempotency. Note also what does <em>not</em> happen: <code>station_sk</code> of the three old rows is preserved. Facts already pointing to them stay valid."
+      }
+    },
+    {
+      "id": "W10-04",
+      "typ": "sql",
+      "titel": {
+        "de": "Fakt mit Grain: ein Tag, eine Station",
+        "en": "Fact with grain: one day, one station"
+      },
+      "aufgabe": {
+        "de": "<p>Für das Dashboard in Lab 12/13 soll ein <strong>periodischer Snapshot</strong> entstehen: eine Zeile je Station und Tag. <code>mart.dim_station</code> (alle zehn Stationen, mit <code>station_sk</code>) und <code>mart.dim_datum</code> (<code>datum_key</code>, <code>datum</code> für jeden Tag von 2025-09-01 bis 2026-08-31) sind bereits gefüllt.</p><p>Erzeugen Sie per <code>CREATE TABLE mart.fact_station_tag AS …</code> aus <code>fahrt</code> die Spalten <code>datum_key</code>, <code>station_sk</code>, <code>fahrten</code> (Anzahl) und <code>umsatz</code> (Summe <code>preis_eur</code>). Verbinden Sie über <code>start_station = station_id</code> und <code>start_zeit::date = datum</code>.</p><p>Geprüft wird <code>SELECT count(*), sum(fahrten), round(sum(umsatz), 2) FROM mart.fact_station_tag</code> – die Summen müssen 1500 Fahrten und 3172.14 € ergeben.</p>",
+        "en": "<p>For the dashboard in labs 12/13 a <strong>periodic snapshot</strong> is to be created: one row per station and day. <code>mart.dim_station</code> (all ten stations, with <code>station_sk</code>) and <code>mart.dim_datum</code> (<code>datum_key</code>, <code>datum</code> for every day from 2025-09-01 to 2026-08-31) are already filled.</p><p>Using <code>CREATE TABLE mart.fact_station_tag AS …</code>, produce from <code>fahrt</code> the columns <code>datum_key</code>, <code>station_sk</code>, <code>fahrten</code> (count) and <code>umsatz</code> (sum of <code>preis_eur</code>). Join via <code>start_station = station_id</code> and <code>start_zeit::date = datum</code>.</p><p>What is checked is <code>SELECT count(*), sum(fahrten), round(sum(umsatz), 2) FROM mart.fact_station_tag</code> – the totals must be 1500 rides and 3172.14 €.</p>"
+      },
+      "vorher": "DROP SCHEMA IF EXISTS mart CASCADE;\nCREATE SCHEMA mart;\nCREATE TABLE mart.dim_station (\n  station_sk  int  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  station_id  int  NOT NULL UNIQUE,\n  name        text NOT NULL,\n  bezirk      text NOT NULL\n);\nINSERT INTO mart.dim_station (station_id, name, bezirk)\nSELECT station_id, name, bezirk FROM station ORDER BY station_id;\nCREATE TABLE mart.dim_datum AS\nSELECT to_char(d, 'YYYYMMDD')::int AS datum_key,\n       d::date                     AS datum,\n       extract(isodow FROM d)::int AS wochentag,\n       extract(isodow FROM d) >= 6 AS wochenende\nFROM generate_series(DATE '2025-09-01', DATE '2026-08-31', interval '1 day') AS d;\nALTER TABLE mart.dim_datum ADD PRIMARY KEY (datum_key);",
+      "start": "CREATE TABLE mart.fact_station_tag AS\nSELECT d.datum_key, s.station_sk\nFROM fahrt f\n",
+      "loesung": "CREATE TABLE mart.fact_station_tag AS\nSELECT d.datum_key,\n       s.station_sk,\n       count(*)         AS fahrten,\n       sum(f.preis_eur) AS umsatz\nFROM fahrt f\nJOIN mart.dim_station s ON s.station_id = f.start_station\nJOIN mart.dim_datum   d ON d.datum      = f.start_zeit::date\nGROUP BY d.datum_key, s.station_sk;",
+      "kontrolle": "SELECT count(*) AS zeilen, sum(fahrten) AS fahrten, round(sum(umsatz), 2) AS umsatz FROM mart.fact_station_tag",
+      "hinweis": {
+        "de": "<p>Zwei Verbunde und ein <code>GROUP BY d.datum_key, s.station_sk</code>. Die Faktentabelle zeigt auf die <em>Surrogatschlüssel</em> der Dimensionen (<code>station_sk</code>, <code>datum_key</code>), nicht auf <code>start_station</code> oder das Datum selbst – deshalb wird gejoint und nicht einfach gruppiert. Ergebnis: 1172 Zeilen, weil nicht jede Station an jedem Tag Fahrten hat.</p>",
+        "en": "<p>Two joins and a <code>GROUP BY d.datum_key, s.station_sk</code>. The fact table points to the dimensions' <em>surrogate keys</em> (<code>station_sk</code>, <code>datum_key</code>), not to <code>start_station</code> or the date itself – which is why you join rather than just group. Result: 1172 rows, because not every station has rides on every day.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Der Grain dieser Tabelle lautet „eine Zeile = eine Station an einem Tag“ – ein anderer als bei <code>fact_fahrt</code> („eine Zeile = eine Fahrt“). Beide dürfen nebeneinander existieren, aber nie in einer Tabelle gemischt werden. Die Probe der Summen gegen 1500 und 3172,14 € ist die einfachste Form eines Datenqualitätstests: Was in den Fakten steht, muss mit der Quelle übereinstimmen. Dass es 1172 statt 10 × 365 Zeilen sind, ist richtig – Tage ohne Fahrt erzeugen keine Zeile; sie stehen nur in <code>dim_datum</code>.",
+        "en": "This table's grain is “one row = one station on one day” – a different one from <code>fact_fahrt</code> (“one row = one ride”). Both may exist side by side, but must never be mixed in one table. Checking the totals against 1500 and 3172.14 € is the simplest form of a data quality test: what the facts contain must agree with the source. That there are 1172 rather than 10 × 365 rows is correct – days without a ride produce no row; they only exist in <code>dim_datum</code>."
+      }
+    },
+    {
+      "id": "W10-05",
+      "typ": "quiz",
+      "titel": {
+        "de": "ETL, ELT und die Regeln der Wiederholbarkeit",
+        "en": "ETL, ELT and the rules of repeatability"
+      },
+      "aufgabe": {
+        "de": "<p>Fünf Fragen. Die dritte beschreibt den häufigsten Fehler in studentischen Pipelines; die vierte ist die Frage, mit der man jede Pipeline im Betrieb konfrontiert.</p>",
+        "en": "<p>Five questions. The third describes the most common mistake in student pipelines; the fourth is the question every pipeline in operation gets confronted with.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Worin unterscheiden sich ETL und ELT im Kern?",
+            "en": "What is the core difference between ETL and ELT?"
+          },
+          "optionen": [
+            {
+              "de": "Nur darin, <em>wo</em> die Transformation stattfindet: vor dem Laden in einer eigenen Maschine (ETL) oder nach dem Laden in der Zieldatenbank mit deren SQL (ELT).",
+              "en": "Only in <em>where</em> the transformation takes place: before loading in a separate engine (ETL) or after loading inside the target database with its SQL (ELT)."
+            },
+            {
+              "de": "ELT verarbeitet Datenströme in Echtzeit, ETL nur Stapel.",
+              "en": "ELT processes streams in real time, ETL only batches."
+            },
+            {
+              "de": "ETL braucht Python, ELT braucht ein Warehouse-Produkt wie Snowflake.",
+              "en": "ETL needs Python, ELT needs a warehouse product such as Snowflake."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Microsofts Formulierung: ELT „differs from ETL solely in where the transformation takes place“. Beides ist Stapelverarbeitung; Streaming ist ein drittes Muster. Und ELT braucht kein Warehouse-Produkt – ein Postgres auf Supabase genügt, solange es die Umformung tragen kann.",
+            "en": "Microsoft's wording: ELT “differs from ETL solely in where the transformation takes place”. Both are batch processing; streaming is a third pattern. And ELT needs no warehouse product – a Postgres on Supabase suffices, as long as it can carry the transformation."
+          }
+        },
+        {
+          "frage": {
+            "de": "In welchen Fällen ist ETL – die Umformung <em>vor</em> dem Laden – weiterhin die richtige Wahl? Mehrere Antworten sind richtig.",
+            "en": "In which cases is ETL – transforming <em>before</em> loading – still the right choice? Several answers are correct."
+          },
+          "mehrfach": true,
+          "optionen": [
+            {
+              "de": "Personenbezogene Felder müssen entfernt oder pseudonymisiert werden, bevor die Daten das eigene System verlassen.",
+              "en": "Personal fields must be removed or pseudonymised before the data leaves your own system."
+            },
+            {
+              "de": "Das Ziel ist eine SQLite-Datei, die schwere Umformungen nur langsam ausführt.",
+              "en": "The target is an SQLite file that executes heavy transformations only slowly."
+            },
+            {
+              "de": "Die Daten sind klein und es gibt gar kein Warehouse – ein Skript auf dem Laptop reicht.",
+              "en": "The data is small and there is no warehouse at all – a script on the laptop is enough."
+            },
+            {
+              "de": "Die Rohdaten sollen für spätere, noch unbekannte Auswertungen aufbewahrt werden.",
+              "en": "The raw data is to be kept for later, still unknown analyses."
+            }
+          ],
+          "richtig": [
+            0,
+            1,
+            2
+          ],
+          "erklaerung": {
+            "de": "Die ersten drei sind die ehrlichen ETL-Fälle: Datenminimierung vor dem Verlassen des eigenen Systems, ein schwaches Ziel (Microsoft: „constrained target system“) und kleine Daten ohne Warehouse. Die vierte Aussage ist gerade das Argument <em>für</em> ELT: Rohdaten aufbewahren und die Umformung später ändern können.",
+            "en": "The first three are the honest ETL cases: data minimisation before leaving your own system, a weak target (Microsoft: “constrained target system”) and small data without a warehouse. The fourth statement is precisely the argument <em>for</em> ELT: keep raw data and be able to change the transformation later."
+          }
+        },
+        {
+          "frage": {
+            "de": "Ein Skript lädt jede Nacht mit <code>to_sql(…, if_exists='append')</code> alle Fahrten in <code>fact_fahrt</code>. Nach einer Woche zeigt das Dashboard siebenmal so viele Fahrten. Was ist die richtige Korrektur?",
+            "en": "A script loads all rides into <code>fact_fahrt</code> every night with <code>to_sql(…, if_exists='append')</code>. After a week the dashboard shows seven times as many rides. What is the right fix?"
+          },
+          "optionen": [
+            {
+              "de": "Den Ladeschritt idempotent machen: UNIQUE auf <code>fahrt_id</code> und Upsert (<code>ON CONFLICT</code>), oder den Zeitraum vor dem Einfügen löschen – so liefert jeder weitere Lauf dasselbe Ergebnis.",
+              "en": "Make the load step idempotent: UNIQUE on <code>fahrt_id</code> and upsert (<code>ON CONFLICT</code>), or delete the period before inserting – so every further run yields the same result."
+            },
+            {
+              "de": "Im Dashboard <code>DISTINCT</code> auf <code>fahrt_id</code> setzen.",
+              "en": "Apply <code>DISTINCT</code> on <code>fahrt_id</code> in the dashboard."
+            },
+            {
+              "de": "Das Skript nur noch einmal pro Woche laufen lassen.",
+              "en": "Run the script only once a week."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Airflows Regel: „Do not use INSERT during a task re-run … Replace it with UPSERT.“ DISTINCT im Dashboard versteckt den Fehler und verschiebt die Umformung ins BI-Werkzeug (Anti-Pattern 1); seltener laufen ändert nichts am Prinzip – der achte Lauf verdoppelt wieder.",
+            "en": "Airflow's rule: “Do not use INSERT during a task re-run … Replace it with UPSERT.” DISTINCT in the dashboard hides the error and moves the transformation into the BI tool (anti-pattern 1); running less often changes nothing in principle – the eighth run doubles again."
+          }
+        },
+        {
+          "frage": {
+            "de": "Was ist ein Watermark beim inkrementellen Laden?",
+            "en": "What is a watermark in incremental loading?"
+          },
+          "optionen": [
+            {
+              "de": "Eine Spalte mit dem letzten Zeitstempel oder dem höchsten Schlüssel, bis zu dem der vorige Lauf geladen hat – der nächste Lauf holt nur, was darüber liegt.",
+              "en": "A column with the last timestamp or the highest key up to which the previous run loaded – the next run fetches only what lies above it."
+            },
+            {
+              "de": "Ein Wasserzeichen im Export, das die Herkunft der Datei belegt.",
+              "en": "A watermark in the export that proves the file's origin."
+            },
+            {
+              "de": "Die Uhrzeit, zu der der Cron-Job startet.",
+              "en": "The time at which the cron job starts."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Azure Data Factory: „A watermark is a column that has the last updated time stamp or an incrementing key.“ Grenze des Verfahrens: Zeilen, die sich ändern, ohne die Watermark-Spalte zu berühren, und Löschungen werden nicht erkannt – dafür braucht es CDC aus dem Transaktionsprotokoll.",
+            "en": "Azure Data Factory: “A watermark is a column that has the last updated time stamp or an incrementing key.” Limit of the method: rows that change without touching the watermark column, and deletions, go undetected – that needs CDC from the transaction log."
+          }
+        },
+        {
+          "frage": {
+            "de": "Der Grain von <code>fact_fahrt</code> lautet „eine Zeile = eine Fahrt“. Ein Kollege möchte in dieselbe Tabelle zusätzlich Tageszeilen mit Summen einfügen, „damit das Dashboard schneller wird“. Was gilt?",
+            "en": "The grain of <code>fact_fahrt</code> is “one row = one ride”. A colleague wants to add daily rows with totals to the same table “so the dashboard gets faster”. What applies?"
+          },
+          "optionen": [
+            {
+              "de": "Nicht in dieselbe Tabelle: Der Grain ist ein bindender Vertrag, verschiedene Grains dürfen nicht gemischt werden. Die Tagessummen gehören in eine eigene Tabelle oder Materialized View (periodischer Snapshot).",
+              "en": "Not into the same table: the grain is a binding contract, different grains must not be mixed. The daily totals belong in a separate table or materialized view (periodic snapshot)."
+            },
+            {
+              "de": "Kein Problem, solange eine Spalte <code>ist_summe</code> die Zeilen kennzeichnet.",
+              "en": "No problem as long as a column <code>ist_summe</code> marks the rows."
+            },
+            {
+              "de": "Kein Problem, Power BI erkennt Summenzeilen automatisch.",
+              "en": "No problem, Power BI recognises total rows automatically."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Kimball: Der Grain „establishes exactly what a single fact table row represents“ und ist „a binding contract on the design“. Gemischte Grains führen zu Doppelzählungen, sobald jemand summiert, ohne die Kennzeichnungsspalte zu filtern – und BI-Werkzeuge summieren standardmäßig alles.",
+            "en": "Kimball: the grain “establishes exactly what a single fact table row represents” and is “a binding contract on the design”. Mixed grains lead to double counting as soon as someone sums without filtering the marker column – and BI tools sum everything by default."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W10-06",
+      "typ": "zuordnen",
+      "titel": {
+        "de": "Anti-Pattern und Symptom",
+        "en": "Anti-pattern and symptom"
+      },
+      "aufgabe": {
+        "de": "<p>Ordnen Sie jedem Symptom aus dem Betrieb das Anti-Pattern zu, das es verursacht. Zwei Symptome haben dieselbe Ursache.</p>",
+        "en": "<p>Assign to each symptom from operation the anti-pattern that causes it. Two symptoms share the same cause.</p>"
+      },
+      "ziele": [
+        {
+          "id": "append",
+          "text": {
+            "de": "Nicht-idempotente Appends",
+            "en": "Non-idempotent appends"
+          }
+        },
+        {
+          "id": "tz",
+          "text": {
+            "de": "timestamp ohne Zeitzone",
+            "en": "timestamp without time zone"
+          }
+        },
+        {
+          "id": "float",
+          "text": {
+            "de": "Gleitkomma-Geld",
+            "en": "Floating-point money"
+          }
+        },
+        {
+          "id": "typ",
+          "text": {
+            "de": "Stille Typumwandlung",
+            "en": "Silent type coercion"
+          }
+        },
+        {
+          "id": "creds",
+          "text": {
+            "de": "Zugangsdaten im Code",
+            "en": "Credentials in the code"
+          }
+        },
+        {
+          "id": "laptop",
+          "text": {
+            "de": "Pipeline vom Laptop",
+            "en": "Pipeline from the laptop"
+          }
+        }
+      ],
+      "paare": [
+        {
+          "begriff": {
+            "de": "Nach jedem Neustart des Skripts steigt die Fahrtenzahl im Dashboard um 1.500",
+            "en": "After every restart of the script the ride count in the dashboard rises by 1,500"
+          },
+          "ziel": "append"
+        },
+        {
+          "begriff": {
+            "de": "Die Auswertung „Fahrten je Stunde“ verschiebt sich Ende März um eine Stunde",
+            "en": "The analysis “rides per hour” shifts by one hour at the end of March"
+          },
+          "ziel": "tz"
+        },
+        {
+          "begriff": {
+            "de": "Der Monatsumsatz lautet 3172.1400000000003 €",
+            "en": "The monthly revenue reads 3172.1400000000003 €"
+          },
+          "ziel": "float"
+        },
+        {
+          "begriff": {
+            "de": "Aus der Postleitzahl 01067 wurde 1067",
+            "en": "The postcode 01067 became 1067"
+          },
+          "ziel": "typ"
+        },
+        {
+          "begriff": {
+            "de": "Eine Spalte, die als INTEGER angelegt ist, enthält in SQLite den Wert 'k. A.'",
+            "en": "A column declared INTEGER contains the value 'n/a' in SQLite"
+          },
+          "ziel": "typ"
+        },
+        {
+          "begriff": {
+            "de": "Das Supabase-Passwort steht in einem Notebook auf GitHub",
+            "en": "The Supabase password sits in a notebook on GitHub"
+          },
+          "ziel": "creds"
+        },
+        {
+          "begriff": {
+            "de": "Am Montag fehlen die Zahlen vom Wochenende – der Rechner war zugeklappt",
+            "en": "On Monday the weekend's figures are missing – the laptop lid was closed"
+          },
+          "ziel": "laptop"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Zwei Symptome zeigen auf die stille Typumwandlung – einmal in pandas (<code>read_csv</code> macht aus 01067 eine Zahl; Abhilfe <code>dtype={'plz': str}</code>), einmal in SQLite (Typaffinität: Die Spalte nimmt an, was kommt; Abhilfe <code>STRICT</code>-Tabellen oder Prüfung vor dem Laden). Die anderen fünf haben je eine klare Gegenmaßnahme: Upsert, <code>timestamptz</code>, <code>numeric</code>, <code>.env</code> in der <code>.gitignore</code>, ein Scheduler.",
+        "en": "Two symptoms point to silent type coercion – once in pandas (<code>read_csv</code> turns 01067 into a number; fix <code>dtype={'plz': str}</code>), once in SQLite (type affinity: the column accepts whatever comes; fix <code>STRICT</code> tables or validation before loading). The other five each have a clear countermeasure: upsert, <code>timestamptz</code>, <code>numeric</code>, <code>.env</code> in the <code>.gitignore</code>, a scheduler."
+      }
+    }
+  ]
+}

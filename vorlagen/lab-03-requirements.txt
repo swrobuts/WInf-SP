@@ -1,0 +1,11 @@
+# Velo City – Abhängigkeiten für das Projekt „velocity“ (Lab 03, PyCharm)
+#
+# Schreibweise „>=Untergrenze,<nächste Hauptversion“: Fehlerkorrekturen und
+# Nebenversionen dürfen kommen, ein Sprung auf die nächste Hauptversion
+# (der Schnittstellen ändern kann) nicht. Installieren mit
+#   python -m pip install -r requirements.txt
+# oder in PyCharm über das Banner „Install requirements“.
+
+pandas>=2.2,<4          # Tabellen, json_normalize für den JSON-Export
+requests>=2.32,<3       # HTTP-Abrufe – in Lab 10 für Quellen im Netz
+python-dotenv>=1.0,<2   # liest .env-Dateien – Zugangsdaten bleiben aus dem Code

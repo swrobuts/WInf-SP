@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 03 · PyCharm und WebStorm · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 03 · PyCharm and WebStorm · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-03">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Das Problem, das es löst</span><span lang="en">The problem it solves</span></a>
+  <a class="sidebar-link" href="#begriffe"><span lang="de">Projekt, Interpreter, Tool Windows</span><span lang="en">Project, interpreter, tool windows</span></a>
+  <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme und Lizenz</span><span lang="en">Setting it up, and the licence</span></a>
+  <a class="sidebar-link" href="#projekt"><span lang="de">Ein Projekt anlegen</span><span lang="en">Creating a project</span></a>
+  <a class="sidebar-link" href="#interpreter"><span lang="de">Der Interpreter</span><span lang="en">The interpreter</span></a>
+  <a class="sidebar-link" href="#ausfuehren"><span lang="de">Ausführen und Debuggen</span><span lang="en">Running and debugging</span></a>
+  <a class="sidebar-link" href="#git"><span lang="de">Git in der IDE</span><span lang="en">Git in the IDE</span></a>
+  <a class="sidebar-link" href="#webstorm"><span lang="de">WebStorm für Node</span><span lang="en">WebStorm for Node</span></a>
+  <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">03</div>
+  <h1 class="lab-title"><span lang="de">PyCharm und WebStorm</span><span lang="en">PyCharm and WebStorm</span></h1>
+  <p class="lab-intro">
+    <span lang="de">Ein Editor zeigt Text. Eine IDE weiß, welches Python gerade rechnet, welche Pakete es kennt, wo
+      das Projekt anfängt und was seit dem letzten Commit geändert wurde. Dieser Unterschied entscheidet in jedem
+      Analytics-Projekt darüber, ob ein Skript auf dem zweiten Rechner läuft. In diesem Lab legen Sie ein
+      PyCharm-Projekt mit eigener Umgebung an, führen den häufigsten Fehler des Semesters absichtlich herbei –
+      <code>ModuleNotFoundError</code> trotz Installation – und beheben ihn mit einem Blick in die Statusleiste. Danach
+      dasselbe in WebStorm für ein Node-Projekt, denn beide sind dieselbe Plattform.</span>
+    <span lang="en">An editor shows text. An IDE knows which Python is computing right now, which packages it knows,
+      where the project begins and what has changed since the last commit. That difference decides, in every analytics
+      project, whether a script runs on the second machine. In this lab you create a PyCharm project with its own
+      environment, deliberately cause the semester's most common error – <code>ModuleNotFoundError</code> despite
+      installation – and fix it with one look at the status bar. Then the same in WebStorm for a Node project, because
+      both are the same platform.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip"><span lang="de">Projekt = Ordner + .idea + Interpreter</span><span lang="en">Project = folder + .idea + interpreter</span></span>
+    <span class="lernziel-chip">.venv · requirements.txt</span>
+    <span class="lernziel-chip">Run Configuration</span>
+    <span class="lernziel-chip">Commit tool window</span>
+    <span class="lernziel-chip">npm tool window · ESLint</span>
+    <span class="lernziel-chip"><span lang="de">Lizenzwege 09/2026</span><span lang="en">Licence routes 09/2026</span></span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Das Problem, das es löst</span><span lang="en">The problem it solves</span></h2>
+    <p>
+      <span lang="de">In Lab 01 haben Sie das Terminal kennengelernt, in Lab 02 Git. Beides funktioniert mit jedem
+        Texteditor. Warum also eine IDE? Weil ein Skript, das Daten auswertet, an vier Dinge gebunden ist, die im
+        Editor unsichtbar bleiben: an einen <strong>Projektordner</strong> (wo liegen die Daten relativ zum Skript?),
+        an einen <strong>Interpreter</strong> (welches Python, welche Version?), an <strong>Abhängigkeiten</strong>
+        (welches pandas?) und an einen <strong>Stand</strong> im Repository. Ein Editor kennt keines davon. Er zeigt
+        <code>import pandas</code> in derselben Farbe, ob pandas installiert ist oder nicht – und meldet den Fehler erst,
+        wenn das Skript läuft. Auf dem eigenen Rechner. Nicht auf dem der Kommilitonin.</span>
+      <span lang="en">In lab 01 you met the terminal, in lab 02 Git. Both work with any text editor. So why an IDE?
+        Because a script that analyses data is bound to four things that stay invisible in an editor: a
+        <strong>project folder</strong> (where is the data relative to the script?), an <strong>interpreter</strong>
+        (which Python, which version?), <strong>dependencies</strong> (which pandas?) and a <strong>state</strong> in the
+        repository. An editor knows none of them. It shows <code>import pandas</code> in the same colour whether pandas is
+        installed or not – and reports the error only when the script runs. On your own machine. Not on your fellow
+        student's.</span>
+    </p>
+    <p>
+      <span lang="de">Eine <em>Integrated Development Environment</em> hält diese vier Dinge zusammen und zeigt sie
+        an: den Interpreter in der Statusleiste, fehlende Pakete als Unterstreichung, das Arbeitsverzeichnis in der Run
+        Configuration, die Änderungen im Commit tool window. In diesem Kurs sind das zwei Produkte von JetBrains:
+        <strong>PyCharm</strong> für Python und Datenarbeit (Lab 06, Lab 10) und <strong>WebStorm</strong> für JavaScript
+        und Node (Lab 11). Beide bauen auf derselben Plattform auf – gleiche Menüs, gleiche Tastenkürzel, gleiches
+        Git-Fenster, gleicher Trust-Dialog. Wer eine bedienen kann, kann beide. Das Gegenstück ohne Installation ist
+        Colab in Lab 04: ein Notebook im Browser, das keinen Interpreter kennt, weil Google ihn stellt.</span>
+      <span lang="en">An <em>integrated development environment</em> keeps these four things together and shows them:
+        the interpreter in the status bar, missing packages as an underline, the working directory in the Run
+        Configuration, the changes in the Commit tool window. In this course these are two JetBrains products:
+        <strong>PyCharm</strong> for Python and data work (labs 06, 10) and <strong>WebStorm</strong> for JavaScript and
+        Node (lab 11). Both are built on the same platform – same menus, same shortcuts, same Git window, same trust
+        dialog. Whoever can operate one can operate both. The counterpart without installation is Colab in lab 04: a
+        notebook in the browser that knows no interpreter because Google provides it.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Projekt = Ordner + .idea + Interpreter</span><span lang="en">Project = folder + .idea + interpreter</span></h3>
+      <p><span lang="de">Ein PyCharm-Projekt ist nichts Geheimnisvolles: ein gewöhnlicher Ordner, in dem die IDE einen
+        versteckten Unterordner <code>.idea</code> mit ihrer Konfiguration anlegt, plus ein Interpreter, der diesem
+        Ordner zugeordnet ist – im Kurs immer eine virtuelle Umgebung <code>.venv</code> im selben Ordner. Fehlt eine
+        der drei Zutaten, hat das einen eigenen Namen: kein <code>.idea</code> heißt „nur ein Ordner“, kein Interpreter
+        heißt Banner <code>No Python interpreter configured for the project</code>, ein anderer Interpreter als
+        gedacht heißt <code>ModuleNotFoundError</code>.</span>
+      <span lang="en">A PyCharm project is nothing mysterious: an ordinary folder in which the IDE creates a hidden
+        subfolder <code>.idea</code> with its configuration, plus an interpreter assigned to this folder – in the course
+        always a virtual environment <code>.venv</code> in the same folder. If one of the three ingredients is missing,
+        it has its own name: no <code>.idea</code> means “just a folder”, no interpreter means the banner <code>No Python
+        interpreter configured for the project</code>, a different interpreter than intended means
+        <code>ModuleNotFoundError</code>.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="begriffe">
+    <h2><span lang="de">Projekt, Interpreter, Tool Windows</span><span lang="en">Project, interpreter, tool windows</span></h2>
+    <p>
+      <span lang="de">Sechs Begriffe, mit denen alle JetBrains-Anleitungen arbeiten. Die englischen Namen bleiben
+        stehen, weil sie so in den Menüs stehen.</span>
+      <span lang="en">Six terms every JetBrains guide works with. The English names stay because that is how they appear
+        in the menus.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Begriff</span><span lang="en">Term</span></th>
+            <th><span lang="de">Was es ist</span><span lang="en">What it is</span></th>
+            <th><span lang="de">Wo Sie es sehen</span><span lang="en">Where you see it</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Project</strong></td>
+            <td><span lang="de">Ein Ordner mit einem Unterordner <code>.idea</code>, in dem die IDE ihre Einstellungen zu diesem Ordner ablegt</span><span lang="en">A folder with a subfolder <code>.idea</code> in which the IDE stores its settings for this folder</span></td>
+            <td><span lang="de">Project tool window links; <code>.idea</code> ist dort ausgeblendet</span><span lang="en">Project tool window on the left; <code>.idea</code> is hidden there</span></td>
+          </tr>
+          <tr>
+            <td><strong>Interpreter</strong> / <strong>virtual environment</strong></td>
+            <td><span lang="de">Das Python, das die Skripte ausführt – im Kurs eine eigene Kopie im Ordner <code>.venv</code> mit eigenem Paketordner</span><span lang="en">The Python that runs the scripts – in the course its own copy in the folder <code>.venv</code> with its own package folder</span></td>
+            <td><span lang="de">Statusleiste unten rechts; Settings → Python → Interpreter</span><span lang="en">Status bar at the bottom right; Settings → Python → Interpreter</span></td>
+          </tr>
+          <tr>
+            <td><strong>Run Configuration</strong></td>
+            <td><span lang="de">Die gespeicherte Antwort auf: welche Datei, mit welchem Interpreter, in welchem Working directory, mit welchen Environment variables</span><span lang="en">The stored answer to: which file, with which interpreter, in which working directory, with which environment variables</span></td>
+            <td><span lang="de">Auswahl oben rechts neben dem Run-Knopf; Run → Edit Configurations…</span><span lang="en">Selector at the top right beside the Run button; Run → Edit Configurations…</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tool Windows</strong></td>
+            <td><span lang="de">Die andockbaren Fenster: Project, Terminal, Python Packages, Commit (Git), Run, Data View, Plots, Jupyter Variables; in WebStorm dazu npm</span><span lang="en">The dockable windows: Project, Terminal, Python Packages, Commit (Git), Run, Data View, Plots, Jupyter Variables; in WebStorm also npm</span></td>
+            <td><span lang="de">View → Tool Windows; Symbole am linken und unteren Rand</span><span lang="en">View → Tool Windows; icons on the left and bottom edge</span></td>
+          </tr>
+          <tr>
+            <td><strong>Settings</strong></td>
+            <td><span lang="de">Alle Einstellungen, für die IDE und für dieses Projekt; durchsuchbar</span><span lang="en">All settings, for the IDE and for this project; searchable</span></td>
+            <td><code>Ctrl+Alt+S</code> / <code>⌘,</code></td>
+          </tr>
+          <tr>
+            <td><strong>Open</strong> vs. <strong>New Project</strong></td>
+            <td><span lang="de"><code>File → Open</code> öffnet einen vorhandenen Ordner – etwa ein geklontes Repository – und legt <code>.idea</code> nach; <code>File → New Project</code> erzeugt einen leeren Ordner samt Umgebung</span><span lang="en"><code>File → Open</code> opens an existing folder – such as a cloned repository – and adds <code>.idea</code>; <code>File → New Project</code> creates an empty folder together with an environment</span></td>
+            <td><span lang="de">Welcome screen: Knöpfe „Open“ und „New Project“</span><span lang="en">Welcome screen: buttons “Open” and “New Project”</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <p><span lang="de">Merkregel für Open und New Project: Gibt es den Ordner schon, ist es <strong>Open</strong>.
+        Ein Repository aus Lab 02 wird geöffnet, nicht neu angelegt. Ist noch nichts da, ist es <strong>New
+        Project</strong> – und nur dort gibt es den Dialog, der die virtuelle Umgebung gleich mit erzeugt. Für einen
+        geöffneten Ordner legen Sie die Umgebung danach über die Statusleiste an (Abschnitt „Der Interpreter“).</span>
+      <span lang="en">Rule of thumb for Open and New Project: if the folder already exists, it is <strong>Open</strong>. A
+        repository from lab 02 is opened, not created anew. If nothing is there yet, it is <strong>New Project</strong> –
+        and only there is the dialog that creates the virtual environment at the same time. For an opened folder you add
+        the environment afterwards via the status bar (section “The interpreter”).</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="inbetrieb">
+    <h2><span lang="de">Inbetriebnahme und Lizenz</span><span lang="en">Setting it up, and the licence</span></h2>
+    <p>
+      <span lang="de">Installiert wird am besten über die <strong>JetBrains Toolbox App</strong>: ein kostenloses
+        Programm, das alle JetBrains-IDEs installiert, aktualisiert und mehrere Versionen nebeneinander verwaltet –
+        mit Rückkehr zur vorigen Version, wenn ein Update stört. Sie ist nicht Pflicht, aber der einfachste Weg,
+        PyCharm und WebStorm auf demselben Stand zu halten. Stand 09/2026 ist Toolbox 3.7 aktuell; die IDEs stehen bei
+        <strong>2026.2</strong>. JetBrains veröffentlicht drei Hauptversionen im Jahr, die nächste (2026.3) wird für
+        November/Dezember erwartet – mitten im Semester. Ein Update ist harmlos; die Beschriftungen dieses Labs gelten
+        für 2026.2.</span>
+      <span lang="en">The best way to install is the <strong>JetBrains Toolbox App</strong>: a free program that
+        installs and updates all JetBrains IDEs and manages several versions side by side – with a return to the
+        previous version if an update gets in the way. It is not mandatory but the simplest way to keep PyCharm and
+        WebStorm on the same level. As of 09/2026 Toolbox 3.7 is current; the IDEs are at <strong>2026.2</strong>.
+        JetBrains publishes three major releases a year, the next (2026.3) is expected for November/December – mid-semester.
+        An update is harmless; this lab's labels apply to 2026.2.</span>
+    </p>
+    <h3><span lang="de">PyCharm: ein Produkt, ein kostenloser Kern</span><span lang="en">PyCharm: one product, one free core</span></h3>
+    <p>
+      <span lang="de">Seit Version 2025.1 gibt es <strong>ein</strong> PyCharm. Die frühere Trennung in „Community“
+        und „Professional“ ist aufgehoben; die letzte eigenständige Community-Fassung war 2025.2. Nach der Installation
+        läuft automatisch ein <strong>30-Tage-Pro-Trial</strong>, und jede Hauptversion – dreimal im Jahr – schenkt
+        einen neuen. Die Restlaufzeit steht oben rechts unter „Trial“. Danach bleibt der <strong>Kern
+        kostenlos</strong>: Editor, Vervollständigung, Inspektionen, Debugger, Run Configurations, Python Console,
+        Terminal, Git, Plugins, Umgebungen mit venv, Conda, Poetry und uv – und <strong>lokale Jupyter-Notebooks</strong>.
+        <strong>Pro</strong> braucht es für Web-Frameworks (Django, Flask, FastAPI), die Database-Tools samt SQL-Zellen,
+        Remote-Interpreter (SSH, Docker, WSL) und Remote-Notebooks. Für diesen Kurs heißt das: Alles in Lab 03, 06 und
+        10 läuft im kostenlosen Kern; das Database tool window fehlt darin, weshalb Lab 09 <strong>DataGrip</strong>
+        (kostenlos für nicht-kommerzielle Nutzung) verwendet.</span>
+      <span lang="en">Since version 2025.1 there is <strong>one</strong> PyCharm. The former split into “Community” and
+        “Professional” is gone; the last standalone Community version was 2025.2. After installation a
+        <strong>30-day Pro trial</strong> runs automatically, and every major release – three times a year – grants a new
+        one. The remaining time is shown at the top right under “Trial”. After that the <strong>core stays
+        free</strong>: editor, completion, inspections, debugger, Run Configurations, Python Console, terminal, Git,
+        plugins, environments with venv, Conda, Poetry and uv – and <strong>local Jupyter notebooks</strong>.
+        <strong>Pro</strong> is needed for web frameworks (Django, Flask, FastAPI), the database tools including SQL
+        cells, remote interpreters (SSH, Docker, WSL) and remote notebooks. For this course that means: everything in
+        labs 03, 06 and 10 runs in the free core; the Database tool window is not part of it, which is why lab 09 uses
+        <strong>DataGrip</strong> (free for non-commercial use).</span>
+    </p>
+    <h3><span lang="de">Lizenzwege für Studierende, Stand 09/2026</span><span lang="en">Licence routes for students, as of 09/2026</span></h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Weg</span><span lang="en">Route</span></th>
+            <th><span lang="de">Gilt für</span><span lang="en">Covers</span></th>
+            <th><span lang="de">Voraussetzung</span><span lang="en">Requirement</span></th>
+            <th><span lang="de">Laufzeit</span><span lang="en">Duration</span></th>
+            <th><span lang="de">Telemetrie</span><span lang="en">Telemetry</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong><span lang="de">PyCharm-Kern</span><span lang="en">PyCharm core</span></strong></td>
+            <td><span lang="de">PyCharm ohne Pro-Funktionen</span><span lang="en">PyCharm without Pro features</span></td>
+            <td><span lang="de">Keine; auch kommerziell nutzbar</span><span lang="en">None; commercial use allowed</span></td>
+            <td><span lang="de">Unbegrenzt</span><span lang="en">Unlimited</span></td>
+            <td><span lang="de">Nach Zustimmung (Settings → Appearance &amp; Behavior → System Settings → Data Sharing)</span><span lang="en">After consent (Settings → Appearance &amp; Behavior → System Settings → Data Sharing)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Free for non-commercial use</strong></td>
+            <td><span lang="de">WebStorm (seit 10/2024), DataGrip (seit 10/2025), CLion, Rider, RubyMine, RustRover – <em>nicht</em> PyCharm</span><span lang="en">WebStorm (since 10/2024), DataGrip (since 10/2025), CLion, Rider, RubyMine, RustRover – <em>not</em> PyCharm</span></td>
+            <td><span lang="de">JetBrains-Konto, Internetverbindung; kein Nachweis; nur Lernen, Hobby, Open Source ohne Erlös</span><span lang="en">JetBrains Account, internet connection; no proof; learning, hobby, open source without revenue only</span></td>
+            <td><span lang="de">1 Jahr; verlängert sich automatisch nur bei Nutzung in den letzten 6 Monaten</span><span lang="en">1 year; renews automatically only if used in the last 6 months</span></td>
+            <td><span lang="de"><strong>verpflichtend</strong>, anonymisiert, nicht abschaltbar</span><span lang="en"><strong>mandatory</strong>, anonymised, cannot be switched off</span></td>
+          </tr>
+          <tr>
+            <td><strong><span lang="de">Educational licence (Student Pack)</span><span lang="en">Educational licence (Student Pack)</span></strong></td>
+            <td><span lang="de">Alle JetBrains-IDEs, einschließlich PyCharm Pro, WebStorm, DataGrip</span><span lang="en">All JetBrains IDEs, including PyCharm Pro, WebStorm, DataGrip</span></td>
+            <td><span lang="de">Nachweis: Hochschul-E-Mail (thws.de), ISIC-Karte oder „Authorize with GitHub“ über das GitHub Student Developer Pack; offizielle Dokumente werden seit 07/2024 nicht mehr angenommen</span><span lang="en">Proof: university email (thws.de), ISIC card or “Authorize with GitHub” via the GitHub Student Developer Pack; official documents are no longer accepted since 07/2024</span></td>
+            <td><span lang="de">1 Jahr; verlängerbar, solange immatrikuliert (Erinnerung zwei Wochen vor Ablauf); auf mehreren Rechnern</span><span lang="en">1 year; renewable while enrolled (reminder two weeks before expiry); on several machines</span></td>
+            <td><span lang="de">Nach Zustimmung</span><span lang="en">After consent</span></td>
+          </tr>
+          <tr>
+            <td><strong><span lang="de">Classroom licence</span><span lang="en">Classroom licence</span></strong></td>
+            <td><span lang="de">Alle IDEs auf Rechnern der Hochschule (Pools)</span><span lang="en">All IDEs on university machines (pools)</span></td>
+            <td><span lang="de">Beantragt die Hochschule; je Rechner, nicht je Person</span><span lang="en">Applied for by the institution; per computer, not per person</span></td>
+            <td><span lang="de">Mindestens 1 Jahr, kostenlos verlängerbar</span><span lang="en">At least 1 year, renewable free of charge</span></td>
+            <td><span lang="de">Nach Zustimmung</span><span lang="en">After consent</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      <span lang="de">Beide kostenlosen Wege für Einzelpersonen gelten <strong>nicht für kommerzielle Arbeit</strong> –
+        ausdrücklich auch nicht für Werkstudentenjobs, Praktika oder eine Ausbildung im Unternehmen. Dort braucht der
+        Arbeitgeber eine eigene Lizenz, oder Sie nutzen den PyCharm-Kern. Der Kurs empfiehlt die
+        <strong>Bildungslizenz</strong>: Sie deckt PyCharm Pro und WebStorm zugleich ab und macht Telemetrie nicht zur
+        Bedingung. Beantragt wird sie unter <code>jetbrains.com/shop/eform/students</code>; nach der Freigabe hängt sie
+        am JetBrains-Konto, und in der IDE genügt <code>Help → Register</code> → Anmelden → <code>Activate</code>.
+        Wer keinen Nachweis führen kann, nimmt WebStorm und DataGrip non-commercial: <code>Help → Register</code> →
+        <code>Non-commercial use</code> → Bedingungen bestätigen → Anmelden → <code>Start Non-Commercial Use</code>.
+        Ohne Internetverbindung geht das nicht; Offline-Aktivierungscodes und private Support-Tickets sind unter dieser
+        Lizenz ausgeschlossen. Tun Sie das vor Ablauf des ersten Trials – sonst sind Pro-Funktionen eines Tages
+        ausgegraut, und man sucht den Fehler im Projekt statt in der Lizenz.</span>
+      <span lang="en">Both free routes for individuals do <strong>not</strong> cover <strong>commercial work</strong> –
+        expressly not student jobs, internships or an apprenticeship at a company either. There the employer needs its
+        own licence, or you use the PyCharm core. The course recommends the <strong>educational licence</strong>: it
+        covers PyCharm Pro and WebStorm at once and does not make telemetry a condition. You apply at
+        <code>jetbrains.com/shop/eform/students</code>; after approval it is attached to the JetBrains Account, and in
+        the IDE <code>Help → Register</code> → sign in → <code>Activate</code> suffices. Whoever cannot provide proof
+        takes WebStorm and DataGrip non-commercial: <code>Help → Register</code> → <code>Non-commercial use</code> → accept
+        the terms → sign in → <code>Start Non-Commercial Use</code>. It does not work without an internet connection;
+        offline activation codes and private support tickets are excluded under this licence. Do it before the first
+        trial ends – otherwise Pro features are greyed out one day, and one looks for the error in the project instead
+        of the licence.</span>
+    </p>
+    <div class="warn-box">
+      <h3><span lang="de">AI Assistant: nur auf Wunsch</span><span lang="en">AI Assistant: only on request</span></h3>
+      <p><span lang="de">Der AI Assistant ist ein Opt-in: Er wird erst aktiv, wenn das Plugin installiert, eine
+        Lizenz vorhanden und den JetBrains-AI-Bedingungen ausdrücklich zugestimmt ist. Die Stufe „AI Free“ steht im
+        kostenlosen PyCharm-Kern <strong>nicht</strong> zur Verfügung; im Trial und unter der Bildungslizenz ist der
+        Umfang beim Hersteller zu prüfen. Wer im Projekt keine Cloud-KI will – etwa weil Kursdaten Dritter
+        darin liegen –, legt eine leere Datei <code>.noai</code> in den Projektordner oder wählt in der Statusleiste
+        <code>AI Assistant → Disable for This Project</code>; IDE-weit unter <code>Settings → Plugins → Installed</code>
+        das Plugin „AI Assistant“ abschalten. Das frühere Daten-Produkt <strong>DataSpell</strong> wird eingestellt;
+        JetBrains verweist auf PyCharm. Es ist nicht Gegenstand dieses Kurses.</span>
+      <span lang="en">The AI Assistant is opt-in: it only becomes active once the plugin is installed, a licence is
+        present and the JetBrains AI terms are explicitly accepted. The “AI Free” tier is <strong>not</strong>
+        available in the free PyCharm core; in the trial and under the educational licence the scope is to be checked
+        with the vendor. Whoever wants no cloud AI in a project – for instance because third-party course data lies in it –
+        puts an empty file <code>.noai</code> into the project folder or picks <code>AI Assistant → Disable for This
+        Project</code> in the status bar; IDE-wide, disable the “AI Assistant” plugin under <code>Settings → Plugins →
+        Installed</code>. The former data product <strong>DataSpell</strong> is being discontinued; JetBrains points to
+        PyCharm. It is not part of this course.</span></p>
+    </div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. PyCharm und WebStorm stehen hier, weil
+        sie dieselbe Plattform teilen, in Lab 09 (DataGrip) wiederkehren und weil ihre Begriffe – Interpreter, Run
+        Configuration, Tool Window – in Anleitungen vorausgesetzt werden. Alternativen auf derselben Ebene, Stand
+        09/2026: <strong>Visual Studio Code</strong> (kostenlos; Quellcode MIT, die Microsoft-Binärdateien unter
+        proprietärer Lizenz mit Telemetrie; Python und Jupyter über Microsoft-Erweiterungen) und
+        <strong>VSCodium</strong> (dieselbe Basis, MIT, ohne Telemetrie); <strong>Cursor</strong> (proprietärer
+        VS-Code-Ableger mit KI; eingeschränkter Hobby-Plan kostenlos, Preise beim Hersteller prüfen);
+        <strong>Zed</strong> (Open Source, GPL/AGPL; Python über Language Server, keine Notebook-Oberfläche);
+        <strong>Spyder</strong> (MIT; Variable Explorer, wird mit Anaconda ausgeliefert); <strong>JupyterLab</strong>
+        (BSD-3; Notebooks im Browser). Alles in diesem Lab – Projekt, Umgebung, Abhängigkeiten, Run Configuration –
+        gibt es dort unter anderem Namen ebenso.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. PyCharm and WebStorm appear here because they share the same
+        platform, return in lab 09 (DataGrip) and because their vocabulary – interpreter, Run Configuration, tool
+        window – is assumed in guides. Alternatives at the same level, as of 09/2026: <strong>Visual Studio Code</strong>
+        (free; source code MIT, the Microsoft binaries under a proprietary licence with telemetry; Python and Jupyter via
+        Microsoft extensions) and <strong>VSCodium</strong> (same base, MIT, without telemetry); <strong>Cursor</strong>
+        (proprietary VS Code fork with AI; limited Hobby plan free, check prices with the vendor); <strong>Zed</strong>
+        (open source, GPL/AGPL; Python via language server, no notebook interface); <strong>Spyder</strong> (MIT;
+        Variable Explorer, ships with Anaconda); <strong>JupyterLab</strong> (BSD-3; notebooks in the browser).
+        Everything in this lab – project, environment, dependencies, Run Configuration – exists there under other
+        names just the same.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="projekt">
+    <h2><span lang="de">Ein Projekt anlegen</span><span lang="en">Creating a project</span></h2>
+    <p>
+      <span lang="de">Der erste Handgriff, und der einzige, bei dem ein Dialog alle drei Zutaten auf einmal
+        erzeugt: Ordner, <code>.idea</code> und Interpreter. Bevor Sie ihn öffnen, eine Entscheidung, die sich später
+        nur mühsam korrigieren lässt – der Ort. Projektordner gehören in einen Pfad <strong>ohne Umlaute und
+        Leerzeichen</strong> und <strong>nicht</strong> in einen Ordner, den OneDrive, iCloud Drive oder die
+        Desktop-Synchronisation verwaltet. Beides ist unter Windows leicht verletzt: <code>C:\Users\Jörg\OneDrive -
+        Persönlich\Desktop</code> bricht gleich drei Regeln. Im Kurs gilt <code>~/dev/…</code> auf dem Mac und
+        <code>C:\dev\…</code> unter Windows; synchronisiert wird über Git (Lab 02), nicht über die Cloud.</span>
+      <span lang="en">The first move, and the only one where a dialog produces all three ingredients at once: folder,
+        <code>.idea</code> and interpreter. Before you open it, a decision that is hard to correct later – the location.
+        Project folders belong in a path <strong>without umlauts and spaces</strong> and <strong>not</strong> in a folder
+        managed by OneDrive, iCloud Drive or desktop synchronisation. Both are easily violated on Windows:
+        <code>C:\Users\Jörg\OneDrive - Persönlich\Desktop</code> breaks three rules at once. In the course it is
+        <code>~/dev/…</code> on the Mac and <code>C:\dev\…</code> on Windows; synchronisation happens via Git (lab 02),
+        not via the cloud.</span>
+    </p>
+
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">New Project</span><span class="spacer"></span>PyCharm 2026.2</div>
+      <div class="shot-body">
+        <div class="shot-side">
+          <h5>Project type</h5>
+          <ul class="baum">
+            <li class="aktiv">Pure Python <span class="callout">1</span></li>
+            <li>Django</li>
+            <li>Flask</li>
+            <li>FastAPI</li>
+          </ul>
+        </div>
+        <div class="shot-main">
+          <div class="zeile"><span class="beschriftung">Name:</span><span class="feld">velocity</span></div>
+          <div class="zeile"><span class="beschriftung">Location:</span><span class="feld breit">~/dev</span> <span class="callout">2</span></div>
+          <div class="zeile"><span class="feld">☑ Create Git repository</span><span class="callout">3</span></div>
+          <div class="zeile"><span class="feld">☑ Create a main.py welcome script</span></div>
+          <div class="zeile"><span class="beschriftung">Interpreter type:</span><span class="tab aktiv">Project venv</span><span class="tab">Base conda</span><span class="tab">Custom environment</span> <span class="callout">4</span></div>
+          <div class="zeile"><span class="beschriftung">Python version:</span><span class="feld">Python 3.12 ▾</span></div>
+          <div class="zeile"><span class="knopf">Cancel</span><span class="knopf primaer">Create</span> <span class="callout">5</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Projekttyp. „Pure Python“ ist der Kurs-Standard; Django, Flask und FastAPI sind Pro-Vorlagen und in diesem Kurs nicht nötig.</span><span lang="en">Project type. “Pure Python” is the course default; Django, Flask and FastAPI are Pro templates and not needed in this course.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Location plus Name ergibt den Projektordner <code>~/dev/velocity</code>. Kein OneDrive, kein Umlaut, kein Leerzeichen.</span><span lang="en">Location plus name gives the project folder <code>~/dev/velocity</code>. No OneDrive, no umlaut, no space.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Legt ein leeres Git-Repository an; das Menü heißt danach „Git“. Die <code>.gitignore</code> aus dem Abschnitt „Git in der IDE“ kommt als Erstes hinein.</span><span lang="en">Creates an empty Git repository; the menu is called “Git” afterwards. The <code>.gitignore</code> from the section “Git in the IDE” goes in first.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Interpreter type. „Project venv“ erzeugt <code>.venv</code> im Projektordner. „Custom environment“ bietet Virtualenv, Conda, Pipenv, Poetry, uv, Hatch oder ein vorhandenes Python; ist uv installiert, schlägt PyCharm es seit 2025.3 von selbst vor.</span><span lang="en">Interpreter type. “Project venv” creates <code>.venv</code> in the project folder. “Custom environment” offers Virtualenv, Conda, Pipenv, Poetry, uv, Hatch or an existing Python; if uv is installed, PyCharm suggests it by itself since 2025.3.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Nach „Create“ zeigt die Statusleiste „Scanning files“, dann „Analyzing project to enable smart features“ – solange fehlen Vervollständigung und Navigation.</span><span lang="en">After “Create” the status bar shows “Scanning files”, then “Analyzing project to enable smart features” – until then completion and navigation are missing.</span></span></li>
+    </ol>
+
+    <div data-befehl="B01"></div>
+
+    <div class="vergleich">
+      <div>
+        <h3><span lang="de">Fremdes Projekt öffnen: der Trust-Dialog</span><span lang="en">Opening a foreign project: the trust dialog</span></h3>
+        <p><span lang="de">Beim ersten Öffnen eines Ordners, der nicht von Ihnen stammt – ein Klon aus GitHub, ein
+          heruntergeladenes Beispiel – fragt die IDE: <code>Trust Project</code>, <code>Preview in Safe Mode</code> oder
+          <code>Don't Open</code>. Der Grund: Ein Projekt kann Anweisungen enthalten, die die IDE beim Öffnen ausführt.
+          Safe Mode zeigt nur an, ohne etwas auszuführen. Für Kursrepositories ist Trust Project richtig; das Häkchen
+          „Trust all projects in '…' folder“ für den eigenen <code>dev</code>-Ordner erspart die Frage künftig. Verwaltet
+          unter <code>Settings → Appearance &amp; Behavior → Trusted Locations</code>.</span>
+        <span lang="en">On first opening a folder that is not yours – a clone from GitHub, a downloaded example – the IDE
+          asks: <code>Trust Project</code>, <code>Preview in Safe Mode</code> or <code>Don't Open</code>. The reason: a
+          project can contain instructions the IDE executes on opening. Safe Mode only displays, without running anything.
+          For course repositories Trust Project is right; the checkbox “Trust all projects in '…' folder” for your own
+          <code>dev</code> folder saves the question in future. Managed under <code>Settings → Appearance &amp; Behavior →
+          Trusted Locations</code>.</span></p>
+      </div>
+      <div>
+        <h3><span lang="de">Indexing: warten oder ausschließen</span><span lang="en">Indexing: wait or exclude</span></h3>
+        <p><span lang="de">Nach dem Öffnen liest die IDE jede Datei des Ordners, um Vervollständigung und Navigation
+          anzubieten. Bei Quellcode dauert das Sekunden. Bei einem Ordner mit 400 MB JSON-Export (Lab 05) oder einer
+          SQLite-Datei (Lab 06) dauert es Minuten – und wiederholt sich bei jeder Änderung. Abhilfe: Rechtsklick auf
+          den Datenordner → <code>Mark Directory as → Excluded</code>. Die Dateien bleiben lesbar und die Skripte
+          finden sie; nur die IDE hört auf, sie zu analysieren. <code>.venv</code> schließt PyCharm von selbst aus.</span>
+        <span lang="en">After opening, the IDE reads every file in the folder to offer completion and navigation. For
+          source code that takes seconds. For a folder with a 400 MB JSON export (lab 05) or an SQLite file (lab 06) it
+          takes minutes – and repeats on every change. Remedy: right-click the data folder → <code>Mark Directory as →
+          Excluded</code>. The files stay readable and the scripts find them; only the IDE stops analysing them.
+          <code>.venv</code> is excluded by PyCharm itself.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="interpreter">
+    <h2><span lang="de">Der Interpreter</span><span lang="en">The interpreter</span></h2>
+    <p>
+      <span lang="de">Hier liegt der Kern des Labs. Auf jedem Rechner gibt es mehrere Pythons: das des
+        Betriebssystems, eines aus dem Installer, vielleicht Anaconda – und je Projekt eine <code>.venv</code>. Jedes
+        hat seinen <strong>eigenen Paketordner</strong>. <code>pip install pandas</code> installiert in genau das
+        Python, zu dem dieses <code>pip</code> gehört; ein anderes Python weiß davon nichts. Daraus folgt die Meldung,
+        die jedes Semester die meiste Zeit kostet: <code>ModuleNotFoundError: No module named 'pandas'</code> – obwohl
+        die Installation gerade Erfolg gemeldet hat. Nichts ist kaputt. Es wurde nur in eine andere Umgebung
+        installiert als die, die das Skript ausführt.</span>
+      <span lang="en">This is the core of the lab. Every machine has several Pythons: the operating system's, one from
+        the installer, perhaps Anaconda – and a <code>.venv</code> per project. Each has its <strong>own package
+        folder</strong>. <code>pip install pandas</code> installs into exactly the Python this <code>pip</code> belongs
+        to; another Python knows nothing about it. From that follows the message that costs the most time every
+        semester: <code>ModuleNotFoundError: No module named 'pandas'</code> – although the installation just reported
+        success. Nothing is broken. It was merely installed into a different environment than the one running the
+        script.</span>
+    </p>
+    <p>
+      <span lang="de">Die IDE zeigt die Antwort immer an derselben Stelle: <strong>unten rechts in der
+        Statusleiste</strong>. Dort steht der Interpreter des Projekts, etwa <code>Python 3.12 (velocity)</code>; ein
+        Klick darauf zeigt den Pfad und erlaubt den Wechsel – <code>Add New Interpreter → Add Local Interpreter</code>
+        für eine neue Umgebung, oder eine vorhandene aus der Liste. Fehlt der Interpreter ganz, erscheint im Editor
+        das Banner <code>No Python interpreter configured for the project</code> mit dem Link <code>Configure Python
+        interpreter</code>. Beides führt in denselben Dialog.</span>
+      <span lang="en">The IDE shows the answer always in the same place: <strong>bottom right in the status
+        bar</strong>. There stands the project's interpreter, such as <code>Python 3.12 (velocity)</code>; clicking it
+        shows the path and allows switching – <code>Add New Interpreter → Add Local Interpreter</code> for a new
+        environment, or an existing one from the list. If the interpreter is missing entirely, the editor shows the
+        banner <code>No Python interpreter configured for the project</code> with the link <code>Configure Python
+        interpreter</code>. Both lead into the same dialog.</span>
+    </p>
+
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">velocity – main.py</span><span class="spacer"></span>PyCharm 2026.2</div>
+      <div class="shot-menu"><span>File</span><span>Edit</span><span>View</span><span>Navigate</span><span>Code</span><span>Run</span><span>Tools</span><span>Git</span><span>Window</span><span>Help</span></div>
+      <div class="shot-body">
+        <div class="shot-side">
+          <h5>Project</h5>
+          <ul class="baum">
+            <li>▾ velocity &nbsp;~/dev/velocity</li>
+            <li class="ein">▸ .venv <span class="callout">1</span></li>
+            <li class="ein">▾ data</li>
+            <li class="zwei">velocity-kostprobe.json</li>
+            <li class="ein">.gitignore</li>
+            <li class="ein aktiv">main.py</li>
+            <li class="ein">requirements.txt <span class="callout">2</span></li>
+            <li>▸ External Libraries</li>
+          </ul>
+        </div>
+        <div class="shot-main">
+          <div class="zeile"><span class="tab aktiv">main.py</span><span class="tab">requirements.txt</span></div>
+          <div class="warnzeile">No Python interpreter configured for the project &nbsp; <b>Configure Python interpreter</b> <span class="callout">3</span></div>
+          <div class="code">import json
+from pathlib import Path
+
+import pandas as pd   <span class="callout gold">4</span>
+
+DATEI = Path(__file__).parent / "data" / "velocity-kostprobe.json"</div>
+          <div class="fehlerzeile">Run: &nbsp;ModuleNotFoundError: No module named 'pandas' <span class="callout">5</span></div>
+          <div class="zeile"><span class="beschriftung">Status bar</span><span class="pill-neutral">main ⎇</span><span class="feld">Python 3.12 (velocity)</span> <span class="callout">6</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Die virtuelle Umgebung des Projekts – vom New-Project-Dialog angelegt, von PyCharm automatisch als Excluded markiert und in der <code>.gitignore</code>.</span><span lang="en">The project's virtual environment – created by the New Project dialog, automatically marked Excluded by PyCharm and listed in the <code>.gitignore</code>.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Liegt <code>requirements.txt</code> im Projektordner und fehlen Pakete, zeigt PyCharm beim Öffnen der Datei das Banner „Install requirements“; von Hand: <code>Tools → Sync Python Requirements</code>.</span><span lang="en">If <code>requirements.txt</code> lies in the project folder and packages are missing, PyCharm shows the banner “Install requirements” when the file is opened; by hand: <code>Tools → Sync Python Requirements</code>.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Das Banner bei fehlendem Interpreter – typisch nach <code>File → Open</code> auf einen geklonten Ordner, denn die <code>.venv</code> ist nie im Repository. Der Link führt zu <code>Add Local Interpreter</code>.</span><span lang="en">The banner when the interpreter is missing – typical after <code>File → Open</code> on a cloned folder, because the <code>.venv</code> is never in the repository. The link leads to <code>Add Local Interpreter</code>.</span></span></li>
+      <li><span class="callout gold">4</span><span><span lang="de">Ist pandas im gewählten Interpreter nicht installiert, unterstreicht PyCharm den Import und bietet mit <code>Alt+Enter</code> „Install package pandas“ an – in genau diesen Interpreter.</span><span lang="en">If pandas is not installed in the selected interpreter, PyCharm underlines the import and offers “Install package pandas” via <code>Alt+Enter</code> – into exactly this interpreter.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Die Meldung im Run tool window, wenn das Skript mit dem falschen Interpreter läuft. Erste Frage: Welcher steht unten rechts?</span><span lang="en">The message in the Run tool window when the script runs with the wrong interpreter. First question: which one is shown at the bottom right?</span></span></li>
+      <li><span class="callout">6</span><span><span lang="de">Der Interpreter-Selector in der Statusleiste. Ein Klick zeigt den Pfad – er muss im Projektordner unter <code>.venv</code> liegen – und wechselt oder legt neu an. Links daneben der Git-Branch.</span><span lang="en">The interpreter selector in the status bar. One click shows the path – it must lie inside the project folder under <code>.venv</code> – and switches or creates anew. To its left the Git branch.</span></span></li>
+    </ol>
+
+    <p>
+      <span lang="de">Abhängigkeiten werden nicht einzeln installiert, sondern in einer Datei
+        <code>requirements.txt</code> aufgeschrieben – eine Zeile je Paket, mit Versionsgrenzen. Die Datei gehört ins
+        Repository; die <code>.venv</code> nicht. Auf jedem Rechner wird die Umgebung daraus neu erzeugt, in PyCharm
+        über das Banner <code>Install requirements</code>, im Terminal mit <code>python -m pip install -r
+        requirements.txt</code>. Dass PyCharm die Datei findet, hängt an <code>Settings → Tools → Python Integrated
+        Tools → Package requirements file</code>; voreingestellt ist <code>requirements.txt</code> im Projektordner.
+        Das <strong>Python Packages tool window</strong> (<code>View → Tool Windows → Python Packages</code>) zeigt,
+        was im gewählten Interpreter installiert ist, und installiert dorthin – seit 2026.2.1 als Abhängigkeitsbaum.
+        Es ist der Ort, an dem man nachsieht, bevor man ein drittes Mal <code>pip install</code> tippt.</span>
+      <span lang="en">Dependencies are not installed one by one but written down in a file
+        <code>requirements.txt</code> – one line per package, with version bounds. The file belongs in the repository;
+        the <code>.venv</code> does not. On every machine the environment is recreated from it, in PyCharm via the
+        banner <code>Install requirements</code>, in the terminal with <code>python -m pip install -r
+        requirements.txt</code>. Whether PyCharm finds the file depends on <code>Settings → Tools → Python Integrated
+        Tools → Package requirements file</code>; the default is <code>requirements.txt</code> in the project folder.
+        The <strong>Python Packages tool window</strong> (<code>View → Tool Windows → Python Packages</code>) shows
+        what is installed in the selected interpreter and installs there – since 2026.2.1 as a dependency tree. It is
+        the place to look before typing <code>pip install</code> a third time.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-03-requirements.txt" download="requirements.txt"><span class="symbol">📄</span><span><span class="datei">requirements.txt</span><br><span class="was"><span lang="de">pandas, requests, python-dotenv mit Versionsgrenzen</span><span lang="en">pandas, requests, python-dotenv with version bounds</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-03-main.py" download="main.py"><span class="symbol">📄</span><span><span class="datei">main.py</span><br><span class="was"><span lang="de">Stationen mit Radanzahl aus dem JSON-Export</span><span lang="en">Stations with bike counts from the JSON export</span></span></span></a>
+      <a class="vorlage" href="data/velocity-kostprobe.json" download="velocity-kostprobe.json"><span class="symbol">📄</span><span><span class="datei">data/velocity-kostprobe.json</span><br><span class="was"><span lang="de">Der Export der Kostprobe – in den Ordner <code>data</code> legen</span><span lang="en">The sample export – put into the folder <code>data</code></span></span></span></a>
+    </div>
+    <div data-befehl="B02"></div>
+    <div data-befehl="B03"></div>
+    <div data-befehl="B04"></div>
+    <div class="tip-box">
+      <p><span lang="de">Das Terminal in PyCharm (<code>Alt+F12</code> / <code>⌥F12</code>) aktiviert die
+        Umgebung des Projekts von selbst, solange <code>Settings → Tools → Terminal → Activate virtualenv</code>
+        eingeschaltet ist – der Prompt beginnt dann mit <code>(.venv)</code>. Fehlt dieser Zusatz, arbeitet das
+        Terminal mit dem globalen Python, und <code>pip install</code> landet dort. Unter Windows kann PowerShell die
+        Aktivierung mit einem allgemeinen Hinweis verweigern („running scripts is disabled on this system“); die
+        Befehlskarte B03 nennt den Ausweg. Ein Terminal außerhalb der IDE (Lab 01) weiß von der Umgebung nichts –
+        dort ist <code>source .venv/bin/activate</code> beziehungsweise <code>.venv\Scripts\Activate.ps1</code>
+        Handarbeit.</span>
+      <span lang="en">PyCharm's terminal (<code>Alt+F12</code> / <code>⌥F12</code>) activates the project's
+        environment by itself as long as <code>Settings → Tools → Terminal → Activate virtualenv</code> is on – the
+        prompt then starts with <code>(.venv)</code>. If that prefix is missing, the terminal works with the global
+        Python, and <code>pip install</code> lands there. On Windows, PowerShell may refuse the activation with a
+        general notice (“running scripts is disabled on this system”); command card B03 names the way out. A terminal
+        outside the IDE (lab 01) knows nothing of the environment – there <code>source .venv/bin/activate</code> or
+        <code>.venv\Scripts\Activate.ps1</code> is manual work.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="ausfuehren">
+    <h2><span lang="de">Ausführen und Debuggen</span><span lang="en">Running and debugging</span></h2>
+    <p>
+      <span lang="de">Ein Skript startet mit Rechtsklick in den Editor → <code>Run 'main'</code>, über den grünen
+        Pfeil oben rechts oder mit <code>Shift+F10</code> / <code>⌃R</code>. Beim ersten Mal legt PyCharm eine
+        <em>temporäre</em> Run Configuration an – halbtransparentes Symbol, höchstens fünf davon –, und speichert
+        darin, was zum Ausführen gehört: <strong>Script path</strong>, <strong>Parameters</strong>, <strong>Working
+        directory</strong>, <strong>Python interpreter</strong>, <strong>Environment variables</strong>. Unter
+        <code>Run → Edit Configurations…</code> wird sie dauerhaft und bearbeitbar. Zwei Felder verdienen einen
+        zweiten Blick: das Working directory, weil relative Pfade wie <code>data/…</code> von dort ausgehen (die
+        Vorlage umgeht das mit <code>Path(__file__).parent</code>), und die Environment variables, weil dort in Lab 08
+        und Lab 11 Zugangsdaten hineingehören – nicht in den Code.</span>
+      <span lang="en">A script starts with a right-click in the editor → <code>Run 'main'</code>, via the green arrow at
+        the top right or with <code>Shift+F10</code> / <code>⌃R</code>. The first time, PyCharm creates a
+        <em>temporary</em> Run Configuration – semi-transparent icon, at most five of them – and stores in it what
+        running needs: <strong>Script path</strong>, <strong>Parameters</strong>, <strong>Working directory</strong>,
+        <strong>Python interpreter</strong>, <strong>Environment variables</strong>. Under <code>Run → Edit
+        Configurations…</code> it becomes permanent and editable. Two fields deserve a second look: the working
+        directory, because relative paths such as <code>data/…</code> start from there (the template avoids that with
+        <code>Path(__file__).parent</code>), and the environment variables, because in labs 08 and 11 credentials belong
+        there – not in the code.</span>
+    </p>
+    <div data-befehl="B05"></div>
+    <p>
+      <span lang="de">Für Datenarbeit ist die <strong>Python Console</strong> (<code>Tools → Python Console</code>)
+        oft nützlicher als ein Neustart des Skripts: Sie nutzt denselben Interpreter, behält Variablen zwischen den
+        Eingaben, und <code>Alt+Shift+E</code> schickt markierte Zeilen aus dem Editor hinein. Im Variablenbereich
+        daneben öffnet <code>View as DataFrame</code> das <strong>Data View</strong> tool window – eine sortier- und
+        durchsuchbare Tabelle mit Spaltenstatistik und Chart View. Diagramme aus matplotlib landen im
+        <strong>Plots</strong> tool window. Einen Schalter „Scientific Mode“ gibt es seit 2024.1 nicht mehr; diese
+        Fenster sind immer da. Welche der erweiterten Tabellenfunktionen Pro sind, ist beim Hersteller zu prüfen –
+        Data View selbst gehört zum Kern. Der <strong>Debugger</strong> funktioniert wie überall: Klick links neben die
+        Zeilennummer setzt einen Breakpoint, <code>Debug 'main'</code> hält dort an und zeigt jede Variable.</span>
+      <span lang="en">For data work the <strong>Python Console</strong> (<code>Tools → Python Console</code>) is often
+        more useful than restarting the script: it uses the same interpreter, keeps variables between inputs, and
+        <code>Alt+Shift+E</code> sends selected lines from the editor into it. In the variables pane beside it,
+        <code>View as DataFrame</code> opens the <strong>Data View</strong> tool window – a sortable, searchable table with
+        column statistics and a chart view. Plots from matplotlib land in the <strong>Plots</strong> tool window. A
+        “Scientific Mode” switch no longer exists since 2024.1; these windows are always there. Which of the extended
+        table features are Pro is to be checked with the vendor – Data View itself is part of the core. The
+        <strong>debugger</strong> works as everywhere: a click left of the line number sets a breakpoint, <code>Debug
+        'main'</code> stops there and shows every variable.</span>
+    </p>
+    <div class="info-box">
+      <p><span lang="de"><strong>Notebooks im kostenlosen Kern.</strong> Eine Datei <code>.ipynb</code> im Projekt
+        öffnet sich als Notebook; die erste ausgeführte Zelle startet einen von PyCharm verwalteten Jupyter-Server
+        und installiert das Paket <code>jupyter</code> in den Interpreter, falls es fehlt. Das ist das Gegenstück zu
+        Lab 04 – dasselbe Notebook, nur läuft es hier auf Ihrem Rechner mit Ihrem Interpreter. Remote-Notebooks,
+        SQL-Zellen und die Zellen-Werkzeugleiste sind Pro; für den Kurs braucht es sie nicht.</span>
+      <span lang="en"><strong>Notebooks in the free core.</strong> An <code>.ipynb</code> file in the project opens as a
+        notebook; the first executed cell starts a Jupyter server managed by PyCharm and installs the
+        <code>jupyter</code> package into the interpreter if it is missing. That is the counterpart to lab 04 – the same
+        notebook, only here it runs on your machine with your interpreter. Remote notebooks, SQL cells and the per-cell
+        toolbar are Pro; the course does not need them.</span></p>
+    </div>
+    <div data-befehl="B06"></div>
+  </section>
+
+  <section class="section-block" id="git">
+    <h2><span lang="de">Git in der IDE</span><span lang="en">Git in the IDE</span></h2>
+    <p>
+      <span lang="de">Alles aus Lab 02 gibt es auch als Fenster. Sobald die IDE ein Repository erkennt, heißt das
+        Menü <strong>Git</strong>; das <strong>Commit tool window</strong> (<code>Alt+0</code> / <code>⌘0</code>)
+        listet geänderte Dateien, zeigt den Unterschied je Datei und bietet zwei Knöpfe: <code>Commit</code> und
+        <code>Commit and Push</code>. Neue Dateien fragt die IDE, ob sie sie zu Git hinzufügen soll – das ist
+        <code>git add</code> als Dialog. Der Branch steht in der Statusleiste. Für den Kurs gilt: Was Sie in der IDE
+        klicken, ist derselbe Befehl, den Sie in Lab 02 getippt haben; das Terminal darunter zeigt es bei Bedarf.</span>
+      <span lang="en">Everything from lab 02 also exists as a window. As soon as the IDE detects a repository, the menu
+        is called <strong>Git</strong>; the <strong>Commit tool window</strong> (<code>Alt+0</code> / <code>⌘0</code>)
+        lists changed files, shows the difference per file and offers two buttons: <code>Commit</code> and <code>Commit
+        and Push</code>. For new files the IDE asks whether to add them to Git – that is <code>git add</code> as a
+        dialog. The branch is shown in the status bar. For the course: what you click in the IDE is the same command you
+        typed in lab 02; the terminal below shows it when needed.</span>
+    </p>
+    <p>
+      <span lang="de">Die eine Entscheidung, die Sie treffen müssen, betrifft <code>.idea</code>. JetBrains
+        dokumentiert: Die Dateien in <code>.idea</code> gehören unter Versionskontrolle, mit Ausnahme von
+        <code>workspace.xml</code>, die lokale Vorlieben enthält; PyCharm legt beim Anlegen eines Repositories selbst
+        eine <code>.idea/.gitignore</code> an. Das ist für Teams gedacht, die dieselbe IDE-Konfiguration teilen
+        wollen. <strong>Kursregel: das ganze <code>.idea/</code> und die ganze <code>.venv/</code> bleiben
+        draußen.</strong> Der Grund ist praktisch: <code>.idea</code> enthält den Pfad zum Interpreter, und der lautet
+        auf Ihrem Rechner <code>/Users/anna/dev/velocity/.venv</code> und auf dem der Kommilitonin
+        <code>C:\dev\velocity\.venv</code>. Beim Zusammenführen entstehen Konflikte in Dateien, die niemand
+        geschrieben hat. Die <code>.venv</code> wiederum ist groß, betriebssystemabhängig und in einer Minute aus
+        <code>requirements.txt</code> neu erzeugt.</span>
+      <span lang="en">The one decision you have to make concerns <code>.idea</code>. JetBrains documents: the files in
+        <code>.idea</code> belong under version control, except <code>workspace.xml</code>, which holds local
+        preferences; PyCharm itself creates an <code>.idea/.gitignore</code> when creating a repository. That is meant for
+        teams wanting to share the same IDE configuration. <strong>Course rule: the whole <code>.idea/</code> and the
+        whole <code>.venv/</code> stay out.</strong> The reason is practical: <code>.idea</code> contains the path to the
+        interpreter, and on your machine that reads <code>/Users/anna/dev/velocity/.venv</code> and on your fellow
+        student's <code>C:\dev\velocity\.venv</code>. Merging produces conflicts in files nobody wrote. The
+        <code>.venv</code>, in turn, is large, operating-system-dependent and recreated in a minute from
+        <code>requirements.txt</code>.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-03-gitignore.txt" download=".gitignore"><span class="symbol">📄</span><span><span class="datei">.gitignore</span><br><span class="was"><span lang="de">Python, Node, <code>.idea/</code>, <code>.venv/</code>, <code>.env</code> – als <code>.gitignore</code> in den Projektordner</span><span lang="en">Python, Node, <code>.idea/</code>, <code>.venv/</code>, <code>.env</code> – into the project folder as <code>.gitignore</code></span></span></span></a>
+    </div>
+    <div data-befehl="B07"></div>
+  </section>
+
+  <section class="section-block" id="webstorm">
+    <h2><span lang="de">WebStorm für Node-Projekte</span><span lang="en">WebStorm for Node projects</span></h2>
+    <p>
+      <span lang="de">Dieselbe Plattform, andere Sprache. Was in PyCharm der Interpreter ist, ist in WebStorm die
+        <strong>Node runtime</strong>: <code>Settings → Languages &amp; Frameworks → JavaScript Runtime</code> zeigt
+        das gefundene Node und den <strong>Package manager</strong> (npm, Yarn, pnpm oder bun; npm ist der
+        mitgelieferte). WebStorm erkennt Node im Suchpfad von selbst; fehlt es, installieren Sie es von nodejs.org und
+        starten die IDE neu. Was in PyCharm <code>requirements.txt</code> ist, ist hier <code>package.json</code>:
+        Sie nennt die Abhängigkeiten und – anders als in Python – auch die <strong>Scripts</strong>, mit denen das
+        Projekt gestartet wird. Und was der Ordner <code>.venv</code> ist, ist hier <code>node_modules</code>: von
+        <code>npm install</code> erzeugt, nie im Repository.</span>
+      <span lang="en">Same platform, different language. What the interpreter is in PyCharm is the <strong>Node
+        runtime</strong> in WebStorm: <code>Settings → Languages &amp; Frameworks → JavaScript Runtime</code> shows the
+        detected Node and the <strong>Package manager</strong> (npm, Yarn, pnpm or bun; npm is the one that ships with
+        Node). WebStorm detects Node on the search path by itself; if it is missing, install it from nodejs.org and
+        restart the IDE. What <code>requirements.txt</code> is in PyCharm is <code>package.json</code> here: it names the
+        dependencies and – unlike in Python – also the <strong>scripts</strong> the project is started with. And what the
+        folder <code>.venv</code> is, is <code>node_modules</code> here: created by <code>npm install</code>, never in the
+        repository.</span>
+    </p>
+
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">velocity-node – package.json</span><span class="spacer"></span>WebStorm 2026.2</div>
+      <div class="shot-menu"><span>File</span><span>Edit</span><span>View</span><span>Navigate</span><span>Code</span><span>Run</span><span>Tools</span><span>Git</span><span>Window</span><span>Help</span></div>
+      <div class="shot-body drei">
+        <div class="shot-side">
+          <h5>Project</h5>
+          <ul class="baum">
+            <li>▾ velocity-node</li>
+            <li class="ein">▾ data</li>
+            <li class="zwei">velocity-kostprobe.json</li>
+            <li class="ein">▸ node_modules <span class="callout">1</span></li>
+            <li class="ein">.gitignore</li>
+            <li class="ein">eslint.config.js</li>
+            <li class="ein">index.js</li>
+            <li class="ein">package-lock.json</li>
+            <li class="ein aktiv">package.json</li>
+          </ul>
+        </div>
+        <div class="shot-main">
+          <div class="warnzeile"><b>Run 'npm install'</b> <span class="callout">2</span></div>
+          <div class="code">{
+  "name": "velocity-node",
+  "private": true,
+  "scripts": {
+    "start": "node index.js",   <span class="callout gold">3</span>
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0"
+  }
+}</div>
+          <div class="zeile"><span class="beschriftung">Run</span><span class="feld">npm start &nbsp;→&nbsp; 3 Stationen, 18 Räder insgesamt</span></div>
+        </div>
+        <div class="shot-side rechts">
+          <h5>npm <span class="callout">4</span></h5>
+          <ul class="baum">
+            <li>▾ package.json</li>
+            <li class="ein">▶ start</li>
+            <li class="ein">▶ lint</li>
+          </ul>
+          <h5>ESLint <span class="callout">5</span></h5>
+          <ul class="baum">
+            <li>◉ Automatic ESLint configuration</li>
+            <li>○ Manual ESLint configuration</li>
+            <li>○ Disable ESLint</li>
+            <li>☐ Run eslint --fix on save</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de"><code>node_modules</code> – das Gegenstück zur <code>.venv</code>: von <code>npm install</code> erzeugt, in der <code>.gitignore</code>, aus <code>package.json</code> jederzeit wiederherstellbar.</span><span lang="en"><code>node_modules</code> – the counterpart to <code>.venv</code>: created by <code>npm install</code>, in the <code>.gitignore</code>, restorable from <code>package.json</code> at any time.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Der Hinweis beim Öffnen einer <code>package.json</code> ohne <code>node_modules</code>. Liegt eine <code>yarn.lock</code> oder <code>pnpm-lock.yaml</code> im Projekt, schlägt WebStorm den entsprechenden Manager vor.</span><span lang="en">The notification when opening a <code>package.json</code> without <code>node_modules</code>. If a <code>yarn.lock</code> or <code>pnpm-lock.yaml</code> is in the project, WebStorm suggests the corresponding manager.</span></span></li>
+      <li><span class="callout gold">3</span><span><span lang="de">Das Script <code>start</code>. Neben der Zeile zeigt WebStorm ein Start-Symbol im Randstreifen; in Lab 11 ist genau dieser Eintrag der Start Command, den Render aufruft.</span><span lang="en">The <code>start</code> script. Beside the line WebStorm shows a run icon in the gutter; in lab 11 exactly this entry is the Start Command Render calls.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Das npm tool window (<code>View → Tool Windows → npm</code> oder Rechtsklick auf <code>package.json</code> → <code>Show npm Scripts</code>). Doppelklick auf ein Script führt es aus und legt eine Run Configuration vom Typ npm an.</span><span lang="en">The npm tool window (<code>View → Tool Windows → npm</code> or right-click <code>package.json</code> → <code>Show npm Scripts</code>). Double-clicking a script runs it and creates a Run Configuration of type npm.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Die ESLint-Einstellung unter <code>Settings → Languages &amp; Frameworks → JavaScript → Code Quality Tools → ESLint</code>. „Automatic“ nutzt das ESLint aus <code>node_modules</code> und sucht <code>eslint.config.js</code> im Projekt; ohne diese Datei gibt es keine Meldungen.</span><span lang="en">The ESLint setting under <code>Settings → Languages &amp; Frameworks → JavaScript → Code Quality Tools → ESLint</code>. “Automatic” uses the ESLint from <code>node_modules</code> and looks for <code>eslint.config.js</code> in the project; without this file there are no messages.</span></span></li>
+    </ol>
+
+    <p>
+      <span lang="de"><strong>ESLint</strong> ist das Gegenstück zu den Inspektionen von PyCharm: ein Prüfer, der
+        Fehler im Editor anzeigt, bevor das Programm läuft – eine Variable, die nie benutzt wird, ein Vergleich mit
+        <code>==</code> statt <code>===</code>. WebStorm bringt die Anzeige mit, den Prüfer selbst installiert das
+        Projekt (<code>npm install --save-dev eslint</code> oder in einem Schritt <code>npm init
+        @eslint/config@latest</code>, das auch die Datei <code>eslint.config.js</code> anlegt). Das Häkchen <code>Run
+        eslint --fix on save</code> lässt ESLint beim Speichern korrigieren, was es korrigieren kann.
+        <strong>Prettier</strong> formatiert Code einheitlich, so wie <code>Reformat Code</code> in PyCharm:
+        <code>Settings → Languages &amp; Frameworks → JavaScript → Prettier</code>, ebenfalls „Automatic“, mit den
+        Häkchen <code>Run on save</code> und <code>Run on 'Reformat Code' action</code>; auch Prettier muss als
+        Abhängigkeit im Projekt liegen. Eine <strong>Run Configuration vom Typ Node.js</strong>
+        (<code>Run → Edit Configurations… → + → Node.js</code>) hat dieselben Felder wie die Python-Fassung: Node
+        runtime, Working directory, JavaScript file, Application parameters, Environment variables.</span>
+      <span lang="en"><strong>ESLint</strong> is the counterpart to PyCharm's inspections: a checker that shows errors in
+        the editor before the program runs – a variable never used, a comparison with <code>==</code> instead of
+        <code>===</code>. WebStorm ships the display, the checker itself is installed by the project (<code>npm install
+        --save-dev eslint</code> or, in one step, <code>npm init @eslint/config@latest</code>, which also creates the
+        file <code>eslint.config.js</code>). The checkbox <code>Run eslint --fix on save</code> lets ESLint correct on
+        save what it can correct. <strong>Prettier</strong> formats code uniformly, like <code>Reformat Code</code> in
+        PyCharm: <code>Settings → Languages &amp; Frameworks → JavaScript → Prettier</code>, likewise “Automatic”, with the
+        checkboxes <code>Run on save</code> and <code>Run on 'Reformat Code' action</code>; Prettier too must be a
+        dependency in the project. A <strong>Run Configuration of type Node.js</strong> (<code>Run → Edit
+        Configurations… → + → Node.js</code>) has the same fields as the Python version: Node runtime, working
+        directory, JavaScript file, application parameters, environment variables.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-03-package.json" download="package.json"><span class="symbol">📄</span><span><span class="datei">package.json</span><br><span class="was"><span lang="de">Scripts <code>start</code> und <code>lint</code>, ESLint als devDependency</span><span lang="en">Scripts <code>start</code> and <code>lint</code>, ESLint as devDependency</span></span></span></a>
+      <a class="vorlage" href="vorlagen/lab-03-index.js" download="index.js"><span class="symbol">📄</span><span><span class="datei">index.js</span><br><span class="was"><span lang="de">Radanzahl je Station – dieselbe Auswertung wie main.py</span><span lang="en">Bike count per station – the same evaluation as main.py</span></span></span></a>
+    </div>
+    <div data-befehl="B08"></div>
+    <div data-befehl="B09"></div>
+    <div data-befehl="B10"></div>
+  </section>
+
+  <section class="section-block" id="stolper">
+    <h2><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></h2>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">OneDrive · iCloud</div>
+        <p><span lang="de">Ein Projekt in einem synchronisierten Ordner verliert seinen Interpreter „von selbst“,
+          das Indexing hängt, und beim Speichern erscheinen Fehler – weil <code>.idea</code>, <code>.venv</code> und
+          <code>__pycache__</code> mitsynchronisiert und dabei gesperrt werden. Cloud-Laufwerke sind von JetBrains
+          nicht offiziell unterstützt. Abhilfe: Projekt nach <code>~/dev</code> bzw. <code>C:\dev</code> verschieben,
+          <code>.venv</code> neu anlegen, synchronisieren über Git.</span>
+        <span lang="en">A project in a synchronised folder loses its interpreter “by itself”, indexing hangs, and
+          errors appear on saving – because <code>.idea</code>, <code>.venv</code> and <code>__pycache__</code> get
+          synchronised and locked in the process. Cloud drives are not officially supported by JetBrains. Remedy: move
+          the project to <code>~/dev</code> or <code>C:\dev</code>, recreate <code>.venv</code>, synchronise via Git.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Umlaut · Leerzeichen</span><span lang="en">Umlaut · space</span></div>
+        <p><span lang="de">Ein Pfad wie <code>C:\Users\Jörg\Meine Projekte</code> lässt die Aktivierung der
+          <code>.venv</code> scheitern – mit <code>UnicodeDecodeError</code>, einem unlesbaren
+          <code>activate.bat</code> oder Zitatfehlern im Interpreter-Pfad. Das ist ein Problem von Python und Windows,
+          nicht von PyCharm, aber es trifft Sie in PyCharm. Regel: nur ASCII, keine Leerzeichen – im Projektpfad und
+          möglichst auch im Benutzernamen.</span>
+        <span lang="en">A path such as <code>C:\Users\Jörg\Meine Projekte</code> makes the activation of the
+          <code>.venv</code> fail – with <code>UnicodeDecodeError</code>, an unreadable <code>activate.bat</code> or
+          quoting errors in the interpreter path. That is a Python and Windows problem, not a PyCharm one, but it hits
+          you in PyCharm. Rule: ASCII only, no spaces – in the project path and preferably in the user name too.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Microsoft Defender</div>
+        <p><span lang="de">Unter Windows erscheint die Meldung <code>Microsoft Defender may affect IDE</code>: Der
+          Echtzeitschutz bremst Indexing und das Anlegen der <code>.venv</code>. Die Knöpfe heißen
+          <code>Automatically</code>, <code>How to configure manually</code>, <code>Ignore for this project</code>
+          und <code>Never ask again</code>. „Automatically“ verlangt Administratorrechte – auf dem privaten Laptop in
+          Ordnung, auf Pool-Rechnern nicht möglich; dort ist „Ignore for this project“ die richtige Antwort. Es ist
+          ein Hinweis zur Geschwindigkeit, kein Fehler.</span>
+        <span lang="en">On Windows the notification <code>Microsoft Defender may affect IDE</code> appears: real-time
+          protection slows indexing and the creation of the <code>.venv</code>. The buttons are
+          <code>Automatically</code>, <code>How to configure manually</code>, <code>Ignore for this project</code> and
+          <code>Never ask again</code>. “Automatically” needs administrator rights – fine on a private laptop, not
+          possible on pool machines; there “Ignore for this project” is the right answer. It is a performance notice,
+          not an error.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Trial abgelaufen</span><span lang="en">Trial expired</span></div>
+        <p><span lang="de">Nach 30 Tagen sind Pro-Funktionen ausgegraut: Database tool window, Web-Frameworks,
+          Remote-Interpreter. Skripte, Debugger, Terminal, Git und lokale Notebooks laufen weiter – das ist der
+          kostenlose Kern, kein Defekt. Wer die Bildungslizenz hat, aktiviert sie unter <code>Help → Register</code>;
+          wer nicht, arbeitet im Kern weiter und nimmt für Datenbanken DataGrip (Lab 09). Jede Hauptversion schenkt
+          einen neuen Trial – ein Update auf 2026.3 im Dezember bringt die Pro-Funktionen für 30 Tage zurück.</span>
+        <span lang="en">After 30 days Pro features are greyed out: Database tool window, web frameworks, remote
+          interpreters. Scripts, debugger, terminal, Git and local notebooks keep running – that is the free core, not
+          a defect. Whoever has the educational licence activates it under <code>Help → Register</code>; whoever does
+          not keeps working in the core and takes DataGrip for databases (lab 09). Every major release grants a new
+          trial – an update to 2026.3 in December brings the Pro features back for 30 days.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Zwei PyCharms</span><span lang="en">Two PyCharms</span></div>
+        <p><span lang="de">Wer im Vorjahr „PyCharm Community“ installiert hat und jetzt „PyCharm“ dazu, hat zwei
+          Programme mit zwei Einstellungssätzen – und öffnet Projekte abwechselnd im falschen. Die alte Community
+          (letzte Fassung 2025.2) deinstallieren; die Toolbox App zeigt seit 2025.3 nur noch ein „PyCharm“. Die
+          Projekte bleiben erhalten, sie sind ja nur Ordner.</span>
+        <span lang="en">Whoever installed “PyCharm Community” last year and now adds “PyCharm” has two programs with
+          two sets of settings – and opens projects in the wrong one by turns. Uninstall the old Community (last
+          version 2025.2); the Toolbox App shows only one “PyCharm” since 2025.3. The projects remain, they are only
+          folders after all.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Invalid Python SDK</div>
+        <p><span lang="de">Ein Projektordner, per USB-Stick oder Cloud auf einen anderen Rechner kopiert, meldet
+          <code>Invalid Python SDK</code>: Die <code>.venv</code> enthält absolute Pfade des alten Rechners und die
+          Python-Kopie der alten Plattform. Nicht reparieren, sondern ersetzen: <code>.venv</code> löschen, über die
+          Statusleiste <code>Add New Interpreter → Add Local Interpreter</code> neu anlegen, <code>requirements.txt</code>
+          installieren. Eine Minute – und der Grund, warum die <code>.venv</code> nie ins Repository gehört.</span>
+        <span lang="en">A project folder copied to another machine via USB stick or cloud reports <code>Invalid Python
+          SDK</code>: the <code>.venv</code> contains absolute paths of the old machine and the Python copy of the old
+          platform. Do not repair, replace: delete <code>.venv</code>, recreate it via the status bar <code>Add New
+          Interpreter → Add Local Interpreter</code>, install <code>requirements.txt</code>. One minute – and the reason
+          why the <code>.venv</code> never belongs in the repository.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Fünf Übungen: zwei Checklisten in der echten Oberfläche – das Projekt <code>velocity</code> in
+        PyCharm und <code>velocity-node</code> in WebStorm –, dazwischen ein Quiz und eine Zuordnung zu Begriffen und
+        Meldungen, zum Schluss ein Quiz zu den Lizenzwegen. Die Kopiervorlagen liegen in den Abschnitten „Der
+        Interpreter“, „Git in der IDE“ und „WebStorm“.</span>
+      <span lang="en">Five exercises: two checklists in the real interface – the project <code>velocity</code> in
+        PyCharm and <code>velocity-node</code> in WebStorm –, in between a quiz and a matching on concepts and messages,
+        finally a quiz on the licence routes. The templates are in the sections “The interpreter”, “Git in the IDE”
+        and “WebStorm”.</span>
+    </p>
+    <div data-uebung="W03-01"></div>
+    <div data-uebung="W03-02"></div>
+    <div data-uebung="W03-03"></div>
+    <div data-uebung="W03-04"></div>
+    <div data-uebung="W03-05"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Ein Projekt ist ein Ordner plus <code>.idea</code> plus Interpreter. Vorhandene Ordner werden mit <code>Open</code> geöffnet, leere mit <code>New Project</code> samt <code>.venv</code> angelegt – in einem Pfad ohne Umlaut, Leerzeichen und Cloud-Synchronisation.</span><span lang="en">A project is a folder plus <code>.idea</code> plus interpreter. Existing folders are opened with <code>Open</code>, empty ones created with <code>New Project</code> including <code>.venv</code> – in a path without umlaut, space and cloud synchronisation.</span></li>
+      <li><span lang="de">Jeder Interpreter hat seinen eigenen Paketordner. <code>ModuleNotFoundError</code> trotz Installation heißt: falscher Interpreter – die Antwort steht unten rechts in der Statusleiste, nicht in einem weiteren <code>pip install</code>.</span><span lang="en">Every interpreter has its own package folder. <code>ModuleNotFoundError</code> despite installation means: wrong interpreter – the answer is at the bottom right in the status bar, not in another <code>pip install</code>.</span></li>
+      <li><span lang="de">Abhängigkeiten stehen in <code>requirements.txt</code> (Python) bzw. <code>package.json</code> (Node) mit Versionsgrenzen; die Ordner <code>.venv</code> und <code>node_modules</code> werden daraus auf jedem Rechner neu erzeugt und bleiben mit <code>.idea/</code> in der <code>.gitignore</code>.</span><span lang="en">Dependencies are listed in <code>requirements.txt</code> (Python) or <code>package.json</code> (Node) with version bounds; the folders <code>.venv</code> and <code>node_modules</code> are recreated from them on every machine and stay in the <code>.gitignore</code> along with <code>.idea/</code>.</span></li>
+      <li><span lang="de">Eine Run Configuration speichert Script, Interpreter, Working directory und Environment variables. Für Datenarbeit ergänzen Python Console, Data View und Plots das Skript; lokale Notebooks laufen im kostenlosen Kern.</span><span lang="en">A Run Configuration stores script, interpreter, working directory and environment variables. For data work, Python Console, Data View and Plots complement the script; local notebooks run in the free core.</span></li>
+      <li><span lang="de">WebStorm ist dieselbe Plattform: Node runtime statt Interpreter, npm tool window statt Run-Knopf, ESLint statt Inspektionen. Wer PyCharm bedienen kann, kann WebStorm – und in Lab 09 DataGrip.</span><span lang="en">WebStorm is the same platform: Node runtime instead of interpreter, npm tool window instead of the Run button, ESLint instead of inspections. Whoever can operate PyCharm can operate WebStorm – and DataGrip in lab 09.</span></li>
+      <li><span lang="de">Stand 09/2026: PyCharm ist ein Produkt mit kostenlosem Kern und 30-Tage-Pro-Trial; WebStorm ist für nicht-kommerzielle Nutzung kostenlos, mit verpflichtender Telemetrie; die Bildungslizenz deckt beides ohne diese Bedingung ab – und keiner der kostenlosen Wege gilt im Werkstudentenjob.</span><span lang="en">As of 09/2026: PyCharm is one product with a free core and a 30-day Pro trial; WebStorm is free for non-commercial use, with mandatory telemetry; the educational licence covers both without that condition – and none of the free routes applies at a student job.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 03 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 03 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

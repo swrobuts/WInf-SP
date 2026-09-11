@@ -1,0 +1,347 @@
+{
+  "konsolen": {
+    "frei": {
+      "begruessung": [
+        { "de": "Freie Konsole mit nachgebildetem git. Anfangen können Sie mit:  git clone https://github.com/studi/velocity-analyse.git", "en": "Free console with git modelled in. You can start with:  git clone https://github.com/studi/velocity-analyse.git" },
+        { "de": "Oder mit einem eigenen Repository:  mkdir projekt  ·  cd projekt  ·  git init", "en": "Or with your own repository:  mkdir projekt  ·  cd projekt  ·  git init" }
+      ]
+    }
+  },
+  "befehle": {
+    "B01": {
+      "titel": { "de": "Git installieren", "en": "Install Git" },
+      "varianten": {
+        "mac": { "befehl": "brew install git      # oder: xcode-select --install\ngit --version", "teile": [
+          { "was": "brew install git", "bedeutet": { "de": "Über Homebrew. Ohne Homebrew genügt xcode-select --install: Die Kommandozeilenwerkzeuge von Apple bringen Git mit.", "en": "Via Homebrew. Without Homebrew, xcode-select --install is enough: Apple's command line tools include Git." } },
+          { "was": "git --version", "bedeutet": { "de": "Die Prüfung. Erscheint eine Versionsnummer, ist alles bereit. Erscheint „command not found“, ist die Installation nicht im Suchpfad angekommen.", "en": "The check. If a version number appears, everything is ready. If “command not found” appears, the installation did not reach the search path." } }
+        ] },
+        "win": { "befehl": "winget install Git.Git\ngit --version", "teile": [
+          { "was": "winget", "bedeutet": { "de": "Die Paketverwaltung von Windows. Alternativ der Installer von git-scm.com/download/win – er bringt den Git Credential Manager mit, der die Anmeldung übernimmt.", "en": "Windows' package manager. Alternatively the installer from git-scm.com/download/win – it includes the Git Credential Manager, which handles authentication." } },
+          { "was": "git --version", "bedeutet": { "de": "Die Prüfung. Nach der Installation muss das Terminal einmal neu geöffnet werden, damit der Suchpfad stimmt.", "en": "The check. After installing, the terminal has to be reopened once so the search path is right." } }
+        ] },
+        "cmd": { "befehl": "winget install Git.Git\ngit --version", "teile": [
+          { "was": "winget", "bedeutet": { "de": "Funktioniert auch in der Eingabeaufforderung. Danach das Fenster neu öffnen.", "en": "Works in Command Prompt too. Reopen the window afterwards." } }
+        ] }
+      }
+    },
+    "B02": {
+      "titel": { "de": "Einmalige Einrichtung", "en": "One-time configuration" },
+      "befehl": "git config --global user.name  \"Vorname Nachname\"\ngit config --global user.email \"vorname.nachname@student.thws.de\"\ngit config --global init.defaultBranch main\ngit config --list",
+      "teile": [
+        { "was": "--global", "bedeutet": { "de": "Gilt für alle Repositories dieses Benutzerkontos. Ohne --global nur für das aktuelle – nützlich, wenn ein Projekt eine andere Adresse braucht.", "en": "Applies to all repositories of this user account. Without --global only to the current one – useful when a project needs a different address." } },
+        { "was": "user.name / user.email", "bedeutet": { "de": "Erscheinen in jedem Commit, dauerhaft und in öffentlichen Repositories weltweit lesbar. Wer das nicht will, aktiviert in den GitHub-Einstellungen „Keep my email addresses private“ und verwendet die dort genannte Ersatzadresse.", "en": "Appear in every commit, permanently, and in public repositories readable worldwide. Whoever does not want that enables “Keep my email addresses private” in GitHub's settings and uses the no-reply address given there." } },
+        { "was": "init.defaultBranch main", "bedeutet": { "de": "Nennt den ersten Zweig main statt master – das ist heute die verbreitete Voreinstellung, und Anleitungen setzen sie voraus.", "en": "Names the first branch main instead of master – that is today's common default, and guides assume it." } },
+        { "was": "--list", "bedeutet": { "de": "Zeigt alle Einstellungen. Der erste Griff, wenn Commits mit dem falschen Namen erscheinen.", "en": "Shows all settings. The first thing to reach for when commits appear under the wrong name." } }
+      ]
+    },
+    "B03": {
+      "titel": { "de": "Anmeldung einrichten – drei Wege", "en": "Set up authentication – three routes" },
+      "befehl": "# (a) GitHub CLI – für den Anfang der einfachste Weg\ngh auth login\n\n# (b) Persönliches Zugriffs-Token über HTTPS\n#     Settings → Developer settings → Personal access tokens → Fine-grained tokens\n#     Bei der Passwortabfrage das Token eingeben, nicht das Kontopasswort\n\n# (c) SSH-Schlüssel\nssh-keygen -t ed25519 -C \"vorname.nachname@student.thws.de\"\ncat ~/.ssh/id_ed25519.pub        # Inhalt → Settings → SSH and GPG keys → New SSH key\nssh -T git@github.com            # Test",
+      "teile": [
+        { "was": "gh auth login", "bedeutet": { "de": "Führt durch eine Anmeldung im Browser und richtet dabei die Speicherung der Zugangsdaten mit ein. Danach funktionieren clone, push und pull ohne weitere Eingaben.", "en": "Walks through a browser sign-in and sets up credential storage along the way. Afterwards clone, push and pull work without further input." } },
+        { "was": "Fine-grained token", "bedeutet": { "de": "Beginnt mit github_pat_ und lässt sich auf einzelne Repositories und Rechte beschränken. Die alte Bauform (ghp_) gilt für das ganze Konto und ist deshalb die schlechtere Wahl.", "en": "Begins with github_pat_ and can be limited to individual repositories and permissions. The old form (ghp_) applies to the whole account and is therefore the worse choice." } },
+        { "was": "ssh-keygen -t ed25519", "bedeutet": { "de": "Erzeugt ein Schlüsselpaar. Die Datei ohne .pub ist der private Teil und bleibt auf dem Rechner; nur der Inhalt der .pub-Datei wird bei GitHub eingetragen.", "en": "Generates a key pair. The file without .pub is the private part and stays on the machine; only the content of the .pub file is entered at GitHub." } },
+        { "was": "ssh -T", "bedeutet": { "de": "Prüft die Verbindung. Die Antwort „successfully authenticated, but GitHub does not provide shell access“ ist der Erfolgsfall, keine Fehlermeldung.", "en": "Tests the connection. The reply “successfully authenticated, but GitHub does not provide shell access” is the success case, not an error." } }
+      ]
+    },
+    "B04": {
+      "titel": { "de": "Ein Repository holen – oder eines anlegen", "en": "Get a repository – or create one" },
+      "befehl": "git clone https://github.com/BENUTZER/REPO.git\ncd REPO\n\n# oder ein neues, aus einem vorhandenen Ordner:\nmkdir projekt && cd projekt\ngit init",
+      "teile": [
+        { "was": "clone", "bedeutet": { "de": "Holt das Repository samt vollständiger Geschichte und legt origin als Fernverweis an. Push und pull funktionieren danach ohne weitere Angabe.", "en": "Fetches the repository including its full history and sets up origin as the remote. Push and pull then work without further specification." } },
+        { "was": "cd REPO", "bedeutet": { "de": "Der Klon erzeugt einen Unterordner. Wer den Schritt vergisst, arbeitet außerhalb des Repositories – und git status meldet „not a git repository“.", "en": "The clone creates a subfolder. Whoever forgets this step works outside the repository – and git status reports “not a git repository”." } },
+        { "was": "init", "bedeutet": { "de": "Macht aus einem gewöhnlichen Ordner ein Repository. Es entsteht ein verstecktes .git-Verzeichnis; das ist das Repository, alles andere ist Arbeitsverzeichnis.", "en": "Turns an ordinary folder into a repository. A hidden .git directory appears; that is the repository, everything else is the working directory." } }
+      ]
+    },
+    "B05": {
+      "titel": { "de": "Der wichtigste Befehl – er verändert nichts", "en": "The most important command – it changes nothing" },
+      "befehl": "git status",
+      "ausgabe": "On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges to be committed:\n  (use \"git restore --staged <file>...\" to unstage)\n        new file:   auswertung.py\n\nUntracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n        daten/fahrten_2026.csv",
+      "teile": [
+        { "was": "On branch main", "bedeutet": { "de": "Auf welchem Zweig Sie stehen. Die häufigste Ursache für „meine Änderung ist weg“ ist ein Zweigwechsel, der übersehen wurde.", "en": "Which branch you are on. The most common cause of “my change is gone” is a branch switch that went unnoticed." } },
+        { "was": "Changes to be committed", "bedeutet": { "de": "Der Staging-Bereich. Nur was hier steht, geht in den nächsten Commit.", "en": "The staging area. Only what stands here goes into the next commit." } },
+        { "was": "Untracked files", "bedeutet": { "de": "Dateien, die Git noch nicht kennt. Hier gehört die CSV nicht hin, sondern in die .gitignore – siehe unten.", "en": "Files Git does not know yet. The CSV does not belong here but in the .gitignore – see below." } },
+        { "was": "Was man daraus liest", "bedeutet": { "de": "Vor jedem add, vor jedem commit, vor jedem push. Der Befehl kostet nichts und verhindert die meisten Missverständnisse.", "en": "Before every add, before every commit, before every push. The command costs nothing and prevents most misunderstandings." } }
+      ]
+    },
+    "B06": {
+      "titel": { "de": "Vormerken und festschreiben", "en": "Stage and commit" },
+      "befehl": "git add auswertung.py                              # gezielt – bevorzugt\ngit add .                                          # alles im aktuellen Verzeichnis\ngit commit -m \"Ausreisserbehandlung in Preisspalte ergaenzt\"",
+      "teile": [
+        { "was": "add <datei>", "bedeutet": { "de": "Merkt eine einzelne Datei für den nächsten Commit vor. So entstehen Commits mit einer Absicht statt Sammelcommits.", "en": "Stages a single file for the next commit. That is how commits with one intention come about instead of catch-all commits." } },
+        { "was": "add .", "bedeutet": { "de": "Merkt alles vor. Bequem und die häufigste Ursache dafür, dass eine 200-MB-Datei oder eine .env im Repository landet. Wer es benutzt, führt vorher git status aus.", "en": "Stages everything. Convenient, and the most common cause of a 200 MB file or a .env ending up in the repository. Whoever uses it runs git status first." } },
+        { "was": "-m \"…\"", "bedeutet": { "de": "Die Nachricht. Ohne -m öffnet Git einen Editor – häufig vim, was Anfänger überrascht; verlassen mit :q!.", "en": "The message. Without -m, Git opens an editor – often vim, which surprises beginners; leave with :q!." } },
+        { "was": "restore --staged", "bedeutet": { "de": "git restore --staged datei nimmt eine Datei aus dem Staging zurück, ohne die Änderung zu verwerfen. Der Weg zurück, wenn add zu viel erfasst hat.", "en": "git restore --staged file takes a file back out of staging without discarding the change. The way back when add caught too much." } }
+      ]
+    },
+    "B07": {
+      "titel": { "de": "Übertragen und holen", "en": "Push and pull" },
+      "befehl": "git pull                    # IMMER vor dem Arbeiten\ngit push\ngit push -u origin main     # nur beim allerersten Push eines Zweigs\ngit log --oneline --graph --decorate --all",
+      "teile": [
+        { "was": "pull", "bedeutet": { "de": "Holt die Änderungen der anderen. Wer das versäumt, erhält beim Push „rejected – fetch first“ und muss dann erst zusammenführen. Ein pull am Anfang jeder Sitzung erspart das.", "en": "Fetches the others' changes. Whoever skips it gets “rejected – fetch first” on push and then has to merge first. A pull at the start of every session avoids this." } },
+        { "was": "push", "bedeutet": { "de": "Überträgt die lokalen Commits zum Server. Vorher liegt alles nur auf Ihrem Rechner – ein Festplattenschaden nimmt es mit.", "en": "Transfers the local commits to the server. Before that, everything lives only on your machine – a disk failure takes it along." } },
+        { "was": "-u origin main", "bedeutet": { "de": "Verknüpft den lokalen Zweig einmalig mit dem gleichnamigen auf dem Server. Danach genügt git push.", "en": "Links the local branch once with the one of the same name on the server. Afterwards git push is enough." } },
+        { "was": "log --oneline --graph", "bedeutet": { "de": "Die Geschichte als Baum, eine Zeile je Commit. Der Befehl, mit dem man in einem fremden Repository anfängt, um zu verstehen, was dort passiert ist.", "en": "The history as a tree, one line per commit. The command to start with in an unfamiliar repository, to understand what happened there." } }
+      ]
+    },
+    "B08": {
+      "titel": { "de": "Zweig anlegen und wechseln", "en": "Create and switch branches" },
+      "befehl": "git switch -c experiment/andere-schwelle    # anlegen und hinwechseln\ngit branch                                  # welche gibt es, wo stehe ich\ngit switch main                             # zurück",
+      "teile": [
+        { "was": "switch -c", "bedeutet": { "de": "Legt den Zweig an und wechselt in einem Schritt hin. Der ältere Befehl dafür heißt git checkout -b und tut dasselbe – switch ist die neuere, eindeutigere Schreibweise.", "en": "Creates the branch and switches to it in one step. The older command for this is git checkout -b and does the same – switch is the newer, less ambiguous spelling." } },
+        { "was": "Namen mit Schrägstrich", "bedeutet": { "de": "experiment/andere-schwelle ist eine Gliederung, kein Ordner. Übliche Präfixe: feature/, fix/, experiment/. Sie machen eine Zweigliste lesbar.", "en": "experiment/other-threshold is a grouping, not a folder. Common prefixes: feature/, fix/, experiment/. They make a branch list readable." } },
+        { "was": "branch", "bedeutet": { "de": "Listet die Zweige; der aktuelle trägt einen Stern. Mit git branch -d name wird ein zusammengeführter Zweig entfernt.", "en": "Lists the branches; the current one carries an asterisk. git branch -d name removes a merged branch." } },
+        { "was": "Was beim Wechsel passiert", "bedeutet": { "de": "Git tauscht die Dateien im Arbeitsverzeichnis aus. Nicht festgeschriebene Änderungen können dabei im Weg stehen – dann erst committen oder git stash nutzen.", "en": "Git swaps out the files in the working directory. Uncommitted changes can get in the way – then commit first or use git stash." } }
+      ]
+    },
+    "B09": {
+      "titel": { "de": "Zusammenführen", "en": "Merging" },
+      "befehl": "git switch main            # in den Zielzweig wechseln\ngit merge experiment/andere-schwelle\n\n# bei einem Konflikt: Datei öffnen, Markierungen auflösen, dann\ngit add <datei>\ngit commit",
+      "teile": [
+        { "was": "Reihenfolge", "bedeutet": { "de": "Zuerst in den Zweig wechseln, der die Änderung aufnehmen soll, dann mergen. Wer es umgekehrt macht, führt in die falsche Richtung zusammen.", "en": "First switch to the branch that should receive the change, then merge. Doing it the other way round merges in the wrong direction." } },
+        { "was": "Fast-forward", "bedeutet": { "de": "Hat der Zielzweig seit der Verzweigung keine eigenen Commits, schiebt Git nur den Zeiger vor. Es entsteht kein Merge-Commit – das ist der einfache Fall.", "en": "If the target branch has no commits of its own since the divergence, Git just moves the pointer forward. No merge commit appears – that is the simple case." } },
+        { "was": "Konflikt", "bedeutet": { "de": "Beide Seiten haben dieselbe Zeile geändert. Git schreibt beide Fassungen mit Markierungen in die Datei und wartet auf Ihre Entscheidung. Nach dem Auflösen: add und commit.", "en": "Both sides changed the same line. Git writes both versions into the file with markers and waits for your decision. After resolving: add and commit." } },
+        { "was": "git merge --abort", "bedeutet": { "de": "Bricht einen Merge ab und stellt den Zustand davor wieder her. Der Ausweg, wenn ein Konflikt unübersichtlich wird.", "en": "Aborts a merge and restores the state before it. The way out when a conflict gets confusing." } }
+      ]
+    },
+    "B10": {
+      "titel": { "de": ".gitignore für ein Analytics-Projekt", "en": ".gitignore for an analytics project" },
+      "prompt": "📄",
+      "befehl": "# Notebooks\n.ipynb_checkpoints/\n\n# Python\n__pycache__/\n*.py[cod]\n.venv/\nvenv/\n\n# Geheimnisse — NIEMALS committen\n.env\n.env.local\n*.key\ncredentials.json\n\n# Daten (Personenbezug und Größe)\ndata/raw/\n*.csv\n*.xlsx\n*.parquet\n*.db\n!data/beispiel_klein.csv      # bewusste Ausnahme\n\n# System\n.DS_Store\nThumbs.db",
+      "teile": [
+        { "was": ".gitignore", "bedeutet": { "de": "Eine Textdatei im Wurzelverzeichnis des Repositories. Sie wird selbst mit committet – sie ist Teil der Projektvereinbarung, nicht Ihre private Einstellung.", "en": "A text file in the repository's root. It is itself committed – it is part of the project agreement, not your private setting." } },
+        { "was": "ordner/", "bedeutet": { "de": "Der Schrägstrich am Ende bezeichnet einen Ordner. Ohne ihn würde auch eine Datei dieses Namens ausgeschlossen.", "en": "The trailing slash denotes a folder. Without it, a file of that name would be excluded too." } },
+        { "was": "!datei", "bedeutet": { "de": "Das Ausrufezeichen nimmt eine Ausnahme von einer Regel darüber zurück. So bleibt ein kleiner Beispieldatensatz im Repository, während alle anderen CSV-Dateien draußen bleiben.", "en": "The exclamation mark takes back an exception from a rule above. That keeps a small sample dataset in the repository while all other CSV files stay out." } },
+        { "was": "Vorlage", "bedeutet": { "de": "GitHub bietet beim Anlegen eines Repositories die Vorlage „Python“ an; sie deckt die Einträge zu Python und Notebooks ab. Die Zeilen zu Daten und Geheimnissen kommen von Ihnen.", "en": "GitHub offers the “Python” template when creating a repository; it covers the Python and notebook entries. The lines on data and secrets come from you." } }
+      ]
+    },
+    "B11": {
+      "titel": { "de": "Notebooks bändigen", "en": "Taming notebooks" },
+      "befehl": "pip install --upgrade nbstripout\ncd IHR-REPOSITORY\nnbstripout --install                    # nur dieses Repository\nnbstripout --install --global            # alle Repositories dieses Kontos\n\n# Alternative mit semantischem Unterschied statt Entfernen:\npip install nbdime\nnbdime config-git --enable --global\nnbdiff analyse.ipynb",
+      "teile": [
+        { "was": "nbstripout --install", "bedeutet": { "de": "Richtet einen Git-Filter ein, der beim Committen alle Zellausgaben entfernt. Lokal bleiben die Ausgaben sichtbar – nur im Repository landen sie nicht.", "en": "Sets up a Git filter that removes all cell outputs when committing. Locally the outputs stay visible – they just do not reach the repository." } },
+        { "was": "Was das löst", "bedeutet": { "de": "Lesbare Unterschiede, kleines Repository, keine Daten in den Ausgaben, harmlosere Konflikte. Vier Probleme mit einem Befehl.", "en": "Readable diffs, a small repository, no data in the outputs, less destructive conflicts. Four problems with one command." } },
+        { "was": "nbdime", "bedeutet": { "de": "Der andere Weg: Ausgaben behalten, aber Unterschiede und Zusammenführungen zellenweise statt zeilenweise darstellen. Wer die Ausgaben als Teil des Ergebnisses versteht, nimmt diesen.", "en": "The other route: keep the outputs but present diffs and merges cell by cell instead of line by line. Whoever regards the outputs as part of the result takes this one." } },
+        { "was": "Wann einrichten", "bedeutet": { "de": "Vor dem ersten Commit eines Notebooks. Nachträglich hilft es nur für die Zukunft – die schon eingebetteten Ausgaben bleiben in der Geschichte.", "en": "Before the first commit of a notebook. Afterwards it only helps for the future – the already embedded outputs stay in the history." } }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W02-01",
+      "typ": "terminal",
+      "titel": { "de": "Ein fremdes Repository lesen", "en": "Read someone else's repository" },
+      "aufgabe": {
+        "de": "<p>Die häufigste Begegnung mit Git ist nicht das eigene Projekt, sondern ein fremdes: Sie erhalten eine Adresse und sollen sich einen Überblick verschaffen. Klonen Sie <code>https://github.com/studi/velocity-analyse.git</code>, sehen Sie sich an, was darin liegt, und lesen Sie die Geschichte.</p>",
+        "en": "<p>The most common encounter with Git is not your own project but someone else's: you are given an address and asked to get an overview. Clone <code>https://github.com/studi/velocity-analyse.git</code>, look at what is inside, and read the history.</p>"
+      },
+      "begruessung": [
+        { "de": "Auftrag 1 von 3 an der Konsole. Der Fernserver ist nachgebildet — es geht nichts nach außen.", "en": "Assignment 1 of 3 at the console. The remote is modelled — nothing goes outside." }
+      ],
+      "schritte": [
+        { "text": { "de": "Prüfen, dass hier noch kein Repository ist (git status)", "en": "Check that there is no repository here yet (git status)" }, "muster": "^git\\s+status" },
+        { "text": { "de": "Das Repository klonen", "en": "Clone the repository" }, "muster": "^git\\s+clone\\b", "zustand": { "gitRepo": true } },
+        { "text": { "de": "In den entstandenen Ordner wechseln", "en": "Change into the folder that appeared" }, "zustand": { "pfad": "velocity-analyse" } },
+        { "text": { "de": "Den Inhalt auflisten — auch die versteckten Dateien (Option -a)", "en": "List the contents — including the hidden files (option -a)" }, "muster": "^(ls\\s+-\\w*a|Get-ChildItem.*-Force|dir\\s+/a)" },
+        { "text": { "de": "Die .gitignore lesen — was schließt das Projekt aus?", "en": "Read the .gitignore — what does the project exclude?" }, "muster": "^(cat|type|Get-Content|gc|head|less)\\b.*\\.gitignore" },
+        { "text": { "de": "Die Geschichte in Kurzform ansehen (git log --oneline)", "en": "Look at the history in short form (git log --oneline)" }, "muster": "^git\\s+log\\b.*oneline" }
+      ],
+      "rueckmeldung": {
+        "de": "Diese vier Handgriffe — klonen, hineinwechseln, versteckte Dateien listen, Geschichte lesen — sind der Einstieg in jedes fremde Repository. Die .gitignore verrät dabei mehr als das README: Sie zeigt, was das Projekt für Quelle hält und was für Erzeugnis.",
+        "en": "These four actions — clone, change in, list hidden files, read the history — are the entry into any unfamiliar repository. The .gitignore reveals more than the README: it shows what the project regards as source and what as product."
+      }
+    },
+    {
+      "id": "W02-02",
+      "typ": "terminal",
+      "titel": { "de": "Eine Änderung festhalten", "en": "Record a change" },
+      "aufgabe": {
+        "de": "<p>Legen Sie im geklonten Repository eine Datei <code>auswertung.py</code> an und bringen Sie sie durch alle drei Bereiche: Arbeitsverzeichnis, Staging, Repository — und dann zum Server.</p><p>Beobachten Sie nach jedem Schritt <code>git status</code>. Die Ausgabe ändert sich jedes Mal, und wer sie liest, braucht später keine Anleitung mehr.</p>",
+        "en": "<p>In the cloned repository, create a file <code>auswertung.py</code> and take it through all three areas: working directory, staging, repository — and then to the server.</p><p>Watch <code>git status</code> after every step. The output changes each time, and whoever reads it needs no guide later.</p>"
+      },
+      "begruessung": [
+        { "de": "Auftrag 2 von 3. Falls noch kein Repository da ist: erst klonen (siehe vorige Übung).", "en": "Assignment 2 of 3. If there is no repository yet: clone first (see the previous exercise)." }
+      ],
+      "schritte": [
+        { "text": { "de": "Das Repository klonen und hineinwechseln", "en": "Clone the repository and change into it" }, "zustand": { "gitRepo": true, "pfad": "velocity-analyse" } },
+        { "text": { "de": "Die Datei auswertung.py anlegen", "en": "Create the file auswertung.py" }, "zustand": { "datei": "velocity-analyse/auswertung.py" } },
+        { "text": { "de": "git status — die Datei erscheint unter „Untracked files“", "en": "git status — the file appears under “Untracked files”" }, "muster": "^git\\s+status" },
+        { "text": { "de": "Die Datei vormerken (git add) — git status zeigt sie danach unter „Changes to be committed“", "en": "Stage the file (git add) — git status then shows it under “Changes to be committed”" }, "muster": "^git\\s+add\\b", "zustand": { "gitIndexGefuellt": true } },
+        { "text": { "de": "Mit einer aussagekräftigen Nachricht festschreiben (git commit -m \"…\")", "en": "Commit with a meaningful message (git commit -m \"…\")" }, "zustand": { "gitCommits": 2, "gitIndexLeer": true } },
+        { "text": { "de": "Die Geschichte prüfen — der neue Commit steht oben", "en": "Check the history — the new commit is at the top" }, "muster": "^git\\s+log\\b" },
+        { "text": { "de": "Zum Server übertragen (git push)", "en": "Transfer to the server (git push)" }, "zustand": { "gitVeroeffentlicht": true } }
+      ],
+      "rueckmeldung": {
+        "de": "Beachten Sie, was git status zwischen add und commit anzeigt: „Changes to be committed“. Das ist der Staging-Bereich, den Anfänger als überflüssige Zwischenstufe empfinden — und der der Grund dafür ist, dass Commits eine Absicht haben können statt nur einen Zeitpunkt.",
+        "en": "Note what git status shows between add and commit: “Changes to be committed”. That is the staging area beginners perceive as a superfluous intermediate step — and the reason commits can have an intention rather than merely a timestamp."
+      }
+    },
+    {
+      "id": "W02-03",
+      "typ": "terminal",
+      "titel": { "de": "Ein Experiment auf einem Zweig", "en": "An experiment on a branch" },
+      "aufgabe": {
+        "de": "<p>Die Fragestellung: „Was wäre, wenn wir die Ausreißer anders behandeln?“ Statt die vorhandene Auswertung umzubauen, probieren Sie es auf einem Zweig aus — und führen das Ergebnis anschließend zurück.</p><p>Legen Sie einen Zweig <code>experiment</code> an, erzeugen Sie dort eine Datei, schreiben Sie sie fest, wechseln Sie zurück nach <code>main</code> und führen Sie zusammen. Achten Sie darauf, dass die Datei nach dem Wechsel auf <code>main</code> zunächst nicht in der Geschichte steht — und nach dem Zusammenführen doch.</p>",
+        "en": "<p>The question: “what if we treat the outliers differently?” Instead of rebuilding the existing analysis, you try it on a branch — and merge the result back afterwards.</p><p>Create a branch <code>experiment</code>, produce a file there, commit it, switch back to <code>main</code> and merge. Note that after switching to <code>main</code> the file is not in the history at first — and is after merging.</p>"
+      },
+      "begruessung": [
+        { "de": "Auftrag 3 von 3. Voraussetzung: ein Repository. Klonen oder git init genügt.", "en": "Assignment 3 of 3. Prerequisite: a repository. Cloning or git init is enough." }
+      ],
+      "schritte": [
+        { "text": { "de": "Ein Repository bereitstellen (klonen oder git init im eigenen Ordner)", "en": "Provide a repository (clone, or git init in your own folder)" }, "zustand": { "gitRepo": true } },
+        { "text": { "de": "Einen Zweig experiment anlegen und hinwechseln (git switch -c)", "en": "Create a branch experiment and switch to it (git switch -c)" }, "zustand": { "gitZweig": "experiment" } },
+        { "text": { "de": "Auf dem Zweig eine Datei anlegen und festschreiben", "en": "Create a file on the branch and commit it" }, "muster": "^git\\s+commit\\b" },
+        { "text": { "de": "Die Zweige auflisten (git branch) — der Stern zeigt, wo Sie stehen", "en": "List the branches (git branch) — the asterisk shows where you are" }, "muster": "^git\\s+branch\\s*$" },
+        { "text": { "de": "Zurück nach main wechseln", "en": "Switch back to main" }, "zustand": { "gitZweig": "main" } },
+        { "text": { "de": "Die Geschichte auf main ansehen — der Commit vom Zweig fehlt hier", "en": "Look at the history on main — the branch's commit is missing here" }, "muster": "^git\\s+log\\b" },
+        { "text": { "de": "Den Zweig experiment nach main zusammenführen (git merge)", "en": "Merge the branch experiment into main (git merge)" }, "muster": "^git\\s+merge\\b" }
+      ],
+      "rueckmeldung": {
+        "de": "Der aussagekräftigste Moment war der sechste Schritt: Auf main fehlte der Commit, obwohl er längst geschrieben war. Ein Zweig ist genau das — eine eigene Sicht auf die Geschichte. Genau deshalb ist er für ein „was wäre, wenn“ das richtige Werkzeug und nicht eine Kopie des Ordners.",
+        "en": "The most telling moment was step six: on main the commit was missing, although it had long been written. A branch is exactly that — its own view of the history. That is precisely why it is the right tool for a “what if” and not a copy of the folder."
+      }
+    },
+    {
+      "id": "W02-04",
+      "typ": "quiz",
+      "titel": { "de": "Begriffe auseinanderhalten", "en": "Keeping the concepts apart" },
+      "aufgabe": {
+        "de": "<p>Vier Fragen zu den Begriffen, die in Stellenanzeigen und Projektbesprechungen fallen.</p>",
+        "en": "<p>Four questions on the concepts that come up in job adverts and project meetings.</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Welche der folgenden sind Funktionen von GitHub und nicht von Git? Mehrere Antworten sind richtig.", "en": "Which of the following are functions of GitHub and not of Git? Several answers are correct." },
+          "mehrfach": true,
+          "optionen": [
+            { "de": "Pull Request", "en": "Pull request" },
+            { "de": "Issue", "en": "Issue" },
+            { "de": "Actions (automatische Abläufe bei jeder Änderung)", "en": "Actions (automated workflows on every change)" },
+            { "de": "Commit", "en": "Commit" },
+            { "de": "Branch", "en": "Branch" }
+          ],
+          "richtig": [0, 1, 2],
+          "erklaerung": {
+            "de": "Commit und Branch sind Git-Begriffe und funktionieren ohne Internet. Pull Request, Issue und Actions gibt es nur, weil ein Dienst darum herum gebaut wurde — GitLab, Codeberg und Forgejo haben eigene Entsprechungen mit teils anderen Namen. Der Unterschied ist praktisch: Ein Wechsel des Dienstes nimmt die Geschichte mit, die Pull Requests nicht.",
+            "en": "Commit and branch are Git concepts and work without the internet. Pull request, issue and actions exist only because a service was built around it — GitLab, Codeberg and Forgejo have their own counterparts, some under different names. The difference is practical: changing service takes the history along, the pull requests not."
+          }
+        },
+        {
+          "frage": { "de": "Sie tippen git push und erhalten: „rejected — non-fast-forward“. Was ist passiert?", "en": "You type git push and get: “rejected — non-fast-forward”. What happened?" },
+          "optionen": [
+            { "de": "Auf dem Server gibt es Commits, die Sie lokal nicht haben. Erst git pull, dann push.", "en": "There are commits on the server you do not have locally. First git pull, then push." },
+            { "de": "Der Commit ist zu groß für GitHub.", "en": "The commit is too large for GitHub." },
+            { "de": "Das Zugriffs-Token ist abgelaufen.", "en": "The access token has expired." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Git verweigert, weil ein Push in dieser Lage fremde Commits überschreiben würde. Die Meldung ist eine Schutzmaßnahme. Ein abgelaufenes Token meldet sich mit „Authentication failed“, eine zu große Datei mit „exceeds GitHub's file size limit“ — drei verschiedene Meldungen für drei verschiedene Ursachen.",
+            "en": "Git refuses because a push in this situation would overwrite someone else's commits. The message is a safeguard. An expired token announces itself with “Authentication failed”, a file that is too large with “exceeds GitHub's file size limit” — three different messages for three different causes."
+          }
+        },
+        {
+          "frage": { "de": "Was ist der Unterschied zwischen git revert und git reset --hard?", "en": "What is the difference between git revert and git reset --hard?" },
+          "optionen": [
+            { "de": "revert erzeugt einen neuen Commit, der die Änderung zurücknimmt — die Geschichte bleibt erhalten und teamtauglich. reset --hard verwirft Commits und Änderungen unwiderruflich.", "en": "revert creates a new commit that undoes the change — the history stays intact and team-safe. reset --hard discards commits and changes irreversibly." },
+            { "de": "Beide tun dasselbe, revert ist nur die ältere Schreibweise.", "en": "Both do the same, revert is just the older spelling." },
+            { "de": "revert wirkt nur lokal, reset --hard auch auf dem Server.", "en": "revert only works locally, reset --hard also on the server." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "In einer Gruppenarbeit ist revert die richtige Wahl: Der zurückgenommene Stand bleibt nachvollziehbar, und niemandes Klon wird unbrauchbar. reset --hard ist ein Werkzeug für den eigenen, noch nicht veröffentlichten Stand — und für nichts sonst.",
+            "en": "In group work revert is the right choice: the undone state stays traceable, and nobody's clone is invalidated. reset --hard is a tool for your own, not yet published state — and for nothing else."
+          }
+        },
+        {
+          "frage": { "de": "Welche Commit-Nachricht taugt?", "en": "Which commit message is usable?" },
+          "optionen": [
+            { "de": "„Ausreisser oberhalb des 99. Perzentils entfernt, weil sie aus Testfahrten stammen“", "en": "“Remove outliers above the 99th percentile, as they come from test rides”" },
+            { "de": "„update“", "en": "“update”" },
+            { "de": "„Änderungen vom 09.09.“", "en": "“Changes from 9 Sept”" },
+            { "de": "„fix bug“", "en": "“fix bug”" }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Die erste nennt, was geändert wurde, und — entscheidend — warum. Das Datum steht ohnehin im Commit, ebenso wie der Umstand, dass etwas geändert wurde. Nur die Begründung fehlt sonst überall, und in einer Analytics-Arbeit ist die Commit-Geschichte oft der einzige Ort, an dem eine methodische Entscheidung dokumentiert ist.",
+            "en": "The first names what was changed and — decisively — why. The date is in the commit anyway, as is the fact that something was changed. Only the justification is missing everywhere else, and in an analytics project the commit history is often the only place a methodological decision is documented."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W02-05",
+      "typ": "quiz",
+      "titel": { "de": "Was draußen bleibt", "en": "What stays out" },
+      "aufgabe": {
+        "de": "<p>Drei Entscheidungen über den Inhalt eines Repositories. Die erste hat rechtliche Folgen.</p>",
+        "en": "<p>Three decisions about a repository's content. The first has legal consequences.</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Eine Kommilitonin hat vor drei Wochen eine CSV-Datei mit Kundennamen committet. Heute nimmt sie *.csv in die .gitignore auf und löscht die Datei mit git rm. Ist das Problem behoben?", "en": "Three weeks ago a fellow student committed a CSV file with customer names. Today she adds *.csv to the .gitignore and deletes the file with git rm. Is the problem solved?" },
+          "optionen": [
+            { "de": "Nein. Die Datei steht weiter in den Commits von vor drei Wochen und ist in jedem Klon vorhanden. Die .gitignore wirkt nur nach vorn.", "en": "No. The file is still in the commits from three weeks ago and present in every clone. The .gitignore only works forward." },
+            { "de": "Ja, git rm entfernt die Datei aus der gesamten Geschichte.", "en": "Yes, git rm removes the file from the entire history." },
+            { "de": "Ja, sobald die .gitignore committet ist, gilt sie rückwirkend.", "en": "Yes, once the .gitignore is committed it applies retroactively." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Genau darin liegt die Kollision mit dem Recht auf Löschung: Eine Git-Geschichte ist praktisch unlöschbar. Sie umschreiben ist möglich (git filter-repo, BFG), aber ein zerstörender Vorgang, der jeden vorhandenen Klon unbrauchbar macht — und die Kopien, die andere schon gezogen haben, erreicht er nicht. Deshalb: Personenbezogene Daten gehen nie in ein Repository, und die .gitignore steht im ersten Commit.",
+            "en": "This is exactly where the collision with the right to erasure lies: a Git history is practically indelible. Rewriting it is possible (git filter-repo, BFG) but a destructive operation that invalidates every existing clone — and it does not reach the copies others have already pulled. Hence: personal data never enters a repository, and the .gitignore goes in the first commit."
+          }
+        },
+        {
+          "frage": { "de": "Warum ist ein Notebook in Git problematischer als eine .py-Datei? Mehrere Antworten sind richtig.", "en": "Why is a notebook more problematic in Git than a .py file? Several answers are correct." },
+          "mehrfach": true,
+          "optionen": [
+            { "de": "Es ist JSON und enthält die Zellausgaben mit — eine geänderte Codezeile erzeugt einen Unterschied über tausende Zeilen.", "en": "It is JSON and contains the cell outputs — one changed line of code produces a diff over thousands of lines." },
+            { "de": "Der Ausführungszähler ändert sich bei jedem Lauf und erzeugt Unterschiede ohne inhaltliche Änderung.", "en": "The execution counter changes on every run and produces diffs without any change in substance." },
+            { "de": "Ein Merge-Konflikt im JSON macht die Datei unbrauchbar; sie lässt sich danach nicht mehr öffnen.", "en": "A merge conflict in the JSON makes the file unusable; it cannot be opened afterwards." },
+            { "de": "In den Ausgaben können personenbezogene Daten stehen, die beim Push veröffentlicht werden.", "en": "The outputs can contain personal data that gets published on push." },
+            { "de": "Git kann Notebooks grundsätzlich nicht verwalten.", "en": "Git fundamentally cannot manage notebooks." }
+          ],
+          "richtig": [0, 1, 2, 3],
+          "erklaerung": {
+            "de": "Git verwaltet jede Datei — es weiß nur nichts über ihren Aufbau und behandelt JSON zeilenweise wie Text. Die vier ersten Punkte folgen alle daraus. nbstripout entfernt die Ausgaben beim Committen und behebt alle vier auf einmal; nbdime behält sie und stellt Unterschiede zellenweise dar.",
+            "en": "Git manages any file — it just knows nothing about its structure and treats JSON line by line like text. The first four points all follow from that. nbstripout removes the outputs on commit and fixes all four at once; nbdime keeps them and presents diffs cell by cell."
+          }
+        },
+        {
+          "frage": { "de": "Der Push scheitert mit „File data/fahrten.parquet is 142.00 MB; this exceeds GitHub's file size limit of 100.00 MB“. Was ist die sachgemäße Antwort?", "en": "The push fails with “File data/fahrten.parquet is 142.00 MB; this exceeds GitHub's file size limit of 100.00 MB”. What is the appropriate response?" },
+          "optionen": [
+            { "de": "Die Datei gar nicht versionieren: in die .gitignore aufnehmen und stattdessen im Code dokumentieren, woher sie kommt und wie sie erzeugt wird.", "en": "Do not version the file at all: add it to the .gitignore and instead document in the code where it comes from and how it is produced." },
+            { "de": "Die Datei in zwei Hälften teilen, damit jede unter 100 MB liegt.", "en": "Split the file in two halves so each is below 100 MB." },
+            { "de": "Ein neues Repository anlegen und dort nur die Datei ablegen.", "en": "Create a new repository and put only that file there." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Ein Repository hält Quellen, nicht Erzeugnisse. Rohdaten sind eine Quelle im fachlichen, aber keine im technischen Sinn: Sie ändern sich nicht zeilenweise, ihr Unterschied ist nicht lesbar, und ihre Geschichte interessiert niemanden. Für Fälle, in denen große Dateien tatsächlich versioniert werden müssen, gibt es Git LFS — kostenpflichtig ab 50 GB und für Übungsdaten nicht nötig.",
+            "en": "A repository holds sources, not products. Raw data is a source in the subject-matter sense but not in the technical one: it does not change line by line, its diff is unreadable, and nobody is interested in its history. For cases where large files genuinely have to be versioned there is Git LFS — paid from 50 GB on and unnecessary for exercise data."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W02-06",
+      "typ": "checkliste",
+      "titel": { "de": "Ein Schlüssel ist im Repository — die Reihenfolge", "en": "A key is in the repository — the order" },
+      "aufgabe": {
+        "de": "<p>Angenommen, Sie stellen fest, dass eine <code>.env</code>-Datei mit dem Zugriffsschlüssel Ihrer Supabase-Datenbank seit zwei Tagen in einem öffentlichen Repository liegt. Haken Sie die Schritte in der Reihenfolge ab, in der Sie sie tun würden — und lesen Sie danach die Rückmeldung.</p><p>Diese Übung ist ein Gedankenexperiment; es ist nichts zu tippen. Der Wert liegt darin, die Reihenfolge einmal bewusst gegangen zu sein, bevor der Fall eintritt.</p>",
+        "en": "<p>Suppose you discover that a <code>.env</code> file holding your Supabase access key has been sitting in a public repository for two days. Tick off the steps in the order you would take them — and then read the feedback.</p><p>This exercise is a thought experiment; there is nothing to type. The value lies in having walked the order deliberately once before the case arises.</p>"
+      },
+      "schritte": [
+        { "text": { "de": "<strong>Zuerst:</strong> Den Schlüssel beim Anbieter widerrufen. In Supabase: <code>Project Settings → API Keys</code>, den betroffenen Schlüssel rotieren. Nicht erst aufräumen — zuerst entwerten.", "en": "<strong>First:</strong> revoke the key with the provider. In Supabase: <code>Project Settings → API Keys</code>, rotate the affected key. Do not tidy up first — devalue it first." } },
+        { "text": { "de": "Einen neuen Schlüssel erzeugen und alle Stellen umstellen, die ihn benutzen (Notebook-Secrets, Umgebungsvariablen, Container).", "en": "Create a new key and switch over every place that uses it (notebook secrets, environment variables, containers)." } },
+        { "text": { "de": "Die Protokolle des Dienstes prüfen: Gab es in den zwei Tagen Zugriffe, die nicht von Ihnen stammen? In Supabase unter <code>Logs</code>.", "en": "Check the service's logs: were there accesses in those two days that did not come from you? In Supabase under <code>Logs</code>." } },
+        { "text": { "de": "Die Ursache beheben: <code>.env</code> in die <code>.gitignore</code> aufnehmen, die Datei aus dem Arbeitsverzeichnis nehmen, den Schlüssel im Code durch <code>os.environ[\"SUPABASE_KEY\"]</code> ersetzen.", "en": "Fix the cause: add <code>.env</code> to the <code>.gitignore</code>, take the file out of the working directory, replace the key in the code with <code>os.environ[\"SUPABASE_KEY\"]</code>." } },
+        { "text": { "de": "Push-Schutz und Secret-Scanning für das Repository einschalten: <code>Settings → Code security</code>. Damit wird der nächste Versuch schon beim Push abgewiesen.", "en": "Enable push protection and secret scanning for the repository: <code>Settings → Code security</code>. That way the next attempt is rejected on push." } },
+        { "text": { "de": "<strong>Erst jetzt</strong> erwägen, ob die Geschichte umgeschrieben werden muss — und wenn ja, alle Mitarbeitenden vorher informieren, weil ihre Klone danach unbrauchbar sind.", "en": "<strong>Only now</strong> consider whether the history has to be rewritten — and if so, inform all collaborators beforehand, because their clones become unusable afterwards." } },
+        { "text": { "de": "Im Team ansprechen: Wenn es einmal passiert ist, fehlt eine Vereinbarung, nicht Sorgfalt. Eine Vorlagen-<code>.gitignore</code> und ein Push-Schutz für alle Repositories des Kurses lösen das Problem für alle.", "en": "Raise it in the team: if it happened once, an agreement is missing, not care. A template <code>.gitignore</code> and push protection for all of the course's repositories solve the problem for everyone." } }
+      ],
+      "rueckmeldung": {
+        "de": "Der einzige Schritt, auf den es ankommt, ist der erste — und er ist der, den man intuitiv zuletzt macht. GitHub formuliert es ausdrücklich: Den Schlüssel aus dem Code zu entfernen, einen neuen Commit zu schieben oder das Repository zu löschen und neu anzulegen verhindert nicht, dass er ausgenutzt wird. Ein öffentliches Repository wird von automatischen Werkzeugen abgesucht, und zwar in Minuten, nicht in Tagen. Ein widerrufener Schlüssel dagegen ist eine Zeichenkette ohne Wirkung — dann ist der Rest Aufräumen.",
+        "en": "The only step that matters is the first — and it is the one intuition puts last. GitHub says it expressly: removing the secret from the codebase, pushing a new commit, or deleting and recreating the repository does not prevent the secret from being exploited. A public repository is scanned by automated tools, in minutes rather than days. A revoked key, by contrast, is a string without effect — and then the rest is tidying up."
+      }
+    }
+  ]
+}

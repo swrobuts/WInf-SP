@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 01 · Die Kommandozeile · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 01 · The command line · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-01">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Warum überhaupt tippen?</span><span lang="en">Why type at all?</span></a>
+  <a class="sidebar-link" href="#oeffnen"><span lang="de">Die Konsole öffnen</span><span lang="en">Opening the console</span></a>
+  <a class="sidebar-link" href="#lesen-lernen"><span lang="de">Eine Befehlszeile lesen</span><span lang="en">Reading a command line</span></a>
+  <a class="sidebar-link" href="#wo"><span lang="de">Wo bin ich?</span><span lang="en">Where am I?</span></a>
+  <a class="sidebar-link" href="#pfade"><span lang="de">Pfade</span><span lang="en">Paths</span></a>
+  <a class="sidebar-link" href="#anlegen"><span lang="de">Anlegen</span><span lang="en">Creating things</span></a>
+  <a class="sidebar-link" href="#lesen"><span lang="de">Lesen</span><span lang="en">Reading</span></a>
+  <a class="sidebar-link" href="#bewegen"><span lang="de">Kopieren, verschieben, löschen</span><span lang="en">Copy, move, delete</span></a>
+  <a class="sidebar-link" href="#handgriffe"><span lang="de">Handgriffe, die Zeit sparen</span><span lang="en">Habits that save time</span></a>
+  <a class="sidebar-link" href="#spielplatz"><span lang="de">Spielplatz</span><span lang="en">Playground</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">01</div>
+  <h1 class="lab-title">
+    <span lang="de">Die Kommandozeile</span>
+    <span lang="en">The command line</span>
+  </h1>
+  <p class="lab-intro">
+    <span lang="de">Kein Werkzeug dieses Kurses lässt sich lange ohne Konsole benutzen. Git spricht in Befehlen,
+      Docker ausschließlich, jede Python-Umgebung wird dort aktiviert, und wenn eine Installationsanleitung eine Zeile
+      in grauem Kasten zeigt, gehört sie hierher. Die gute Nachricht: Es sind etwa zwölf Befehle, und die Hälfte davon
+      dient nur dazu, sich zu orientieren. Die Konsole auf dieser Seite ist nachgebildet – sie richtet keinen Schaden
+      an, weist aber genauso hart zurück wie die echte.</span>
+    <span lang="en">No tool in this course can be used for long without a console. Git speaks in commands, Docker
+      exclusively so, every Python environment is activated there, and when an installation guide shows a line in a grey
+      box, that line belongs here. The good news: there are about twelve commands, and half of them serve only to find
+      your bearings. The console on this page is a model – it does no damage, but it rejects mistakes just as harshly as
+      the real one.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">pwd · ls · cd</span>
+    <span class="lernziel-chip">mkdir · touch · echo</span>
+    <span class="lernziel-chip">cat · cp · mv · rm</span>
+    <span class="lernziel-chip"><span lang="de">Absolute und relative Pfade</span><span lang="en">Absolute and relative paths</span></span>
+    <span class="lernziel-chip">zsh · PowerShell · cmd.exe</span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Warum überhaupt tippen?</span><span lang="en">Why type at all?</span></h2>
+    <p>
+      <span lang="de">Ein grafisches Fenster zeigt, was gerade da ist. Eine Befehlszeile beschreibt, was getan werden
+        soll – und lässt sich deshalb aufschreiben, weitergeben, wiederholen und in ein Skript legen. Genau darin liegt
+        ihr Wert für Analytics: Eine Auswertung, die aus zwölf Mausklicks besteht, ist morgen nicht mehr
+        nachvollziehbar; dieselbe Auswertung als drei Zeilen Text ist es in fünf Jahren noch.</span>
+      <span lang="en">A graphical window shows what is currently there. A command line describes what should be done –
+        and can therefore be written down, passed on, repeated and put into a script. That is precisely where its value
+        for analytics lies: an analysis consisting of twelve mouse clicks is no longer traceable tomorrow; the same
+        analysis as three lines of text still is in five years.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Drei Shells, ein Prinzip</span><span lang="en">Three shells, one principle</span></h3>
+      <p><span lang="de">Was Befehle annimmt und ausführt, heißt <strong>Shell</strong>.
+        Auf dem Mac ist es standardmäßig <strong>zsh</strong>, unter Linux meist <strong>bash</strong> – beide sind
+        sich so ähnlich, dass die Unterschiede hier keine Rolle spielen. Unter Windows gibt es zwei:
+        <strong>PowerShell</strong> als heutige Standard-Shell und die alte <strong>Eingabeaufforderung</strong>
+        (<code>cmd.exe</code>), die in älteren Anleitungen noch auftaucht. Das Prinzip ist überall dasselbe:
+        Befehl, dann Optionen, dann Gegenstand. Nur die Namen unterscheiden sich – und PowerShell hat für die
+        wichtigsten sogar dieselben Kurznamen wie die Unix-Shells eingebaut.</span>
+      <span lang="en">What accepts and executes commands is called a <strong>shell</strong>. On a Mac it is
+        <strong>zsh</strong> by default, on Linux usually <strong>bash</strong> – so similar that the differences do not
+        matter here. Windows has two: <strong>PowerShell</strong> as today's standard shell and the old
+        <strong>Command Prompt</strong> (<code>cmd.exe</code>), which still appears in older guides. The principle is
+        the same everywhere: command, then options, then object. Only the names differ – and PowerShell even has the
+        same short names built in as the Unix shells for the most important ones.</span></p>
+    </div>
+    <p>
+      <span lang="de">Der Schalter über jeder Befehlskarte entscheidet, welche Fassung Sie sehen. Er gilt für die
+        ganze Lernumgebung und merkt sich Ihre Wahl.</span>
+      <span lang="en">The switch above each command card decides which version you see. It applies across the whole
+        environment and remembers your choice.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="oeffnen">
+    <h2><span lang="de">Die Konsole öffnen</span><span lang="en">Opening the console</span></h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">System</span><span lang="en">System</span></th>
+            <th><span lang="de">Weg</span><span lang="en">How</span></th>
+            <th><span lang="de">Was sie heißt</span><span lang="en">What it is called</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>macOS</td>
+            <td><code>⌘ + Leertaste</code> → <code>Terminal</code> → Enter</td>
+            <td><span lang="de">Terminal, Shell zsh</span><span lang="en">Terminal, shell zsh</span></td>
+          </tr>
+          <tr>
+            <td>Windows 11</td>
+            <td><span lang="de">Rechtsklick auf das Startsymbol → <code>Terminal</code>, oder <code>⊞ + X</code> → <code>Terminal</code></span><span lang="en">Right-click the Start icon → <code>Terminal</code>, or <code>⊞ + X</code> → <code>Terminal</code></span></td>
+            <td><span lang="de">Windows Terminal, darin PowerShell</span><span lang="en">Windows Terminal, with PowerShell inside</span></td>
+          </tr>
+          <tr>
+            <td>Windows 10</td>
+            <td><span lang="de"><code>⊞</code> → „powershell“ tippen → Enter</span><span lang="en"><code>⊞</code> → type “powershell” → Enter</span></td>
+            <td>Windows PowerShell</td>
+          </tr>
+          <tr>
+            <td><span lang="de">Windows, alte Anleitungen</span><span lang="en">Windows, older guides</span></td>
+            <td><span lang="de"><code>⊞</code> → „cmd“ tippen → Enter</span><span lang="en"><code>⊞</code> → type “cmd” → Enter</span></td>
+            <td><span lang="de">Eingabeaufforderung</span><span lang="en">Command Prompt</span></td>
+          </tr>
+          <tr>
+            <td>Linux</td>
+            <td><code>Ctrl + Alt + T</code></td>
+            <td><span lang="de">Terminal, Shell bash oder zsh</span><span lang="en">Terminal, shell bash or zsh</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Windows mit Linux-Shell</span><span lang="en">Windows with a Linux shell</span></td>
+            <td><span lang="de">In PowerShell <code>wsl</code> eingeben (Windows-Subsystem für Linux, muss installiert sein)</span><span lang="en">Type <code>wsl</code> in PowerShell (Windows Subsystem for Linux, must be installed)</span></td>
+            <td><span lang="de">bash unter Windows – nützlich ab Lab 07</span><span lang="en">bash on Windows – useful from lab 07 on</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <h3><span lang="de">Wie sieht die Aufforderung aus?</span><span lang="en">What does the prompt look like?</span></h3>
+      <p><span lang="de">Ganz links steht die <strong>Eingabeaufforderung</strong> (der <em>Prompt</em>). Sie sagt,
+        wer Sie sind und wo Sie sind. In dieser Lernumgebung ist sie nachgebaut:
+        <code>studi@macbook velocity %</code> auf dem Mac, <code>PS C:\Users\studi\velocity&gt;</code> in PowerShell,
+        <code>C:\Users\studi\velocity&gt;</code> in der Eingabeaufforderung. Was Sie in Anleitungen als
+        <code>$</code>, <code>%</code> oder <code>&gt;</code> am Zeilenanfang sehen, ist der Prompt und wird
+        <strong>nicht mit abgetippt</strong>. Das ist der häufigste Anfängerfehler überhaupt.</span>
+      <span lang="en">On the far left sits the <strong>prompt</strong>. It says who you are and where you are. In this
+        environment it is rebuilt: <code>studi@macbook velocity %</code> on the Mac,
+        <code>PS C:\Users\studi\velocity&gt;</code> in PowerShell, <code>C:\Users\studi\velocity&gt;</code> in Command
+        Prompt. What you see in guides as <code>$</code>, <code>%</code> or <code>&gt;</code> at the start of a line is
+        the prompt and is <strong>not typed along</strong>. That is the single most common beginner's mistake.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="lesen-lernen">
+    <h2><span lang="de">Eine Befehlszeile lesen</span><span lang="en">Reading a command line</span></h2>
+    <p>
+      <span lang="de">Jede Zeile hat drei Teile, und sie stehen immer in derselben Reihenfolge.</span>
+      <span lang="en">Every line has three parts, and they always come in the same order.</span>
+    </p>
+    <div class="code-block">ls  -la  Downloads
+│    │     │
+│    │     └── Gegenstand: worauf der Befehl wirkt (Datei, Ordner, Abbild, Zweig …)
+│    └──────── Optionen: verändern das Verhalten, beginnen mit - oder --
+└───────────── Befehl: das Programm, das etwas tut</div>
+    <p>
+      <span lang="de">Optionen mit einem Bindestrich sind Kürzel und lassen sich zusammenfassen: <code>-la</code> ist
+        dasselbe wie <code>-l -a</code>. Optionen mit zwei Bindestrichen sind ausgeschrieben:
+        <code>--all</code>. In PowerShell heißen sie <em>Parameter</em> und tragen einen einzelnen Bindestrich mit
+        ausgeschriebenem Namen: <code>-Recurse</code>, <code>-Force</code>. Die Logik bleibt gleich.</span>
+      <span lang="en">Options with one dash are abbreviations and can be combined: <code>-la</code> is the same as
+        <code>-l -a</code>. Options with two dashes are spelled out: <code>--all</code>. In PowerShell they are called
+        <em>parameters</em> and carry a single dash with a spelled-out name: <code>-Recurse</code>,
+        <code>-Force</code>. The logic stays the same.</span>
+    </p>
+    <div class="warn-box">
+      <h3><span lang="de">Leerzeichen trennen – auch in Ordnernamen</span><span lang="en">Spaces separate – in folder names too</span></h3>
+      <p><span lang="de">Die Shell zerlegt die Zeile an Leerzeichen. Ein Ordner namens
+        <code>Analytische Begrifflichkeiten</code> wird deshalb als zwei Gegenstände gelesen und der Befehl scheitert.
+        Zwei Auswege: in Anführungszeichen setzen (<code>cd "Analytische Begrifflichkeiten"</code>) oder das
+        Leerzeichen mit einem Rückstrich schützen (<code>cd Analytische\ Begrifflichkeiten</code>). Der eigentliche
+        Rat lautet allerdings: in Projektordnern keine Leerzeichen und keine Umlaute verwenden. Dasselbe stand schon
+        in den Empfehlungen zum Aufbau von Datentabellen – und aus demselben Grund.</span>
+      <span lang="en">The shell splits the line at spaces. A folder called <code>Analytical Terminology</code> is
+        therefore read as two objects and the command fails. Two ways out: put it in quotes
+        (<code>cd "Analytical Terminology"</code>) or protect the space with a backslash
+        (<code>cd Analytical\ Terminology</code>). The actual advice, though, is: use no spaces and no umlauts in
+        project folders. The same already stood in the recommendations for building data tables – and for the same
+        reason.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="wo">
+    <h2><span lang="de">Wo bin ich?</span><span lang="en">Where am I?</span></h2>
+    <p>
+      <span lang="de">Eine Konsole steht immer in einem Ordner, dem <strong>Arbeitsverzeichnis</strong>. Alles, was
+        Sie ohne vollständigen Pfad angeben, wird dort gesucht. Wer sich das nicht klarmacht, sucht später eine halbe
+        Stunde eine Datei, die längst geschrieben ist – nur an anderer Stelle.</span>
+      <span lang="en">A console always stands in a folder, the <strong>working directory</strong>. Everything you name
+        without a full path is looked for there. Whoever loses sight of this later spends half an hour looking for a
+        file that has long been written – just in a different place.</span>
+    </p>
+    <div data-befehl="B01"></div>
+    <div data-befehl="B02"></div>
+    <div data-befehl="B03"></div>
+  </section>
+
+  <section class="section-block" id="pfade">
+    <h2><span lang="de">Pfade</span><span lang="en">Paths</span></h2>
+    <p>
+      <span lang="de">Ein <strong>absoluter Pfad</strong> beginnt an der Wurzel und gilt überall gleich. Ein
+        <strong>relativer Pfad</strong> beginnt im Arbeitsverzeichnis und bedeutet je nach Standort etwas anderes.
+        Vier Zeichen genügen, um sich zu bewegen:</span>
+      <span lang="en">An <strong>absolute path</strong> starts at the root and means the same everywhere. A
+        <strong>relative path</strong> starts in the working directory and means something different depending on where
+        you stand. Four symbols are enough to move around:</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Zeichen</span><span lang="en">Symbol</span></th>
+            <th><span lang="de">Bedeutung</span><span lang="en">Meaning</span></th>
+            <th><span lang="de">Beispiel</span><span lang="en">Example</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>.</code></td>
+            <td><span lang="de">Das Verzeichnis, in dem ich gerade stehe</span><span lang="en">The directory I am standing in</span></td>
+            <td><code>docker build -t app .</code> <span lang="de">– baut aus <em>hier</em></span><span lang="en">– builds from <em>here</em></span></td>
+          </tr>
+          <tr>
+            <td><code>..</code></td>
+            <td><span lang="de">Eine Ebene nach oben</span><span lang="en">One level up</span></td>
+            <td><code>cd ..</code> · <code>cd ../..</code> <span lang="de">– zwei Ebenen</span><span lang="en">– two levels</span></td>
+          </tr>
+          <tr>
+            <td><code>~</code></td>
+            <td><span lang="de">Mein Heimatverzeichnis (macOS/Linux; in PowerShell ebenfalls verstanden)</span><span lang="en">My home directory (macOS/Linux; PowerShell understands it too)</span></td>
+            <td><code>cd ~/velocity</code></td>
+          </tr>
+          <tr>
+            <td><code>/</code> <span lang="de">bzw.</span><span lang="en">or</span> <code>\</code></td>
+            <td><span lang="de">Trennt Ordner. Unix nutzt den Schrägstrich, Windows den Rückstrich – PowerShell akzeptiert beide.</span><span lang="en">Separates folders. Unix uses the forward slash, Windows the backslash – PowerShell accepts both.</span></td>
+            <td><code>velocity/analytics</code> · <code>velocity\analytics</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box">
+      <h3><span lang="de">Der Trick mit dem Ziehen</span><span lang="en">The drag trick</span></h3>
+      <p class="nur-unix"><span lang="de">Statt einen langen Pfad abzutippen: <code>cd</code> tippen, ein Leerzeichen,
+        dann den Ordner aus dem <strong>Finder</strong> in das Terminalfenster ziehen. Enthält der Pfad Leerzeichen,
+        setzt das Terminal Maskierungen mit Rückstrich – er wird also auch dann richtig gelesen.</span>
+      <span lang="en">Instead of typing a long path: type <code>cd</code>, a space, then drag the folder from
+        <strong>Finder</strong> into the terminal window. If the path contains spaces, Terminal adds backslash escapes –
+        so it is read correctly even then.</span></p>
+      <p class="nur-windows"><span lang="de">Statt einen langen Pfad abzutippen: <code>cd</code> tippen, ein
+        Leerzeichen, dann den Ordner aus dem <strong>Explorer</strong> in das Fenster ziehen. Der Pfad erscheint in
+        Anführungszeichen, wenn er Leerzeichen enthält – lassen Sie sie stehen. Alternativ in der Adresszeile des
+        Explorers <code>cmd</code> oder <code>powershell</code> eintippen: Das Fenster öffnet direkt in diesem
+        Ordner.</span>
+      <span lang="en">Instead of typing a long path: type <code>cd</code>, a space, then drag the folder from
+        <strong>File Explorer</strong> into the window. The path appears in quotation marks if it contains spaces –
+        leave them in place. Alternatively type <code>cmd</code> or <code>powershell</code> into Explorer's address
+        bar: the window opens directly in that folder.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="anlegen">
+    <h2><span lang="de">Anlegen</span><span lang="en">Creating things</span></h2>
+    <p>
+      <span lang="de">Ordner und leere Dateien entstehen mit einem Befehl. Hier zeigt sich zum ersten Mal, dass
+        PowerShell einen anderen Weg geht: Es kennt für alles ein <code>New-Item</code> mit Typangabe, hat aber die
+        Unix-Kürzel als Aliase eingebaut.</span>
+      <span lang="en">Folders and empty files come into being with one command. This is the first place where PowerShell
+        goes its own way: it has a single <code>New-Item</code> with a type for everything, but it does have the Unix
+        short names built in as aliases.</span>
+    </p>
+    <div data-befehl="B04"></div>
+    <div data-befehl="B05"></div>
+    <div class="info-box">
+      <p><span lang="de">Das Zeichen <code>&gt;</code> heißt <strong>Umleitung</strong>: Was der Befehl links davon
+        ausgeben würde, wird stattdessen in die Datei rechts davon geschrieben. Ein einzelnes <code>&gt;</code>
+        überschreibt, ein doppeltes <code>&gt;&gt;</code> hängt an. Der Unterschied ist beim Schreiben von
+        Protokolldateien der zwischen „nur der letzte Lauf“ und „alle Läufe“.</span>
+      <span lang="en">The symbol <code>&gt;</code> means <strong>redirection</strong>: what the command to its left
+        would print is written into the file to its right instead. A single <code>&gt;</code> overwrites, a double
+        <code>&gt;&gt;</code> appends. When writing log files the difference is the one between “only the last run” and
+        “all runs”.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="lesen">
+    <h2><span lang="de">Lesen</span><span lang="en">Reading</span></h2>
+    <p>
+      <span lang="de">Bevor man eine CSV-Datei in ein Notebook lädt, lohnt ein Blick auf die ersten Zeilen: Welches
+        Trennzeichen? Gibt es eine Kopfzeile? Steht das Dezimalkomma als Komma? Diese drei Fragen kostet die Konsole
+        zwei Sekunden und ein Notebook fünf Minuten.</span>
+      <span lang="en">Before loading a CSV file into a notebook, a look at the first lines pays off: which separator?
+        Is there a header row? Is the decimal mark a comma? Those three questions cost the console two seconds and a
+        notebook five minutes.</span>
+    </p>
+    <div data-befehl="B06"></div>
+    <div data-befehl="B07"></div>
+  </section>
+
+  <section class="section-block" id="bewegen">
+    <h2><span lang="de">Kopieren, verschieben, löschen</span><span lang="en">Copy, move, delete</span></h2>
+    <p>
+      <span lang="de">Umbenennen und Verschieben ist derselbe Befehl – das ist kein Zufall, sondern folgt daraus, dass
+        ein Dateiname nur ein Eintrag in einem Ordner ist. Und dann ist da noch <code>rm</code>.</span>
+      <span lang="en">Renaming and moving is the same command – no coincidence, but a consequence of a file name being
+        just an entry in a folder. And then there is <code>rm</code>.</span>
+    </p>
+    <div data-befehl="B08"></div>
+    <div data-befehl="B09"></div>
+    <div data-befehl="B10"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Es gibt keinen Papierkorb</span><span lang="en">There is no wastebasket</span></h3>
+      <p><span lang="de">Was auf der Kommandozeile gelöscht wird, ist gelöscht. Kein Dialog, keine Rückfrage, kein
+        Papierkorb, kein <code>⌘Z</code>. Drei Gewohnheiten, die das entschärfen: erst <code>ls</code> auf denselben
+        Ausdruck anwenden, den Sie löschen wollen, und die Ausgabe lesen. <code>rm -rf</code> nie in Kombination mit
+        einem Sternchen tippen, ohne die Zeile vorher laut zu lesen. Und keine Löschbefehle aus dem Netz kopieren,
+        deren Wirkung Sie nicht Zeichen für Zeichen erklären können.</span>
+      <span lang="en">What is deleted on the command line is deleted. No dialogue, no confirmation, no wastebasket, no
+        <code>⌘Z</code>. Three habits that defuse this: first run <code>ls</code> on the very expression you intend to
+        delete, and read the output. Never type <code>rm -rf</code> together with an asterisk without reading the line
+        aloud first. And never copy deletion commands from the internet whose effect you cannot explain character by
+        character.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="handgriffe">
+    <h2><span lang="de">Handgriffe, die Zeit sparen</span><span lang="en">Habits that save time</span></h2>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">Tab</div>
+        <p><span lang="de">Anfang eines Namens tippen, <code>Tab</code> drücken – die Shell vervollständigt. Passt
+          mehr als eines, zeigt ein zweites <code>Tab</code> die Möglichkeiten. Das ist nicht nur schneller, es ist
+          auch der beste Tippfehlerschutz: Was sich vervollständigen lässt, existiert.</span>
+        <span lang="en">Type the beginning of a name, press <code>Tab</code> – the shell completes it. If more than one
+          matches, a second <code>Tab</code> shows the options. This is not only faster, it is the best protection
+          against typos: what can be completed exists.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">↑ ↓</div>
+        <p><span lang="de">Die Pfeiltasten blättern durch die letzten Befehle. Einen langen Befehl, der an einem
+          Tippfehler gescheitert ist, holt man so zurück und korrigiert ihn, statt ihn neu zu tippen. Funktioniert
+          auch in der Konsole auf dieser Seite.</span>
+        <span lang="en">The arrow keys page through the last commands. A long command that failed on a typo is brought
+          back and corrected this way instead of retyped. Works in the console on this page too.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Ctrl + C</div>
+        <p><span lang="de">Bricht ab, was gerade läuft. Nicht „Kopieren“ – das ist im Terminal
+          <code>⌘C</code> beziehungsweise <code>Ctrl+Shift+C</code>. Wenn ein Befehl scheinbar hängt, ist
+          <code>Ctrl+C</code> der Ausweg.</span>
+        <span lang="en">Aborts whatever is running. Not “copy” – that is <code>⌘C</code> or
+          <code>Ctrl+Shift+C</code> in a terminal. When a command appears to hang, <code>Ctrl+C</code> is the way
+          out.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Groß und klein</span><span lang="en">Upper and lower case</span></div>
+        <p><span lang="de">macOS und Linux unterscheiden bei Befehlen streng zwischen Groß- und Kleinschreibung:
+          <code>LS</code> ist nicht <code>ls</code>. Bei Dateinamen ist macOS standardmäßig nachsichtig, Linux nicht –
+          weshalb ein Notebook, das auf dem Mac läuft, im Container scheitern kann. Windows ist überall
+          nachsichtig.</span>
+        <span lang="en">macOS and Linux distinguish case strictly for commands: <code>LS</code> is not <code>ls</code>.
+          For file names macOS is lenient by default, Linux is not – which is why a notebook that runs on the Mac can
+          fail in a container. Windows is lenient everywhere.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Fehler lesen</span><span lang="en">Reading errors</span></div>
+        <p><span lang="de">Fehlermeldungen der Konsole sind knapp, aber präzise. <code>No such file or
+          directory</code> heißt: falscher Ort oder falscher Name – nicht „defekt“.
+          <code>Permission denied</code> heißt: der Ort ist richtig, die Rechte fehlen.
+          <code>command not found</code> heißt: das Programm ist nicht installiert oder nicht im Suchpfad. Drei
+          Meldungen, drei völlig verschiedene Ursachen.</span>
+        <span lang="en">Console error messages are terse but precise. <code>No such file or directory</code> means:
+          wrong place or wrong name – not “broken”. <code>Permission denied</code> means: the place is right, the
+          rights are missing. <code>command not found</code> means: the program is not installed or not on the search
+          path. Three messages, three completely different causes.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Hilfe im Werkzeug</span><span lang="en">Help inside the tool</span></div>
+        <p><span lang="de">Fast jeder Befehl erklärt sich selbst: <code>ls --help</code>, <code>git --help</code>,
+          <code>docker run --help</code>. Ausführlicher unter macOS und Linux <code>man ls</code> (verlassen mit
+          <code>q</code>), in PowerShell <code>Get-Help Get-ChildItem</code>. Das ist keine Notlösung, sondern die
+          verlässlichste Quelle – sie beschreibt genau die Fassung, die bei Ihnen installiert ist.</span>
+        <span lang="en">Almost every command explains itself: <code>ls --help</code>, <code>git --help</code>,
+          <code>docker run --help</code>. In more detail on macOS and Linux <code>man ls</code> (leave with
+          <code>q</code>), in PowerShell <code>Get-Help Get-ChildItem</code>. This is not a last resort but the most
+          reliable source – it describes exactly the version installed on your machine.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="spielplatz">
+    <h2><span lang="de">Spielplatz</span><span lang="en">Playground</span></h2>
+    <p>
+      <span lang="de">Diese Konsole hat keinen Auftrag. Der Dateibaum enthält ein Heimatverzeichnis mit den Ordnern
+        <code>Dokumente</code>, <code>Downloads</code> und <code>velocity</code>. Probieren Sie aus, was ein Befehl
+        tut – auch das, wovor der Warnkasten weiter oben steht. Hier ist es ohne Folgen. Mit dem Knopf
+        <em>Zurücksetzen</em> stellen Sie den Ausgangszustand wieder her, und der Schalter oben in den Befehlskarten
+        wechselt auch hier die Shell.</span>
+      <span lang="en">This console has no assignment. The file tree contains a home directory with the folders
+        <code>Dokumente</code>, <code>Downloads</code> and <code>velocity</code>. Try out what a command does –
+        including the thing the warning box above cautions against. Here it has no consequences. The
+        <em>Reset</em> button restores the initial state, and the switch in the command cards changes the shell here
+        too.</span>
+    </p>
+    <div class="tip-box">
+      <h3><span lang="de">Zurück in die grafische Welt</span><span lang="en">Back to the graphical world</span></h3>
+      <p><span lang="de">Der Weg funktioniert in beide Richtungen: Diesen Befehl öffnet den Ordner, in dem Sie gerade
+        stehen, im Dateimanager. Der Punkt ist dabei das aktuelle Verzeichnis.</span>
+      <span lang="en">The route works both ways: this command opens the folder you are standing in inside the file
+        manager. The dot is the current directory.</span></p>
+      <p class="nur-mac"><code>open .</code> <span lang="de">– öffnet den Finder an dieser Stelle. Eine einzelne Datei
+        geht genauso: <code>open notiz.txt</code> startet das zugehörige Programm.</span>
+      <span lang="en">– opens Finder at this location. A single file works the same way: <code>open notiz.txt</code>
+        starts the associated program.</span></p>
+      <p class="nur-win"><code>ii .</code> <span lang="de">– Kurzform von <code>Invoke-Item</code>, öffnet den Explorer
+        an dieser Stelle. <code>explorer .</code> tut dasselbe.</span>
+      <span lang="en">– short for <code>Invoke-Item</code>, opens File Explorer at this location.
+        <code>explorer .</code> does the same.</span></p>
+      <p class="nur-cmd"><code>start .</code> <span lang="de">– öffnet den Explorer an dieser Stelle.
+        <code>explorer .</code> tut dasselbe.</span>
+      <span lang="en">– opens File Explorer at this location. <code>explorer .</code> does the same.</span></p>
+    </div>
+    <div data-terminal="frei"></div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: viermal an der Konsole, zweimal zum Nachdenken. Bei den Konsolenübungen steht der
+        Auftrag unter dem Fenster und hakt sich selbst ab, sobald ein Schritt erreicht ist – es zählt das Ergebnis,
+        nicht der Weg dorthin.</span>
+      <span lang="en">Six exercises: four at the console, two to think through. In the console exercises the assignment
+        sits below the window and ticks itself off as soon as a step is reached – what counts is the result, not the
+        route to it.</span>
+    </p>
+    <div data-uebung="W01-01"></div>
+    <div data-uebung="W01-02"></div>
+    <div data-uebung="W01-03"></div>
+    <div data-uebung="W01-04"></div>
+    <div data-uebung="W01-05"></div>
+    <div data-uebung="W01-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">Eine Konsole steht immer in einem Arbeitsverzeichnis. <code>pwd</code> sagt, wo; <code>ls</code>, was dort liegt; <code>cd</code> wechselt.</span><span lang="en">A console always stands in a working directory. <code>pwd</code> says where; <code>ls</code> what is there; <code>cd</code> changes it.</span></li>
+      <li><span lang="de">Eine Befehlszeile besteht aus Befehl, Optionen und Gegenstand – in dieser Reihenfolge. Das Zeichen am Zeilenanfang ist der Prompt und wird nicht mit abgetippt.</span><span lang="en">A command line consists of command, options and object – in that order. The symbol at the start of the line is the prompt and is not typed along.</span></li>
+      <li><span lang="de">Absolute Pfade beginnen an der Wurzel, relative im Arbeitsverzeichnis. <code>.</code> ist hier, <code>..</code> ist eine Ebene höher, <code>~</code> ist das Heimatverzeichnis.</span><span lang="en">Absolute paths start at the root, relative ones in the working directory. <code>.</code> is here, <code>..</code> is one level up, <code>~</code> is the home directory.</span></li>
+      <li><span lang="de">PowerShell hat für die wichtigsten Unix-Befehle Aliase, arbeitet darunter aber mit eigenen Namen wie <code>Get-ChildItem</code> und <code>New-Item</code>. Die Eingabeaufforderung kennt <code>dir</code>, <code>md</code>, <code>type</code>, <code>del</code> – und kein <code>ls</code>.</span><span lang="en">PowerShell has aliases for the most important Unix commands but underneath uses its own names such as <code>Get-ChildItem</code> and <code>New-Item</code>. Command Prompt knows <code>dir</code>, <code>md</code>, <code>type</code>, <code>del</code> – and no <code>ls</code>.</span></li>
+      <li><span lang="de">Gelöschtes ist gelöscht. Vor jedem Löschbefehl derselbe Ausdruck mit <code>ls</code>, und keine kopierten Löschzeilen ohne Verständnis.</span><span lang="en">Deleted is deleted. Before every deletion command, the same expression with <code>ls</code>, and no copied deletion lines without understanding them.</span></li>
+      <li><span lang="de">Tab vervollständigt, Pfeil hoch holt zurück, <code>Ctrl+C</code> bricht ab, <code>--help</code> erklärt. Vier Handgriffe, die den Umgang mit jedem weiteren Werkzeug in diesem Kurs erleichtern.</span><span lang="en">Tab completes, arrow up recalls, <code>Ctrl+C</code> aborts, <code>--help</code> explains. Four habits that make every further tool in this course easier.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 01 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 01 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+// Lab 12 – Measures für Velo City (Power BI Desktop)
+//
+// Jedes Measure wird einzeln angelegt: Modeling → New measure, die Zeile in die
+// Formelleiste einfügen, Ctrl+Enter. In welcher Tabelle das Measure liegt, ist
+// für die Rechnung gleichgültig – üblich ist eine leere Tabelle „_Measures“
+// (Home → Enter data → leere Tabelle → Load), damit die Kennzahlen an einem Ort stehen.
+//
+// Tabellen- und Spaltennamen entsprechen dem Sternschema aus Lab 10
+// (Schema mart, vorlagen/lab-10-sternschema.sql):
+//   fact_fahrt  (fahrt_id, datum_key, start_station_sk, ziel_station_sk, rad_sk, kunde_sk,
+//                start_zeit, stunde, dauer_min, preis_eur, loaded_at)
+//   dim_datum   (datum_key, datum, jahr, quartal, monat, monat_name, kw_iso,
+//                wochentag, wochentag_name, wochenende)
+//   dim_station (station_sk, station_id, name, bezirk, plaetze, eroeffnet)
+//   dim_rad     (rad_sk, rad_id, typ, baujahr, heimstation, status)
+//   dim_kunde   (kunde_sk, kunde_id, tarif, registriert, bezirk)
+// Die Beziehungen laufen über die Surrogatschlüssel (…_sk) bzw. datum_key;
+// die Filter dieser Measures auf dim_rad[typ] und dim_datum[datum] gelangen
+// über diese Beziehungen in die Faktentabelle.
+//
+// Ein Measure hat keinen Row Context. Es wird je Zelle eines Visuals im Filter
+// Context ausgewertet, den Achsen, Legende, Slicer und Filters pane vorgeben.
+
+// Fahrten: zählt die Zeilen der Faktentabelle. Das ist die richtige Antwort
+// auf „wie viele Fahrten“ – nicht Σ fahrt_id (das wäre 1.125.750, eine sinnlose Zahl).
+Fahrten = COUNTROWS ( fact_fahrt )
+
+// Umsatz: SUM aggregiert genau eine Spalte im aktuellen Filter Context.
+// Zum Gegenprüfen: ohne Filter 3.172,14 EUR.
+Umsatz = SUM ( fact_fahrt[preis_eur] )
+
+// Mittlere Dauer in Minuten. Median ≈ 11 min, der Mittelwert liegt darüber
+// (rechtsschiefe Verteilung – siehe Lab 10).
+Ø Dauer = AVERAGE ( fact_fahrt[dauer_min] )
+
+// CALCULATE verändert den Filter Context: Der Filter auf dim_rad[typ] ersetzt
+// jeden Filter, der von außen auf dieser Spalte liegt. Das Measure zeigt also
+// den E-Bike-Umsatz auch dann, wenn der Slicer gerade „CITY“ gewählt hat.
+// Die Beziehung dim_rad[rad_sk] → fact_fahrt[rad_sk] trägt den Filter in die Fakten.
+// Zum Gegenprüfen: 1.153,80 EUR ohne weitere Filter.
+Umsatz E-Bike = CALCULATE ( [Umsatz], dim_rad[typ] = "EBIKE" )
+
+// DIVIDE statt „/“: liefert BLANK statt eines Fehlers, wenn der Nenner 0 ist
+// (z. B. ein Bezirk ohne Fahrten im gewählten Monat). Measures dürfen andere
+// Measures aufrufen – [Umsatz] und [Fahrten] werden im selben Filter Context berechnet.
+Umsatz je Fahrt = DIVIDE ( [Umsatz], [Fahrten] )
+
+// Time Intelligence: DATEADD verschiebt den Filter auf dim_datum[datum] um einen
+// Monat zurück. Voraussetzung: dim_datum ist als Datumstabelle markiert
+// (Table tools → Mark as date table → Spalte datum) und über
+// fact_fahrt[datum_key] → dim_datum[datum_key] verbunden. Die Zeile datum_key = -1
+// („unbekannt“) hat kein Datum – sie stört die Markierung nicht, solange datum
+// dort BLANK ist; meldet Power BI Duplikate oder Lücken, diese Zeile in Power Query
+// herausfiltern (Remove Rows → datum_key <> -1).
+// Ohne Markierung liefert das Measure BLANK oder eine Fehlermeldung.
+Fahrten Vormonat = CALCULATE ( [Fahrten], DATEADD ( dim_datum[datum], -1, MONTH ) )
+
+// Rollenspielende Dimension: dim_station hängt zweimal an fact_fahrt –
+// start_station_sk (aktiv) und ziel_station_sk (inaktiv, gestrichelt).
+// USERELATIONSHIP schaltet innerhalb des Measures die inaktive Beziehung ein:
+// „Fahrten, die in diesem Bezirk ANKOMMEN“ statt „… dort starten“.
+Ankünfte = CALCULATE ( [Fahrten], USERELATIONSHIP ( fact_fahrt[ziel_station_sk], dim_station[station_sk] ) )

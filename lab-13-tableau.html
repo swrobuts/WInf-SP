@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="de" data-lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab 13 · Tableau · WInf-SP-Lab</title>
+  <meta name="winf:titel-en" content="Lab 13 · Tableau · WInf-SP-Lab" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/winf.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%237A1F2E'/><text x='16' y='23' font-family='sans-serif' font-size='18' font-weight='bold' text-anchor='middle' fill='%23E0B44C'>W</text></svg>" />
+</head>
+<body class="lab-page" data-lab="lab-13">
+
+<header class="header">
+  <div class="header-left">
+    <a class="header-logo" href="index.html" data-lab-link><span class="mark">WInf-SP</span>-Lab</a>
+    <a class="header-back" href="index.html" data-lab-link>
+      <span lang="de">← Zur Übersicht</span><span lang="en">← Back to overview</span>
+    </a>
+  </div>
+  <div class="header-right">
+    <button class="lang-btn active" data-lang-btn="de" aria-pressed="true">DE</button>
+    <button class="lang-btn" data-lang-btn="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<nav class="sidebar" aria-label="Lab-Navigation">
+  <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
+  <a class="sidebar-link" href="#warum"><span lang="de">Ziehen = Abfragen</span><span lang="en">Dragging = querying</span></a>
+  <a class="sidebar-link" href="#landschaft"><span lang="de">Editionen und Lizenz</span><span lang="en">Editions and licence</span></a>
+  <a class="sidebar-link" href="#begriffe"><span lang="de">Die Begriffe</span><span lang="en">The concepts</span></a>
+  <a class="sidebar-link" href="#verbinden"><span lang="de">Verbinden</span><span lang="en">Connecting</span></a>
+  <a class="sidebar-link" href="#regal"><span lang="de">Das Regal</span><span lang="en">The shelf</span></a>
+  <a class="sidebar-link" href="#berechnen"><span lang="de">Berechnen</span><span lang="en">Calculating</span></a>
+  <a class="sidebar-link" href="#dashboard"><span lang="de">Dashboard und Veröffentlichen</span><span lang="en">Dashboard and publishing</span></a>
+  <a class="sidebar-link" href="#vergleich"><span lang="de">Power BI vs. Tableau</span><span lang="en">Power BI vs. Tableau</span></a>
+  <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></a>
+  <a class="sidebar-link" href="#simulator"><span lang="de">Regal-Simulator</span><span lang="en">Shelf simulator</span></a>
+  <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
+  <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
+</nav>
+
+<div class="lab-header">
+  <div class="lab-num-big">13</div>
+  <h1 class="lab-title">Tableau</h1>
+  <p class="lab-intro">
+    <span lang="de">In Lab 12 haben Sie zuerst ein Modell gebaut und dann Fragen gestellt. Tableau dreht das um: Sie
+      ziehen ein Feld auf ein Regal, und in demselben Augenblick ist eine Abfrage formuliert und ihr Ergebnis
+      gezeichnet. Das Werkzeug ist für die visuelle Exploration gemacht – man denkt mit den Händen. Der Preis dafür
+      ist ein eigenes Vokabular: blaue und grüne Pillen, Shelves, Marks, Level of Detail. Dieses Lab stellt
+      dieselben Fragen an Velo City wie Lab 12 – Fahrten je Bezirk, Umsatz im Jahresverlauf – und beantwortet sie
+      mit Regalen statt mit Measures.</span>
+    <span lang="en">In lab 12 you first built a model and then asked questions. Tableau turns that around: you drag a
+      field onto a shelf, and in that same moment a query is formulated and its result drawn. The tool is made for
+      visual exploration – you think with your hands. The price is a vocabulary of its own: blue and green pills,
+      shelves, marks, level of detail. This lab asks Velo City the same questions as lab 12 – rides per district,
+      revenue over the year – and answers them with shelves instead of measures.</span>
+  </p>
+  <div class="lernziele">
+    <span class="lernziel-chip">VizQL</span>
+    <span class="lernziel-chip"><span lang="de">Discrete (blau) · Continuous (grün)</span><span lang="en">Discrete (blue) · Continuous (green)</span></span>
+    <span class="lernziel-chip">Columns · Rows · Marks</span>
+    <span class="lernziel-chip">Live · Extract</span>
+    <span class="lernziel-chip">Calculated Field · Table Calculation · LOD</span>
+    <span class="lernziel-chip">Dashboard · Use as Filter</span>
+  </div>
+  <div data-einordnung></div>
+</div>
+
+<main class="main-content">
+
+  <section class="section-block" id="warum">
+    <h2><span lang="de">Ziehen = Abfragen</span><span lang="en">Dragging = querying</span></h2>
+    <p>
+      <span lang="de">Ein BI-Werkzeug muss zwei Dinge leisten: Daten zusammenfassen (die Abfrage) und das Ergebnis
+        zeigen (die Darstellung). In Lab 06 und Lab 08 haben Sie beides getrennt gemacht – <code>GROUP BY</code> in
+        SQL, dann irgendwo ein Diagramm. In Lab 12 hat Power BI die Abfrage hinter Measures und ein Semantic Model
+        gelegt. Tableau geht einen dritten Weg, und der hat einen Namen: <strong>VizQL</strong>, die Visual Query
+        Language. Jede Belegung eines Regals ist zugleich eine Abfrage an die Datenquelle und eine visuelle
+        Kodierung ihres Ergebnisses. Das Worksheet <em>ist</em> die Abfrage.</span>
+      <span lang="en">A BI tool has to do two things: summarise data (the query) and show the result (the
+        presentation). In labs 06 and 08 you did both separately – <code>GROUP BY</code> in SQL, then a chart
+        somewhere. In lab 12, Power BI put the query behind measures and a semantic model. Tableau takes a third route,
+        and it has a name: <strong>VizQL</strong>, the Visual Query Language. Every placement on a shelf is at once a
+        query to the data source and a visual encoding of its result. The worksheet <em>is</em> the query.</span>
+    </p>
+    <div class="concept-box">
+      <h3><span lang="de">Ziehen = Abfragen</span><span lang="en">Dragging = querying</span></h3>
+      <p><span lang="de">Legen Sie <em>Bezirk</em> auf Columns und <em>Preis Eur</em> auf Rows, dann schickt Tableau
+        sinngemäß <code>SELECT bezirk, SUM(preis_eur) FROM fahrten GROUP BY bezirk</code> an die Quelle und zeichnet
+        die Antwort als Balken – die Dimension bestimmt die Gruppierung und die Köpfe, die Kennzahl die Aggregation
+        und die Achse. Jede weitere Pille ändert die Abfrage: <em>Rad Typ</em> auf Color erweitert das
+        <code>GROUP BY</code>, ein Filter erzeugt ein <code>WHERE</code>. Deshalb gibt es in Tableau keinen Knopf
+        „Diagramm einfügen“: Das Diagramm ist die Folge der Regale, nicht ihr Ausgangspunkt.</span>
+      <span lang="en">Put <em>Bezirk</em> on Columns and <em>Preis Eur</em> on Rows, and Tableau sends, in effect,
+        <code>SELECT bezirk, SUM(preis_eur) FROM fahrten GROUP BY bezirk</code> to the source and draws the answer as
+        bars – the dimension determines grouping and headers, the measure aggregation and axis. Every further pill
+        changes the query: <em>Rad Typ</em> on Color extends the <code>GROUP BY</code>, a filter produces a
+        <code>WHERE</code>. That is why Tableau has no “insert chart” button: the chart is the consequence of the
+        shelves, not their starting point.</span></p>
+    </div>
+    <p>
+      <span lang="de">Im Vergleich zu Lab 12: Power BI verlangt, dass Sie erst Beziehungen und Measures anlegen und
+        dann Visuals darauf setzen – das Modell ist das Produkt, die Berichte sind Sichten darauf. Tableau lässt Sie
+        sofort ziehen und verlangt das Modell erst, wenn mehrere Tabellen ins Spiel kommen – das Worksheet ist das
+        Produkt, das Modell ist seine Voraussetzung.</span>
+      <span lang="en">Compared with lab 12: Power BI demands that you first create relationships and measures and then
+        place visuals on them – the model is the product, the reports are views onto it. Tableau lets you drag at once
+        and demands the model only when several tables come into play – the worksheet is the product, the model its
+        prerequisite.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="landschaft">
+    <h2><span lang="de">Editionen und Lizenz</span><span lang="en">Editions and licence</span></h2>
+    <p>
+      <span lang="de">Tableau (seit 2019 Teil von Salesforce) hat seine Produktlinie 2025/26 umgebaut. Für den Kurs
+        zählt vor allem eine Neuerung: Seit dem 17. März 2026 gibt es eine <strong>Tableau Desktop Free
+        Edition</strong> mit vollen Autorenfunktionen und Datenbankanbindung – die frühere Einjahreslizenz „Tableau
+        for Students“ wurde dagegen eingestellt. Stand 09/2026, alle Preise in US-Dollar bei jährlicher
+        Abrechnung.</span>
+      <span lang="en">Tableau (part of Salesforce since 2019) reshuffled its product line in 2025/26. For the course one
+        novelty matters most: since 17 March 2026 there is a <strong>Tableau Desktop Free Edition</strong> with full
+        authoring and database connectivity – whereas the former one-year “Tableau for Students” licence has been
+        discontinued. As of 09/2026, all prices in US dollars, billed annually.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Produkt</span><span lang="en">Product</span></th>
+            <th><span lang="de">Was es ist</span><span lang="en">What it is</span></th>
+            <th><span lang="de">Kann</span><span lang="en">Can</span></th>
+            <th><span lang="de">Kann nicht</span><span lang="en">Cannot</span></th>
+            <th><span lang="de">Kosten</span><span lang="en">Cost</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Tableau Desktop Free Edition</strong></td>
+            <td><span lang="de">Vollständiges Desktop (Windows, Mac), seit 17.03.2026; Anmeldung mit Tableau-ID beim ersten Start</span><span lang="en">Full desktop (Windows, Mac), since 17 March 2026; sign-in with a Tableau ID at first launch</span></td>
+            <td><span lang="de">Alle Autorenfunktionen, lokale Datenbanken (PostgreSQL, MySQL, SQL Server) und ODBC, lokal speichern, unbegrenzte Zeilen, kommerzielle Nutzung</span><span lang="en">All authoring, local databases (PostgreSQL, MySQL, SQL Server) and ODBC, save locally, unlimited rows, commercial use</span></td>
+            <td><span lang="de">Veröffentlichen (Public, Cloud, Server); <code>.twbx</code> weitergeben – laut Lizenz nur Screenshots und PDF</span><span lang="en">Publishing (Public, Cloud, Server); sharing <code>.twbx</code> – per licence only screenshots and PDF</span></td>
+            <td><span lang="de">kostenlos</span><span lang="en">free</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tableau Desktop Public Edition</strong></td>
+            <td><span lang="de">Die Desktop-App der Plattform Tableau Public (Windows, Mac)</span><span lang="en">The desktop app of the Tableau Public platform (Windows, Mac)</span></td>
+            <td><span lang="de">Dateien laden (Excel, Text, JSON, PDF, Spatial …), seit 2024.1.2 lokal speichern, nach Tableau Public veröffentlichen</span><span lang="en">Load files (Excel, Text, JSON, PDF, Spatial …), save locally since 2024.1.2, publish to Tableau Public</span></td>
+            <td><span lang="de">Datenbanken, ODBC; privat veröffentlichen; kommerzielle Nutzung. Grenzen: 15 Mio. Zeilen je Workbook, 10 GB je Profil</span><span lang="en">Databases, ODBC; publish privately; commercial use. Limits: 15 M rows per workbook, 10 GB per profile</span></td>
+            <td><span lang="de">kostenlos</span><span lang="en">free</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tableau Public</strong></td>
+            <td><span lang="de">Web-Plattform und Galerie – „a platform for public (not private) data“</span><span lang="en">Web platform and gallery – “a platform for public (not private) data”</span></td>
+            <td><span lang="de">Workbooks hosten, Profil als Portfolio, Bearbeiten im Browser</span><span lang="en">Host workbooks, profile as portfolio, edit in the browser</span></td>
+            <td><span lang="de">Etwas verbergen: Veröffentlichtes ist samt Daten öffentlich</span><span lang="en">Hide anything: what is published is public including its data</span></td>
+            <td><span lang="de">kostenlos</span><span lang="en">free</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tableau Cloud / Server</strong></td>
+            <td><span lang="de">Gehostete bzw. selbst betriebene Plattform mit Rollen</span><span lang="en">Hosted or self-run platform with roles</span></td>
+            <td><span lang="de"><code>Creator</code> (Desktop + Prep, neue Data Sources), <code>Explorer</code> (Web-Bearbeitung, keine neuen Data Sources), <code>Viewer</code> (ansehen, filtern, kommentieren)</span><span lang="en"><code>Creator</code> (Desktop + Prep, new data sources), <code>Explorer</code> (web editing, no new data sources), <code>Viewer</code> (view, filter, comment)</span></td>
+            <td><span lang="de">Ohne mindestens einen Creator geht nichts</span><span lang="en">Nothing works without at least one Creator</span></td>
+            <td><span lang="de">Standard: 75 $ / 42 $ / 15 $ je Nutzer und Monat</span><span lang="en">Standard: $75 / $42 / $15 per user and month</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tableau Prep</strong></td>
+            <td><span lang="de">Visuelle Datenaufbereitung (Flows, <code>.tfl</code>)</span><span lang="en">Visual data preparation (flows, <code>.tfl</code>)</span></td>
+            <td><span lang="de">Bereinigen, Pivotieren, Zusammenführen vor Tableau – das, was Lab 10 in SQL tut</span><span lang="en">Clean, pivot, merge before Tableau – what lab 10 does in SQL</span></td>
+            <td><span lang="de">Nicht in der Public Edition; für die Free Edition nach Herstellerangabe zu prüfen</span><span lang="en">Not in the Public Edition; for the Free Edition to be checked against the vendor's statement</span></td>
+            <td><span lang="de">im Creator-Seat</span><span lang="en">in the Creator seat</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tableau Next · Tableau Agent</strong></td>
+            <td><span lang="de">Agentische Analytik auf der Salesforce-Plattform; KI-Assistent in Cloud</span><span lang="en">Agentic analytics on the Salesforce platform; AI assistant in Cloud</span></td>
+            <td colspan="2"><span lang="de">Hier nur genannt – für den Kurs ohne Bedeutung</span><span lang="en">Mentioned only – of no relevance for the course</span></td>
+            <td><span lang="de">auf Anfrage</span><span lang="en">on request</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <h3><span lang="de">Akademische Wege</span><span lang="en">Academic routes</span></h3>
+      <p><span lang="de"><strong>Tableau for Students</strong> – die frühere kostenlose Einjahreslizenz für Desktop
+        und Prep – ist eingestellt; die Seite verweist auf die Public Edition. <strong>Tableau for Teaching</strong>
+        (für Lehrende an akkreditierten Hochschulen, Nachweis per Syllabus) bietet weiterhin eine <em>Student Course
+        License</em>: Desktop und Prep Builder für die Kursdauer, ein Schlüssel mit Aktivierungen für alle
+        Teilnehmenden; dazu eine <em>Tableau Cloud Site</em> mit 100 Plätzen für ein Jahr. Das ist der einzige Weg,
+        der Datenbankanbindung <em>und</em> eine legitime Abgabe im Workbook-Format zusammenbringt.</span>
+      <span lang="en"><strong>Tableau for Students</strong> – the former free one-year licence for Desktop and Prep –
+        has been discontinued; the page points to the Public Edition. <strong>Tableau for Teaching</strong> (for
+        instructors at accredited institutions, proof via syllabus) still offers a <em>Student Course License</em>:
+        Desktop and Prep Builder for the course duration, one key with activations for all participants; plus a
+        <em>Tableau Cloud Site</em> with 100 seats for one year. That is the only route combining database
+        connectivity <em>and</em> a legitimate submission in workbook format.</span></p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Ziel im Kurs</span><span lang="en">Goal in the course</span></th>
+            <th><span lang="de">Edition</span><span lang="en">Edition</span></th>
+            <th><span lang="de">Datenquelle</span><span lang="en">Data source</span></th>
+            <th><span lang="de">Abgabe</span><span lang="en">Submission</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span lang="de">Supabase aus Lab 08 direkt anbinden</span><span lang="en">Connect Supabase from lab 08 directly</span></td>
+            <td>Free Edition</td>
+            <td><span lang="de">PostgreSQL-Connector, Session Pooler</span><span lang="en">PostgreSQL connector, session pooler</span></td>
+            <td><span lang="de">PDF oder Screenshot – keine <code>.twbx</code></span><span lang="en">PDF or screenshot – no <code>.twbx</code></span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Ein Portfolio auf Tableau Public</span><span lang="en">A portfolio on Tableau Public</span></td>
+            <td>Public Edition</td>
+            <td><span lang="de">CSV aus <code>vorlagen/lab-13-export.sql</code> oder Lab 09</span><span lang="en">CSV from <code>vorlagen/lab-13-export.sql</code> or lab 09</span></td>
+            <td><span lang="de">Link zur Veröffentlichung – alles öffentlich</span><span lang="en">Link to the publication – everything public</span></td>
+          </tr>
+          <tr>
+            <td><span lang="de">Beides, mit Prep</span><span lang="en">Both, with Prep</span></td>
+            <td>Student Course License + Cloud Site</td>
+            <td><span lang="de">Datenbank oder Datei</span><span lang="en">Database or file</span></td>
+            <td><span lang="de"><code>Server → Publish Workbook…</code> auf die Kurs-Site</span><span lang="en"><code>Server → Publish Workbook…</code> to the course site</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="auswahl-hinweis">
+      <p><span lang="de"><strong>Hinweis.</strong> Bei den in dieser Lernumgebung gezeigten Tools handelt es sich um eine
+        Auswahl – diese ist weder als Empfehlung noch als Werbung zu verstehen. Tableau steht hier als Gegenmodell zu
+        Power BI (Lab 12), weil es die visuelle Exploration in den Mittelpunkt stellt und auf dem Mac läuft.
+        Alternativen auf derselben Ebene: Power BI (Lab 12, Desktop kostenlos, nur Windows), Looker Studio (kostenlos,
+        nur Browser), Apache Superset (Apache 2.0, selbst gehostet), Metabase (AGPL v3, selbst gehostet) und Grafana
+        (AGPL v3) – alle mit PostgreSQL-Anbindung.</span>
+      <span lang="en"><strong>Note.</strong> The tools shown in this learning environment are a selection – it is meant
+        neither as a recommendation nor as advertising. Tableau appears here as the counter-model to Power BI (lab 12)
+        because it puts visual exploration at the centre and runs on the Mac. Alternatives on the same layer: Power BI
+        (lab 12, desktop free, Windows only), Looker Studio (free, browser only), Apache Superset (Apache 2.0,
+        self-hosted), Metabase (AGPL v3, self-hosted) and Grafana (AGPL v3) – all with PostgreSQL connectivity.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="begriffe">
+    <h2><span lang="de">Die Begriffe</span><span lang="en">The concepts</span></h2>
+    <p>
+      <span lang="de">Tableau hat für alles einen eigenen Namen, und die meisten davon stehen englisch in der
+        Oberfläche. Die Tabelle nennt die, die Sie in diesem Lab brauchen – die vierte Zeile ist die, an der die
+        meisten Anfänger scheitern.</span>
+      <span lang="en">Tableau has its own name for everything, and most of them appear in English in the interface. The
+        table names those you need in this lab – the fourth row is where most beginners stumble.</span>
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th><span lang="de">Begriff</span><span lang="en">Concept</span></th>
+            <th><span lang="de">Was es ist</span><span lang="en">What it is</span></th>
+            <th><span lang="de">Wo in der Oberfläche</span><span lang="en">Where in the interface</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Data Source</strong></td>
+            <td><span lang="de">Die Verbindung zu einer Datei oder einem Server samt Datenmodell. Ein Workbook kann mehrere haben.</span><span lang="en">The connection to a file or server including the data model. A workbook can have several.</span></td>
+            <td><span lang="de">Startseite, Connect pane: <code>To a File</code> · <code>To a Server</code></span><span lang="en">Start page, Connect pane: <code>To a File</code> · <code>To a Server</code></span></td>
+          </tr>
+          <tr>
+            <td><strong>Live · Extract</strong></td>
+            <td><span lang="de">Live fragt die Quelle bei jeder Änderung ab; Extract kopiert sie in eine <code>.hyper</code>-Datei – schnell, offline, aber ein Stand.</span><span lang="en">Live queries the source on every change; Extract copies it into a <code>.hyper</code> file – fast, offline, but a snapshot.</span></td>
+            <td><span lang="de">Data Source page, oben rechts</span><span lang="en">Data Source page, top right</span></td>
+          </tr>
+          <tr>
+            <td><strong>Logical layer · Physical layer</strong></td>
+            <td><span lang="de">Logisch: Tabellen mit <em>Relationships</em> („Noodles“), jede behält ihre Körnung. Physisch: <em>Joins</em>, die eine flache Tabelle erzeugen – mit Fan-out.</span><span lang="en">Logical: tables with <em>relationships</em> (“noodles”), each keeps its grain. Physical: <em>joins</em> producing one flat table – with fan-out.</span></td>
+            <td><span lang="de">Leinwand der Data Source page; Doppelklick auf eine Kachel öffnet die physische Ebene</span><span lang="en">Canvas of the Data Source page; double-click on a tile opens the physical layer</span></td>
+          </tr>
+          <tr>
+            <td><strong>Dimension · Measure</strong></td>
+            <td><span lang="de">Dimensionen gruppieren (Bezirk, Radtyp, Datum); Measures werden aggregiert (Preis, Dauer). Die Rolle ist änderbar.</span><span lang="en">Dimensions group (district, bike type, date); measures are aggregated (price, duration). The role can be changed.</span></td>
+            <td><span lang="de">Data pane links: Dimensionen oben, Measures unter der Trennlinie</span><span lang="en">Data pane on the left: dimensions above, measures below the divider</span></td>
+          </tr>
+          <tr>
+            <td><strong>Discrete (blau) · Continuous (grün)</strong></td>
+            <td><span lang="de">Diskret erzeugt <em>Köpfe</em>, stetig eine <em>Achse</em>. <strong>Die Farbe sagt diskret oder stetig – nicht Dimension oder Kennzahl.</strong> Ein Datum kann grün sein, <code>SUM(Preis Eur)</code> kann blau sein.</span><span lang="en">Discrete creates <em>headers</em>, continuous an <em>axis</em>. <strong>The colour says discrete or continuous – not dimension or measure.</strong> A date can be green, <code>SUM(Preis Eur)</code> can be blue.</span></td>
+            <td><span lang="de">Pillenfarbe; Rechtsklick → <code>Convert to Continuous</code> / <code>Convert to Discrete</code></span><span lang="en">Pill colour; right-click → <code>Convert to Continuous</code> / <code>Convert to Discrete</code></span></td>
+          </tr>
+          <tr>
+            <td><strong>Shelves</strong></td>
+            <td><span lang="de">Die Regale <code>Columns</code>, <code>Rows</code>, <code>Pages</code>, <code>Filters</code>. Was darauf liegt, bestimmt die Abfrage.</span><span lang="en">The shelves <code>Columns</code>, <code>Rows</code>, <code>Pages</code>, <code>Filters</code>. What lies on them determines the query.</span></td>
+            <td><span lang="de">Oben und links neben der Leinwand</span><span lang="en">Above and to the left of the canvas</span></td>
+          </tr>
+          <tr>
+            <td><strong>Marks card</strong></td>
+            <td><span lang="de">Markentyp (<code>Automatic</code>, <code>Bar</code>, <code>Line</code>, <code>Circle</code> …) und die Kodierungen <code>Color</code>, <code>Size</code>, <code>Label</code>, <code>Detail</code>, <code>Tooltip</code>, <code>Shape</code>.</span><span lang="en">Mark type (<code>Automatic</code>, <code>Bar</code>, <code>Line</code>, <code>Circle</code> …) and the encodings <code>Color</code>, <code>Size</code>, <code>Label</code>, <code>Detail</code>, <code>Tooltip</code>, <code>Shape</code>.</span></td>
+            <td><span lang="de">Links unter den Regalen</span><span lang="en">Left, below the shelves</span></td>
+          </tr>
+          <tr>
+            <td><strong>Show Me</strong></td>
+            <td><span lang="de">Vorschlagsliste der Diagrammtypen; graut aus, was zu den gewählten Feldern nicht passt, und nennt die nötige Kombination.</span><span lang="en">Suggestion list of chart types; greys out what does not fit the chosen fields and names the required combination.</span></td>
+            <td><span lang="de">Oben rechts, <code>Ctrl+1</code></span><span lang="en">Top right, <code>Ctrl+1</code></span></td>
+          </tr>
+          <tr>
+            <td><strong>Worksheet · Dashboard · Story</strong></td>
+            <td><span lang="de">Ein Worksheet je Frage; ein Dashboard stellt Worksheets zusammen; eine Story reiht Dashboards zu Story Points.</span><span lang="en">One worksheet per question; a dashboard assembles worksheets; a story sequences dashboards into story points.</span></td>
+            <td><span lang="de">Reiter unten; <code>Ctrl+M</code>, <code>Dashboard → New Dashboard</code>, <code>Story → New Story</code></span><span lang="en">Tabs at the bottom; <code>Ctrl+M</code>, <code>Dashboard → New Dashboard</code>, <code>Story → New Story</code></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip-box">
+      <p><span lang="de">Die zwei Fragen an jede Pille sind unabhängig: <em>Gruppiert sie oder wird sie aggregiert?</em>
+        (Dimension / Measure) und <em>Erzeugt sie Köpfe oder eine Achse?</em> (Discrete / Continuous). Vier
+        Kombinationen sind möglich, und alle vier kommen vor. Wer nur die Farbe anschaut und „grün = Kennzahl“ denkt,
+        versteht nicht, warum eine grüne Datumspille eine Linie und eine blaue eine Reihe von Köpfen ergibt.</span>
+      <span lang="en">The two questions to ask of every pill are independent: <em>does it group or is it
+        aggregated?</em> (dimension / measure) and <em>does it create headers or an axis?</em> (discrete / continuous).
+        Four combinations are possible, and all four occur. Whoever looks only at the colour and thinks “green =
+        measure” does not understand why a green date pill yields a line and a blue one a row of headers.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="verbinden">
+    <h2><span lang="de">Verbinden</span><span lang="en">Connecting</span></h2>
+    <p>
+      <span lang="de">Der erste Bildschirm ist das Connect pane. Für den Kurs gibt es zwei Wege, und welcher offen
+        steht, entscheidet die Edition: Die Public Edition liest nur Dateien, also kommt die flache Tabelle aus Lab 09
+        oder aus der Vorlage <code>lab-13-export.sql</code> als CSV. Free Edition und Creator verbinden sich direkt
+        mit dem PostgreSQL aus Lab 08 – über denselben Session Pooler, den DataGrip in Lab 09 benutzt hat. SQLite
+        aus Lab 06 erreicht Tableau nur über <code>Other Databases (ODBC)</code>, und das nicht in der Public
+        Edition; für den Kurs ist der CSV-Export der verlässlichere Weg.</span>
+      <span lang="en">The first screen is the Connect pane. For the course there are two routes, and which one is open
+        depends on the edition: the Public Edition reads files only, so the flat table from lab 09 or from the template
+        <code>lab-13-export.sql</code> comes in as CSV. Free Edition and Creator connect directly to the PostgreSQL from
+        lab 08 – through the same session pooler DataGrip used in lab 09. SQLite from lab 06 reaches Tableau only via
+        <code>Other Databases (ODBC)</code>, and not in the Public Edition; for the course the CSV export is the more
+        reliable route.</span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-13-export.sql" download><span class="symbol">📄</span><span><span class="datei">lab-13-export.sql</span><br><span class="was"><span lang="de">Flache Fahrtentabelle als CSV – für sqlite3 und psql</span><span lang="en">Flat ride table as CSV – for sqlite3 and psql</span></span></span></a>
+    </div>
+    <div data-befehl="B07"></div>
+    <div data-befehl="B01"></div>
+    <div data-befehl="B02"></div>
+    <p>
+      <span lang="de">Nach dem Verbinden landen Sie auf der <strong>Data Source page</strong>. Bei einer CSV steht
+        dort eine Tabelle, und es bleibt zu prüfen, ob die Datentypen stimmen. Bei der Datenbank ziehen Sie die
+        Tabellen des Sternschemas <code>mart</code> aus Lab 10 auf die Leinwand und verbinden sie mit Relationships über
+        die Surrogatschlüssel (<code>station_sk</code>, <code>rad_sk</code>, <code>kunde_sk</code>, <code>datum_key</code>) –
+        die Faktentabelle in die Mitte, jede Dimension direkt daran.</span>
+      <span lang="en">After connecting you land on the <strong>Data Source page</strong>. With a CSV there is one table,
+        and what remains is to check that the data types are right. With the database you drag the tables of the
+        <code>mart</code> star schema from lab 10 onto the canvas and connect them with relationships via the surrogate
+        keys (<code>station_sk</code>, <code>rad_sk</code>, <code>kunde_sk</code>, <code>datum_key</code>) – the fact table
+        in the middle, every dimension directly attached.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Tableau – velocity</span><span class="spacer"></span>Data Source</div>
+      <div class="shot-menu"><span>File</span><span>Data</span><span>Server</span><span>Window</span><span>Help</span></div>
+      <div class="shot-body">
+        <div class="shot-side">
+          <h5>Connections <span class="callout">1</span></h5>
+          <ul class="baum">
+            <li class="aktiv">aws-0-eu-central-1.pooler.supabase.com</li>
+            <li class="ein">postgres · mart</li>
+          </ul>
+          <h5>Table</h5>
+          <ul class="baum">
+            <li class="ein">▤ dim_datum</li>
+            <li class="ein">▤ dim_kunde</li>
+            <li class="ein">▤ dim_rad</li>
+            <li class="ein">▤ dim_station</li>
+            <li class="ein">▤ fact_fahrt</li>
+            <li>New Custom SQL</li>
+            <li>New Union</li>
+          </ul>
+          <div class="zeile"><span class="knopf">☐ Use Data Interpreter</span></div>
+        </div>
+        <div class="shot-main">
+          <div class="zeile"><span class="beschriftung">Data source</span><span class="feld">velocity (mart)</span><span class="spacer"></span><span class="knopf">⦿ Live</span><span class="knopf primaer">○ Extract</span> <span class="callout">3</span></div>
+          <div class="leinwand">
+            <span><span class="pill-neutral">dim_station</span> ⟜ <span class="pill-neutral">fact_fahrt</span> ⟝ <span class="pill-neutral">dim_rad</span> &nbsp;·&nbsp; <span class="pill-neutral">dim_kunde</span> ⟜ &nbsp;·&nbsp; ⟝ <span class="pill-neutral">dim_datum</span> &nbsp;·&nbsp; ⟝ <span class="pill-neutral">dim_station (Ziel)</span> <span class="callout">2</span></span>
+          </div>
+          <div class="zeile"><span class="beschriftung">Edit Relationship</span><span class="feld">fact_fahrt.start_station_sk</span> = <span class="feld">dim_station.station_sk</span><span class="knopf">Performance Options ▾</span></div>
+          <div class="zeile"><span class="tab aktiv">Data</span><span class="tab">Metadata</span><span class="spacer"></span><span class="beschriftung">1,500 rows</span> <span class="callout">4</span></div>
+          <table>
+            <thead><tr><th># fahrt_id</th><th># datum_key</th><th># start_station_sk</th><th># rad_sk</th><th># stunde</th><th># dauer_min</th><th># preis_eur</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>20251005</td><td>6</td><td>57</td><td>7</td><td>7</td><td>1.20</td></tr>
+              <tr><td>2</td><td>20260704</td><td>5</td><td>3</td><td>16</td><td>6</td><td>1.10</td></tr>
+              <tr><td>3</td><td>20251225</td><td>7</td><td>12</td><td>18</td><td>22</td><td>4.08</td></tr>
+            </tbody>
+          </table>
+          <div class="zeile"><span class="tab aktiv">Data Source</span><span class="tab">Sheet 1</span> <span class="callout">5</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Die Verbindung und ihre Tabellen. Bei einer CSV steht hier die Datei; „New Custom SQL“ nimmt eine eigene Abfrage als Tabelle.</span><span lang="en">The connection and its tables. With a CSV the file stands here; “New Custom SQL” takes your own query as a table.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Die logische Ebene: Kacheln und Noodles. Jede Dimension hängt direkt an fact_fahrt – das Sternschema <code>mart</code> aus Lab 10, als Bild. Die Faktentabelle zeigt zweimal auf dim_station (<code>start_station_sk</code>, <code>ziel_station_sk</code>); Tableau braucht dafür dieselbe Tabelle ein zweites Mal als eigene logische Tabelle „dim_station (Ziel)“.</span><span lang="en">The logical layer: tiles and noodles. Every dimension hangs directly off fact_fahrt – the <code>mart</code> star schema from lab 10, as a picture. The fact table points to dim_station twice (<code>start_station_sk</code>, <code>ziel_station_sk</code>); for that Tableau needs the same table a second time as its own logical table “dim_station (Ziel)”.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Live oder Extract. Für Tableau Public ist Extract Pflicht, für Supabase im Free-Plan die klügere Wahl – die Datenbank pausiert nach einer Woche.</span><span lang="en">Live or Extract. For Tableau Public, Extract is mandatory; for Supabase on the free plan it is the wiser choice – the database pauses after a week.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Die Datenvorschau mit Typsymbolen: # ist Zahl, Abc ist Text, ein Kalender wäre Datum. Hier korrigieren, nicht später.</span><span lang="en">The data preview with type icons: # is number, Abc is text, a calendar would be date. Correct here, not later.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Der Reiter Sheet 1 führt ins Worksheet – und bei Extract fragt Tableau zuerst nach dem Speicherort der .hyper-Datei.</span><span lang="en">The Sheet 1 tab leads to the worksheet – and with Extract, Tableau first asks where to save the .hyper file.</span></span></li>
+    </ol>
+    <div data-befehl="B03"></div>
+    <div class="warn-box">
+      <p><span lang="de">Relationships sind keine Joins. Auf der logischen Ebene bleibt jede Tabelle, was sie ist, und
+        Tableau baut je Worksheet die passende Abfrage – ohne Zeilen zu verdoppeln. Erst der Doppelklick auf eine
+        Kachel öffnet die physische Ebene mit echten Joins, und dort entsteht der <em>Fan-out</em>: Eine Fahrt, deren
+        Rad zweimal in <code>dim_rad</code> steht, wird zweimal gezählt. Für ein sauberes Sternschema aus Lab 10
+        brauchen Sie die physische Ebene nicht.</span>
+      <span lang="en">Relationships are not joins. On the logical layer every table stays what it is, and Tableau builds
+        the fitting query per worksheet – without doubling rows. Only the double-click on a tile opens the physical
+        layer with real joins, and there the <em>fan-out</em> arises: a ride whose bike appears twice in
+        <code>dim_rad</code> is counted twice. For a clean star schema from lab 10 you do not need the physical
+        layer.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="regal">
+    <h2><span lang="de">Das Regal</span><span lang="en">The shelf</span></h2>
+    <p>
+      <span lang="de">Das Worksheet hat drei Zonen: links das Data pane mit den Feldern als Pillen, in der Mitte die
+        Regale, die Marks card und die Leinwand, rechts Show Me. Die Arbeit besteht aus Ziehen – und aus dem Lesen
+        dessen, was auf den Regalen liegt.</span>
+      <span lang="en">The worksheet has three zones: the Data pane on the left with the fields as pills, the shelves,
+        Marks card and canvas in the middle, Show Me on the right. The work consists of dragging – and of reading what
+        lies on the shelves.</span>
+    </p>
+    <div class="shot">
+      <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">Tableau – velocity</span><span class="spacer"></span>Sheet 2</div>
+      <div class="shot-menu"><span>File</span><span>Data</span><span>Worksheet</span><span>Dashboard</span><span>Story</span><span>Analysis</span><span>Map</span><span>Format</span><span>Server</span><span>Window</span><span>Help</span></div>
+      <div class="shot-body drei">
+        <div class="shot-side">
+          <h5>Data <span class="callout">1</span></h5>
+          <ul class="baum">
+            <li>velocity (postgres)</li>
+            <li class="ein"><span class="pill-blau">Abc Bezirk</span></li>
+            <li class="ein"><span class="pill-blau">Abc Rad Typ</span></li>
+            <li class="ein"><span class="pill-blau">Abc Station</span></li>
+            <li class="ein"><span class="pill-blau">Abc Tarif</span></li>
+            <li class="ein"><span class="pill-blau">📅 Start Zeit</span></li>
+            <li class="ein"><span class="pill-blau"># Fahrt Id</span></li>
+            <li class="ein">────────</li>
+            <li class="ein"><span class="pill-gruen"># Dauer Min</span></li>
+            <li class="ein"><span class="pill-gruen"># Preis Eur</span></li>
+            <li class="ein"><span class="pill-gruen">= Umsatz je Fahrt</span></li>
+          </ul>
+        </div>
+        <div class="shot-main">
+          <div class="regalzeile"><span class="name">Pages</span><span class="ablage"></span></div>
+          <div class="regalzeile"><span class="name">Filters</span><span class="ablage"><span class="pill-blau">Rad Typ: EBIKE</span></span></div>
+          <div class="regalzeile"><span class="name">Columns</span><span class="ablage"><span class="pill-gruen">MONTH(Start Zeit)</span> <span class="callout">2</span></span></div>
+          <div class="regalzeile"><span class="name">Rows</span><span class="ablage"><span class="pill-gruen">CNTD(Fahrt Id)</span> <span class="callout">3</span></span></div>
+          <div class="zeile"><span class="beschriftung">Marks</span><span class="feld">Line ▾</span><span class="knopf">Color</span><span class="knopf">Size</span><span class="knopf">Label</span><span class="knopf">Detail</span><span class="knopf">Tooltip</span><span class="knopf">Path</span> <span class="callout">4</span></div>
+          <div class="zeile"><span class="beschriftung"></span><span class="pill-blau">Color · Tarif</span></div>
+          <div class="leinwand"><span lang="de">Drei Linien, September 2025 bis August 2026 – eine je Tarif</span><span lang="en">Three lines, September 2025 to August 2026 – one per plan</span></div>
+          <div class="zeile"><span class="tab">Data Source</span><span class="tab">Sheet 1</span><span class="tab aktiv">Sheet 2</span><span class="spacer"></span><span class="beschriftung">2 nulls</span> <span class="callout">6</span></div>
+        </div>
+        <div class="shot-side rechts">
+          <h5>Show Me <span class="callout">5</span></h5>
+          <ul class="baum">
+            <li>text table</li>
+            <li>horizontal bars</li>
+            <li class="aktiv">lines (continuous)</li>
+            <li>lines (discrete)</li>
+            <li>scatter plots</li>
+          </ul>
+          <div class="zeile"><span class="beschriftung">For lines (continuous) try: 1 date, 1 or more measures</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
+    <ol class="shot-legende">
+      <li><span class="callout">1</span><span><span lang="de">Data pane: Dimensionen oben, Measures unter der Linie. Blau ist diskret, grün stetig. Fahrt Id steht nach „Convert to Dimension“ oben – blau, weil Kennungen gezählt, nicht addiert werden. Das Gleichheitszeichen markiert ein Calculated Field.</span><span lang="en">Data pane: dimensions above, measures below the line. Blue is discrete, green continuous. Fahrt Id sits above after “Convert to Dimension” – blue, because identifiers are counted, not added. The equals sign marks a calculated field.</span></span></li>
+      <li><span class="callout">2</span><span><span lang="de">Eine grüne Datumspille auf Columns: MONTH als Date value – eine durchgehende Zeitachse. Wäre sie blau (Date part), stünden zwölf Köpfe da, und beide Januare fielen zusammen.</span><span lang="en">A green date pill on Columns: MONTH as date value – a continuous time axis. Were it blue (date part), twelve headers would stand there and both Januaries would collapse into one.</span></span></li>
+      <li><span class="callout">3</span><span><span lang="de">Die Kennzahl mit ihrer Aggregation im Namen: CNTD statt SUM, per Rechtsklick → Measure gewählt.</span><span lang="en">The measure with its aggregation in the name: CNTD instead of SUM, chosen via right-click → Measure.</span></span></li>
+      <li><span class="callout">4</span><span><span lang="de">Marks card: Markentyp Line, darunter die Kodierungen. Tarif auf Color erzeugt drei Serien; auf Detail läge er ohne Farbe, würde die Linie aber ebenso in drei teilen.</span><span lang="en">Marks card: mark type Line, below it the encodings. Tarif on Color creates three series; on Detail it would carry no colour but would split the line into three just the same.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Show Me nennt die Kombination, die ein Diagrammtyp braucht – und graut aus, was mit den gewählten Feldern nicht geht.</span><span lang="en">Show Me names the combination a chart type needs – and greys out what cannot be done with the chosen fields.</span></span></li>
+      <li><span class="callout">6</span><span><span lang="de">Der Nulls-Indikator unten rechts: Ein Klick bietet „Filter Data“ oder „Show Data at Default Position“. Bevor Sie klicken: Warum sind da Nulls?</span><span lang="en">The nulls indicator at the bottom right: a click offers “Filter Data” or “Show Data at Default Position”. Before you click: why are there nulls?</span></span></li>
+    </ol>
+    <p>
+      <span lang="de">Eine Kennzahl kommt nie nackt auf ein Regal: Tableau hängt ihr eine Aggregation an, standardmäßig
+        <code>SUM</code>, und die Pille heißt dann <code>SUM(Preis Eur)</code>. Die Aggregation gehört zur Pille, nicht
+        zum Feld – dasselbe Feld kann auf Rows als SUM und auf Label als AVG liegen. Für Streudiagramme, in denen
+        jede Fahrt ein Punkt sein soll, schaltet man <code>Analysis → Aggregate Measures</code> ab. Für Kennungen wie
+        Fahrt Id gilt dieselbe Regel wie in Lab 12: nicht summieren, sondern zählen – <code>Count (Distinct)</code>,
+        oder gleich <code>Convert to Dimension</code>.</span>
+      <span lang="en">A measure never arrives naked on a shelf: Tableau attaches an aggregation, <code>SUM</code> by
+        default, and the pill is then called <code>SUM(Preis Eur)</code>. The aggregation belongs to the pill, not to
+        the field – the same field can sit on Rows as SUM and on Label as AVG. For scatter plots where every ride
+        should be a point, switch off <code>Analysis → Aggregate Measures</code>. For identifiers such as Fahrt Id the
+        same rule as in lab 12 applies: do not sum, count – <code>Count (Distinct)</code>, or straight away
+        <code>Convert to Dimension</code>.</span>
+    </p>
+    <div data-befehl="B05"></div>
+    <div class="concept-box">
+      <h3><span lang="de">Die Marks card: Color und Detail</span><span lang="en">The Marks card: Color and Detail</span></h3>
+      <p><span lang="de">Alles, was auf die Marks card gezogen wird, erhöht die Körnung der Abfrage – es kommt ins
+        <code>GROUP BY</code>. <code>Color</code> tut das sichtbar: Aus einer Linie werden drei, aus einem Balken ein
+        Stapel. <code>Detail</code> tut es unsichtbar: Die Abfrage wird feiner, aber nichts wird farblich kodiert –
+        nützlich, wenn man je Station einen Punkt will, ohne zehn Farben. <code>Label</code> beschriftet,
+        <code>Tooltip</code> zeigt beim Zeigen, <code>Size</code> und <code>Shape</code> kodieren eine zweite und
+        dritte Größe.</span>
+      <span lang="en">Everything dragged onto the Marks card raises the grain of the query – it enters the
+        <code>GROUP BY</code>. <code>Color</code> does so visibly: one line becomes three, one bar a stack.
+        <code>Detail</code> does so invisibly: the query gets finer, but nothing is encoded in colour – useful when you
+        want one point per station without ten colours. <code>Label</code> labels, <code>Tooltip</code> shows on
+        hover, <code>Size</code> and <code>Shape</code> encode a second and third quantity.</span></p>
+    </div>
+    <p>
+      <span lang="de">Die Ausrichtung eines Diagramms ist in Tableau eine Frage der Regale: Dimension auf Columns
+        und Kennzahl auf Rows ergibt senkrechte Balken, umgekehrt waagerechte. <code>Swap Rows and Columns</code>
+        (<code>Ctrl+W</code>) tauscht die beiden. Zehn Stationsnamen lesen sich waagerecht besser – deshalb
+        schlägt Show Me für eine Dimension und eine Kennzahl <em>horizontal bars</em> vor.</span>
+      <span lang="en">The orientation of a chart is a matter of shelves in Tableau: dimension on Columns and measure on
+        Rows yields vertical bars, the reverse horizontal ones. <code>Swap Rows and Columns</code> (<code>Ctrl+W</code>)
+        exchanges the two. Ten station names read better horizontally – which is why Show Me suggests <em>horizontal
+        bars</em> for one dimension and one measure.</span>
+    </p>
+    <div data-befehl="B04"></div>
+  </section>
+
+  <section class="section-block" id="berechnen">
+    <h2><span lang="de">Berechnen</span><span lang="en">Calculating</span></h2>
+    <p>
+      <span lang="de">Was die Quelle nicht liefert, rechnet Tableau selbst – und zwar auf drei verschiedenen Ebenen,
+        die man auseinanderhalten muss, weil sie bei Filtern verschieden reagieren. Der Weg ist immer
+        <code>Analysis → Create Calculated Field…</code>; unten im Dialog steht die Prüfung: <code>The calculation is
+        valid.</code></span>
+      <span lang="en">What the source does not provide, Tableau computes itself – on three different levels that have to
+        be kept apart, because they react differently to filters. The route is always <code>Analysis → Create
+        Calculated Field…</code>; the check sits at the bottom of the dialog: <code>The calculation is valid.</code></span>
+    </p>
+    <div class="vorlagen">
+      <a class="vorlage" href="vorlagen/lab-13-berechnete_felder.txt" download><span class="symbol">📄</span><span><span class="datei">lab-13-berechnete_felder.txt</span><br><span class="was"><span lang="de">Fünf Calculated Fields für Velo City, mit Kommentaren</span><span lang="en">Five calculated fields for Velo City, with comments</span></span></span></a>
+    </div>
+    <div data-befehl="B06"></div>
+    <div class="concept-box">
+      <h3><span lang="de">Zeile oder Aggregat</span><span lang="en">Row or aggregate</span></h3>
+      <p><span lang="de"><code>[Preis Eur] / [Dauer Min]</code> rechnet je Zeile: Euro je Minute für jede Fahrt, danach
+        wird das Ergebnis wie jede Kennzahl aggregiert – im Zweifel als Summe von Verhältnissen, was selten gemeint
+        ist. <code>SUM([Preis Eur]) / SUM([Dauer Min])</code> rechnet je Zelle der Viz: erst summieren, dann teilen.
+        Mischt man beides – <code>SUM([Preis Eur]) / [Dauer Min]</code> – antwortet Tableau mit der Meldung, die jeder
+        einmal sieht:</span>
+      <span lang="en"><code>[Preis Eur] / [Dauer Min]</code> computes per row: euros per minute for every ride, after
+        which the result is aggregated like any measure – if in doubt as a sum of ratios, which is rarely intended.
+        <code>SUM([Preis Eur]) / SUM([Dauer Min])</code> computes per cell of the viz: sum first, then divide. Mix the
+        two – <code>SUM([Preis Eur]) / [Dauer Min]</code> – and Tableau answers with the message everyone sees
+        once:</span></p>
+      <pre class="code-block">Cannot mix aggregate and non-aggregate arguments with this function.</pre>
+      <p><span lang="de">Vier Auswege: alles aggregieren (<code>SUM(…) / SUM(…)</code>); das IF in die Aggregation
+        ziehen (<code>SUM(IF [Rad Typ] = "EBIKE" THEN [Preis Eur] END)</code>); eine Dimension mit
+        <code>ATTR()</code> umhüllen, wenn sie je Zelle nur einen Wert hat; oder ein LOD-Ausdruck, der die Ebene
+        ausdrücklich nennt.</span>
+      <span lang="en">Four ways out: aggregate everything (<code>SUM(…) / SUM(…)</code>); pull the IF inside the
+        aggregation (<code>SUM(IF [Rad Typ] = "EBIKE" THEN [Preis Eur] END)</code>); wrap a dimension in
+        <code>ATTR()</code> when it has only one value per cell; or an LOD expression that names the level
+        explicitly.</span></p>
+    </div>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">Table Calculation</div>
+        <p><span lang="de">Rechnet <em>auf dem Ergebnis der Viz</em>, nachdem alles abgefragt und gefiltert ist:
+          Rechtsklick auf die Pille → <code>Quick Table Calculation</code> → <code>Percent of Total</code>,
+          <code>Running Total</code>, <code>Difference</code>, <code>Rank</code>. Die Pille trägt danach ein Dreieck.
+          <code>Compute Using</code> (<code>Table (across)</code>, <code>Table (down)</code>, <code>Pane</code>,
+          <code>Specific Dimensions</code>) legt fest, worüber gerechnet wird – und ist die häufigste Quelle falscher
+          Prozentwerte.</span>
+        <span lang="en">Computes <em>on the result of the viz</em>, after everything is queried and filtered:
+          right-click the pill → <code>Quick Table Calculation</code> → <code>Percent of Total</code>, <code>Running
+          Total</code>, <code>Difference</code>, <code>Rank</code>. The pill then carries a triangle. <code>Compute
+          Using</code> (<code>Table (across)</code>, <code>Table (down)</code>, <code>Pane</code>, <code>Specific
+          Dimensions</code>) sets what it computes across – and is the most common source of wrong
+          percentages.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile">Level of Detail (LOD)</div>
+        <p><span lang="de">Rechnet <em>vor der Viz</em> auf einer ausdrücklich genannten Ebene:
+          <code>{ FIXED [Station] : COUNTD([Fahrt Id]) }</code> ist die Fahrtenzahl je Station, gleichgültig, was auf
+          den Regalen liegt – und gleichgültig, welcher Dimension Filter gesetzt ist, denn FIXED rechnet davor.
+          <code>INCLUDE</code> fügt der Viz eine feinere Ebene hinzu (Mittel über Stationen innerhalb des Bezirks),
+          <code>EXCLUDE</code> nimmt eine weg (Bezirkssumme neben jeder Station); beide werden danach auf die Ebene
+          der Viz zurückaggregiert.</span>
+        <span lang="en">Computes <em>before the viz</em> on an explicitly named level: <code>{ FIXED [Station] :
+          COUNTD([Fahrt Id]) }</code> is the number of rides per station regardless of what lies on the shelves – and
+          regardless of which dimension filter is set, because FIXED computes before it. <code>INCLUDE</code> adds a
+          finer level to the viz (average across stations within the district), <code>EXCLUDE</code> removes one
+          (district total beside every station); both are re-aggregated to the viz level afterwards.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Parameters · Sets · Groups</span><span lang="en">Parameters · sets · groups</span></div>
+        <p><span lang="de"><strong>Parameter</strong> (<code>Create Parameter…</code>): ein Wert, den der Betrachter
+          setzt und den Formeln, Filter und Referenzlinien lesen – etwa die Grenze für „lange Fahrt“.
+          <strong>Set</strong> (<code>Create → Set</code>): eine Teilmenge einer Dimension mit Innen/Außen, etwa die
+          fünf umsatzstärksten Stationen. <strong>Group</strong> (<code>Create → Group</code>): Werte einer Dimension
+          zusammenfassen, etwa Bezirke zu Stadtteilen.</span>
+        <span lang="en"><strong>Parameter</strong> (<code>Create Parameter…</code>): a value the viewer sets and that
+          formulas, filters and reference lines read – e.g. the threshold for “long ride”. <strong>Set</strong>
+          (<code>Create → Set</code>): a subset of a dimension with in/out, e.g. the five top-revenue stations.
+          <strong>Group</strong> (<code>Create → Group</code>): combine values of a dimension, e.g. districts into
+          quarters.</span></p>
+      </div>
+    </div>
+    <div class="kette">
+      <div class="glied hell"><span class="titel">Extract filters</span></div><span class="pfeil">→</span>
+      <div class="glied hell"><span class="titel">Data source filters</span></div><span class="pfeil">→</span>
+      <div class="glied hell"><span class="titel">Context filters</span></div><span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">FIXED</span></div><span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Dimension filters</span></div><span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">INCLUDE · EXCLUDE</span></div><span class="pfeil">→</span>
+      <div class="glied"><span class="titel">Measure filters</span></div><span class="pfeil">→</span>
+      <div class="glied betont"><span class="titel">Table calc</span></div>
+    </div>
+    <p>
+      <span lang="de">Diese Reihenfolge erklärt die Stolpersteine: Ein gewöhnlicher Filter auf Rad Typ ändert eine
+        Table Calculation (sie rechnet danach) und einen INCLUDE-Ausdruck, aber keinen FIXED-Ausdruck (er rechnet
+        davor). Soll FIXED den Filter beachten, macht man ihn per Rechtsklick zum Context Filter
+        (<code>Add to Context</code>).</span>
+      <span lang="en">This order explains the stumbling blocks: an ordinary filter on Rad Typ changes a table
+        calculation (it computes afterwards) and an INCLUDE expression, but not a FIXED expression (it computes
+        before). If FIXED is to respect the filter, make it a context filter via right-click (<code>Add to
+        Context</code>).</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="dashboard">
+    <h2><span lang="de">Dashboard und Veröffentlichen</span><span lang="en">Dashboard and publishing</span></h2>
+    <p>
+      <span lang="de">Ein Worksheet beantwortet eine Frage; ein Dashboard stellt mehrere Antworten nebeneinander und
+        lässt sie aufeinander wirken. <code>Dashboard → New Dashboard</code> öffnet eine leere Fläche, auf die Sie
+        Worksheets ziehen – <em>Tiled</em> rastet in ein Raster ein, <em>Floating</em> liegt frei darüber. Der
+        wichtigste Handgriff ist das Trichter-Symbol <code>Use as Filter</code> an einem Sheet: Danach filtert ein
+        Klick auf einen Balken alle anderen Sheets. Was das nicht abdeckt, regeln <code>Dashboard → Actions…</code>:
+        <code>Filter</code>, <code>Highlight</code>, <code>Go to URL</code>. Eine <em>Story</em> reiht Dashboards zu
+        Story Points mit Bildunterschriften – für Präsentationen, nicht für die tägliche Arbeit.</span>
+      <span lang="en">A worksheet answers one question; a dashboard puts several answers side by side and lets them act
+        on each other. <code>Dashboard → New Dashboard</code> opens an empty surface onto which you drag worksheets –
+        <em>Tiled</em> snaps into a grid, <em>Floating</em> lies freely on top. The most important move is the funnel
+        icon <code>Use as Filter</code> on a sheet: afterwards a click on a bar filters all other sheets. What that does
+        not cover is handled by <code>Dashboard → Actions…</code>: <code>Filter</code>, <code>Highlight</code>, <code>Go
+        to URL</code>. A <em>story</em> sequences dashboards into story points with captions – for presentations, not
+        for daily work.</span>
+    </p>
+    <div data-befehl="B08"></div>
+    <div class="warn-box">
+      <h3><span lang="de">Datenschutz: Was auf Tableau Public liegt, liegt bei allen</span><span lang="en">Data protection: what sits on Tableau Public sits with everyone</span></h3>
+      <p><span lang="de">Die Public Edition veröffentlicht mit <code>Server → Tableau Public → Save to Tableau Public
+        As…</code> – und mit dem Speichern-Symbol der Toolbar, das genauso aussieht wie in jeder anderen Anwendung.
+        Beides erzeugt einen Extract der <em>vollständigen</em> Daten und lädt ihn mit dem Workbook hoch. Tableau
+        formuliert es selbst: „Workbooks and data published to your Tableau Public profile are not private and are
+        freely accessible to anyone.“ Das Häkchen <code>Allow workbook and its data to be downloaded by others</code>
+        lässt sich abwählen; die Viz und ihre Werte bleiben trotzdem sichtbar, und ein späteres „Hide“ im Profil
+        macht die Veröffentlichung nicht ungeschehen. Für Velo City ist das ohne Belang – die Daten sind synthetisch.
+        Für den Export einer echten Kundentabelle aus einem Praktikum ist es ein Datenschutzvorfall. Lokal speichern
+        heißt in der Public Edition ausschließlich <code>File → Save</code>.</span>
+      <span lang="en">The Public Edition publishes via <code>Server → Tableau Public → Save to Tableau Public As…</code>
+        – and via the toolbar's save icon, which looks exactly like in any other application. Both create an extract
+        of the <em>complete</em> data and upload it with the workbook. Tableau puts it itself: “Workbooks and data
+        published to your Tableau Public profile are not private and are freely accessible to anyone.” The checkbox
+        <code>Allow workbook and its data to be downloaded by others</code> can be unticked; the viz and its values
+        remain visible nonetheless, and a later “Hide” on the profile does not undo the publication. For Velo City this
+        is irrelevant – the data is synthetic. For the export of a real customer table from an internship it is a data
+        protection incident. Saving locally in the Public Edition means <code>File → Save</code> exclusively.</span></p>
+    </div>
+    <p>
+      <span lang="de">Die Free Edition kennt das Problem nicht, weil sie gar nicht veröffentlichen kann – <code>Server
+        → Sign In</code> ist dort ohne Funktion. Abgegeben wird als PDF (<code>File → Print to PDF…</code>) oder Bild
+        (<code>Dashboard → Export Image…</code>); die <code>.twbx</code> bleibt laut Lizenz auf dem eigenen Rechner.
+        Mit der Cloud-Site des Kurses (Student Course License) gibt es den dritten Weg: <code>Server → Publish
+        Workbook…</code> auf eine Site, die nur der Kurs sieht.</span>
+      <span lang="en">The Free Edition does not know the problem because it cannot publish at all – <code>Server → Sign
+        In</code> has no function there. Submission is as PDF (<code>File → Print to PDF…</code>) or image
+        (<code>Dashboard → Export Image…</code>); the <code>.twbx</code> stays on your own machine per licence. With
+        the course's cloud site (Student Course License) there is the third route: <code>Server → Publish
+        Workbook…</code> to a site only the course sees.</span>
+    </p>
+  </section>
+
+  <section class="section-block" id="vergleich">
+    <h2><span lang="de">Power BI vs. Tableau</span><span lang="en">Power BI vs. Tableau</span></h2>
+    <p>
+      <span lang="de">Beide Werkzeuge beantworten dieselben Fragen an dieselben Daten – Sie haben es in Lab 12 und
+        hier gesehen. Der Unterschied liegt darin, <em>wo die Logik wohnt</em>.</span>
+      <span lang="en">Both tools answer the same questions on the same data – you have seen it in lab 12 and here. The
+        difference lies in <em>where the logic lives</em>.</span>
+    </p>
+    <div class="vergleich">
+      <div>
+        <h3>Power BI (Lab 12)</h3>
+        <ul>
+          <li><span lang="de">Erst das <strong>Semantic Model</strong>: Power Query → Sternschema → Beziehungen → DAX-Measures. Visuals fragen das Modell.</span><span lang="en">First the <strong>semantic model</strong>: Power Query → star schema → relationships → DAX measures. Visuals query the model.</span></li>
+          <li><span lang="de">Measures sind wiederverwendbar und <em>kontextabhängig</em> – dieselbe Formel liefert je Visual und Filter einen anderen Wert. Lernhürde: Filter- und Zeilenkontext.</span><span lang="en">Measures are reusable and <em>context-dependent</em> – the same formula yields a different value per visual and filter. Learning hurdle: filter and row context.</span></li>
+          <li><span lang="de">Desktop nur unter Windows; Service mit Fabric verzahnt; günstige Viewer über Pro/Kapazität; Excel-Nähe.</span><span lang="en">Desktop on Windows only; service interlocked with Fabric; inexpensive viewers via Pro/capacity; Excel proximity.</span></li>
+          <li><span lang="de">Stärke: Unternehmensweite Datenmodellierung, ein Modell für viele Berichte.</span><span lang="en">Strength: enterprise-wide data modelling, one model for many reports.</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Tableau (Lab 13)</h3>
+        <ul>
+          <li><span lang="de"><strong>VizQL</strong>: Das Worksheet ist die Abfrage. Relationships in der Data Source legen die Körnung fest, Calculated Fields, Table Calculations und LOD gehören zur Data Source oder zum Worksheet.</span><span lang="en"><strong>VizQL</strong>: the worksheet is the query. Relationships in the data source set the grain; calculated fields, table calculations and LOD belong to the data source or the worksheet.</span></li>
+          <li><span lang="de">Lernhürde: blau/grün, Date part/value, drei Rechenebenen und ihre Reihenfolge bei Filtern.</span><span lang="en">Learning hurdle: blue/green, date part/value, three calculation levels and their order with filters.</span></li>
+          <li><span lang="de">Windows und Mac; Public-Community als Portfolio; teurere Seats (Creator 75 $, Viewer 15 $, Stand 09/2026); Semantik historisch schwächer, inzwischen über Tableau Semantics / Next nachgerüstet.</span><span lang="en">Windows and Mac; Public community as portfolio; more expensive seats (Creator $75, Viewer $15, as of 09/2026); semantics historically weaker, now retrofitted via Tableau Semantics / Next.</span></li>
+          <li><span lang="de">Stärke: schnelle visuelle Exploration und Diagrammhandwerk.</span><span lang="en">Strength: fast visual exploration and chart craftsmanship.</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="info-box">
+      <p><span lang="de"><strong>Gemeinsamkeiten.</strong> Import (Power BI) und Extract (Tableau) sind dieselbe Idee,
+        DirectQuery und Live ebenso. Beide sprechen PostgreSQL nativ und erreichen Supabase über den Session Pooler.
+        Beide brauchen für lokale Quellen in der Cloud eine Brücke – On-premises data gateway bzw. Tableau Bridge.
+        Und in beiden lautet die häufigste Falle: eine Kennung summieren.</span>
+      <span lang="en"><strong>Common ground.</strong> Import (Power BI) and Extract (Tableau) are the same idea,
+        DirectQuery and Live likewise. Both speak PostgreSQL natively and reach Supabase via the session pooler. Both
+        need a bridge for local sources in the cloud – On-premises data gateway and Tableau Bridge respectively. And in
+        both the most common trap reads: summing an identifier.</span></p>
+      <p><span lang="de"><strong>Marktlage 09/2026.</strong> Im Gartner Magic Quadrant für Analytics und BI 2026 stehen
+        Microsoft und Salesforce (Tableau) beide im Leader-Quadranten. Für Deutschland weisen Erhebungen wie die
+        BARC-Umfrage 2025 Power BI als das am häufigsten eingesetzte BI-Werkzeug aus – was auch daran liegt, dass es
+        mit Microsoft 365 ohnehin im Haus ist. Tableau findet sich eher in analytisch geprägten Fachabteilungen und
+        in Unternehmen mit Salesforce. Wer beides einmal bedient hat, wechselt in einer Woche; die Begriffe sind
+        verschieden, die Fragen dieselben.</span>
+      <span lang="en"><strong>Market position 09/2026.</strong> In the 2026 Gartner Magic Quadrant for Analytics and BI,
+        Microsoft and Salesforce (Tableau) both sit in the Leaders quadrant. For Germany, surveys such as the 2025 BARC
+        survey list Power BI as the most widely deployed BI tool – partly because it is already in the house with
+        Microsoft 365. Tableau is found more in analytically minded departments and in companies with Salesforce.
+        Whoever has operated both once switches within a week; the terms differ, the questions are the same.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="stolper">
+    <h2><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></h2>
+    <div class="karten">
+      <div class="karte">
+        <div class="kopfzeile">Cannot mix aggregate and non-aggregate arguments with this function.</div>
+        <p><span lang="de">Im Calculated-Field-Dialog, sobald <code>SUM([Preis Eur])</code> neben einem rohen
+          <code>[Dauer Min]</code> steht. Die Schwester lautet <code>Cannot mix aggregate and non-aggregate comparisons
+          or results in 'IF' expressions.</code> Ausweg: alles aggregieren, das IF in die Aggregation ziehen,
+          <code>ATTR()</code>, oder LOD – Abschnitt Berechnen.</span>
+        <span lang="en">In the calculated field dialog as soon as <code>SUM([Preis Eur])</code> stands next to a raw
+          <code>[Dauer Min]</code>. Its sibling reads <code>Cannot mix aggregate and non-aggregate comparisons or results
+          in 'IF' expressions.</code> Way out: aggregate everything, pull the IF into the aggregation, <code>ATTR()</code>,
+          or LOD – section Calculating.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Der Nulls-Indikator unten rechts</span><span lang="en">The nulls indicator at the bottom right</span></div>
+        <p><span lang="de">Ein kleines Feld mit einer Zahl und dem Wort <em>nulls</em>. Ein Klick bietet
+          <code>Filter Data</code> oder <code>Show Data at Default Position</code> – Letzteres setzt Nulls auf 0 oder
+          auf ein Datum im Jahr 1899, was eine Linie zerreißt. Erst die Ursache suchen (Dezimalkomma, leere Zellen, ein
+          IF ohne ELSE), dann klicken.</span>
+        <span lang="en">A small box with a number and the word <em>nulls</em>. A click offers <code>Filter Data</code> or
+          <code>Show Data at Default Position</code> – the latter sets nulls to 0 or to a date in 1899, which tears a
+          line apart. Find the cause first (decimal comma, empty cells, an IF without ELSE), then click.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">300 Köpfe statt einer Achse</span><span lang="en">300 headers instead of an axis</span></div>
+        <p><span lang="de">Eine blaue Datumspille auf Columns – oder eine per Rechtsklick diskret gemachte Kennzahl –
+          erzeugt einen Kopf je Wert: 365 Tage nebeneinander, oder 300 verschiedene Preise als Spalten. Rechtsklick
+          → <code>Convert to Continuous</code>, beim Datum den unteren Block des Menüs wählen.</span>
+        <span lang="en">A blue date pill on Columns – or a measure made discrete via right-click – creates one header per
+          value: 365 days side by side, or 300 different prices as columns. Right-click → <code>Convert to
+          Continuous</code>; for the date choose the lower block of the menu.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Percent of Total ändert sich mit dem Filter – FIXED nicht</span><span lang="en">Percent of Total changes with the filter – FIXED does not</span></div>
+        <p><span lang="de">Kein Fehler, sondern die Reihenfolge: Table Calculations rechnen auf dem, was übrig ist;
+          FIXED rechnet vor den Dimension Filters. Wer das FIXED-Ergebnis gefiltert haben will, macht den Filter zum
+          Context Filter (<code>Add to Context</code>). Wer den Anteil an <em>allen</em> Fahrten will, nimmt FIXED.</span>
+        <span lang="en">Not an error but the order: table calculations compute on what is left; FIXED computes before the
+          dimension filters. Whoever wants the FIXED result filtered makes the filter a context filter (<code>Add to
+          Context</code>). Whoever wants the share of <em>all</em> rides takes FIXED.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Fan-out nach physischem Join</span><span lang="en">Fan-out after a physical join</span></div>
+        <p><span lang="de">Nach einem Doppelklick auf die Kachel und einem Join von <code>fact_fahrt</code> mit einer
+          Tabelle, die mehrere Zeilen je Schlüssel hat, zählt <code>COUNT</code> jede Fahrt mehrfach und
+          <code>SUM(Preis Eur)</code> liegt über 3.172,14 €. Zurück auf die logische Ebene, Relationship statt Join –
+          oder <code>COUNTD</code> auf die Kennung.</span>
+        <span lang="en">After a double-click on the tile and a join of <code>fact_fahrt</code> with a table that has
+          several rows per key, <code>COUNT</code> counts every ride several times and <code>SUM(Preis Eur)</code> is
+          above 3,172.14 €. Back to the logical layer, relationship instead of join – or <code>COUNTD</code> on the
+          identifier.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Der Extract zeigt alte Daten</span><span lang="en">The extract shows old data</span></div>
+        <p><span lang="de">Sie haben in Supabase Fahrten nachgetragen, die Viz zeigt sie nicht. Ein Extract ist ein
+          Stand: <code>Data → [Data Source] → Extract → Refresh</code>. Auf Tableau Public gibt es keinen Refresh
+          aus Datenbanken – dort lädt man neu hoch.</span>
+        <span lang="en">You added rides in Supabase, the viz does not show them. An extract is a snapshot: <code>Data →
+          [Data Source] → Extract → Refresh</code>. On Tableau Public there is no refresh from databases – there you
+          upload again.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Privates versehentlich auf Tableau Public</span><span lang="en">Private data accidentally on Tableau Public</span></div>
+        <p><span lang="de">In der Public Edition veröffentlicht das Speichern-Symbol der Toolbar – nicht
+          <code>File → Save</code>. Wer aus Gewohnheit auf die Diskette klickt, hat sein Workbook samt Extract online.
+          Sofort im Profil löschen; die Regel für den Kurs lautet ohnehin: nur synthetische oder offene Daten.</span>
+        <span lang="en">In the Public Edition the toolbar's save icon publishes – not <code>File → Save</code>. Whoever
+          clicks the disk out of habit has their workbook online including the extract. Delete it in the profile at
+          once; the rule for the course is in any case: only synthetic or open data.</span></p>
+      </div>
+      <div class="karte">
+        <div class="kopfzeile"><span lang="de">Free Edition: kein Anmelden, kein Veröffentlichen</span><span lang="en">Free Edition: no sign-in, no publishing</span></div>
+        <p><span lang="de"><code>Server → Sign In</code> und <code>Server → Publish Workbook…</code> führen in der
+          Free Edition nicht zum Ziel – die Lizenz schließt Public, Cloud und Server aus, und das Produkt setzt es um.
+          Das ist keine Störung, sondern die Edition. Für ein Portfolio: Public Edition; für die Kurs-Site: Student
+          Course License.</span>
+        <span lang="en"><code>Server → Sign In</code> and <code>Server → Publish Workbook…</code> lead nowhere in the
+          Free Edition – the licence excludes Public, Cloud and Server, and the product enforces it. That is not a
+          malfunction but the edition. For a portfolio: Public Edition; for the course site: Student Course
+          License.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-block" id="simulator">
+    <h2><span lang="de">Regal-Simulator</span><span lang="en">Shelf simulator</span></h2>
+    <p>
+      <span lang="de">Ein Regal-Simulator in Tableau-Beschriftung mit den 1.500 Fahrten von Velo City als flacher
+        Tabelle. Links das Data pane: Dimensionen als <strong>blaue</strong> Pillen (Abc, 📅 für geordnete),
+        Kennzahlen als <strong>grüne</strong> (#). Kennzahlen kommen mit einer Aggregation auf das Regal, die Sie an
+        der Pille umstellen (SUM, AVG, COUNT, MIN, MAX). <code>Columns</code> und <code>Rows</code> bestimmen die
+        Ausrichtung: Dimension auf Columns ergibt senkrechte Balken, auf Rows waagerechte; eine geordnete Dimension
+        (Monat, Stunde) ergibt eine Linie – wie eine grüne Datumspille. <code>Color</code> erzeugt Serien oder Stapel,
+        <code>Filters</code> schränkt die Zeilen ein. Kein Ziel, keine Prüfung – nur Ziehen und Lesen.</span>
+      <span lang="en">A shelf simulator with Tableau labels and the 1,500 Velo City rides as a flat table. On the left
+        the Data pane: dimensions as <strong>blue</strong> pills (Abc, 📅 for ordered ones), measures as
+        <strong>green</strong> ones (#). Measures arrive on the shelf with an aggregation you change at the pill (SUM,
+        AVG, COUNT, MIN, MAX). <code>Columns</code> and <code>Rows</code> determine the orientation: a dimension on
+        Columns yields vertical bars, on Rows horizontal ones; an ordered dimension (month, hour) yields a line – like
+        a green date pill. <code>Color</code> creates series or stacks, <code>Filters</code> restricts the rows. No
+        goal, no check – just drag and read.</span>
+    </p>
+    <div data-regal="frei" data-variante="tableau"></div>
+    <div class="tip-box">
+      <p><span lang="de">Probieren Sie die Falle aus Lab 12: Fahrt-ID mit SUM auf Rows. Die Balken sind riesig und
+        bedeuten nichts. Auf COUNT umstellen – jetzt zählt das Regal Fahrten. In Tableau hieße die Pille dann
+        <code>CNTD(Fahrt Id)</code>.</span>
+      <span lang="en">Try the trap from lab 12: Ride ID with SUM on Rows. The bars are huge and mean nothing. Switch to
+        COUNT – now the shelf counts rides. In Tableau the pill would then read <code>CNTD(Fahrt Id)</code>.</span></p>
+    </div>
+  </section>
+
+  <section class="section-block" id="uebungen">
+    <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
+    <p>
+      <span lang="de">Sechs Übungen: dreimal am Regal-Simulator – dieselben Fragen wie in Lab 12, diesmal mit
+        Columns, Rows, Color und Filters – ein Quiz zu den fünf Verwechslungen, eine Zuordnung der Editionen und eine
+        Checkliste für Tableau Desktop mit der CSV aus diesem Lab.</span>
+      <span lang="en">Six exercises: three at the shelf simulator – the same questions as in lab 12, this time with
+        Columns, Rows, Color and Filters – a quiz on the five confusions, a matching of the editions and a checklist for
+        Tableau Desktop with the CSV from this lab.</span>
+    </p>
+    <div data-uebung="W13-01"></div>
+    <div data-uebung="W13-02"></div>
+    <div data-uebung="W13-03"></div>
+    <div data-uebung="W13-04"></div>
+    <div data-uebung="W13-05"></div>
+    <div data-uebung="W13-06"></div>
+    <div data-fortschritt></div>
+  </section>
+
+  <section class="section-block" id="zusammenfassung">
+    <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
+    <ul>
+      <li><span lang="de">VizQL: Jede Belegung eines Regals ist eine Abfrage und ihre Darstellung zugleich. Dimensionen gruppieren und erzeugen Köpfe, Kennzahlen werden aggregiert und erzeugen Achsen; das Diagramm folgt aus den Regalen.</span><span lang="en">VizQL: every placement on a shelf is a query and its presentation at once. Dimensions group and create headers, measures are aggregated and create axes; the chart follows from the shelves.</span></li>
+      <li><span lang="de">Blau heißt diskret, grün heißt stetig – nicht Dimension oder Kennzahl. Eine grüne Datumspille (Date value) ergibt eine Zeitachse, eine blaue (Date part) Köpfe, die die Jahre zusammenfassen.</span><span lang="en">Blue means discrete, green means continuous – not dimension or measure. A green date pill (date value) yields a time axis, a blue one (date part) headers that collapse the years.</span></li>
+      <li><span lang="de">Relationships auf der logischen Ebene behalten die Körnung jeder Tabelle; Joins auf der physischen Ebene verschmelzen Zeilen und erzeugen Fan-out. Live fragt bei jedem Ziehen, Extract ist ein Stand in einer .hyper-Datei.</span><span lang="en">Relationships on the logical layer keep every table's grain; joins on the physical layer merge rows and create fan-out. Live queries on every drag, Extract is a snapshot in a .hyper file.</span></li>
+      <li><span lang="de">Drei Rechenebenen: Calculated Fields je Zeile oder je Aggregat („Cannot mix aggregate and non-aggregate arguments“), Table Calculations auf dem Ergebnis der Viz, LOD-Ausdrücke auf einer genannten Ebene davor. FIXED rechnet vor den Dimension Filters, Table Calculations danach.</span><span lang="en">Three calculation levels: calculated fields per row or per aggregate (“Cannot mix aggregate and non-aggregate arguments”), table calculations on the result of the viz, LOD expressions on a named level before it. FIXED computes before dimension filters, table calculations after.</span></li>
+      <li><span lang="de">Stand 09/2026: Die Desktop Free Edition bindet Datenbanken an und veröffentlicht nichts; die Public Edition liest nur Dateien und veröffentlicht nur öffentlich; beides zusammen gibt es über die Student Course License mit Cloud-Site. Cloud-Rollen kosten 75 / 42 / 15 $ je Nutzer und Monat.</span><span lang="en">As of 09/2026: the Desktop Free Edition connects databases and publishes nothing; the Public Edition reads files only and publishes publicly only; both together come via the Student Course License with a cloud site. Cloud roles cost $75 / $42 / $15 per user and month.</span></li>
+      <li><span lang="de">Ein Dashboard stellt Worksheets zusammen; Use as Filter und Actions lassen sie aufeinander wirken. Auf Tableau Public liegen Workbook und Daten offen – lokal speichern heißt File → Save, nicht das Toolbar-Symbol.</span><span lang="en">A dashboard assembles worksheets; Use as Filter and actions let them act on each other. On Tableau Public workbook and data lie open – saving locally means File → Save, not the toolbar icon.</span></li>
+      <li><span lang="de">Power BI (Lab 12) legt die Logik ins Semantic Model und in DAX, Tableau ins Worksheet und in die Data Source. Beide beantworten dieselben Fragen; wer eines kann, lernt das andere in einer Woche.</span><span lang="en">Power BI (lab 12) puts the logic into the semantic model and DAX, Tableau into the worksheet and the data source. Both answer the same questions; whoever knows one learns the other in a week.</span></li>
+    </ul>
+    <div data-lab-nav></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>
+    <span lang="de">WInf-SP-Lab · Lab 13 · THWS Business School · Stand 09/2026</span>
+    <span lang="en">WInf-SP-Lab · Lab 13 · THWS Business School · as of 09/2026</span>
+  </p>
+</footer>
+
+<script type="module" src="assets/winf.js"></script>
+</body>
+</html>

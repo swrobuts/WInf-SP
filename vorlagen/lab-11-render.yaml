@@ -1,0 +1,39 @@
+# velocity-api – Blueprint für Render (WInf-SP-Lab 11)
+#
+# Infrastructure as Code: Diese Datei beschreibt den Web Service, den man
+# sonst im Formular „New Web Service“ zusammenklickt. Sie liegt als
+# render.yaml im Wurzelverzeichnis des Repositorys und wird im Dashboard
+# über  + New → Blueprint  eingelesen. Feldnamen nach der Blueprint-Spec,
+# Stand 09/2026 (render.com/docs/blueprint-spec).
+
+services:
+  - type: web                      # Web Service: öffentliche URL, nimmt HTTP-Verkehr an
+    name: velocity-api             # wird Teil der URL: https://velocity-api.onrender.com
+    runtime: python                # native Laufzeit; Alternative: docker (dann Dockerfile statt build/startCommand)
+    plan: free                     # Compute-Plan: free = 0.1 CPU, 512 MB, Spin-down nach 15 Minuten
+    region: frankfurt              # Default wäre oregon – nachträglich NICHT änderbar
+    branch: main                   # jeder Push auf diesen Branch löst einen Deploy aus
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /             # Render prüft diesen Pfad; 2xx/3xx innerhalb von 5 Sekunden
+    autoDeployTrigger: commit      # commit | checksPass | off
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.5              # vollständig (major.minor.patch) – „3.13“ allein gilt hier nicht
+      - key: DATABASE_URL
+        sync: false                # kein Wert in der Datei: Render fragt ihn beim Anlegen im Dashboard ab
+                                   # (Geheimnisse gehören nie ins Repository – Lab 02)
+
+# Wer statt Supabase eine Render-Postgres nutzt (Free: 1 GB, läuft 30 Tage
+# nach Anlage ab), verweist mit fromDatabase auf sie – der Wert wird dann
+# automatisch eingesetzt:
+#
+#      - key: DATABASE_URL
+#        fromDatabase:
+#          name: velocity-db
+#          property: connectionString
+#
+# databases:
+#   - name: velocity-db
+#     plan: free
+#     region: frankfurt            # dieselbe Region wie der Dienst

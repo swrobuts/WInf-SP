@@ -1,0 +1,973 @@
+{
+  "konsolen": {
+    "frei": {
+      "begruessung": [
+        {
+          "de": "Freie Konsole mit nachgebildetem docker. Bekannte Abbilder: hello-world, postgres, nginx, python, adminer, ubuntu.",
+          "en": "Free console with docker modelled in. Known images: hello-world, postgres, nginx, python, adminer, ubuntu."
+        },
+        {
+          "de": "Anfangen können Sie mit:  docker run hello-world",
+          "en": "You can start with:  docker run hello-world"
+        }
+      ]
+    }
+  },
+  "befehle": {
+    "B01": {
+      "titel": {
+        "de": "Prüfen, ob es läuft",
+        "en": "Check that it is running"
+      },
+      "befehl": "docker --version\ndocker compose version\ndocker run --rm hello-world",
+      "teile": [
+        {
+          "was": "docker --version",
+          "bedeutet": {
+            "de": "Prüft, ob das Programm im Suchpfad steht. Antwortet es nicht, ist entweder nichts installiert oder das Terminal wurde seit der Installation nicht neu geöffnet.",
+            "en": "Checks whether the program is on the search path. If it does not answer, either nothing is installed or the terminal has not been reopened since the installation."
+          }
+        },
+        {
+          "was": "docker compose version",
+          "bedeutet": {
+            "de": "Compose ist heute ein Unterbefehl, nicht mehr ein eigenes Programm. Ältere Anleitungen schreiben docker-compose mit Bindestrich — das ist die alte Fassung und kann fehlen.",
+            "en": "Compose is a subcommand today, no longer a separate program. Older guides write docker-compose with a hyphen — that is the old version and may be absent."
+          }
+        },
+        {
+          "was": "docker run --rm hello-world",
+          "bedeutet": {
+            "de": "Der eigentliche Test: Er zieht ein Abbild aus dem Netz, startet einen Container, gibt Text aus und räumt sich weg. Erscheint „Hello from Docker!“, funktioniert die ganze Kette.",
+            "en": "The actual test: it pulls an image from the network, starts a container, prints text and cleans itself up. If “Hello from Docker!” appears, the whole chain works."
+          }
+        },
+        {
+          "was": "Der Hintergrunddienst",
+          "bedeutet": {
+            "de": "Antwortet docker mit „Cannot connect to the Docker daemon“, ist Docker Desktop nicht gestartet. Das Programm ist die Kommandozeile, der Dienst arbeitet im Hintergrund — beide werden gebraucht.",
+            "en": "If docker answers with “Cannot connect to the Docker daemon”, Docker Desktop is not running. The program is the command line, the daemon works in the background — both are needed."
+          }
+        }
+      ]
+    },
+    "B02": {
+      "titel": {
+        "de": "Container starten – die Optionen, die zählen",
+        "en": "Start a container – the options that matter"
+      },
+      "befehl": "docker run -it --rm ubuntu:24.04 bash\ndocker run -d --name web -p 8080:80 nginx:1.27",
+      "teile": [
+        {
+          "was": "-d",
+          "bedeutet": {
+            "de": "„detached“ — der Container läuft im Hintergrund weiter und die Konsole ist wieder frei. Für Dienste wie Datenbanken der Normalfall.",
+            "en": "“detached” — the container keeps running in the background and the console is free again. The normal case for services such as databases."
+          }
+        },
+        {
+          "was": "-it",
+          "bedeutet": {
+            "de": "Zwei Optionen in einer: -i hält die Eingabe offen, -t stellt ein Terminal bereit. Zusammen bedeuten sie: Ich will in diesem Container arbeiten.",
+            "en": "Two options in one: -i keeps the input open, -t provides a terminal. Together they mean: I want to work inside this container."
+          }
+        },
+        {
+          "was": "--rm",
+          "bedeutet": {
+            "de": "Löscht den Container, sobald er endet. Ohne diese Option sammeln sich gestoppte Container an — sichtbar mit docker ps -a, aufzuräumen mit docker system prune.",
+            "en": "Deletes the container as soon as it ends. Without this option, stopped containers pile up — visible with docker ps -a, cleaned up with docker system prune."
+          }
+        },
+        {
+          "was": "--name web",
+          "bedeutet": {
+            "de": "Gibt einen festen Namen. Ohne ihn erfindet Docker einen zufälligen, und jeder weitere Befehl braucht die Kennung. Namen sind eindeutig: ein zweiter Container gleichen Namens wird abgewiesen.",
+            "en": "Gives a fixed name. Without it Docker invents a random one, and every further command needs the identifier. Names are unique: a second container of the same name is rejected."
+          }
+        },
+        {
+          "was": "ubuntu:24.04",
+          "bedeutet": {
+            "de": "Abbild und Tag. Der Tag nach dem Doppelpunkt ist die Version. Ohne Angabe nimmt Docker latest — und das ist keine Versionsangabe, siehe Stolpersteine.",
+            "en": "Image and tag. The tag after the colon is the version. Without it Docker takes latest — and that is not a version statement, see the stumbling blocks."
+          }
+        }
+      ]
+    },
+    "B03": {
+      "titel": {
+        "de": "Sehen, was läuft",
+        "en": "See what is running"
+      },
+      "befehl": "docker ps            # nur laufende\ndocker ps -a         # auch gestoppte\ndocker images        # die Vorlagen\ndocker logs -f web   # mitlesen, was der Container ausgibt\ndocker exec -it web bash    # hineingehen\ndocker stop web  &&  docker rm web",
+      "teile": [
+        {
+          "was": "ps  vs.  ps -a",
+          "bedeutet": {
+            "de": "Ohne -a sieht man nur, was läuft. Die Frage „wo ist mein Container hin?“ beantwortet fast immer docker ps -a: Er ist da, aber gestoppt.",
+            "en": "Without -a you only see what is running. The question “where did my container go?” is almost always answered by docker ps -a: it is there, but stopped."
+          }
+        },
+        {
+          "was": "logs",
+          "bedeutet": {
+            "de": "Der erste Griff, wenn ein Container startet und sofort wieder endet. Mit -f bleibt die Ausgabe offen und läuft mit; mit --tail 50 nur die letzten Zeilen.",
+            "en": "The first thing to reach for when a container starts and immediately ends again. With -f the output stays open and follows along; with --tail 50 only the last lines."
+          }
+        },
+        {
+          "was": "exec -it",
+          "bedeutet": {
+            "de": "Öffnet eine Eingabeaufforderung im laufenden Container. Nützlich zum Nachsehen, gefährlich zum Ändern: Alles, was Sie hier installieren, ist beim nächsten Neustart weg. Änderungen gehören ins Dockerfile.",
+            "en": "Opens a prompt inside the running container. Useful for looking around, dangerous for changing things: everything you install here is gone at the next restart. Changes belong in the Dockerfile."
+          }
+        },
+        {
+          "was": "stop  vor  rm",
+          "bedeutet": {
+            "de": "Ein laufender Container wird nicht einfach entfernt. Erst stop, dann rm — oder docker rm -f, wenn es schnell gehen muss.",
+            "en": "A running container is not simply removed. First stop, then rm — or docker rm -f when it has to be quick."
+          }
+        }
+      ]
+    },
+    "B04": {
+      "titel": {
+        "de": "Port-Abbildung",
+        "en": "Port mapping"
+      },
+      "befehl": "docker run -d -p 8080:80 nginx:1.27\n#              │    └── Port im Container (dort hört der Dienst)\n#              └─────── Port auf Ihrem Rechner (dort rufen Sie ihn auf)\n\n# Bei Belegung ausweichen:\ndocker run -d -p 15432:5432 postgres:16\n\n# Nur lokal erreichbar machen:\ndocker run -d -p 127.0.0.1:5432:5432 postgres:16",
+      "teile": [
+        {
+          "was": "WIRT:CONTAINER",
+          "bedeutet": {
+            "de": "Immer in dieser Reihenfolge. Vertauscht man sie, versucht Docker den Dienst auf einem Port zu erreichen, auf dem nichts hört — der Container läuft, aber der Browser meldet nichts.",
+            "en": "Always in this order. Reverse them and Docker tries to reach the service on a port where nothing listens — the container runs, but the browser reports nothing."
+          }
+        },
+        {
+          "was": "127.0.0.1:",
+          "bedeutet": {
+            "de": "Bindet nur an localhost. Ohne diesen Zusatz ist der Dienst über jede Netzadresse des Rechners erreichbar — im Hochschul-WLAN also für alle. Bei einer Datenbank mit einfachem Passwort ist das keine theoretische Frage.",
+            "en": "Binds to localhost only. Without this prefix the service is reachable through every network address of the machine — in the university network, therefore, for everyone. With a database on a simple password that is not a theoretical question."
+          }
+        },
+        {
+          "was": "port is already allocated",
+          "bedeutet": {
+            "de": "Der Host-Port ist belegt. Ausweichen: einen anderen Host-Port wählen. Prüfen, wer ihn hält: lsof -i :5432 (macOS/Linux) oder netstat -ano | findstr :5432 (Windows).",
+            "en": "The host port is taken. Move aside: choose a different host port. Check who holds it: lsof -i :5432 (macOS/Linux) or netstat -ano | findstr :5432 (Windows)."
+          }
+        }
+      ]
+    },
+    "B05": {
+      "titel": {
+        "de": "Eine Datenbank mit dauerhaftem Speicher",
+        "en": "A database with persistent storage"
+      },
+      "befehl": "docker volume create pgdata\n\ndocker run -d --name pg \\\n  -e POSTGRES_PASSWORD=geheim \\\n  -e POSTGRES_DB=analytics \\\n  -p 127.0.0.1:5432:5432 \\\n  -v pgdata:/var/lib/postgresql/data \\\n  postgres:16\n\ndocker logs pg          # auf „ready to accept connections“ warten",
+      "teile": [
+        {
+          "was": "volume create",
+          "bedeutet": {
+            "de": "Legt ein benanntes Band an. Streng nötig ist der Schritt nicht — docker run legt ein unbekanntes Band selbst an —, aber er macht die Absicht sichtbar.",
+            "en": "Creates a named volume. Strictly the step is not required — docker run creates an unknown volume itself — but it makes the intention visible."
+          }
+        },
+        {
+          "was": "-e POSTGRES_PASSWORD",
+          "bedeutet": {
+            "de": "Eine Umgebungsvariable. Das Abbild liest sie beim ersten Start und richtet die Datenbank damit ein. Ohne sie verweigert postgres den Start — mit Absicht.",
+            "en": "An environment variable. The image reads it on first start and sets up the database with it. Without it, postgres refuses to start — deliberately."
+          }
+        },
+        {
+          "was": "-v pgdata:/var/lib/…",
+          "bedeutet": {
+            "de": "Der entscheidende Teil. /var/lib/postgresql/data ist der Ort, an dem PostgreSQL seine Dateien ablegt; das Band schiebt sich dort unter. Ohne diese Zeile ist die Datenbank mit dem Container weg.",
+            "en": "The decisive part. /var/lib/postgresql/data is where PostgreSQL keeps its files; the volume slips in underneath. Without this line the database is gone with the container."
+          }
+        },
+        {
+          "was": "\\ am Zeilenende",
+          "bedeutet": {
+            "de": "Setzt den Befehl in der nächsten Zeile fort — nur in den Unix-Shells. In PowerShell ist es der Rückstrich-Ersatz ` (Gravis), in der Eingabeaufforderung das Zeichen ^. Am einfachsten: alles in eine Zeile schreiben.",
+            "en": "Continues the command on the next line — in the Unix shells only. In PowerShell the equivalent is ` (backtick), in Command Prompt the character ^. Simplest: write it all on one line."
+          }
+        }
+      ]
+    },
+    "B06": {
+      "titel": {
+        "de": "Bänder verwalten – und den Beweis führen",
+        "en": "Manage volumes – and prove the point"
+      },
+      "befehl": "docker volume ls                 # welche Bänder gibt es\ndocker rm -f pg                  # Container entfernen\ndocker volume ls                 # pgdata ist noch da\n\n# denselben run-Befehl erneut ausführen -> die Daten sind wieder da\n\ndocker volume rm pgdata          # DAS löscht die Daten wirklich",
+      "teile": [
+        {
+          "was": "Der Beweis",
+          "bedeutet": {
+            "de": "Container entfernen, Bandliste ansehen, Container neu starten. Die Daten sind da. Dieselbe Folge ohne -v im run-Befehl zeigt den Gegenbeweis — und ist die Übung, die man einmal machen sollte.",
+            "en": "Remove the container, look at the volume list, start the container again. The data is there. The same sequence without -v in the run command shows the counter-proof — and is the exercise worth doing once."
+          }
+        },
+        {
+          "was": "volume rm",
+          "bedeutet": {
+            "de": "Der einzige Befehl, der die Daten wirklich löscht. Er verweigert, solange ein Container das Band benutzt — auch ein gestoppter.",
+            "en": "The only command that really deletes the data. It refuses as long as a container uses the volume — even a stopped one."
+          }
+        },
+        {
+          "was": "docker volume prune",
+          "bedeutet": {
+            "de": "Entfernt alle Bänder, die kein Container mehr benutzt. Bequem beim Aufräumen und die zweitbeste Möglichkeit, eine Datenbank zu verlieren.",
+            "en": "Removes all volumes no container uses any more. Convenient when tidying up and the second-best way to lose a database."
+          }
+        }
+      ]
+    },
+    "B07": {
+      "titel": {
+        "de": "Ein Dockerfile",
+        "en": "A Dockerfile"
+      },
+      "prompt": "📄",
+      "befehl": "FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 8000\nCMD [\"python\", \"auswertung.py\"]",
+      "teile": [
+        {
+          "was": "FROM",
+          "bedeutet": {
+            "de": "Das Grundabbild, auf dem aufgebaut wird. -slim ist die abgespeckte Fassung: kleiner und schneller geladen, dafür fehlen einige Systembibliotheken.",
+            "en": "The base image built upon. -slim is the stripped-down version: smaller and faster to load, but some system libraries are missing."
+          }
+        },
+        {
+          "was": "WORKDIR",
+          "bedeutet": {
+            "de": "Das Arbeitsverzeichnis im Container. Alle folgenden relativen Pfade beziehen sich darauf — dieselbe Rolle wie das Arbeitsverzeichnis in Lab 01.",
+            "en": "The working directory inside the container. All following relative paths refer to it — the same role as the working directory in lab 01."
+          }
+        },
+        {
+          "was": "COPY requirements.txt  vor  COPY . .",
+          "bedeutet": {
+            "de": "Der Trick mit dem Schichtenspeicher: Solange sich die Paketliste nicht ändert, wird die Installationsschicht wiederverwendet. Umgekehrte Reihenfolge bedeutet zwei Minuten Bauzeit je Codeänderung.",
+            "en": "The layer cache trick: as long as the package list does not change, the installation layer is reused. The reverse order means two minutes of build time per code change."
+          }
+        },
+        {
+          "was": "CMD",
+          "bedeutet": {
+            "de": "Der Startbefehl. Endet er, endet der Container. Die Klammerschreibweise übergibt die Teile einzeln und ist der Fassung ohne Klammern vorzuziehen.",
+            "en": "The start command. When it ends, the container ends. The bracket notation passes the parts individually and is preferable to the version without brackets."
+          }
+        },
+        {
+          "was": ".dockerignore",
+          "bedeutet": {
+            "de": "Wie eine .gitignore, aber für den Bau: Sie hält .venv, .git und Rohdaten aus dem Abbild heraus. Fehlt sie, landet der halbe Projektordner im Abbild.",
+            "en": "Like a .gitignore, but for the build: it keeps .venv, .git and raw data out of the image. Without it, half the project folder ends up in the image."
+          }
+        }
+      ]
+    },
+    "B08": {
+      "titel": {
+        "de": "Bauen und starten",
+        "en": "Build and run"
+      },
+      "befehl": "docker build -t ba-analyse:1.0 .\ndocker run --rm ba-analyse:1.0\n\n# Architektur erzwingen (Apple Silicon mit einem amd64-Abbild):\ndocker build --platform linux/amd64 -t ba-analyse:1.0 .\n\ndocker history ba-analyse:1.0    # prüfen, was in den Schichten steckt",
+      "teile": [
+        {
+          "was": "-t name:tag",
+          "bedeutet": {
+            "de": "Gibt dem Abbild einen Namen samt Version. Ohne -t entsteht ein Abbild ohne Namen, das in docker images als <none> erscheint und niemandem hilft.",
+            "en": "Gives the image a name and a version. Without -t an unnamed image appears, showing as <none> in docker images and helping nobody."
+          }
+        },
+        {
+          "was": "Der Punkt am Ende",
+          "bedeutet": {
+            "de": "Der Bau-Kontext: das Verzeichnis, in dem das Dockerfile gesucht wird und dessen Inhalt an den Bau übergeht. Kein Satzzeichen — derselbe Punkt wie bei code . in Lab 03.",
+            "en": "The build context: the directory the Dockerfile is looked for in and whose contents are handed to the build. Not punctuation — the same dot as with code . in lab 03."
+          }
+        },
+        {
+          "was": "docker history",
+          "bedeutet": {
+            "de": "Zeigt die Schichten samt der Befehle, die sie erzeugt haben. Der Weg zu prüfen, ob ein Geheimnis im Abbild steht — und die Erklärung dafür, warum das Löschen einer Datei in einer späteren Schicht nichts nützt.",
+            "en": "Shows the layers along with the commands that produced them. The way to check whether a secret sits in the image — and the explanation for why deleting a file in a later layer helps nothing."
+          }
+        }
+      ]
+    },
+    "B09": {
+      "titel": {
+        "de": "compose.yaml – der Stapel als Datei",
+        "en": "compose.yaml – the stack as a file"
+      },
+      "prompt": "📄",
+      "befehl": "services:\n  db:\n    image: postgres:16\n    environment:\n      POSTGRES_PASSWORD: geheim\n      POSTGRES_DB: analytics\n    ports:\n      - \"127.0.0.1:5432:5432\"\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n\n  adminer:\n    image: adminer:5\n    ports:\n      - \"127.0.0.1:8081:8080\"\n    depends_on:\n      - db\n\nvolumes:\n  pgdata:",
+      "teile": [
+        {
+          "was": "services",
+          "bedeutet": {
+            "de": "Je Container ein Eintrag. Der Name links (db, adminer) ist gleichzeitig der Rechnername im gemeinsamen Netz: Adminer erreicht die Datenbank unter dem Namen db, nicht unter localhost.",
+            "en": "One entry per container. The name on the left (db, adminer) is at the same time the host name in the shared network: Adminer reaches the database under the name db, not under localhost."
+          }
+        },
+        {
+          "was": "Einrückung",
+          "bedeutet": {
+            "de": "YAML gliedert über Leerzeichen, nicht über Klammern. Tabulatoren sind verboten und die häufigste Ursache für „yaml: line 7: found a tab character“. Zwei Leerzeichen je Ebene.",
+            "en": "YAML structures with spaces, not brackets. Tabs are forbidden and the most common cause of “yaml: line 7: found a tab character”. Two spaces per level."
+          }
+        },
+        {
+          "was": "depends_on",
+          "bedeutet": {
+            "de": "Legt die Startreihenfolge fest, nicht die Betriebsbereitschaft. Adminer startet nach db — aber möglicherweise, bevor die Datenbank Verbindungen annimmt. Für Übungen genügt es; im Betrieb braucht es eine Bereitschaftsprüfung.",
+            "en": "Sets the start order, not readiness. Adminer starts after db — but possibly before the database accepts connections. Enough for exercises; in operation a health check is needed."
+          }
+        },
+        {
+          "was": "volumes am Ende",
+          "bedeutet": {
+            "de": "Der Abschnitt meldet das benannte Band an. Fehlt er, meldet Compose „service db refers to undefined volume pgdata“.",
+            "en": "The section declares the named volume. Without it, Compose reports “service db refers to undefined volume pgdata”."
+          }
+        },
+        {
+          "was": "volumes: am Ende",
+          "bedeutet": {
+            "de": "Deklariert das benannte Band. Compose stellt dem Namen den Projektnamen voran — aus pgdata in der Datei wird auf dem Rechner projekt_pgdata. Wer nach pgdata sucht und nichts findet, sucht am falschen Namen.",
+            "en": "Declares the named volume. Compose prefixes the name with the project name — pgdata in the file becomes projekt_pgdata on the machine. Whoever looks for pgdata and finds nothing is looking for the wrong name."
+          }
+        }
+      ]
+    },
+    "B10": {
+      "titel": {
+        "de": "Compose bedienen",
+        "en": "Operating Compose"
+      },
+      "befehl": "docker compose up -d        # starten (compose.yaml im aktuellen Ordner)\ndocker compose ps          # was läuft\ndocker compose logs -f db  # mitlesen\ndocker compose down        # Container und Netz weg, BÄNDER BLEIBEN\ndocker compose down -v     # Bänder auch weg  ->  Daten verloren",
+      "teile": [
+        {
+          "was": "up -d",
+          "bedeutet": {
+            "de": "Liest compose.yaml im aktuellen Ordner und stellt den beschriebenen Zustand her. Ist er schon hergestellt, ändert der Befehl nur, was sich unterscheidet.",
+            "en": "Reads compose.yaml in the current folder and produces the described state. If it is already in place, the command changes only what differs."
+          }
+        },
+        {
+          "was": "down",
+          "bedeutet": {
+            "de": "Entfernt Container und Netz. Die Bänder bleiben — beim nächsten up ist die Datenbank wieder da, mit allen Tabellen.",
+            "en": "Removes containers and network. The volumes stay — at the next up the database is back, with all its tables."
+          }
+        },
+        {
+          "was": "down -v",
+          "bedeutet": {
+            "de": "Entfernt zusätzlich die Bänder. Die Datenbank ist danach leer. Dieser Unterschied von zwei Zeichen ist der häufigste Datenverlust im Kurs.",
+            "en": "Additionally removes the volumes. The database is empty afterwards. This two-character difference is the most common data loss in the course."
+          }
+        },
+        {
+          "was": "docker-compose",
+          "bedeutet": {
+            "de": "Mit Bindestrich ist die alte, eigenständige Fassung gemeint. Sie funktioniert oft noch, fehlt aber in neuen Installationen. In Anleitungen ein Hinweis auf ihr Alter.",
+            "en": "With a hyphen, the old standalone version is meant. It often still works but is absent in new installations. In guides, an indication of their age."
+          }
+        }
+      ]
+    },
+    "B11": {
+      "titel": {
+        "de": "Speicherplatz zurückholen",
+        "en": "Reclaim disk space"
+      },
+      "befehl": "docker system df                    # was belegt wie viel\ndocker system prune                 # gestoppte Container, ungenutzte Netze, Bau-Zwischenstände\ndocker system prune -a              # zusätzlich alle Abbilder ohne Container\ndocker system prune -a --volumes    # zusätzlich alle ungenutzten Bänder  -> DATENVERLUST",
+      "teile": [
+        {
+          "was": "system df",
+          "bedeutet": {
+            "de": "Vor dem Aufräumen. Die Spalte RECLAIMABLE sagt, was zu holen ist. Der Bau-Zwischenstand ist häufig der größte Posten und immer entbehrlich.",
+            "en": "Before tidying up. The RECLAIMABLE column says what is to be had. The build cache is often the largest item and always dispensable."
+          }
+        },
+        {
+          "was": "prune",
+          "bedeutet": {
+            "de": "Ohne Zusatz harmlos: Es geht nur, was ohnehin nicht mehr benutzt wird. Der Befehl fragt vorher nach.",
+            "en": "Harmless without additions: only what is no longer in use goes. The command asks first."
+          }
+        },
+        {
+          "was": "--volumes",
+          "bedeutet": {
+            "de": "Der einzige gefährliche Zusatz. Ein Band, dessen Container Sie gestern entfernt haben, gilt als ungenutzt — auch wenn die Datenbank darin steckt, die Sie morgen brauchen.",
+            "en": "The only dangerous addition. A volume whose container you removed yesterday counts as unused — even if it holds the database you need tomorrow."
+          }
+        },
+        {
+          "was": "Docker Desktop",
+          "bedeutet": {
+            "de": "Unter Settings → Resources → Advanced lässt sich die Obergrenze für den Plattenplatz setzen. Auf einem Gerät mit kleiner SSD lohnt das, bevor die Meldung „no space left on device“ an anderer Stelle auftaucht.",
+            "en": "Under Settings → Resources → Advanced the disk limit can be set. On a device with a small SSD that is worth doing before “no space left on device” shows up somewhere else."
+          }
+        }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W07-01",
+      "typ": "terminal",
+      "titel": {
+        "de": "Abbild und Container unterscheiden",
+        "en": "Distinguish image and container"
+      },
+      "aufgabe": {
+        "de": "<p>Der erste Container, und gleich der Nachweis der wichtigsten Unterscheidung: Starten Sie <code>hello-world</code> mit <code>--rm</code>. Danach ist kein Container mehr da — aber ein Abbild schon. Sehen Sie beides an.</p><p>Starten Sie anschließend zwei Container aus demselben Abbild <code>nginx:1.27</code>, einen mit und einen ohne Port-Abbildung, und lesen Sie in <code>docker ps</code>, welcher von außen erreichbar wäre.</p>",
+        "en": "<p>The first container, and straight away the proof of the most important distinction: run <code>hello-world</code> with <code>--rm</code>. Afterwards no container is left — but an image is. Look at both.</p><p>Then start two containers from the same image <code>nginx:1.27</code>, one with and one without a port mapping, and read from <code>docker ps</code> which of them would be reachable from outside.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 1 von 4. Bekannte Abbilder: hello-world, postgres, nginx, python, adminer, ubuntu.",
+          "en": "Assignment 1 of 4. Known images: hello-world, postgres, nginx, python, adminer, ubuntu."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "hello-world mit --rm starten",
+            "en": "Run hello-world with --rm"
+          },
+          "muster": "^docker\\s+run\\b.*hello-world"
+        },
+        {
+          "text": {
+            "de": "docker ps — es läuft nichts mehr",
+            "en": "docker ps — nothing is running any more"
+          },
+          "muster": "^docker\\s+ps\\s*$"
+        },
+        {
+          "text": {
+            "de": "docker images — das Abbild ist geblieben",
+            "en": "docker images — the image stayed"
+          },
+          "muster": "^docker\\s+images\\b",
+          "zustand": {
+            "abbild": "hello-world"
+          }
+        },
+        {
+          "text": {
+            "de": "Einen nginx-Container ohne Port-Abbildung im Hintergrund starten (--name still)",
+            "en": "Start an nginx container without a port mapping in the background (--name still)"
+          },
+          "zustand": {
+            "containerLaeuft": "still"
+          }
+        },
+        {
+          "text": {
+            "de": "Einen zweiten nginx-Container mit -p 8080:80 starten (--name web)",
+            "en": "Start a second nginx container with -p 8080:80 (--name web)"
+          },
+          "zustand": {
+            "containerLaeuft": "web",
+            "portGebunden": "8080:80"
+          }
+        },
+        {
+          "text": {
+            "de": "docker ps — zwei Container, ein Abbild, nur einer mit Port",
+            "en": "docker ps — two containers, one image, only one with a port"
+          },
+          "muster": "^docker\\s+ps\\b"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Zwei Container, ein Abbild — das ist die Beziehung „ein Bauplan, viele Häuser“, die in der Vorlesung Prozessmodell und Prozessinstanz beschreibt. Und nur der Container mit Port-Abbildung ist von außen erreichbar; der andere läuft genauso, ist aber nicht ansprechbar.",
+        "en": "Two containers, one image — that is the “one blueprint, many houses” relation the lecture uses for process model and process instance. And only the container with a port mapping is reachable from outside; the other runs just the same but cannot be addressed."
+      }
+    },
+    {
+      "id": "W07-02",
+      "typ": "terminal",
+      "titel": {
+        "de": "Eine Datenbank in Betrieb nehmen",
+        "en": "Put a database into operation"
+      },
+      "aufgabe": {
+        "de": "<p>Starten Sie eine PostgreSQL-Datenbank so, wie sie für Lab 08 und Lab 09 gebraucht wird: im Hintergrund, mit Passwort, mit einem Port auf Ihrem Rechner und — entscheidend — mit einem benannten Band für die Daten.</p><p>Provozieren Sie danach absichtlich den Port-Konflikt: Starten Sie einen zweiten Container auf demselben Host-Port und lesen Sie die Fehlermeldung. Weichen Sie dann aus.</p>",
+        "en": "<p>Start a PostgreSQL database the way labs 08 and 09 need it: in the background, with a password, with a port on your machine and — decisively — with a named volume for the data.</p><p>Then provoke the port conflict deliberately: start a second container on the same host port and read the error message. Then move aside.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 2 von 4. Die Befehlskarte B05 oben zeigt den vollständigen run-Befehl.",
+          "en": "Assignment 2 of 4. Command card B05 above shows the full run command."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "Ein Band pgdata anlegen (oder im run-Befehl mit anlegen lassen)",
+            "en": "Create a volume pgdata (or let the run command create it)"
+          },
+          "zustand": {
+            "volumen": "pgdata"
+          }
+        },
+        {
+          "text": {
+            "de": "postgres:16 im Hintergrund starten: --name pg, -e POSTGRES_PASSWORD, -p 5432:5432, -v pgdata:/var/lib/postgresql/data",
+            "en": "Start postgres:16 in the background: --name pg, -e POSTGRES_PASSWORD, -p 5432:5432, -v pgdata:/var/lib/postgresql/data"
+          },
+          "zustand": {
+            "containerLaeuft": "pg",
+            "volumen": "pgdata"
+          }
+        },
+        {
+          "text": {
+            "de": "Die Protokollausgabe lesen — steht dort „ready to accept connections“?",
+            "en": "Read the log output — does it say “ready to accept connections”?"
+          },
+          "muster": "^docker\\s+logs\\b"
+        },
+        {
+          "text": {
+            "de": "Absichtlich einen zweiten Container auf demselben Host-Port starten und die Fehlermeldung lesen",
+            "en": "Deliberately start a second container on the same host port and read the error message"
+          },
+          "muster": "^docker\\s+run\\b.*-p\\s+(127\\.0\\.0\\.1:)?5432:5432"
+        },
+        {
+          "text": {
+            "de": "Ausweichen: einen zweiten Container auf Host-Port 15432 starten (--name pg2)",
+            "en": "Move aside: start a second container on host port 15432 (--name pg2)"
+          },
+          "zustand": {
+            "containerLaeuft": "pg2",
+            "portGebunden": "15432:5432"
+          }
+        },
+        {
+          "text": {
+            "de": "docker ps — beide laufen, jeder auf seinem Host-Port",
+            "en": "docker ps — both are running, each on its own host port"
+          },
+          "muster": "^docker\\s+ps\\b"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Der Port-Konflikt ist der Fehler, der im Kurs am häufigsten auftritt — weil viele schon ein PostgreSQL lokal installiert haben. Die Meldung „port is already allocated“ nennt die Ursache genau; sie fordert nicht, das andere abzuschalten, sondern einen anderen Host-Port zu wählen. Der Container hört weiterhin auf 5432, nur die Tür von außen ist eine andere.",
+        "en": "The port conflict is the error that occurs most often in the course — because many already have a PostgreSQL installed locally. The message “port is already allocated” names the cause precisely; it does not demand switching the other one off but choosing a different host port. The container still listens on 5432, only the door from outside is a different one."
+      }
+    },
+    {
+      "id": "W07-03",
+      "typ": "terminal",
+      "titel": {
+        "de": "Den Beweis führen: was überlebt",
+        "en": "Prove the point: what survives"
+      },
+      "aufgabe": {
+        "de": "<p>Die Kernfrage dieses Labs. Entfernen Sie den Datenbank-Container vollständig — und zeigen Sie, dass das Band noch da ist. Starten Sie ihn dann mit demselben Band neu.</p><p>Löschen Sie zuletzt das Band selbst und beobachten Sie den Unterschied: <code>docker rm</code> entfernt das Haus, <code>docker volume rm</code> den Aktenschrank.</p>",
+        "en": "<p>This lab's core question. Remove the database container entirely — and show that the volume is still there. Then start it again with the same volume.</p><p>Finally delete the volume itself and observe the difference: <code>docker rm</code> removes the house, <code>docker volume rm</code> the filing cabinet.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 3 von 4. Setzen Sie voraus, dass ein Container pg mit Band pgdata läuft — falls nicht, starten Sie ihn zuerst.",
+          "en": "Assignment 3 of 4. This assumes a container pg with volume pgdata is running — if not, start it first."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "Einen Container pg mit Band pgdata starten (falls noch nicht vorhanden)",
+            "en": "Start a container pg with volume pgdata (if not already present)"
+          },
+          "zustand": {
+            "containerLaeuft": "pg",
+            "volumen": "pgdata"
+          }
+        },
+        {
+          "text": {
+            "de": "Versuchen, den laufenden Container mit docker rm zu entfernen — und die Zurückweisung lesen",
+            "en": "Try to remove the running container with docker rm — and read the refusal"
+          },
+          "muster": "^docker\\s+rm\\b"
+        },
+        {
+          "text": {
+            "de": "Den Container stoppen und dann entfernen (oder docker rm -f)",
+            "en": "Stop the container and then remove it (or docker rm -f)"
+          },
+          "zustand": {
+            "containerWeg": "pg"
+          }
+        },
+        {
+          "text": {
+            "de": "docker volume ls — pgdata ist noch da, obwohl der Container weg ist",
+            "en": "docker volume ls — pgdata is still there although the container is gone"
+          },
+          "muster": "^docker\\s+volume\\s+ls",
+          "zustand": {
+            "volumen": "pgdata"
+          }
+        },
+        {
+          "text": {
+            "de": "Den Container mit demselben Band erneut starten — die Daten sind wieder eingehängt",
+            "en": "Start the container again with the same volume — the data is mounted again"
+          },
+          "zustand": {
+            "containerLaeuft": "pg",
+            "volumen": "pgdata"
+          }
+        },
+        {
+          "text": {
+            "de": "Zum Vergleich: einen Container ohne -v starten (--name fluechtig)",
+            "en": "For comparison: start a container without -v (--name fluechtig)"
+          },
+          "zustand": {
+            "containerLaeuft": "fluechtig"
+          }
+        },
+        {
+          "text": {
+            "de": "docker system df — sehen, wie viel Abbilder, Container und Bänder belegen",
+            "en": "docker system df — see how much images, containers and volumes occupy"
+          },
+          "muster": "^docker\\s+system\\s+df"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Der vierte Schritt ist die Antwort auf die Kernfrage. Das Band ist ein eigenes Objekt mit eigener Lebensdauer — es hängt nicht am Container, sondern wird von ihm nur benutzt. Der Container „fluechtig“ aus Schritt sechs würde beim Entfernen alles mitnehmen; das ist der Unterschied zwischen einem Spielzeug und einer Datenbank.",
+        "en": "Step four is the answer to the core question. The volume is an object of its own with its own lifetime — it does not hang on the container, the container merely uses it. The container “fluechtig” from step six would take everything with it on removal; that is the difference between a toy and a database."
+      }
+    },
+    {
+      "id": "W07-04",
+      "typ": "terminal",
+      "titel": {
+        "de": "Ein Stapel aus zwei Containern",
+        "en": "A stack of two containers"
+      },
+      "aufgabe": {
+        "de": "<p>Zwei Container von Hand zu starten geht; sie jeden Morgen wieder von Hand zu starten geht auf die Nerven. Legen Sie eine Datei <code>compose.yaml</code> an — der Inhalt ist für diese Nachbildung gleichgültig, im echten Betrieb steht darin der Stapel aus Befehlskarte B09 — und fahren Sie den Stapel hoch.</p><p>Fahren Sie ihn dann zweimal herunter: einmal ohne <code>-v</code>, einmal mit. Achten Sie auf die Bandliste und auf den Hinweis, den die Umgebung Ihnen gibt.</p>",
+        "en": "<p>Starting two containers by hand is fine; starting them by hand every morning is a nuisance. Create a file <code>compose.yaml</code> — its content is irrelevant to this model, in real operation it holds the stack from command card B09 — and bring the stack up.</p><p>Then bring it down twice: once without <code>-v</code>, once with. Watch the volume list and the note the environment gives you.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 4 von 4. Compose sucht compose.yaml im aktuellen Ordner — ohne die Datei gibt es nichts zu starten.",
+          "en": "Assignment 4 of 4. Compose looks for compose.yaml in the current folder — without the file there is nothing to start."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "docker compose up -d ohne compose.yaml versuchen und die Meldung lesen",
+            "en": "Try docker compose up -d without a compose.yaml and read the message"
+          },
+          "muster": "^docker\\s+compose\\s+up"
+        },
+        {
+          "text": {
+            "de": "Eine Datei compose.yaml anlegen",
+            "en": "Create a file compose.yaml"
+          },
+          "zustand": {
+            "datei": "compose.yaml"
+          }
+        },
+        {
+          "text": {
+            "de": "Den Stapel starten (docker compose up -d)",
+            "en": "Bring the stack up (docker compose up -d)"
+          },
+          "muster": "^docker\\s+compose\\s+up",
+          "zustand": {
+            "containerLaeuft": "projekt-db-1"
+          }
+        },
+        {
+          "text": {
+            "de": "docker compose ps — beide Dienste laufen",
+            "en": "docker compose ps — both services are running"
+          },
+          "muster": "^docker\\s+compose\\s+ps"
+        },
+        {
+          "text": {
+            "de": "Herunterfahren ohne -v (docker compose down) und die Bandliste prüfen — projekt_pgdata ist noch da",
+            "en": "Shut down without -v (docker compose down) and check the volume list — projekt_pgdata is still there"
+          },
+          "muster": "^docker\\s+volume\\s+ls",
+          "zustand": {
+            "containerWeg": "projekt-db-1",
+            "volumen": "projekt_pgdata"
+          }
+        },
+        {
+          "text": {
+            "de": "Wieder hochfahren — die Bänder waren noch da",
+            "en": "Bring it up again — the volumes were still there"
+          },
+          "zustand": {
+            "containerLaeuft": "projekt-db-1"
+          }
+        },
+        {
+          "text": {
+            "de": "Jetzt mit -v herunterfahren und den Hinweis der Umgebung lesen",
+            "en": "Now bring it down with -v and read the environment's note"
+          },
+          "muster": "^docker\\s+compose\\s+down\\b.*(-v|--volumes)"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Genau dieser Unterschied kostet im Kurs regelmäßig eine Datenbank. down entfernt Container und Netz — der Zustand des Systems, nicht sein Inhalt. down -v entfernt auch die Bänder. Wer sich das einmal an einer Nachbildung angesehen hat, tippt das -v draußen nicht aus Gewohnheit mit.",
+        "en": "This exact difference costs a database regularly in the course. down removes containers and network — the system's state, not its content. down -v removes the volumes too. Whoever has looked at that once in a model does not type the -v out of habit outside."
+      }
+    },
+    {
+      "id": "W07-05",
+      "typ": "quiz",
+      "titel": {
+        "de": "Begriffe und Lizenz",
+        "en": "Concepts and licence"
+      },
+      "aufgabe": {
+        "de": "<p>Vier Fragen. Die letzte hat für ein Unternehmen finanzielle Folgen.</p>",
+        "en": "<p>Four questions. The last one has financial consequences for a company.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Sie tippen docker rmi postgres:16 und erhalten „conflict: unable to remove repository reference — container is using its referenced image“. Was ist zu tun?",
+            "en": "You type docker rmi postgres:16 and get “conflict: unable to remove repository reference — container is using its referenced image”. What has to be done?"
+          },
+          "optionen": [
+            {
+              "de": "Erst den Container entfernen (docker rm, gegebenenfalls nach docker stop), dann das Abbild. Solange eine Instanz existiert, bleibt die Vorlage.",
+              "en": "First remove the container (docker rm, after docker stop if needed), then the image. As long as an instance exists, the template stays."
+            },
+            {
+              "de": "Das Abbild mit docker rm entfernen statt mit docker rmi.",
+              "en": "Remove the image with docker rm instead of docker rmi."
+            },
+            {
+              "de": "Docker Desktop neu starten.",
+              "en": "Restart Docker Desktop."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Die Meldung nennt die Beziehung genau: Der Container beruht auf dem Abbild. rmi wirkt auf Abbilder (docker images), rm auf Container (docker ps -a) — die beiden zu verwechseln ist der häufigste Anfängerfehler, und die Fehlermeldungen sind entsprechend deutlich.",
+            "en": "The message names the relation precisely: the container is based on the image. rmi acts on images (docker images), rm on containers (docker ps -a) — confusing the two is the most common beginner's mistake, and the error messages are correspondingly clear."
+          }
+        },
+        {
+          "frage": {
+            "de": "Was ist der Unterschied zwischen -v pgdata:/var/lib/postgresql/data und -v \"$(pwd)/daten:/app/daten\"?",
+            "en": "What is the difference between -v pgdata:/var/lib/postgresql/data and -v \"$(pwd)/daten:/app/daten\"?"
+          },
+          "optionen": [
+            {
+              "de": "Das erste ist ein benanntes Band, dessen Ort Docker verwaltet — richtig für Datenbanken. Das zweite hängt einen Ordner Ihres Rechners ein — richtig für Code und Notebooks, die Sie im Editor bearbeiten.",
+              "en": "The first is a named volume whose location Docker manages — right for databases. The second mounts a folder of your machine — right for code and notebooks you edit in your editor."
+            },
+            {
+              "de": "Kein Unterschied, nur zwei Schreibweisen für dasselbe.",
+              "en": "No difference, just two spellings for the same thing."
+            },
+            {
+              "de": "Das erste ist flüchtig, das zweite dauerhaft.",
+              "en": "The first is transient, the second persistent."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Beide überleben den Container. Das Erkennungsmerkmal steht vor dem Doppelpunkt: ein Name bedeutet ein benanntes Band, ein Pfad bedeutet einen eingehängten Ordner. Für eine Datenbank ist das benannte Band schneller und plattformunabhängig; für ein Notebook, das Sie gerade schreiben, ist der eingehängte Ordner der einzige praktikable Weg.",
+            "en": "Both survive the container. The distinguishing feature stands before the colon: a name means a named volume, a path means a bind mount. For a database the named volume is faster and platform-independent; for a notebook you are currently writing, the bind mount is the only practical route."
+          }
+        },
+        {
+          "frage": {
+            "de": "Ein Container startet und ist eine Sekunde später wieder gestoppt. Was ist der erste Griff?",
+            "en": "A container starts and is stopped again a second later. What is the first thing to reach for?"
+          },
+          "optionen": [
+            {
+              "de": "docker logs <name> — die Ausgabe sagt, warum der Hauptprozess geendet hat. Meist fehlt eine Umgebungsvariable oder der Startbefehl ist falsch geschrieben.",
+              "en": "docker logs <name> — the output says why the main process ended. Usually an environment variable is missing or the start command is misspelled."
+            },
+            {
+              "de": "Den Container mit --restart always neu starten, bis es klappt.",
+              "en": "Restart the container with --restart always until it works."
+            },
+            {
+              "de": "Ein anderes Abbild nehmen.",
+              "en": "Take a different image."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Ein Container lebt genau so lange wie sein Hauptprozess — das ist keine Störung, sondern die Definition. postgres ohne POSTGRES_PASSWORD verweigert den Start ausdrücklich und schreibt den Grund ins Protokoll. --restart always würde denselben Fehler in einer Schleife wiederholen.",
+            "en": "A container lives exactly as long as its main process — that is not a malfunction but the definition. postgres without POSTGRES_PASSWORD expressly refuses to start and writes the reason into the log. --restart always would repeat the same error in a loop."
+          }
+        },
+        {
+          "frage": {
+            "de": "Ein Beratungshaus mit 90 Beschäftigten und 22 Mio. Euro Jahresumsatz will Docker Desktop auf allen Rechnern einsetzen. Wie ist die Lage?",
+            "en": "A consultancy with 90 employees and 22 million euros in annual revenue wants to use Docker Desktop on all machines. What is the situation?"
+          },
+          "optionen": [
+            {
+              "de": "Kostenpflichtig, weil die Umsatzgrenze überschritten ist — beide Bedingungen müssen zusammen erfüllt sein. Kostenfrei bliebe der Einsatz von Docker Engine, Podman oder Rancher Desktop.",
+              "en": "Chargeable, because the revenue threshold is exceeded — both conditions have to hold together. Using Docker Engine, Podman or Rancher Desktop would stay free."
+            },
+            {
+              "de": "Kostenfrei, weil unter 250 Beschäftigte.",
+              "en": "Free, because fewer than 250 employees."
+            },
+            {
+              "de": "Kostenfrei, weil Beratung keine kommerzielle Nutzung im Sinne der Lizenz ist.",
+              "en": "Free, because consultancy is not commercial use within the meaning of the licence."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Die Klausel verlangt „fewer than 250 employees and less than US $10,000,000 in annual revenue“ — ein und, kein oder. Beratung ist kommerzielle Nutzung. Der Punkt ist nicht juristische Spitzfindigkeit: Lizenzverstöße fallen bei Prüfungen auf, und die Alternativen unter freien Lizenzen leisten für Analytics dasselbe.",
+            "en": "The clause requires “fewer than 250 employees and less than US $10,000,000 in annual revenue” — an and, not an or. Consultancy is commercial use. The point is not legal pedantry: licence breaches surface in audits, and the alternatives under free licences do the same job for analytics."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W07-06",
+      "typ": "zuordnen",
+      "titel": {
+        "de": "Fehlermeldung und Ursache",
+        "en": "Error message and cause"
+      },
+      "aufgabe": {
+        "de": "<p>Sechs Meldungen aus dem Alltag mit Containern. Ordnen Sie jeder die Ursache zu — die Meldung genau zu lesen erspart in fünf von sechs Fällen die Suche.</p>",
+        "en": "<p>Six messages from everyday work with containers. Assign the cause to each — reading the message precisely saves the search in five of six cases.</p>"
+      },
+      "ziele": [
+        {
+          "id": "port",
+          "text": {
+            "de": "Host-Port ist belegt",
+            "en": "Host port is taken"
+          }
+        },
+        {
+          "id": "name",
+          "text": {
+            "de": "Containername ist schon vergeben",
+            "en": "Container name already in use"
+          }
+        },
+        {
+          "id": "arch",
+          "text": {
+            "de": "Abbild für die falsche Prozessorarchitektur",
+            "en": "Image for the wrong processor architecture"
+          }
+        },
+        {
+          "id": "limit",
+          "text": {
+            "de": "Abrufkontingent von Docker Hub erschöpft",
+            "en": "Docker Hub pull allowance exhausted"
+          }
+        },
+        {
+          "id": "dienst",
+          "text": {
+            "de": "Der Hintergrunddienst läuft nicht",
+            "en": "The background daemon is not running"
+          }
+        },
+        {
+          "id": "kontext",
+          "text": {
+            "de": "Dockerfile fehlt im Bau-Kontext",
+            "en": "Dockerfile missing from the build context"
+          }
+        }
+      ],
+      "paare": [
+        {
+          "begriff": {
+            "de": "Bind for 0.0.0.0:5432 failed: port is already allocated",
+            "en": "Bind for 0.0.0.0:5432 failed: port is already allocated"
+          },
+          "ziel": "port"
+        },
+        {
+          "begriff": {
+            "de": "Conflict. The container name \"/pg\" is already in use",
+            "en": "Conflict. The container name \"/pg\" is already in use"
+          },
+          "ziel": "name"
+        },
+        {
+          "begriff": {
+            "de": "exec /usr/local/bin/python: exec format error",
+            "en": "exec /usr/local/bin/python: exec format error"
+          },
+          "ziel": "arch"
+        },
+        {
+          "begriff": {
+            "de": "toomanyrequests: You have reached your pull rate limit (429)",
+            "en": "toomanyrequests: You have reached your pull rate limit (429)"
+          },
+          "ziel": "limit"
+        },
+        {
+          "begriff": {
+            "de": "Cannot connect to the Docker daemon at unix:///var/run/docker.sock",
+            "en": "Cannot connect to the Docker daemon at unix:///var/run/docker.sock"
+          },
+          "ziel": "dienst"
+        },
+        {
+          "begriff": {
+            "de": "failed to read dockerfile: open Dockerfile: no such file or directory",
+            "en": "failed to read dockerfile: open Dockerfile: no such file or directory"
+          },
+          "ziel": "kontext"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Fünf der sechs Meldungen benennen die Ursache im Klartext — man muss sie nur lesen statt zu deuten. Die Ausnahme ist „exec format error“: Sie klingt nach einem beschädigten Abbild und heißt in Wirklichkeit, dass es für eine andere Prozessorarchitektur gebaut wurde. Auf Apple Silicon ist das der Regelfall bei älteren Abbildern; --platform linux/amd64 hilft, kostet aber Geschwindigkeit.",
+        "en": "Five of the six messages name the cause in plain words — you only have to read them rather than interpret them. The exception is “exec format error”: it sounds like a corrupted image and actually means it was built for a different processor architecture. On Apple Silicon that is the normal case with older images; --platform linux/amd64 helps but costs speed."
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+# lab-06-import.txt – eine sqlite3-Sitzung fuer Velo City (Lab 06)
+#
+# Zeilen mit "sqlite>" tippen Sie in der Shell ein; die anderen Zeilen zeigen,
+# was SQLite antwortet. Dot-Commands (.open, .tables, …) gehoeren dem Programm
+# sqlite3, nicht der Sprache SQL – sie brauchen kein Semikolon und funktionieren
+# in Python, DB Browser oder DataGrip nicht.
+
+$ sqlite3
+SQLite version 3.51.0 2025-06-12 13:14:41
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+
+sqlite> .open velocity.db
+sqlite> .read data/velocity.sqlite.sql
+sqlite> .tables
+fahrt          fahrt_mit_typ  kunde          rad            station
+
+sqlite> .schema fahrt
+CREATE TABLE fahrt (
+  fahrt_id      INTEGER PRIMARY KEY,
+  rad_id        TEXT    NOT NULL REFERENCES rad (rad_id),
+  kunde_id      INTEGER NOT NULL REFERENCES kunde (kunde_id),
+  start_station INTEGER NOT NULL REFERENCES station (station_id),
+  ziel_station  INTEGER NOT NULL REFERENCES station (station_id),
+  start_zeit    TEXT    NOT NULL,
+  dauer_min     INTEGER NOT NULL,
+  preis_eur     REAL    NOT NULL
+);
+
+sqlite> .mode box
+sqlite> .headers on
+sqlite> SELECT rad_typ, count(*) AS fahrten, round(sum(preis_eur), 2) AS umsatz
+   ...> FROM fahrt_mit_typ GROUP BY rad_typ ORDER BY umsatz DESC;
+┌─────────┬─────────┬─────────┐
+│ rad_typ │ fahrten │ umsatz  │
+├─────────┼─────────┼─────────┤
+│ CITY    │ 913     │ 1522.5  │
+│ EBIKE   │ 444     │ 1153.8  │
+│ CARGO   │ 143     │ 495.84  │
+└─────────┴─────────┴─────────┘
+
+# CSV importieren – zuerst die Tabelle mit Typen anlegen, dann --skip 1 fuer die
+# Kopfzeile. Ohne vorher angelegte Tabelle erzeugt .import sie selbst: Die
+# Kopfzeile wird zu Spaltennamen, und ALLE Spalten sind TEXT.
+sqlite> CREATE TABLE fahrt_csv (
+   ...>   fahrt_id INTEGER, rad_id TEXT, dauer_min INTEGER, preis_eur REAL
+   ...> ) STRICT;
+sqlite> .import --csv --skip 1 fahrten.csv fahrt_csv
+sqlite> SELECT typeof(fahrt_id), typeof(preis_eur), count(*) FROM fahrt_csv;
+┌──────────────────┬───────────────────┬──────────┐
+│ typeof(fahrt_id) │ typeof(preis_eur) │ count(*) │
+├──────────────────┼───────────────────┼──────────┤
+│ integer          │ real              │ 1500     │
+└──────────────────┴───────────────────┴──────────┘
+
+# Ergebnis als JSON – dieselbe Struktur wie ein API-Antwortkoerper in Lab 05.
+sqlite> .mode json
+sqlite> SELECT station_id, name, bezirk FROM station LIMIT 2;
+[{"station_id":1,"name":"Juliuspromenade","bezirk":"Altstadt"},
+{"station_id":2,"name":"Hauptbahnhof","bezirk":"Altstadt"}]
+
+# Sicherung als SQL-Text: die ganze Datenbank als CREATE- und INSERT-Anweisungen.
+# Ausserhalb der Sitzung in eine Datei:  sqlite3 velocity.db .dump > sicherung.sql
+sqlite> .output sicherung.sql
+sqlite> .dump
+sqlite> .output
+sqlite> .quit

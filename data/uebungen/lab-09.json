@@ -1,0 +1,799 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": {
+        "de": "Datenquelle anlegen",
+        "en": "Create a data source"
+      },
+      "prompt": "☰",
+      "befehl": "File → New → Data Source → PostgreSQL\n   oder:  Database Explorer → +  → Data Source\n   oder:  Strg+Alt+Shift+S   (macOS: ⌘;)\n\nHost      aws-0-eu-central-1.pooler.supabase.com\nPort      5432                 ← Session Mode, nicht 6543\nDatabase  postgres\nUser      postgres.[REF]       ← mit Projektkennung!\nPassword  ••••••••             ← in DIESES Feld, nicht in die URL\n\n→ Test Connection → Apply",
+      "teile": [
+        {
+          "was": "Port 5432",
+          "bedeutet": {
+            "de": "Der Session Pooler. Port 6543 ist der Transaction Pooler: Er teilt Verbindungen je Transaktion und hält keinen Sitzungszustand — Datenbankwerkzeuge scheitern daran mit Meldungen über vorbereitete Anweisungen.",
+            "en": "The session pooler. Port 6543 is the transaction pooler: it shares connections per transaction and keeps no session state — database tools fail on it with messages about prepared statements."
+          }
+        },
+        {
+          "was": "postgres.[REF]",
+          "bedeutet": {
+            "de": "Beim Pooler enthält der Benutzername die Projektkennung. Nur postgres einzutragen ergibt einen Anmeldefehler, der wie ein falsches Passwort aussieht.",
+            "en": "With the pooler the user name contains the project reference. Entering only postgres yields an authentication error that looks like a wrong password."
+          }
+        },
+        {
+          "was": "Test Connection",
+          "bedeutet": {
+            "de": "Immer drücken, bevor Sie Apply klicken. Die Meldung nennt die Ursache genau: Zeitüberschreitung heißt Netz oder IPv6, „password authentication failed“ heißt Zugangsdaten.",
+            "en": "Always press it before clicking Apply. The message names the cause precisely: a timeout means network or IPv6, “password authentication failed” means credentials."
+          }
+        },
+        {
+          "was": "Treiber",
+          "bedeutet": {
+            "de": "Seit Version 2026.2 sind PostgreSQL, MySQL, MS SQL Server, MongoDB und Redis mitgeliefert. Bei anderen Systemen erscheint unten der Verweis „Download missing driver files“.",
+            "en": "Since version 2026.2, PostgreSQL, MySQL, MS SQL Server, MongoDB and Redis are bundled. With other systems the link “Download missing driver files” appears at the bottom."
+          }
+        }
+      ]
+    },
+    "B02": {
+      "titel": {
+        "de": "Alternative: die Datenbank aus Lab 07",
+        "en": "Alternative: the database from lab 07"
+      },
+      "prompt": "☰",
+      "befehl": "# Der Container aus Lab 07:\ndocker run -d --name pg -e POSTGRES_PASSWORD=geheim -e POSTGRES_DB=analytics \\\n  -p 127.0.0.1:5432:5432 -v pgdata:/var/lib/postgresql/data postgres:16\n\n# In DataGrip:\nHost      localhost\nPort      5432\nDatabase  analytics\nUser      postgres\nPassword  geheim",
+      "teile": [
+        {
+          "was": "localhost",
+          "bedeutet": {
+            "de": "Kein Umweg über das Internet, kein Pooler, keine IPv6-Frage — deshalb der einfachere Weg für die ersten Schritte. Der Container muss laufen: docker ps prüft das.",
+            "en": "No detour through the internet, no pooler, no IPv6 question — hence the simpler route for first steps. The container has to be running: docker ps checks that."
+          }
+        },
+        {
+          "was": "Database analytics",
+          "bedeutet": {
+            "de": "Der Name, den POSTGRES_DB beim ersten Start gesetzt hat. Ohne diese Umgebungsvariable heißt die Datenbank postgres.",
+            "en": "The name POSTGRES_DB set on first start. Without that environment variable the database is called postgres."
+          }
+        },
+        {
+          "was": "Beide anlegen",
+          "bedeutet": {
+            "de": "Zwei Datenquellen nebeneinander — lokaler Container und gehostetes Supabase — zeigen unmittelbar, dass es sich um dasselbe PostgreSQL handelt: dieselbe Vervollständigung, dieselben Diagramme, dieselben Fehlermeldungen.",
+            "en": "Two data sources side by side — local container and hosted Supabase — show immediately that this is the same PostgreSQL: same completion, same diagrams, same error messages."
+          }
+        }
+      ]
+    },
+    "B03": {
+      "titel": {
+        "de": "Sichtbare Schemata schalten",
+        "en": "Set the visible schemas"
+      },
+      "prompt": "☰",
+      "befehl": "Klick auf den Verweis  N of M  neben dem Namen der Datenquelle\n   oder:  Rechtsklick auf die Datenquelle → Tools → Manage Shown Schemas…\n   oder:  Show-Options-Menü → All Namespaces\n\nBei Supabase genügt in der Regel:  public",
+      "teile": [
+        {
+          "was": "N of M",
+          "bedeutet": {
+            "de": "N Schemata von M werden eingelesen. Steht dort 1 of 5 und Ihre Tabelle liegt in einem der anderen vier, erscheint sie nicht im Baum — die Tabelle ist da, das Werkzeug sieht sie nicht an.",
+            "en": "N schemas of M are read. If it says 1 of 5 and your table lies in one of the other four, it does not appear in the tree — the table is there, the tool does not look at it."
+          }
+        },
+        {
+          "was": "Introspektion",
+          "bedeutet": {
+            "de": "Das Einlesen des Schemas. Nur eingelesene Objekte kennt die Vervollständigung. Nach dem Anlegen einer Tabelle außerhalb von DataGrip hilft Rechtsklick → Refresh.",
+            "en": "The reading of the schema. The completion only knows objects that have been read. After creating a table outside DataGrip, right-click → Refresh helps."
+          }
+        },
+        {
+          "was": "All Namespaces",
+          "bedeutet": {
+            "de": "Schaltet alles sichtbar. Bequem zur Fehlersuche, unübersichtlich im Alltag: Bei Supabase erscheinen dann auch die internen Schemata für Authentifizierung und Dateiablage in der Vervollständigung.",
+            "en": "Sets everything visible. Convenient for troubleshooting, cluttered in daily use: with Supabase the internal schemas for authentication and file storage then also appear in the completion."
+          }
+        }
+      ]
+    },
+    "B04": {
+      "titel": {
+        "de": "Konsole öffnen und ausführen",
+        "en": "Open a console and execute"
+      },
+      "prompt": "⌨",
+      "befehl": "F4                Standardkonsole der markierten Datenquelle\nStrg+Shift+Q      neue Konsole\n\nStrg+Enter        Anweisung unter dem Cursor ausführen\n   ⌘Enter auf macOS.  Bei mehreren Anweisungen erscheint eine Auswahlliste —\n   lesen, nicht wegklicken. Markierter Text läuft ohne Rückfrage.\n\nStrg+Alt+E        Abfragehistorie\nStrg+Leertaste    Vervollständigung erzwingen\nAlt+Enter         Kontextaktionen und Korrekturvorschläge",
+      "teile": [
+        {
+          "was": "run all statements",
+          "bedeutet": {
+            "de": "Der Eintrag in der Auswahlliste, der das ganze Skript ausführt. Bei einem Skript mit einem DELETE weiter unten ist das der Unterschied zwischen einer Abfrage und einem Zwischenfall.",
+            "en": "The entry in the picker that runs the whole script. In a script with a DELETE further down, that is the difference between a query and an incident."
+          }
+        },
+        {
+          "was": "Markieren",
+          "bedeutet": {
+            "de": "Der verlässlichste Weg zu einer einzelnen Ausführung: Text markieren, Strg+Enter. Es läuft genau die Markierung, ohne Auswahlliste.",
+            "en": "The most reliable route to a single execution: select the text, Strg+Enter. Exactly the selection runs, without a picker."
+          }
+        },
+        {
+          "was": "Abfragehistorie",
+          "bedeutet": {
+            "de": "Alle ausgeführten Anweisungen der Sitzung. Der Weg zurück zu der Abfrage, die vor zwanzig Minuten funktioniert hat — und zugleich die Antwort auf „was habe ich eigentlich gemacht?“.",
+            "en": "All statements executed in the session. The way back to the query that worked twenty minutes ago — and at the same time the answer to “what did I actually do?”."
+          }
+        },
+        {
+          "was": "Playground vs. Script",
+          "bedeutet": {
+            "de": "Eine Abfragekonsole ist ein Playground: alle Objekte im selben Zusammenhang. Eine lokale .sql-Datei ist ein Skript: ein USE oder SET search_path darin überschreibt den Zusammenhang.",
+            "en": "A query console is a playground: all objects in the same context. A local .sql file is a script: a USE or SET search_path inside it overrides the context."
+          }
+        }
+      ]
+    },
+    "B05": {
+      "titel": {
+        "de": "Der Tx-Schalter und das Datenraster",
+        "en": "The Tx switch and the data grid"
+      },
+      "prompt": "☰",
+      "befehl": "Tx:  ▾     in der Werkzeugleiste der Konsole und des Datenrasters\n\n  Tx:Auto     jede abgeschickte Änderung ist sofort dauerhaft\n              Submit and Commit / Roll Back sind ausgegraut\n  Tx:Manual   Änderungen sammeln sich bis Submit and Commit\n              oder Roll Back\n\nVoreinstellung je Datenquelle:  Dialog → Reiter Options → Auto-commit\nSchreibschutz:                  Dialog → Reiter Options → Read-only\n\nIm Raster:\n  Preview Pending Changes    zeigt das erzeugte SQL, VOR dem Abschicken\n  Strg+Enter                 Submit\n  Strg+Alt+Z                 Änderungen verwerfen",
+      "teile": [
+        {
+          "was": "Preview Pending Changes",
+          "bedeutet": {
+            "de": "Der wichtigste Knopf des Labs. Er zeigt das UPDATE, das DataGrip aus Ihrer Rasteränderung erzeugen würde — inklusive der WHERE-Bedingung. Zwei Sekunden Lesen ersparen die Wiederherstellung einer Tabelle.",
+            "en": "The lab's most important button. It shows the UPDATE DataGrip would generate from your grid change — including the WHERE clause. Two seconds of reading save restoring a table."
+          }
+        },
+        {
+          "was": "Read-only",
+          "bedeutet": {
+            "de": "Ein Haken je Datenquelle. Für eine Produktionsdatenbank keine Vorsicht, sondern Pflicht: Er verhindert die ganze Klasse von Unfällen, die aus einem Klick im Raster entstehen.",
+            "en": "One checkbox per data source. For a production database not caution but duty: it prevents the whole class of accidents that arise from a click in the grid."
+          }
+        },
+        {
+          "was": "Tx:Auto und Verbindungsabbruch",
+          "bedeutet": {
+            "de": "In Tx:Manual verfällt eine nicht festgeschriebene Änderung, wenn die Verbindung abbricht. Das wirkt lästig und ist der Schutz: Nichts geht halb durch.",
+            "en": "In Tx:Manual an uncommitted change is lost when the connection drops. That feels annoying and is the protection: nothing goes half through."
+          }
+        },
+        {
+          "was": "Strg+Alt+Z",
+          "bedeutet": {
+            "de": "Verwirft die Änderungen im Raster. Mit Auswahl nur die markierten Zellen, ohne Auswahl alle. Der Ausweg, wenn man sich im Raster verklickt hat.",
+            "en": "Discards the changes in the grid. With a selection only the marked cells, without one all of them. The way out when you have mis-clicked in the grid."
+          }
+        }
+      ]
+    },
+    "B06": {
+      "titel": {
+        "de": "Ergebnis als CSV exportieren",
+        "en": "Export a result as CSV"
+      },
+      "prompt": "☰",
+      "befehl": "Aus dem Ergebnisraster:  Export Data → Extractor: CSV → Export to File\nAus dem Baum:            Rechtsklick auf Tabelle → Import/Export → Export Data to File\n\nZwei Häkchen, auf die es ankommt:\n  ☑ Add column header      sonst fehlt die Kopfzeile\n  ☐ Add row header         erzeugt eine überflüssige Nummernspalte\n\nWeitere Extractoren: JSON, XML, Excel, SQL Insert, Markdown",
+      "teile": [
+        {
+          "was": "Add column header",
+          "bedeutet": {
+            "de": "Ohne Kopfzeile ist eine CSV-Datei für pandas eine Tabelle ohne Spaltennamen — und die erste Datenzeile wird zur Kopfzeile. Der häufigste Ärger beim Weiterverarbeiten eines Exports.",
+            "en": "Without a header row a CSV file is a table without column names for pandas — and the first data row becomes the header. The most common annoyance when processing an export further."
+          }
+        },
+        {
+          "was": "SQL Insert",
+          "bedeutet": {
+            "de": "Erzeugt INSERT-Anweisungen statt einer Tabelle. Der bequemste Weg, einen kleinen Beispielbestand von einer Datenbank in eine andere zu bringen — etwa vom Container in Supabase.",
+            "en": "Produces INSERT statements instead of a table. The most convenient way to move a small sample dataset from one database to another — for example from the container into Supabase."
+          }
+        },
+        {
+          "was": "Markdown",
+          "bedeutet": {
+            "de": "Nützlich für Seminararbeiten und Protokolle: Das Ergebnis landet als fertige Tabelle im Text, ohne Abtippen.",
+            "en": "Useful for term papers and reports: the result lands in the text as a finished table, without retyping."
+          }
+        },
+        {
+          "was": "Trennzeichen",
+          "bedeutet": {
+            "de": "Im Extractor-Dialog einstellbar. Für eine Weitergabe an Excel in einer deutschen Installation ist das Semikolon der reibungslosere Weg, für pandas das Komma — und in jedem Fall gehört die Wahl in die Dokumentation.",
+            "en": "Configurable in the extractor dialogue. For handing over to Excel in a German installation the semicolon is the smoother route, for pandas the comma — and in either case the choice belongs in the documentation."
+          }
+        }
+      ]
+    },
+    "B07": {
+      "titel": {
+        "de": "CSV importieren",
+        "en": "Import CSV"
+      },
+      "prompt": "☰",
+      "befehl": "Rechtsklick auf Schema oder Tabelle → Import/Export → Import Data from File(s)\n   oder: CSV aus dem Files-Fenster (Alt+2) in den Database Explorer ziehen\n\nIm Dialog prüfen:\n  Format / Delimiter        ;  bei deutschen Ausleitungen\n  Charset                   UTF-8\n  ☑ First row is header\n  Schema / Table            Ziel wählen oder neu anlegen\n  ☑ Trim whitespaces\n\nUnten: Vorschau der Daten UND Vorschau des erzeugten CREATE TABLE",
+      "teile": [
+        {
+          "was": "DDL-Vorschau",
+          "bedeutet": {
+            "de": "Der Dialog zeigt, welche Tabelle er anlegen würde — mit welchen Typen. Genau hier fällt auf, dass eine Betragsspalte als text erkannt wurde, und genau hier lässt sich das noch ändern.",
+            "en": "The dialogue shows which table it would create — with which types. This is exactly where you notice that an amount column was detected as text, and exactly where it can still be changed."
+          }
+        },
+        {
+          "was": "First row is header",
+          "bedeutet": {
+            "de": "Ohne Haken wird die Kopfzeile als Datensatz importiert, und alle Spalten werden text — weil in der ersten Zeile Wörter stehen. Ein Häkchen, zwei Folgefehler.",
+            "en": "Without the checkbox the header row is imported as a record, and all columns become text — because words stand in the first row. One checkbox, two consequential errors."
+          }
+        },
+        {
+          "was": "Große Dateien",
+          "bedeutet": {
+            "de": "Für Millionen Zeilen ist psql mit \\copy schneller und schonender als ein Dialog. Der Import über die Oberfläche ist für Übungsdaten gedacht, nicht für Massendaten.",
+            "en": "For millions of rows, psql with \\copy is faster and gentler than a dialogue. Import through the interface is meant for exercise data, not bulk data."
+          }
+        }
+      ]
+    },
+    "B08": {
+      "titel": {
+        "de": "Das Schema als Diagramm",
+        "en": "The schema as a diagram"
+      },
+      "prompt": "⌨",
+      "befehl": "Rechtsklick auf Schema oder Tabelle → Diagrams → Show Diagram\n   oder:  Strg+Alt+Shift+U     (macOS: ⌘⌥⇧U)\n\nWeitere Tabellen per Drag-and-drop ergänzen\nExport als PNG, UML, Mermaid, PlantUML, Graphviz",
+      "teile": [
+        {
+          "was": "Fremdschlüssel",
+          "bedeutet": {
+            "de": "Das Diagramm zeichnet die Beziehungen, die als Fremdschlüssel in der Datenbank stehen. Beziehungen, die nur im Kopf existieren, erscheinen nicht — was zugleich zeigt, ob das Schema seine Regeln wirklich enthält.",
+            "en": "The diagram draws the relationships that stand as foreign keys in the database. Relationships that exist only in someone's head do not appear — which at the same time shows whether the schema really contains its rules."
+          }
+        },
+        {
+          "was": "Mermaid-Export",
+          "bedeutet": {
+            "de": "Liefert Text statt Bild. Der Text lässt sich in ein Repository legen, versionieren und in einer Seminararbeit rendern — anders als ein Bildschirmfoto.",
+            "en": "Delivers text instead of an image. The text can be put in a repository, versioned and rendered in a term paper — unlike a screenshot."
+          }
+        },
+        {
+          "was": "Vor der Auswertung",
+          "bedeutet": {
+            "de": "Zehn Sekunden Diagramm ersparen die Frage, über welche Spalte zwei Tabellen zu verbinden sind. Bei der Fallstudiendatenbank sieht man unmittelbar, dass fahrt zweimal auf station verweist — Start und Ziel.",
+            "en": "Ten seconds of diagram save the question of which column joins two tables. With the case study database you see immediately that fahrt references station twice — start and destination."
+          }
+        }
+      ]
+    },
+    "B09": {
+      "titel": {
+        "de": "Suchen und springen",
+        "en": "Search and navigate"
+      },
+      "prompt": "⌨",
+      "befehl": "Shift Shift        Search Everywhere — alles, überall\nStrg+O             Datenbankobjekt nach Namen\nStrg+Shift+A       Aktion oder Einstellung nach Namen\nStrg+Shift+F       in Dateien und Quelltexten suchen (auch in Sichten)\nStrg+B             zur Definition springen — zeigt das CREATE TABLE\nAlt+F7             Verwendungen finden — wo wird diese Spalte benutzt?\nStrg+F12           Spaltenliste der Tabelle unter dem Cursor",
+      "teile": [
+        {
+          "was": "Shift Shift",
+          "bedeutet": {
+            "de": "Zweimal die Umschalttaste. Sucht Tabellen, Spalten, Einstellungen, Aktionen und Dateien in einem Feld — der Einstieg, wenn man den Namen ungefähr kennt.",
+            "en": "The Shift key twice. Searches tables, columns, settings, actions and files in one field — the entry point when you roughly know the name."
+          }
+        },
+        {
+          "was": "Strg+B",
+          "bedeutet": {
+            "de": "Zeigt die Definition eines Objekts. Bei einer Sicht sieht man die Abfrage dahinter — der schnellste Weg zu der Frage, wie eine Kennzahl eigentlich berechnet wird.",
+            "en": "Shows an object's definition. With a view you see the query behind it — the fastest route to the question of how a metric is actually computed."
+          }
+        },
+        {
+          "was": "Alt+F7",
+          "bedeutet": {
+            "de": "Findet alle Verwendungen einer Spalte in Sichten, Funktionen und gespeicherten Abfragen. Vor jeder Umbenennung der Griff, der Folgefehler verhindert.",
+            "en": "Finds all usages of a column in views, functions and saved queries. Before any renaming, the move that prevents consequential errors."
+          }
+        }
+      ]
+    },
+    "B10": {
+      "titel": {
+        "de": "Datenquelle für eine SQLite-Datei",
+        "en": "Data source for an SQLite file"
+      },
+      "prompt": "🖱",
+      "befehl": "File → New → Data Source → SQLite\n\nFile      ~/dev/velocity/velocity.db      ← die Datei aus Lab 06\n          (oder \"…\" und die Datei wählen; ein neuer Name legt eine leere Datei an)\n\n→ Download missing driver files    ← einmalig, unten im Dialog\n→ Test Connection → OK\n\n# Auch möglich: die .db-Datei aus dem Finder/Explorer auf den Database Explorer ziehen.",
+      "teile": [
+        {
+          "was": "File",
+          "bedeutet": {
+            "de": "Der Pfad zur Datenbankdatei. Kein Host, kein Port, kein Benutzer – die Datei ist die Datenbank. Liegt sie auf OneDrive oder einem Netzlaufwerk, drohen Sperrkonflikte (Lab 06).",
+            "en": "The path to the database file. No host, no port, no user – the file is the database. If it sits on OneDrive or a network drive, lock conflicts loom (lab 06)."
+          }
+        },
+        {
+          "was": "Download missing driver files",
+          "bedeutet": {
+            "de": "SQLite ist auch in 2026.2 nicht unter den mitgelieferten Treibern. Der Verweis lädt den JDBC-Treiber einmalig; danach gilt er für alle SQLite-Quellen.",
+            "en": "SQLite is not among the bundled drivers even in 2026.2. The link downloads the JDBC driver once; afterwards it applies to all SQLite sources."
+          }
+        },
+        {
+          "was": "Test Connection",
+          "bedeutet": {
+            "de": "Prüft, ob Datei und Treiber zusammenkommen. Fehlt die Datei, legt SQLite sie an – der Test ist dann trotzdem grün. Prüfen Sie im Baum, ob die Tabellen aus Lab 06 erscheinen.",
+            "en": "Checks whether file and driver come together. If the file is missing, SQLite creates it – the test is green nonetheless. Check in the tree whether the tables from lab 06 appear."
+          }
+        },
+        {
+          "was": "Kein Schemaregister",
+          "bedeutet": {
+            "de": "Eine SQLite-Datei hat genau ein Schema (main). Der Schritt „sichtbare Schemata“ entfällt; Tabellen und Sichten stehen direkt unter der Datenquelle.",
+            "en": "An SQLite file has exactly one schema (main). The “visible schemas” step does not apply; tables and views sit directly under the data source."
+          }
+        }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W09-01",
+      "typ": "checkliste",
+      "titel": {
+        "de": "Verbinden und absichern",
+        "en": "Connect and secure"
+      },
+      "aufgabe": {
+        "de": "<p>Arbeiten Sie diese Liste in DataGrip ab. Als Ziel nehmen Sie entweder das Supabase-Projekt aus Lab 08 oder den PostgreSQL-Container aus Lab 07 — am lehrreichsten ist beides nebeneinander, weil dann sichtbar wird, dass es dasselbe System ist.</p>",
+        "en": "<p>Work through this list in DataGrip. As a target take either the Supabase project from lab 08 or the PostgreSQL container from lab 07 — the most instructive is both side by side, because then it becomes visible that it is the same system.</p>"
+      },
+      "schritte": [
+        {
+          "text": {
+            "de": "DataGrip installiert und lizenziert. Für Hochschul-Datenbanken die <strong>Bildungslizenz</strong> statt der Free-Non-Commercial-Lizenz — Letztere macht Telemetrie zur Bedingung.",
+            "en": "DataGrip installed and licensed. For university databases the <strong>educational licence</strong> rather than the free non-commercial one — the latter makes telemetry a condition."
+          }
+        },
+        {
+          "text": {
+            "de": "Datenquelle angelegt. Bei Supabase: Session Pooler, <strong>Port 5432</strong> (nicht 6543), Benutzername <code>postgres.[REF]</code>.",
+            "en": "Data source created. With Supabase: session pooler, <strong>port 5432</strong> (not 6543), user name <code>postgres.[REF]</code>."
+          }
+        },
+        {
+          "text": {
+            "de": "Eine zweite Datenquelle vom Typ <strong>SQLite</strong> auf die <code>velocity.db</code> aus Lab 06 angelegt, <code>Download missing driver files</code> geklickt und geprüft, dass die Tabellen <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code> und die Sicht <code>fahrt_mit_typ</code> im Baum erscheinen.",
+            "en": "Created a second data source of type <strong>SQLite</strong> pointing at the <code>velocity.db</code> from lab 06, clicked <code>Download missing driver files</code> and checked that the tables <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code> and the view <code>fahrt_mit_typ</code> appear in the tree."
+          }
+        },
+        {
+          "text": {
+            "de": "Passwort im Feld <code>Password</code> eingetragen — <strong>nicht</strong> in das Feld <code>URL</code>.",
+            "en": "Password entered in the <code>Password</code> field — <strong>not</strong> in the <code>URL</code> field."
+          }
+        },
+        {
+          "text": {
+            "de": "<code>Test Connection</code> gedrückt und einen grünen Haken erhalten. Bei Zeitüberschreitung: Direktverbindung gegen Pooler tauschen (IPv6-Falle aus Lab 08).",
+            "en": "Pressed <code>Test Connection</code> and got a green tick. On timeout: swap the direct connection for the pooler (the IPv6 trap from lab 08)."
+          }
+        },
+        {
+          "text": {
+            "de": "Sichtbare Schemata auf <code>public</code> gestellt (Verweis <code>N of M</code> neben dem Namen) und im Baum geprüft, dass die Tabellen erscheinen.",
+            "en": "Set the visible schemas to <code>public</code> (the <code>N of M</code> link beside the name) and checked in the tree that the tables appear."
+          }
+        },
+        {
+          "text": {
+            "de": "Im Reiter <code>Options</code> der Datenquelle <code>Tx:Manual</code> als Voreinstellung gesetzt.",
+            "en": "Set <code>Tx:Manual</code> as the default in the data source's <code>Options</code> tab."
+          }
+        },
+        {
+          "text": {
+            "de": "Eine zweite Datenquelle auf dieselbe Datenbank angelegt und dort <code>Read-only</code> gesetzt — so haben Sie einen Zugang zum Nachsehen und einen zum Ändern.",
+            "en": "Created a second data source on the same database and set <code>Read-only</code> there — so you have one access for looking and one for changing."
+          }
+        },
+        {
+          "text": {
+            "de": "Konsole mit <code>F4</code> geöffnet und eine Abfrage ausgeführt. Vervollständigung getestet: Tabellenname anfangen, <code>Strg+Leertaste</code>.",
+            "en": "Opened a console with <code>F4</code> and ran a query. Tested completion: start a table name, <code>Strg+Space</code>."
+          }
+        },
+        {
+          "text": {
+            "de": "Ein Schemadiagramm mit <code>Strg+Alt+Shift+U</code> erzeugt und die Fremdschlüssel abgelesen.",
+            "en": "Produced a schema diagram with <code>Strg+Alt+Shift+U</code> and read off the foreign keys."
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Der siebte Schritt ist ein Kniff, der sich lohnt: Zwei Datenquellen auf dieselbe Datenbank, eine davon auf Read-only. Zum Nachsehen nimmt man die geschützte, zum Ändern die andere — und dann ist ein versehentlicher Klick im Datenraster keine Gefahr mehr, sondern eine Fehlermeldung.",
+        "en": "The seventh step is a trick worth having: two data sources on the same database, one of them read-only. For looking you take the protected one, for changing the other — and then an accidental click in the data grid is no longer a danger but an error message."
+      }
+    },
+    {
+      "id": "W09-02",
+      "typ": "sql",
+      "titel": {
+        "de": "Die Tagesspitzen finden",
+        "en": "Find the daily peaks"
+      },
+      "aufgabe": {
+        "de": "<p>Die Disposition will wissen, zu welchen Tageszeiten die meisten Fahrten beginnen. Ermitteln Sie je <strong>Stunde des Tages</strong> die Zahl der Fahrten und die durchschnittliche Dauer (auf eine Stelle gerundet).</p><p>Spalten in dieser Reihenfolge: <code>stunde</code>, <code>fahrten</code>, <code>dauer_mittel</code>. Aufsteigend nach Stunde sortieren.</p><p>Hinweis: <code>start_zeit</code> ist ein <code>timestamp</code>. Die Stunde daraus holt <code>extract(hour FROM …)</code>.</p>",
+        "en": "<p>Dispatching wants to know at which times of day most rides start. For each <strong>hour of the day</strong>, determine the number of rides and the average duration (rounded to one decimal).</p><p>Columns in this order: <code>stunde</code>, <code>fahrten</code>, <code>dauer_mittel</code>. Sort ascending by hour.</p><p>Hint: <code>start_zeit</code> is a <code>timestamp</code>. <code>extract(hour FROM …)</code> gets the hour out of it.</p>"
+      },
+      "start": "SELECT extract(hour FROM start_zeit) AS stunde\nFROM fahrt\n",
+      "loesung": "SELECT extract(hour FROM start_zeit)  AS stunde,\n       count(*)                       AS fahrten,\n       round(avg(dauer_min), 1)       AS dauer_mittel\nFROM fahrt\nGROUP BY stunde\nORDER BY stunde;",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p>In PostgreSQL darf ein <code>GROUP BY</code> den Aliasnamen aus der Auswahlliste verwenden — <code>GROUP BY stunde</code> genügt also. Wer den Ausdruck wiederholt (<code>GROUP BY extract(hour FROM start_zeit)</code>), erhält dasselbe Ergebnis.</p><p><code>date_trunc('hour', start_zeit)</code> wäre etwas anderes: Es behielte den Tag und lieferte 8.760 Gruppen statt 24.</p>",
+        "en": "<p>In PostgreSQL a <code>GROUP BY</code> may use the alias from the select list — so <code>GROUP BY stunde</code> is enough. Whoever repeats the expression (<code>GROUP BY extract(hour FROM start_zeit)</code>) gets the same result.</p><p><code>date_trunc('hour', start_zeit)</code> would be something else: it would keep the day and return 8,760 groups instead of 24.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Zwei Spitzen, morgens und am späten Nachmittag — das Muster, das den Stationsprofilen aus Notebook 03 der Fallstudie zugrunde liegt. Dort wurden Stationen genau anhand ihres Tagesgangs typisiert: Wohnstationen mit früher Abfahrtsspitze, Innenstadtstationen mit kurzen Wegen. Eine Gruppierung nach Stunde ist der erste Schritt dorthin.",
+        "en": "Two peaks, in the morning and in the late afternoon — the pattern underlying the station profiles from notebook 03 of the case study. There, stations were typed precisely by their daily curve: residential stations with an early departure peak, city-centre stations with short routes. Grouping by hour is the first step towards that."
+      }
+    },
+    {
+      "id": "W09-03",
+      "typ": "zuordnen",
+      "titel": {
+        "de": "Handgriff und Wirkung",
+        "en": "Action and effect"
+      },
+      "aufgabe": {
+        "de": "<p>Ordnen Sie jedem Vorhaben den Handgriff zu, mit dem es erledigt wird. Wer diese Landkarte kennt, sucht nicht in Menüs — und noch wichtiger: klickt nicht auf gut Glück.</p>",
+        "en": "<p>Assign to each intention the action that accomplishes it. Whoever knows this map does not search through menus — and, more importantly, does not click on the off chance.</p>"
+      },
+      "ziele": [
+        {
+          "id": "schema",
+          "text": {
+            "de": "Verweis N of M / Manage Shown Schemas",
+            "en": "The N of M link / Manage Shown Schemas"
+          }
+        },
+        {
+          "id": "tx",
+          "text": {
+            "de": "Der Tx-Schalter",
+            "en": "The Tx switch"
+          }
+        },
+        {
+          "id": "preview",
+          "text": {
+            "de": "Preview Pending Changes",
+            "en": "Preview Pending Changes"
+          }
+        },
+        {
+          "id": "readonly",
+          "text": {
+            "de": "Read-only im Reiter Options",
+            "en": "Read-only in the Options tab"
+          }
+        },
+        {
+          "id": "diagramm",
+          "text": {
+            "de": "Diagrams → Show Diagram",
+            "en": "Diagrams → Show Diagram"
+          }
+        },
+        {
+          "id": "historie",
+          "text": {
+            "de": "Abfragehistorie (Strg+Alt+E)",
+            "en": "Query history (Strg+Alt+E)"
+          }
+        },
+        {
+          "id": "seiten",
+          "text": {
+            "de": "Settings → Tools → Database → Data Views",
+            "en": "Settings → Tools → Database → Data Views"
+          }
+        }
+      ],
+      "paare": [
+        {
+          "begriff": {
+            "de": "Eine Tabelle existiert, erscheint aber nicht im Baum",
+            "en": "A table exists but does not appear in the tree"
+          },
+          "ziel": "schema"
+        },
+        {
+          "begriff": {
+            "de": "Eine Rasteränderung soll erst nach Prüfung dauerhaft werden",
+            "en": "A grid change should become permanent only after checking"
+          },
+          "ziel": "tx"
+        },
+        {
+          "begriff": {
+            "de": "Sehen, welches UPDATE aus meiner Zellenänderung entstehen würde",
+            "en": "See which UPDATE would arise from my cell change"
+          },
+          "ziel": "preview"
+        },
+        {
+          "begriff": {
+            "de": "Eine Produktionsdatenbank gegen versehentliche Änderungen sichern",
+            "en": "Secure a production database against accidental changes"
+          },
+          "ziel": "readonly"
+        },
+        {
+          "begriff": {
+            "de": "Herausfinden, über welche Spalte zwei Tabellen zusammenhängen",
+            "en": "Find out which column joins two tables"
+          },
+          "ziel": "diagramm"
+        },
+        {
+          "begriff": {
+            "de": "Die Abfrage von vor zwanzig Minuten zurückholen",
+            "en": "Recover the query from twenty minutes ago"
+          },
+          "ziel": "historie"
+        },
+        {
+          "begriff": {
+            "de": "Verhindern, dass eine Abfrage über zwei Millionen Zeilen die Umgebung einfriert",
+            "en": "Prevent a query over two million rows from freezing the environment"
+          },
+          "ziel": "seiten"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Drei dieser sieben Handgriffe betreffen Sicherheit: der Tx-Schalter, die Vorschau und der Schreibschutz. Sie sind alle unauffällig, kosten alle Sekunden und verhindern jeweils eine ganze Klasse von Zwischenfällen. Das erste Zeichen einer Person, die routiniert mit Datenbanken umgeht, ist nicht schnelles SQL — es ist eine auf Read-only gestellte Datenquelle.",
+        "en": "Three of these seven actions concern safety: the Tx switch, the preview and the write protection. They are all inconspicuous, all cost seconds and each prevents a whole class of incidents. The first sign of somebody who handles databases routinely is not fast SQL — it is a data source set to read-only."
+      }
+    },
+    {
+      "id": "W09-04",
+      "typ": "quiz",
+      "titel": {
+        "de": "Transaktionsmodus und Datenraster",
+        "en": "Transaction mode and data grid"
+      },
+      "aufgabe": {
+        "de": "<p>Vier Situationen im Datenraster. Die dritte ist der Fall, der im Kurs schon Tabellen gekostet hat.</p>",
+        "en": "<p>Four situations in the data grid. The third is the case that has already cost tables in this course.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Sie ändern in <code>Tx:Manual</code> eine Zelle und schicken sie mit <code>Submit</code> ab. Eine Kollegin fragt dieselbe Tabelle in ihrer Sitzung ab und sieht den alten Wert. Was fehlt?",
+            "en": "In <code>Tx:Manual</code> you change a cell and submit it with <code>Submit</code>. A colleague queries the same table in her session and sees the old value. What is missing?"
+          },
+          "optionen": [
+            {
+              "de": "Das Festschreiben: <code>Submit and Commit</code>. Bis dahin ist die Änderung nur in Ihrer Transaktion sichtbar — und verfällt, wenn die Verbindung abbricht.",
+              "en": "The commit: <code>Submit and Commit</code>. Until then the change is visible only inside your transaction — and is lost if the connection drops."
+            },
+            {
+              "de": "Ein <code>Refresh</code> bei der Kollegin.",
+              "en": "A <code>Refresh</code> on her side."
+            },
+            {
+              "de": "Nichts, in Tx:Manual sind Änderungen grundsätzlich lokal.",
+              "en": "Nothing, in Tx:Manual changes are local by principle."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Genau das ist der Unterschied zwischen Abschicken und Festschreiben. In Tx:Manual sammeln sich Änderungen in einer offenen Transaktion — sichtbar nur für Sie. Ein Refresh bei der Kollegin würde nichts ändern, weil ihre Sitzung die offene Transaktion nicht sehen kann. Und ein Verbindungsabbruch würde die Änderung verwerfen: unbequem, aber der Sinn der Sache.",
+            "en": "That is exactly the difference between submitting and committing. In Tx:Manual changes accumulate in an open transaction — visible only to you. A refresh on her side would change nothing, because her session cannot see the open transaction. And a connection drop would discard the change: inconvenient, but the point of the thing."
+          }
+        },
+        {
+          "frage": {
+            "de": "Warum sind in <code>Tx:Auto</code> die Knöpfe <code>Submit and Commit</code> und <code>Roll Back</code> ausgegraut?",
+            "en": "Why are the <code>Submit and Commit</code> and <code>Roll Back</code> buttons greyed out in <code>Tx:Auto</code>?"
+          },
+          "optionen": [
+            {
+              "de": "Weil jede abgeschickte Änderung schon festgeschrieben ist. Es gibt nichts mehr zurückzunehmen — und genau das macht diesen Modus für Produktionsdatenbanken ungeeignet.",
+              "en": "Because every submitted change is already committed. There is nothing left to take back — and that is exactly what makes this mode unsuitable for production databases."
+            },
+            {
+              "de": "Weil die Knöpfe nur mit einer Bezahllizenz freigeschaltet sind.",
+              "en": "Because the buttons are only unlocked with a paid licence."
+            },
+            {
+              "de": "Weil DataGrip in diesem Modus keine Schreibrechte hat.",
+              "en": "Because DataGrip has no write permissions in this mode."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Der Modus heißt Auto-Commit: Jede Anweisung wird sofort festgeschrieben. Die ausgegrauten Knöpfe sind also nicht ein fehlendes Merkmal, sondern eine Aussage über den Zustand — es gibt keine offene Transaktion. Für eine Übungsdatenbank bequem, für alles andere die falsche Voreinstellung.",
+            "en": "The mode is called auto-commit: every statement is committed immediately. The greyed-out buttons are therefore not a missing feature but a statement about the state — there is no open transaction. Convenient for an exercise database, the wrong default for everything else."
+          }
+        },
+        {
+          "frage": {
+            "de": "Sie wollen in einer Tabelle mit 40.000 Zeilen für alle Fahrten eines Radtyps den Preis um 10 Cent erhöhen. Was ist das sichere Vorgehen?",
+            "en": "In a table with 40,000 rows you want to raise the price by 10 cents for all rides of one bike type. What is the safe procedure?"
+          },
+          "optionen": [
+            {
+              "de": "Erst als <code>SELECT</code> mit demselben <code>WHERE</code> schreiben, die Trefferzahl notieren, dann zum <code>UPDATE</code> umschreiben und in <code>Tx:Manual</code> ausführen — mit <code>Roll Back</code> als Rückweg.",
+              "en": "First write it as a <code>SELECT</code> with the same <code>WHERE</code>, note the row count, then rewrite it as an <code>UPDATE</code> and run it in <code>Tx:Manual</code> — with <code>Roll Back</code> as the way back."
+            },
+            {
+              "de": "Die Zellen im Datenraster einzeln ändern, das ist übersichtlicher.",
+              "en": "Change the cells individually in the data grid, that is clearer."
+            },
+            {
+              "de": "Das <code>UPDATE</code> in <code>Tx:Auto</code> ausführen und bei einem Fehler ein zweites <code>UPDATE</code> zum Zurückrechnen schreiben.",
+              "en": "Run the <code>UPDATE</code> in <code>Tx:Auto</code> and, on an error, write a second <code>UPDATE</code> to compute it back."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Die Probe mit dem SELECT beantwortet die einzige Frage, die zählt: Wie viele Zeilen sind betroffen? Stimmt die Zahl nicht mit der Erwartung, ist die Bedingung falsch — und das merkt man vorher statt nachher. Zurückrechnen funktioniert nur, solange die Änderung umkehrbar ist; bei einem versehentlich weggelassenen WHERE ist sie es nicht, weil der alte Wert dann nirgends mehr steht.",
+            "en": "The SELECT test answers the only question that counts: how many rows are affected? If the number does not match expectation, the condition is wrong — and you notice beforehand instead of afterwards. Computing it back only works while the change is reversible; with an accidentally omitted WHERE it is not, because the old value then exists nowhere any more."
+          }
+        },
+        {
+          "frage": {
+            "de": "Sie haben in der Konsole drei Anweisungen stehen: ein <code>SELECT</code>, ein <code>UPDATE</code> und ein <code>DELETE</code>. Der Cursor steht im <code>SELECT</code>. Sie drücken <code>Strg+Enter</code> und bestätigen die erscheinende Auswahlliste ohne zu lesen. Was ist wahrscheinlich passiert?",
+            "en": "You have three statements in the console: a <code>SELECT</code>, an <code>UPDATE</code> and a <code>DELETE</code>. The cursor is in the <code>SELECT</code>. You press <code>Strg+Enter</code> and confirm the picker that appears without reading it. What has probably happened?"
+          },
+          "optionen": [
+            {
+              "de": "Alle drei sind gelaufen, weil in der Liste auch <em>run all statements</em> steht. Der verlässliche Weg für eine einzelne Ausführung ist: Text markieren, dann ausführen.",
+              "en": "All three ran, because the picker also offers <em>run all statements</em>. The reliable route for a single execution is: select the text, then execute."
+            },
+            {
+              "de": "Nur das <code>SELECT</code> ist gelaufen, die Liste war nur eine Bestätigung.",
+              "en": "Only the <code>SELECT</code> ran, the picker was merely a confirmation."
+            },
+            {
+              "de": "Nichts, weil DataGrip bei mehreren Anweisungen die Ausführung verweigert.",
+              "en": "Nothing, because DataGrip refuses execution with several statements."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Die Auswahlliste ist keine Bestätigung, sondern eine Frage — und ihre erste Antwort ist nicht immer die Anweisung unter dem Cursor. Zwei Gewohnheiten schützen: die Liste lesen, und für eine einzelne Ausführung vorher markieren, weil dann keine Liste erscheint. Dieselbe Sorgfalt wie beim rm in Lab 01 und beim compose down -v in Lab 07.",
+            "en": "The picker is not a confirmation but a question — and its first answer is not always the statement under the cursor. Two habits protect you: read the picker, and for a single execution select beforehand, because then no picker appears. The same care as with rm in lab 01 and compose down -v in lab 07."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W09-05",
+      "typ": "quiz",
+      "titel": {
+        "de": "Verbinden, sehen, lizenzieren",
+        "en": "Connecting, seeing, licensing"
+      },
+      "aufgabe": {
+        "de": "<p>Drei Fragen zu den Hürden, die vor dem ersten <code>SELECT</code> liegen.</p>",
+        "en": "<p>Three questions about the hurdles that lie before the first <code>SELECT</code>.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Sie haben in Supabase eine Tabelle angelegt. In DataGrip erscheint sie nicht im Baum, und die Vervollständigung kennt sie nicht. Woran liegt es am wahrscheinlichsten?",
+            "en": "You created a table in Supabase. In DataGrip it does not appear in the tree, and the completion does not know it. What is the most likely cause?"
+          },
+          "optionen": [
+            {
+              "de": "Das Schema ist nicht als sichtbar geschaltet, oder das Schema wurde seit dem Anlegen nicht neu eingelesen. Verweis <code>N of M</code> prüfen, notfalls Rechtsklick → <code>Refresh</code>.",
+              "en": "The schema is not set visible, or the schema has not been re-read since creation. Check the <code>N of M</code> link, and if needed right-click → <code>Refresh</code>."
+            },
+            {
+              "de": "Row Level Security verbirgt die Tabelle vor DataGrip.",
+              "en": "Row level security hides the table from DataGrip."
+            },
+            {
+              "de": "Der PostgreSQL-Treiber ist veraltet.",
+              "en": "The PostgreSQL driver is out of date."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Row Level Security wirkt auf die erzeugte Schnittstelle und auf Rollen, nicht auf die Anzeige eines Datenbank-Clients, der als Datenbankbenutzer verbunden ist. Und ein veralteter Treiber würde die Verbindung verweigern, nicht einzelne Tabellen ausblenden. Was Sie im Baum sehen, entscheidet allein die Sichtbarkeitseinstellung — und die ist eine Anzeigeeinstellung, kein Recht.",
+            "en": "Row level security acts on the generated interface and on roles, not on the display of a database client connected as a database user. And an out-of-date driver would refuse the connection, not hide individual tables. What you see in the tree is decided solely by the visibility setting — and that is a display setting, not a permission."
+          }
+        },
+        {
+          "frage": {
+            "de": "Warum ist für die Arbeit mit Hochschul-Datenbanken die Bildungslizenz der Free-Non-Commercial-Lizenz vorzuziehen?",
+            "en": "Why is the educational licence preferable to the free non-commercial one for work with university databases?"
+          },
+          "optionen": [
+            {
+              "de": "Weil die Free-Non-Commercial-Lizenz anonyme Telemetrie zur Bedingung macht, die sich nicht abschalten lässt — und weil sie ausdrücklich nur für Einzelpersonen und nicht für Organisationen gilt.",
+              "en": "Because the free non-commercial licence makes anonymous telemetry a condition that cannot be switched off — and because it expressly applies only to individuals and not to organisations."
+            },
+            {
+              "de": "Weil die Bildungslizenz mehr Funktionen enthält.",
+              "en": "Because the educational licence contains more features."
+            },
+            {
+              "de": "Weil die Free-Non-Commercial-Lizenz nur 30 Tage gilt.",
+              "en": "Because the free non-commercial licence only lasts 30 days."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Der Funktionsumfang ist bei beiden vollständig, und beide laufen ein Jahr. Der Unterschied liegt in der Datenerhebung und in der Reichweite: Lehre und Kursvorbereitung durch eine bezahlte Lehrkraft sind von der Non-Commercial-Lizenz nicht gedeckt — dafür gibt es das Teacher Pack und die Classroom-Lizenz.",
+            "en": "The feature set is complete in both, and both run for a year. The difference lies in the data collection and in the scope: teaching and course preparation by a paid instructor are not covered by the non-commercial licence — for that there are the teacher pack and the classroom licence."
+          }
+        },
+        {
+          "frage": {
+            "de": "Welche Maßnahmen sind sinnvoll, bevor Sie DataGrip auf eine Datenbank mit personenbezogenen Daten richten? Mehrere Antworten sind richtig.",
+            "en": "Which measures make sense before pointing DataGrip at a database with personal data? Several answers are correct."
+          },
+          "mehrfach": true,
+          "optionen": [
+            {
+              "de": "Datenquelle auf <code>Read-only</code>, solange nur gelesen wird.",
+              "en": "Set the data source to <code>Read-only</code> as long as you are only reading."
+            },
+            {
+              "de": "Passwortspeicherung prüfen — auf Poolrechnern <code>Do not save</code>.",
+              "en": "Check the password storage — on pool machines <code>Do not save</code>."
+            },
+            {
+              "de": "SSL einschalten und, wenn möglich, über einen SSH-Tunnel statt eines offenen Ports verbinden.",
+              "en": "Enable SSL and, where possible, connect through an SSH tunnel instead of an open port."
+            },
+            {
+              "de": "Die KI-Funktionen prüfen: Sie können Schemainformationen und Daten an einen externen Dienst übertragen.",
+              "en": "Check the AI features: they can transmit schema information and data to an external service."
+            },
+            {
+              "de": "Die Seitengröße im Ergebnisraster aufheben, damit alle Daten sichtbar sind.",
+              "en": "Remove the page size limit in the result grid so all data is visible."
+            }
+          ],
+          "richtig": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "erklaerung": {
+            "de": "Die Seitengröße aufzuheben ist keine Schutzmaßnahme, sondern das Gegenteil: Es holt mehr Daten als nötig auf den Rechner und friert bei großen Tabellen die Umgebung ein. Datensparsamkeit ist auch hier das Prinzip — man fragt ab, was man braucht, und nicht alles. Die vier anderen Punkte sind derselbe Gedanke in vier Werkzeugen: möglichst wenig Rechte, möglichst wenig Speicherung, verschlüsselter Weg, geklärter Datenabfluss.",
+            "en": "Removing the page size limit is not a protective measure but the opposite: it pulls more data than needed onto the machine and freezes the environment with large tables. Data minimisation is the principle here too — you query what you need, not everything. The other four points are the same thought in four tools: as few rights as possible, as little storage as possible, an encrypted path, a clarified data outflow."
+          }
+        }
+      ]
+    }
+  ]
+}

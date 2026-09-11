@@ -1,0 +1,922 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": {
+        "de": "Ein neues Projekt anlegen – der Klickweg",
+        "en": "Create a new project – the click path"
+      },
+      "prompt": "🖱",
+      "befehl": "Welcome screen → New Project\n   (bei geöffnetem Projekt: File → New Project)\n\nName:      velocity\nLocation:  ~/dev            (macOS)  |  C:\\dev   (Windows)\n[x] Create Git repository\n[x] Create a main.py welcome script\nInterpreter type:  Project venv\nPython version:    3.12 oder neuer\n\n→ Create",
+      "teile": [
+        {
+          "was": "Name + Location",
+          "bedeutet": {
+            "de": "Zusammen ergeben sie den Projektordner, hier ~/dev/velocity bzw. C:\\dev\\velocity. Regel des Kurses: kein Umlaut, kein Leerzeichen im Pfad, kein Ordner, der von OneDrive, iCloud oder dem Desktop-Sync verwaltet wird.",
+            "en": "Together they form the project folder, here ~/dev/velocity or C:\\dev\\velocity. Course rule: no umlaut, no space in the path, no folder managed by OneDrive, iCloud or the desktop sync."
+          }
+        },
+        {
+          "was": "Create Git repository",
+          "bedeutet": {
+            "de": "Legt beim Anlegen ein leeres Git-Repository an, und das Menü heißt von da an „Git“. Sie können das auch später über VCS → Enable Version Control Integration… nachholen, aber jetzt ist es ein Häkchen.",
+            "en": "Creates an empty Git repository on creation, and the menu is called “Git” from then on. You can catch up later via VCS → Enable Version Control Integration…, but right now it is one checkbox."
+          }
+        },
+        {
+          "was": "Create a main.py welcome script",
+          "bedeutet": {
+            "de": "Erzeugt eine main.py mit einem Beispielprogramm. Sie ersetzen den Inhalt in der Übung durch die Kopiervorlage – der Vorteil ist, dass PyCharm dafür gleich eine Run Configuration anbietet.",
+            "en": "Creates a main.py with a sample program. In the exercise you replace its content with the template – the advantage is that PyCharm offers a Run Configuration for it straight away."
+          }
+        },
+        {
+          "was": "Interpreter type: Project venv",
+          "bedeutet": {
+            "de": "Legt im Projektordner einen Unterordner .venv mit einer eigenen Python-Kopie an. Alternativen im selben Dialog: Base conda (wenn Anaconda installiert ist) und Custom environment mit Virtualenv, Conda, Pipenv, Poetry, uv, Hatch oder einem vorhandenen Python. Ist uv installiert, schlägt PyCharm es seit 2025.3 von selbst vor.",
+            "en": "Creates a subfolder .venv in the project folder with its own copy of Python. Alternatives in the same dialog: Base conda (if Anaconda is installed) and Custom environment with Virtualenv, Conda, Pipenv, Poetry, uv, Hatch or an existing Python. If uv is installed, PyCharm suggests it by itself since 2025.3."
+          }
+        },
+        {
+          "was": "Danach: Scanning files",
+          "bedeutet": {
+            "de": "In der Statusleiste erscheint erst „Scanning files“, dann „Analyzing project to enable smart features“. Solange das läuft, fehlen Vervollständigung und Navigation. Bei einem leeren Projekt dauert es Sekunden; bei einem Ordner mit Rohdaten Minuten – deshalb Datenordner als Excluded markieren.",
+            "en": "The status bar first shows “Scanning files”, then “Analyzing project to enable smart features”. While that runs, completion and navigation are missing. For an empty project it takes seconds; for a folder full of raw data, minutes – hence mark data folders as Excluded."
+          }
+        }
+      ]
+    },
+    "B02": {
+      "titel": {
+        "de": "requirements.txt – die Abhängigkeiten als Datei",
+        "en": "requirements.txt – the dependencies as a file"
+      },
+      "prompt": "📄",
+      "befehl": "# Velo City – Abhängigkeiten für das Projekt „velocity“ (Lab 03)\npandas>=2.2,<4          # Tabellen, json_normalize für den JSON-Export\nrequests>=2.32,<3       # HTTP-Abrufe – in Lab 10 für Quellen im Netz\npython-dotenv>=1.0,<2   # liest .env-Dateien – Zugangsdaten bleiben aus dem Code",
+      "teile": [
+        {
+          "was": "pandas>=2.2,<4",
+          "bedeutet": {
+            "de": "Untergrenze und Obergrenze. Alles ab 2.2 bis vor der nächsten ungeprüften Hauptversion darf installiert werden; die Vorlage ist mit pandas 2.x und 3.0 geprüft. Ohne Grenzen nimmt pip die neueste Fassung – und ein Skript, das heute läuft, bricht im nächsten Semester ohne Änderung am Code.",
+            "en": "Lower and upper bound. Anything from 2.2 up to before the next unchecked major version may be installed; the template is tested with pandas 2.x and 3.0. Without bounds pip takes the newest version – and a script that runs today breaks next semester without any change to the code."
+          }
+        },
+        {
+          "was": "Install requirements",
+          "bedeutet": {
+            "de": "Sobald die Datei im Projektordner liegt und Pakete fehlen, zeigt PyCharm im Editor das Banner „Install requirements“ – die Inspektion heißt „Unsatisfied package requirements“. Ein Klick installiert alles in den Interpreter des Projekts. Dasselbe von Hand: Tools → Sync Python Requirements.",
+            "en": "As soon as the file sits in the project folder and packages are missing, PyCharm shows the banner “Install requirements” in the editor – the inspection is called “Unsatisfied package requirements”. One click installs everything into the project's interpreter. The same by hand: Tools → Sync Python Requirements."
+          }
+        },
+        {
+          "was": "Welche Datei PyCharm liest",
+          "bedeutet": {
+            "de": "Settings → Tools → Python Integrated Tools, Feld „Package requirements file“. Voreingestellt ist requirements.txt im Projektordner. Liegt die Datei woanders oder heißt anders, erscheint das Banner nicht – und niemand sagt, warum.",
+            "en": "Settings → Tools → Python Integrated Tools, field “Package requirements file”. The default is requirements.txt in the project folder. If the file lies elsewhere or has a different name, the banner does not appear – and nobody says why."
+          }
+        },
+        {
+          "was": "# Kommentar",
+          "bedeutet": {
+            "de": "Zeilen mit # überliest pip. Die Kopiervorlage nutzt sie, um zu sagen, wofür ein Paket da ist – im nächsten Semester weiß man das sonst nicht mehr.",
+            "en": "pip skips lines with #. The template uses them to say what a package is for – next semester nobody remembers otherwise."
+          }
+        }
+      ]
+    },
+    "B03": {
+      "titel": {
+        "de": "Eine virtuelle Umgebung von Hand – und aktivieren",
+        "en": "A virtual environment by hand – and activate it"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "cd ~/dev/velocity\npython3 -m venv .venv\nsource .venv/bin/activate\n# Prompt zeigt jetzt:  (.venv) …$\nwhich python        # → …/velocity/.venv/bin/python",
+          "teile": [
+            {
+              "was": "python3 -m venv .venv",
+              "bedeutet": {
+                "de": "Ruft das Modul venv der Standardbibliothek auf und legt den Ordner .venv an – genau das, was der New-Project-Dialog mit „Project venv“ tut. Von Hand braucht man es, wenn ein Projekt geklont wurde: Die .venv ist nie im Repository.",
+                "en": "Calls the standard library's venv module and creates the folder .venv – exactly what the New Project dialog does with “Project venv”. By hand you need it when a project was cloned: the .venv is never in the repository."
+              }
+            },
+            {
+              "was": "source …/activate",
+              "bedeutet": {
+                "de": "Schaltet die Shell auf diese Umgebung um: python und pip meinen ab jetzt die Kopie in .venv. Der Prompt beginnt mit (.venv) – fehlt das, landet jedes pip install im globalen Python.",
+                "en": "Switches the shell to this environment: python and pip now mean the copy in .venv. The prompt starts with (.venv) – if that is missing, every pip install lands in the global Python."
+              }
+            },
+            {
+              "was": "which python",
+              "bedeutet": {
+                "de": "Die Gegenprobe. Der Pfad muss im Projektordner unter .venv liegen. Im PyCharm-Terminal (⌥F12) geschieht die Aktivierung automatisch, solange Settings → Tools → Terminal → „Activate virtualenv“ eingeschaltet ist.",
+                "en": "The cross-check. The path must lie inside the project folder under .venv. In PyCharm's terminal (⌥F12) activation happens automatically as long as Settings → Tools → Terminal → “Activate virtualenv” is on."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "cd C:\\dev\\velocity\npy -m venv .venv\n.\\.venv\\Scripts\\Activate.ps1\n# Prompt zeigt jetzt:  (.venv) PS C:\\dev\\velocity>\nGet-Command python   # → C:\\dev\\velocity\\.venv\\Scripts\\python.exe",
+          "teile": [
+            {
+              "was": "py -m venv .venv",
+              "bedeutet": {
+                "de": "py ist der Python-Starter unter Windows; python funktioniert ebenso, wenn es im Suchpfad steht. Das Modul venv legt den Ordner .venv an – dasselbe wie „Project venv“ im New-Project-Dialog.",
+                "en": "py is the Python launcher on Windows; python works too if it is on the search path. The venv module creates the folder .venv – the same as “Project venv” in the New Project dialog."
+              }
+            },
+            {
+              "was": "Activate.ps1",
+              "bedeutet": {
+                "de": "Das Aktivierungsskript für PowerShell. Der Prompt beginnt danach mit (.venv). Im PyCharm-Terminal (Alt+F12) passiert das automatisch, wenn Settings → Tools → Terminal → „Activate virtualenv“ eingeschaltet ist.",
+                "en": "The activation script for PowerShell. Afterwards the prompt starts with (.venv). In PyCharm's terminal (Alt+F12) this happens automatically if Settings → Tools → Terminal → “Activate virtualenv” is on."
+              }
+            },
+            {
+              "was": "running scripts is disabled",
+              "bedeutet": {
+                "de": "Allgemeiner Windows-Hinweis, keine PyCharm-Meldung: Verweigert PowerShell das Skript mit „… cannot be loaded because running scripts is disabled on this system“, ist die Ausführungsrichtlinie zu streng. Einmalig für das eigene Konto lockern: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned – oder auf die Eingabeaufforderung ausweichen.",
+                "en": "A general Windows note, not a PyCharm message: if PowerShell refuses the script with “… cannot be loaded because running scripts is disabled on this system”, the execution policy is too strict. Relax it once for your own account: Set-ExecutionPolicy -Scope CurrentUser RemoteSigned – or switch to Command Prompt."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "cd C:\\dev\\velocity\npy -m venv .venv\n.venv\\Scripts\\activate.bat\nrem Prompt zeigt jetzt:  (.venv) C:\\dev\\velocity>\nwhere python         rem → C:\\dev\\velocity\\.venv\\Scripts\\python.exe",
+          "teile": [
+            {
+              "was": "activate.bat",
+              "bedeutet": {
+                "de": "Die Fassung für die Eingabeaufforderung – ohne Ausführungsrichtlinie, deshalb der einfachste Weg, wenn PowerShell das Skript verweigert. Der Prompt beginnt danach mit (.venv).",
+                "en": "The version for Command Prompt – no execution policy involved, hence the simplest route when PowerShell refuses the script. Afterwards the prompt starts with (.venv)."
+              }
+            },
+            {
+              "was": "where python",
+              "bedeutet": {
+                "de": "Zeigt alle python.exe im Suchpfad, die aktive zuerst. Steht oben nicht der Pfad unter .venv, ist die Umgebung nicht aktiv.",
+                "en": "Shows every python.exe on the search path, the active one first. If the path under .venv is not at the top, the environment is not active."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B04": {
+      "titel": {
+        "de": "Pakete in die richtige Umgebung installieren",
+        "en": "Install packages into the right environment"
+      },
+      "befehl": "# Umgebung aktiv? Der Prompt beginnt mit (.venv)\npython -m pip install -r requirements.txt\npython -m pip list                 # was ist in DIESEM Interpreter installiert\npython -c \"import pandas; print(pandas.__version__)\"",
+      "teile": [
+        {
+          "was": "python -m pip",
+          "bedeutet": {
+            "de": "Statt pip allein. So installiert genau das python, das gerade aktiv ist – und nicht irgendein pip, das zufällig zuerst im Suchpfad steht. Der Unterschied ist die häufigste Ursache für „installiert, aber ModuleNotFoundError“.",
+            "en": "Instead of pip alone. This way exactly the python that is active installs – and not whichever pip happens to come first on the search path. The difference is the most common cause of “installed, but ModuleNotFoundError”."
+          }
+        },
+        {
+          "was": "-r requirements.txt",
+          "bedeutet": {
+            "de": "Liest die Datei und installiert jede Zeile. Derselbe Effekt wie das Banner „Install requirements“ in PyCharm – nur dass man hier sieht, in welchen Interpreter es geht.",
+            "en": "Reads the file and installs every line. The same effect as the “Install requirements” banner in PyCharm – except here you see which interpreter it goes into."
+          }
+        },
+        {
+          "was": "pip list vs. Python Packages",
+          "bedeutet": {
+            "de": "pip list zeigt die Pakete des aktiven Interpreters im Terminal. Das Python Packages tool window (View → Tool Windows → Python Packages) zeigt dieselbe Liste für den in der Statusleiste gewählten Interpreter und installiert auch dorthin. Weichen die beiden ab, arbeiten Terminal und Editor mit verschiedenen Umgebungen.",
+            "en": "pip list shows the packages of the active interpreter in the terminal. The Python Packages tool window (View → Tool Windows → Python Packages) shows the same list for the interpreter selected in the status bar and installs there too. If the two differ, terminal and editor are working with different environments."
+          }
+        },
+        {
+          "was": "python -c \"import pandas; …\"",
+          "bedeutet": {
+            "de": "Die kleinste Prüfung: Ein Import in einer Zeile. Erscheint eine Versionsnummer, ist das Paket in diesem Interpreter da; erscheint ModuleNotFoundError, ist es woanders.",
+            "en": "The smallest check: one import on one line. If a version number appears, the package is in this interpreter; if ModuleNotFoundError appears, it is elsewhere."
+          }
+        }
+      ]
+    },
+    "B05": {
+      "titel": {
+        "de": "main.py – Stationen mit Radanzahl",
+        "en": "main.py – stations with bike counts"
+      },
+      "prompt": "📄",
+      "befehl": "import json\nfrom pathlib import Path\n\nimport pandas as pd\n\n# Pfad relativ zur Skriptdatei, nicht zum Arbeitsverzeichnis\nDATEI = Path(__file__).parent / \"data\" / \"velocity-kostprobe.json\"\n\n\ndef lade_export(pfad: Path) -> dict:\n    with pfad.open(encoding=\"utf-8\") as datei:\n        return json.load(datei)\n\n\ndef raeder_je_station(export: dict) -> pd.DataFrame:\n    raeder = pd.json_normalize(\n        export[\"stationen\"],\n        record_path=\"raeder\",                    # die innere Liste\n        meta=[\"station_id\", \"name\", \"bezirk\"],   # Felder der äußeren Ebene\n    )\n    return (\n        raeder.groupby([\"station_id\", \"name\", \"bezirk\"])\n        .size()\n        .reset_index(name=\"raeder\")\n        .sort_values(\"station_id\")\n    )\n\n\ndef main() -> None:\n    export = lade_export(DATEI)\n    print(f\"Quelle: {export['quelle']} – exportiert am {export['exportiert_am']}\")\n    tabelle = raeder_je_station(export)\n    print(tabelle.to_string(index=False))\n    print(f\"{len(tabelle)} Stationen, {int(tabelle['raeder'].sum())} Räder insgesamt\")\n\n\nif __name__ == \"__main__\":\n    main()",
+      "ausgabe": "Quelle: Velo City Betreiberportal – exportiert am 2026-09-01T06:00:00+02:00\n station_id            name   bezirk  raeder\n          1 Juliuspromenade Altstadt       6\n          2    Hauptbahnhof Altstadt       6\n          3        Residenz Altstadt       6\n3 Stationen, 18 Räder insgesamt",
+      "teile": [
+        {
+          "was": "Path(__file__).parent",
+          "bedeutet": {
+            "de": "Der Ordner, in dem main.py liegt. Ein relativer Pfad wie \"data/…\" würde dagegen vom Working directory der Run Configuration ausgehen – und das ist nicht immer der Projektordner. So bleibt das Skript unabhängig davon, von wo es gestartet wird.",
+            "en": "The folder main.py sits in. A relative path such as \"data/…\" would instead start from the Run Configuration's working directory – and that is not always the project folder. This keeps the script independent of where it is started from."
+          }
+        },
+        {
+          "was": "json_normalize(record_path, meta)",
+          "bedeutet": {
+            "de": "Klappt eine verschachtelte Liste auf: record_path nennt die innere Liste (raeder), meta die Felder der äußeren Ebene, die in jeder Zeile wiederholt werden. Ergebnis: eine Zeile je Rad mit Stationsname daneben. Die Struktur des Exports ist Thema von Lab 05.",
+            "en": "Flattens a nested list: record_path names the inner list (raeder), meta the outer-level fields repeated in every row. Result: one row per bike with the station name beside it. The structure of the export is the subject of lab 05."
+          }
+        },
+        {
+          "was": "groupby(...).size()",
+          "bedeutet": {
+            "de": "Zählt die Zeilen je Station – also die Räder. reset_index(name=\"raeder\") macht aus dem Zählergebnis wieder eine gewöhnliche Spalte.",
+            "en": "Counts the rows per station – that is, the bikes. reset_index(name=\"raeder\") turns the count back into an ordinary column."
+          }
+        },
+        {
+          "was": "if __name__ == \"__main__\":",
+          "bedeutet": {
+            "de": "Der Block läuft nur, wenn die Datei direkt gestartet wird – nicht, wenn sie später aus einem anderen Skript oder der Python Console importiert wird. Die Funktionen bleiben dann trotzdem nutzbar.",
+            "en": "The block runs only when the file is started directly – not when it is later imported from another script or the Python Console. The functions remain usable regardless."
+          }
+        }
+      ]
+    },
+    "B06": {
+      "titel": {
+        "de": "Tastenkürzel, die sich lohnen",
+        "en": "Keyboard shortcuts worth knowing"
+      },
+      "prompt": "⌨",
+      "befehl": "Windows/Linux     macOS      Aktion\nShift Shift       ⇧ ⇧       Search Everywhere – Dateien, Aktionen, Einstellungen\nCtrl+Shift+A      ⇧⌘A       Find Action – jede Menüaktion über ihren Namen\nShift+F10         ⌃R        Run – die zuletzt gewählte Run Configuration\nCtrl+Alt+L        ⌥⌘L       Reformat Code\nAlt+F12           ⌥F12      Terminal tool window\nAlt+0             ⌘0        Commit tool window\nCtrl+Alt+S        ⌘,        Settings\nAlt+Shift+E       —         Execute Selection in Python Console",
+      "teile": [
+        {
+          "was": "Shift Shift",
+          "bedeutet": {
+            "de": "Zweimal Shift öffnet Search Everywhere mit den Reitern All, Classes, Files, Symbols, Actions, Text. Wer einen Menüpunkt nicht findet, tippt seinen Namen hier – das ersetzt das Suchen in sieben Menüs. Ein Schrägstrich am Anfang sucht in den Einstellungen.",
+            "en": "Shift twice opens Search Everywhere with the tabs All, Classes, Files, Symbols, Actions, Text. Whoever cannot find a menu item types its name here – that replaces searching through seven menus. A leading slash searches the settings."
+          }
+        },
+        {
+          "was": "Shift+F10 / ⌃R",
+          "bedeutet": {
+            "de": "Führt die Run Configuration aus, die oben rechts ausgewählt ist – nicht die Datei, die gerade im Editor offen ist. Wer sich wundert, warum „das falsche Skript“ läuft, schaut auf diese Auswahl.",
+            "en": "Runs the Run Configuration selected at the top right – not the file currently open in the editor. Whoever wonders why “the wrong script” is running looks at that selector."
+          }
+        },
+        {
+          "was": "Alt+Shift+E",
+          "bedeutet": {
+            "de": "Schickt die markierten Zeilen (oder die Zeile unter dem Cursor) in die Python Console. Die Variablen bleiben dort erhalten – für Datenarbeit der Weg, ein DataFrame anzusehen, ohne das Skript neu zu starten.",
+            "en": "Sends the selected lines (or the line under the cursor) to the Python Console. The variables stay there – for data work the way to look at a DataFrame without restarting the script."
+          }
+        },
+        {
+          "was": "Keymap",
+          "bedeutet": {
+            "de": "Die macOS-Spalte gilt für die Standard-Keymap von PyCharm und WebStorm. Wer eine andere Keymap gewählt hat, findet die aktuelle Belegung über Find Action: Der Kürzel steht rechts neben dem Aktionsnamen.",
+            "en": "The macOS column applies to the default keymap of PyCharm and WebStorm. Whoever chose a different keymap finds the current binding via Find Action: the shortcut is shown to the right of the action name."
+          }
+        }
+      ]
+    },
+    "B07": {
+      "titel": {
+        "de": ".gitignore für Kursprojekte",
+        "en": ".gitignore for course projects"
+      },
+      "prompt": "📄",
+      "befehl": "# Python\n.venv/\n__pycache__/\n*.pyc\n.ipynb_checkpoints/\n\n# Node\nnode_modules/\nnpm-debug.log*\n\n# IDE\n.idea/\n.vscode/\n\n# Zugangsdaten und Betriebssystem\n.env\n.DS_Store\nThumbs.db",
+      "teile": [
+        {
+          "was": ".venv/",
+          "bedeutet": {
+            "de": "Die virtuelle Umgebung ist mehrere hundert Megabyte groß, enthält absolute Pfade und ist an Betriebssystem und Python-Version gebunden. Sie wird nicht geteilt, sondern auf jedem Rechner aus requirements.txt neu erzeugt.",
+            "en": "The virtual environment is several hundred megabytes, contains absolute paths and is bound to operating system and Python version. It is not shared but recreated on every machine from requirements.txt."
+          }
+        },
+        {
+          "was": ".idea/",
+          "bedeutet": {
+            "de": "JetBrains empfiehlt, .idea bis auf workspace.xml zu versionieren – für Teams mit gleicher IDE-Konfiguration. Kursregel: der ganze Ordner bleibt draußen. Er enthält den Pfad zum Interpreter und lokale Einstellungen; zwischen zwei Rechnern erzeugt er Merge-Konflikte, die niemand lernen wollte.",
+            "en": "JetBrains recommends versioning .idea except for workspace.xml – for teams with identical IDE configuration. Course rule: the whole folder stays out. It contains the interpreter path and local settings; between two machines it produces merge conflicts nobody wanted to learn."
+          }
+        },
+        {
+          "was": "node_modules/",
+          "bedeutet": {
+            "de": "Das Gegenstück zur .venv für Node: Tausende Dateien, die npm install aus package.json jederzeit wiederherstellt.",
+            "en": "The counterpart to .venv for Node: thousands of files that npm install restores from package.json at any time."
+          }
+        },
+        {
+          "was": ".env",
+          "bedeutet": {
+            "de": "Zugangsdaten. Die Datei wird von python-dotenv gelesen und darf nie ins Repository – die Begründung steht in Lab 02, die Folgen in Lab 08 und Lab 11.",
+            "en": "Credentials. The file is read by python-dotenv and must never enter the repository – the reasoning is in lab 02, the consequences in labs 08 and 11."
+          }
+        },
+        {
+          "was": "Im ersten Commit",
+          "bedeutet": {
+            "de": "Eine .gitignore wirkt nur nach vorn. Ist die .venv schon einmal committet, hilft die Regel nicht mehr (Lab 02). Deshalb: Datei anlegen, bevor der erste Commit entsteht – oder das Häkchen „Create Git repository“ nutzen und die .gitignore als Erstes hineinlegen.",
+            "en": "A .gitignore only works going forward. Once the .venv has been committed, the rule no longer helps (lab 02). Hence: create the file before the first commit exists – or use the “Create Git repository” checkbox and put the .gitignore in first."
+          }
+        }
+      ]
+    },
+    "B08": {
+      "titel": {
+        "de": "package.json – das Node-Projekt als Datei",
+        "en": "package.json – the Node project as a file"
+      },
+      "prompt": "📄",
+      "befehl": "{\n  \"name\": \"velocity-node\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Velo City – Radanzahl je Station (Lab 03, WebStorm)\",\n  \"private\": true,\n  \"main\": \"index.js\",\n  \"scripts\": {\n    \"start\": \"node index.js\",\n    \"lint\": \"eslint .\"\n  },\n  \"engines\": {\n    \"node\": \">=20\"\n  },\n  \"devDependencies\": {\n    \"eslint\": \"^9.0.0\"\n  }\n}",
+      "teile": [
+        {
+          "was": "scripts",
+          "bedeutet": {
+            "de": "Benannte Befehle. npm start führt node index.js aus, npm run lint den Linter. Genau diese Einträge zeigt das npm tool window von WebStorm als Liste mit Start-Knopf – und für Lab 11 ist start der Befehl, den Render aufruft.",
+            "en": "Named commands. npm start runs node index.js, npm run lint the linter. Exactly these entries are what WebStorm's npm tool window lists with a run button – and for lab 11, start is the command Render calls."
+          }
+        },
+        {
+          "was": "devDependencies",
+          "bedeutet": {
+            "de": "Pakete, die nur beim Entwickeln gebraucht werden – ESLint prüft Code, läuft aber nicht im Programm. Das Gegenstück dependencies bleibt hier leer: index.js nutzt nur Module, die Node mitbringt.",
+            "en": "Packages needed only while developing – ESLint checks code but does not run in the program. Its counterpart, dependencies, stays empty here: index.js uses only modules Node ships with."
+          }
+        },
+        {
+          "was": "^9.0.0",
+          "bedeutet": {
+            "de": "Das Dach bedeutet: jede 9.x, keine 10. Dieselbe Idee wie >=…,<… in requirements.txt, nur in npm-Schreibweise. Die genaue installierte Fassung schreibt npm in package-lock.json.",
+            "en": "The caret means: any 9.x, no 10. The same idea as >=…,<… in requirements.txt, just in npm notation. The exact installed version is what npm writes to package-lock.json."
+          }
+        },
+        {
+          "was": "\"private\": true",
+          "bedeutet": {
+            "de": "Verhindert, dass das Projekt versehentlich mit npm publish in die öffentliche Registry hochgeladen wird. Für Kursprojekte immer setzen.",
+            "en": "Prevents the project from accidentally being uploaded to the public registry with npm publish. Always set it for course projects."
+          }
+        }
+      ]
+    },
+    "B09": {
+      "titel": {
+        "de": "index.js – dieselbe Auswertung in Node",
+        "en": "index.js – the same evaluation in Node"
+      },
+      "prompt": "📄",
+      "befehl": "const fs = require(\"node:fs\");\nconst path = require(\"node:path\");\n\n// Pfad relativ zur Skriptdatei – __dirname ist der Ordner von index.js\nconst DATEI = path.join(__dirname, \"data\", \"velocity-kostprobe.json\");\n\nfunction ladeExport(pfad) {\n  return JSON.parse(fs.readFileSync(pfad, \"utf8\"));\n}\n\nfunction raederJeStation(exportDaten) {\n  return exportDaten.stationen.map((station) => ({\n    station_id: station.station_id,\n    name: station.name,\n    bezirk: station.bezirk,\n    raeder: station.raeder.length,\n  }));\n}\n\nfunction main() {\n  const exportDaten = ladeExport(DATEI);\n  console.log(`Quelle: ${exportDaten.quelle} – exportiert am ${exportDaten.exportiert_am}`);\n  const tabelle = raederJeStation(exportDaten);\n  console.table(tabelle);\n  const gesamt = tabelle.reduce((summe, zeile) => summe + zeile.raeder, 0);\n  console.log(`${tabelle.length} Stationen, ${gesamt} Räder insgesamt`);\n}\n\nmain();",
+      "ausgabe": "Quelle: Velo City Betreiberportal – exportiert am 2026-09-01T06:00:00+02:00\n┌─────────┬────────────┬───────────────────┬────────────┬────────┐\n│ (index) │ station_id │ name              │ bezirk     │ raeder │\n├─────────┼────────────┼───────────────────┼────────────┼────────┤\n│ 0       │ 1          │ 'Juliuspromenade' │ 'Altstadt' │ 6      │\n│ 1       │ 2          │ 'Hauptbahnhof'    │ 'Altstadt' │ 6      │\n│ 2       │ 3          │ 'Residenz'        │ 'Altstadt' │ 6      │\n└─────────┴────────────┴───────────────────┴────────────┴────────┘\n3 Stationen, 18 Räder insgesamt",
+      "teile": [
+        {
+          "was": "require(\"node:fs\")",
+          "bedeutet": {
+            "de": "Lädt ein Modul, das Node mitbringt – fs für Dateien, path für Pfade. Das Präfix node: sagt ausdrücklich, dass kein Paket aus node_modules gemeint ist. Deshalb braucht dieses Skript keine dependencies.",
+            "en": "Loads a module Node ships with – fs for files, path for paths. The node: prefix says explicitly that no package from node_modules is meant. That is why this script needs no dependencies."
+          }
+        },
+        {
+          "was": "JSON.parse(readFileSync)",
+          "bedeutet": {
+            "de": "Das Gegenstück zu json.load in Python: Datei als Text lesen, dann in ein Objekt wandeln. Node hat kein json_normalize – das Aufklappen übernimmt map über die Stationen, und die Radanzahl ist schlicht die Länge der inneren Liste.",
+            "en": "The counterpart to json.load in Python: read the file as text, then turn it into an object. Node has no json_normalize – map over the stations does the flattening, and the bike count is simply the length of the inner list."
+          }
+        },
+        {
+          "was": "console.table",
+          "bedeutet": {
+            "de": "Gibt ein Array von Objekten als Tabelle aus – für die Kontrolle beim Entwickeln praktisch, für ein Programm, das Text weiterreicht, ungeeignet. Dann console.log oder JSON.stringify.",
+            "en": "Prints an array of objects as a table – handy for checking while developing, unsuitable for a program that passes text on. Then console.log or JSON.stringify."
+          }
+        },
+        {
+          "was": "Dieselbe Ausgabe wie main.py",
+          "bedeutet": {
+            "de": "Drei Stationen, je sechs Räder, achtzehn insgesamt – bewusst dieselben Zahlen wie in Python. Wer beide Skripte laufen lässt, sieht: Die Sprache ist austauschbar, das Vorgehen der IDE (Projekt, Laufzeit, Abhängigkeiten, Run Configuration) ist dasselbe.",
+            "en": "Three stations, six bikes each, eighteen in total – deliberately the same numbers as in Python. Whoever runs both scripts sees: the language is interchangeable, the IDE's approach (project, runtime, dependencies, Run Configuration) is the same."
+          }
+        }
+      ]
+    },
+    "B10": {
+      "titel": {
+        "de": "npm install und npm start",
+        "en": "npm install and npm start"
+      },
+      "befehl": "node --version                     # Laufzeit da?  (die Version, die WebStorm unter Node runtime zeigt)\nnpm install                        # installiert devDependencies nach node_modules, schreibt package-lock.json\nnpm start                          # führt scripts.start aus:  node index.js\nnpm init @eslint/config@latest     # legt eslint.config.js an (Fragen im Terminal beantworten)\nnpm run lint                       # prüft alle Dateien mit ESLint",
+      "teile": [
+        {
+          "was": "npm install",
+          "bedeutet": {
+            "de": "Liest package.json und legt node_modules an. WebStorm bietet das beim Öffnen einer package.json ohne node_modules selbst an – Hinweis „Run 'npm install'“. Der Ordner gehört in die .gitignore.",
+            "en": "Reads package.json and creates node_modules. WebStorm offers this itself when opening a package.json without node_modules – notification “Run 'npm install'”. The folder belongs in the .gitignore."
+          }
+        },
+        {
+          "was": "npm start",
+          "bedeutet": {
+            "de": "Kurzform für npm run start. Jedes andere Script braucht run: npm run lint. Im npm tool window von WebStorm ist es ein Doppelklick auf den Eintrag – WebStorm legt dabei eine Run Configuration vom Typ npm an.",
+            "en": "Short for npm run start. Every other script needs run: npm run lint. In WebStorm's npm tool window it is a double-click on the entry – WebStorm creates a Run Configuration of type npm while doing so."
+          }
+        },
+        {
+          "was": "npm init @eslint/config@latest",
+          "bedeutet": {
+            "de": "Stellt im Terminal einige Fragen (Zweck: Probleme finden; Modulart: CommonJS; kein Framework; kein TypeScript; Umgebung: Node) und schreibt eslint.config.js. Erst mit dieser Datei zeigt WebStorm ESLint-Meldungen im Editor, weil „Automatic ESLint configuration“ genau diese Datei sucht.",
+            "en": "Asks a few questions in the terminal (purpose: find problems; module type: CommonJS; no framework; no TypeScript; environment: Node) and writes eslint.config.js. Only with this file does WebStorm show ESLint messages in the editor, because “Automatic ESLint configuration” looks for exactly this file."
+          }
+        },
+        {
+          "was": "Package manager",
+          "bedeutet": {
+            "de": "npm ist der mitgelieferte. Liegt im Projekt eine yarn.lock oder pnpm-lock.yaml, erkennt WebStorm den anderen Manager an der Lock-Datei und schlägt dessen Befehl vor. Einstellbar unter Settings → Languages & Frameworks → JavaScript Runtime → Package manager.",
+            "en": "npm is the one that ships with Node. If the project contains a yarn.lock or pnpm-lock.yaml, WebStorm recognises the other manager by the lock file and suggests its command. Configurable under Settings → Languages & Frameworks → JavaScript Runtime → Package manager."
+          }
+        }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W03-01",
+      "typ": "checkliste",
+      "titel": {
+        "de": "Das Projekt velocity in PyCharm",
+        "en": "The velocity project in PyCharm"
+      },
+      "aufgabe": {
+        "de": "<p>Diese Liste arbeiten Sie in PyCharm ab. Am Ende haben Sie ein Projekt mit eigener virtuellen Umgebung, ein laufendes Skript – und Sie haben den häufigsten Fehler des Labs einmal absichtlich herbeigeführt und wieder behoben. Die Befehlskarten B01, B02 und B05 zeigen den Weg; die Kopiervorlagen liegen im Abschnitt „Der Interpreter“.</p>",
+        "en": "<p>You work through this list in PyCharm. At the end you have a project with its own virtual environment, a running script – and you have deliberately caused and fixed the lab's most common error once. Command cards B01, B02 and B05 show the way; the templates are in the section “The interpreter”.</p>"
+      },
+      "schritte": [
+        {
+          "text": {
+            "de": "Neues Projekt angelegt: Name <code>velocity</code>, Location <code>~/dev</code> bzw. <code>C:\\dev</code> (kein OneDrive, kein Umlaut, kein Leerzeichen), <strong>Interpreter type: Project venv</strong>, beide Häkchen <code>Create Git repository</code> und <code>Create a main.py welcome script</code> gesetzt. Prüffrage: Zeigt das Project tool window einen Ordner <code>.venv</code> neben <code>main.py</code>?",
+            "en": "New project created: name <code>velocity</code>, location <code>~/dev</code> or <code>C:\\dev</code> (no OneDrive, no umlaut, no space), <strong>Interpreter type: Project venv</strong>, both checkboxes <code>Create Git repository</code> and <code>Create a main.py welcome script</code> ticked. Check: does the Project tool window show a folder <code>.venv</code> next to <code>main.py</code>?"
+          }
+        },
+        {
+          "text": {
+            "de": "Statusleiste unten rechts gelesen. Prüffrage: Steht dort ein Eintrag wie <code>Python 3.12 (velocity)</code>, und nennt ein Klick darauf einen Pfad, der <em>im Projektordner</em> unter <code>.venv</code> liegt?",
+            "en": "Read the status bar at the bottom right. Check: is there an entry such as <code>Python 3.12 (velocity)</code>, and does clicking it show a path that lies <em>inside the project folder</em> under <code>.venv</code>?"
+          }
+        },
+        {
+          "text": {
+            "de": "Ordner <code>data</code> angelegt (Rechtsklick auf <code>velocity</code> → <code>New</code> → <code>Directory</code>) und die Datei <code>velocity-kostprobe.json</code> aus den Kopiervorlagen hineingelegt. Prüffrage: Erscheint <code>data/velocity-kostprobe.json</code> im Project-Baum?",
+            "en": "Folder <code>data</code> created (right-click <code>velocity</code> → <code>New</code> → <code>Directory</code>) and the file <code>velocity-kostprobe.json</code> from the templates placed inside. Check: does <code>data/velocity-kostprobe.json</code> appear in the Project tree?"
+          }
+        },
+        {
+          "text": {
+            "de": "<code>requirements.txt</code> aus der Kopiervorlage in den Projektordner gelegt und geöffnet. Im Editor erscheint das Banner <code>Install requirements</code> – angeklickt. Prüffrage: Verschwindet das Banner, und zeigt <code>View → Tool Windows → Python Packages</code> jetzt <code>pandas</code>?",
+            "en": "<code>requirements.txt</code> from the template placed in the project folder and opened. The banner <code>Install requirements</code> appears in the editor – clicked. Check: does the banner disappear, and does <code>View → Tool Windows → Python Packages</code> now list <code>pandas</code>?"
+          }
+        },
+        {
+          "text": {
+            "de": "Inhalt von <code>main.py</code> durch die Kopiervorlage ersetzt, Rechtsklick in den Editor → <code>Run 'main'</code>. Prüffrage: Zeigt das Run tool window drei Stationen mit je 6 Rädern und die Zeile <code>3 Stationen, 18 Räder insgesamt</code> – ohne Traceback?",
+            "en": "Content of <code>main.py</code> replaced with the template, right-click in the editor → <code>Run 'main'</code>. Check: does the Run tool window show three stations with 6 bikes each and the line <code>3 Stationen, 18 Räder insgesamt</code> – without a traceback?"
+          }
+        },
+        {
+          "text": {
+            "de": "Absichtlich den falschen Interpreter gewählt: Klick auf den Interpreter in der Statusleiste → <code>Add New Interpreter</code> → <code>Add Local Interpreter</code> → Typ <code>Python</code> (vorhandenes Python) → das System-Python wählen (z. B. <code>/usr/bin/python3</code> oder das unter <code>C:\\Users\\…\\Programs\\Python</code>). Prüffrage: Zeigt die Statusleiste jetzt einen Pfad <em>außerhalb</em> des Projektordners?",
+            "en": "Deliberately chose the wrong interpreter: click the interpreter in the status bar → <code>Add New Interpreter</code> → <code>Add Local Interpreter</code> → type <code>Python</code> (existing Python) → pick the system Python (e.g. <code>/usr/bin/python3</code> or the one under <code>C:\\Users\\…\\Programs\\Python</code>). Check: does the status bar now show a path <em>outside</em> the project folder?"
+          }
+        },
+        {
+          "text": {
+            "de": "<code>Run 'main'</code> erneut ausgeführt und die Meldung gelesen. Prüffrage: Endet die Ausgabe mit <code>ModuleNotFoundError: No module named 'pandas'</code> – obwohl pandas eine Minute zuvor lief?",
+            "en": "Ran <code>Run 'main'</code> again and read the message. Check: does the output end with <code>ModuleNotFoundError: No module named 'pandas'</code> – even though pandas ran a minute ago?"
+          }
+        },
+        {
+          "text": {
+            "de": "Über die Statusleiste auf <code>Python 3.x (velocity)</code> zurückgeschaltet und das Skript erneut gestartet. Prüffrage: Läuft es wieder durch – und können Sie in einem Satz sagen, warum pandas „weg“ war, ohne dass irgendetwas deinstalliert wurde?",
+            "en": "Switched back to <code>Python 3.x (velocity)</code> via the status bar and started the script again. Check: does it run through again – and can you say in one sentence why pandas was “gone” without anything being uninstalled?"
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Schritt 6 bis 8 sind das Kernstück. Pandas war nie weg – es lag die ganze Zeit in .venv. Das System-Python hat einfach einen anderen Paketordner, und ein Interpreter sieht nur seinen eigenen. Die Statusleiste ist deshalb die erste Stelle, auf die man bei jedem ModuleNotFoundError schaut – vor dem nächsten pip install.",
+        "en": "Steps 6 to 8 are the core. pandas was never gone – it sat in .venv the whole time. The system Python simply has a different package folder, and an interpreter only sees its own. The status bar is therefore the first place to look at on every ModuleNotFoundError – before the next pip install."
+      }
+    },
+    {
+      "id": "W03-02",
+      "typ": "quiz",
+      "titel": {
+        "de": "Projekt, Interpreter, Vertrauen",
+        "en": "Project, interpreter, trust"
+      },
+      "aufgabe": {
+        "de": "<p>Vier Fragen zu den Begriffen des Labs. Die erste beschreibt die Situation, in der Studierende regelmäßig ein drittes Mal <code>pip install pandas</code> tippen.</p>",
+        "en": "<p>Four questions on the lab's concepts. The first describes the situation in which students regularly type <code>pip install pandas</code> a third time.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Im Terminal haben Sie <code>pip install pandas</code> ausgeführt, die Installation meldet Erfolg. <code>Run 'main'</code> endet trotzdem mit <code>ModuleNotFoundError: No module named 'pandas'</code>. Was ist die wahrscheinlichste Ursache?",
+            "en": "In the terminal you ran <code>pip install pandas</code>, the installation reports success. <code>Run 'main'</code> nevertheless ends with <code>ModuleNotFoundError: No module named 'pandas'</code>. What is the most likely cause?"
+          },
+          "optionen": [
+            {
+              "de": "Das Terminal hatte die .venv nicht aktiv – pandas liegt jetzt im globalen Python, die Run Configuration nutzt den Interpreter in .venv.",
+              "en": "The terminal did not have the .venv active – pandas is now in the global Python, the Run Configuration uses the interpreter in .venv."
+            },
+            {
+              "de": "pandas muss zusätzlich in requirements.txt stehen, sonst lädt PyCharm es nicht.",
+              "en": "pandas additionally has to be listed in requirements.txt, otherwise PyCharm does not load it."
+            },
+            {
+              "de": "Die Installation ist noch nicht abgeschlossen; PyCharm muss neu gestartet werden.",
+              "en": "The installation is not finished yet; PyCharm has to be restarted."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Ein Interpreter sieht nur seinen eigenen Paketordner. pip ohne aktive Umgebung installiert dorthin, wo pip liegt – meist ins globale Python. requirements.txt ist eine Liste, keine Bedingung fürs Laden; und ein Neustart ändert nichts an Pfaden. Prüfen: Statusleiste anklicken, dann im Python Packages tool window nachsehen oder python -m pip list im Terminal mit (.venv) im Prompt.",
+            "en": "An interpreter only sees its own package folder. pip without an active environment installs wherever pip lives – usually the global Python. requirements.txt is a list, not a condition for loading; and a restart changes nothing about paths. Check: click the status bar, then look in the Python Packages tool window or run python -m pip list in a terminal with (.venv) in the prompt."
+          }
+        },
+        {
+          "frage": {
+            "de": "Sie haben ein Repository aus Lab 02 geklont und wollen es in PyCharm bearbeiten. Was ist der richtige Weg?",
+            "en": "You cloned a repository from lab 02 and want to work on it in PyCharm. What is the right way?"
+          },
+          "optionen": [
+            {
+              "de": "<code>File → Open</code> auf den geklonten Ordner: PyCharm legt <code>.idea</code> an und bietet an, einen Interpreter zu konfigurieren.",
+              "en": "<code>File → Open</code> on the cloned folder: PyCharm creates <code>.idea</code> and offers to configure an interpreter."
+            },
+            {
+              "de": "<code>File → New Project</code> mit demselben Namen und danach die Dateien hineinkopieren.",
+              "en": "<code>File → New Project</code> with the same name and then copy the files in."
+            },
+            {
+              "de": "Die Dateien einzeln mit <code>File → Open</code> öffnen; ein Projekt ist für Skripte nicht nötig.",
+              "en": "Open the files one by one with <code>File → Open</code>; a project is not needed for scripts."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "New Project ist für leere Projekte; für vorhandene Ordner ist Open der Weg – PyCharm erkennt, dass kein .idea existiert, legt es an und fragt nach dem Interpreter. Kopieren in ein neues Projekt verdoppelt den Ordner und trennt ihn vom Repository. Einzelne Dateien öffnen ergibt keinen Interpreter, keine Run Configuration und keinen Git-Bezug – genau die drei Dinge, für die die IDE da ist.",
+            "en": "New Project is for empty projects; for existing folders Open is the way – PyCharm notices there is no .idea, creates it and asks for the interpreter. Copying into a new project duplicates the folder and detaches it from the repository. Opening single files yields no interpreter, no Run Configuration and no Git link – exactly the three things the IDE exists for."
+          }
+        },
+        {
+          "frage": {
+            "de": "Was ist der Ordner <code>.idea</code>, und warum steht er in diesem Kurs vollständig in der <code>.gitignore</code>?",
+            "en": "What is the <code>.idea</code> folder, and why is it entirely in the <code>.gitignore</code> in this course?"
+          },
+          "optionen": [
+            {
+              "de": "Die Projektkonfiguration der IDE, unter anderem mit dem Pfad zum Interpreter. Zwischen zwei Rechnern erzeugt sie Konflikte, die nichts mit dem Code zu tun haben.",
+              "en": "The IDE's project configuration, including the path to the interpreter. Between two machines it produces conflicts that have nothing to do with the code."
+            },
+            {
+              "de": "Der Zwischenspeicher der Vervollständigung; er ist mehrere Gigabyte groß.",
+              "en": "The completion cache; it is several gigabytes in size."
+            },
+            {
+              "de": "Die virtuelle Umgebung des Projekts; sie enthält alle installierten Pakete.",
+              "en": "The project's virtual environment; it contains all installed packages."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": ".idea ist klein und enthält Einstellungen, nicht Pakete – die liegen in .venv. JetBrains selbst empfiehlt, .idea bis auf workspace.xml zu versionieren; das lohnt sich für Teams mit gleicher Konfiguration. Im Kurs arbeiten zwei Personen an zwei Rechnern mit zwei Pfaden, und dann ist der ganze Ordner draußen die einfachere Regel.",
+            "en": ".idea is small and contains settings, not packages – those sit in .venv. JetBrains itself recommends versioning .idea except for workspace.xml; that pays off for teams with identical configuration. In the course two people work on two machines with two paths, and then keeping the whole folder out is the simpler rule."
+          }
+        },
+        {
+          "frage": {
+            "de": "Beim Öffnen eines heruntergeladenen Projekts erscheint der Dialog mit <code>Trust Project</code> und <code>Preview in Safe Mode</code>. Wovor schützt Safe Mode?",
+            "en": "When opening a downloaded project the dialog with <code>Trust Project</code> and <code>Preview in Safe Mode</code> appears. What does Safe Mode protect against?"
+          },
+          "optionen": [
+            {
+              "de": "Davor, dass die IDE beim bloßen Öffnen Code aus dem Projekt ausführt – etwa Build-Skripte oder Konfigurationen in <code>.idea</code>. In Safe Mode wird nur angezeigt, nicht ausgeführt.",
+              "en": "Against the IDE executing code from the project merely by opening it – such as build scripts or configurations in <code>.idea</code>. In Safe Mode things are only displayed, not executed."
+            },
+            {
+              "de": "Vor Viren in den Quelldateien; Safe Mode prüft jede Datei mit dem Virenscanner.",
+              "en": "Against viruses in the source files; Safe Mode checks every file with the virus scanner."
+            },
+            {
+              "de": "Vor versehentlichem Speichern; in Safe Mode sind alle Dateien schreibgeschützt.",
+              "en": "Against accidental saving; in Safe Mode all files are read-only."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Ein Projekt kann Anweisungen enthalten, die die IDE beim Öffnen ausführt. Safe Mode lässt Sie lesen, ohne dass etwas läuft; Trust Project schaltet alles frei. Für eigene Projekte und die Kursrepositories ist Trust Project richtig; das Häkchen „Trust all projects in '…' folder“ für den eigenen dev-Ordner spart die Frage künftig. Einstellbar unter Settings → Appearance & Behavior → Trusted Locations.",
+            "en": "A project can contain instructions the IDE executes on opening. Safe Mode lets you read without anything running; Trust Project unlocks everything. For your own projects and the course repositories Trust Project is right; the checkbox “Trust all projects in '…' folder” for your own dev folder saves the question in future. Configurable under Settings → Appearance & Behavior → Trusted Locations."
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Alle vier Fragen laufen auf denselben Satz hinaus: Ein Projekt ist ein Ordner plus .idea plus Interpreter – und jede dieser drei Zutaten hat ihren eigenen Fehler, wenn sie fehlt oder woanders liegt.",
+        "en": "All four questions come down to the same sentence: a project is a folder plus .idea plus interpreter – and each of these three ingredients has its own error when it is missing or lies elsewhere."
+      }
+    },
+    {
+      "id": "W03-03",
+      "typ": "zuordnen",
+      "titel": {
+        "de": "Meldung → Ursache",
+        "en": "Message → cause"
+      },
+      "aufgabe": {
+        "de": "<p>Sechs Meldungen, wie sie in PyCharm wörtlich erscheinen. Ordnen Sie jeder die Ursache zu. Zwei Meldungen haben dieselbe Ursache, und eine ist gar kein Fehler.</p>",
+        "en": "<p>Six messages as they literally appear in PyCharm. Assign the cause to each. Two messages share a cause, and one is not an error at all.</p>"
+      },
+      "ziele": [
+        {
+          "id": "interp",
+          "text": {
+            "de": "Interpreter fehlt oder es ist der falsche gewählt",
+            "en": "Interpreter missing or the wrong one selected"
+          }
+        },
+        {
+          "id": "kopiert",
+          "text": {
+            "de": "Projekt von einem anderen Rechner kopiert – Pfade in .idea/.venv passen nicht mehr",
+            "en": "Project copied from another machine – paths in .idea/.venv no longer match"
+          }
+        },
+        {
+          "id": "pfad",
+          "text": {
+            "de": "Projektordner in OneDrive/iCloud oder Pfad mit Umlaut/Leerzeichen",
+            "en": "Project folder in OneDrive/iCloud or path with umlaut/space"
+          }
+        },
+        {
+          "id": "trial",
+          "text": {
+            "de": "30-Tage-Pro-Trial abgelaufen – Kern läuft weiter",
+            "en": "30-day Pro trial expired – core keeps running"
+          }
+        },
+        {
+          "id": "hinweis",
+          "text": {
+            "de": "Kein Fehler: Hinweis zur Leistung, Entscheidung ist optional",
+            "en": "Not an error: performance notice, decision is optional"
+          }
+        }
+      ],
+      "paare": [
+        {
+          "begriff": {
+            "de": "<code>ModuleNotFoundError: No module named 'pandas'</code> – obwohl pip install erfolgreich war",
+            "en": "<code>ModuleNotFoundError: No module named 'pandas'</code> – although pip install succeeded"
+          },
+          "ziel": "interp"
+        },
+        {
+          "begriff": {
+            "de": "Banner im Editor: <code>No Python interpreter configured for the project</code>",
+            "en": "Banner in the editor: <code>No Python interpreter configured for the project</code>"
+          },
+          "ziel": "interp"
+        },
+        {
+          "begriff": {
+            "de": "<code>Invalid Python SDK</code> nach dem Kopieren des Projektordners per USB-Stick",
+            "en": "<code>Invalid Python SDK</code> after copying the project folder via USB stick"
+          },
+          "ziel": "kopiert"
+        },
+        {
+          "begriff": {
+            "de": "Die Aktivierung der .venv scheitert, der Pfad enthält <code>OneDrive - Persönlich</code>, und beim nächsten Start ist der Interpreter „vergessen“",
+            "en": "Activating the .venv fails, the path contains <code>OneDrive - Persönlich</code>, and at the next start the interpreter is “forgotten”"
+          },
+          "ziel": "pfad"
+        },
+        {
+          "begriff": {
+            "de": "Meldung <code>Microsoft Defender may affect IDE</code> mit den Knöpfen <code>How to configure manually</code> und <code>Ignore for this project</code>",
+            "en": "Notification <code>Microsoft Defender may affect IDE</code> with the buttons <code>How to configure manually</code> and <code>Ignore for this project</code>"
+          },
+          "ziel": "hinweis"
+        },
+        {
+          "begriff": {
+            "de": "Das Database tool window ist ausgegraut, Skripte und Notebooks laufen aber weiter",
+            "en": "The Database tool window is greyed out, but scripts and notebooks keep running"
+          },
+          "ziel": "trial"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Zwei Meldungen, eine Ursache: Ob kein Interpreter gesetzt ist oder der falsche – die Prüfung ist dieselbe, ein Klick in die Statusleiste. Die Defender-Meldung ist eine Empfehlung, kein Fehler; auf Pool-Rechnern fehlt das Recht für „Automatically“, dann ist „Ignore for this project“ die richtige Antwort. Und das ausgegraute Database tool window sagt nur: Pro ist vorbei – für Datenbanken gibt es in Lab 09 DataGrip.",
+        "en": "Two messages, one cause: whether no interpreter is set or the wrong one – the check is the same, one click into the status bar. The Defender notice is a recommendation, not an error; on pool machines the permission for “Automatically” is missing, and then “Ignore for this project” is the right answer. And the greyed-out Database tool window only says: Pro is over – for databases there is DataGrip in lab 09."
+      }
+    },
+    {
+      "id": "W03-04",
+      "typ": "checkliste",
+      "titel": {
+        "de": "Das Node-Projekt in WebStorm",
+        "en": "The Node project in WebStorm"
+      },
+      "aufgabe": {
+        "de": "<p>Dieselbe Auswertung, andere Sprache, dieselbe IDE-Plattform. Sie legen in WebStorm ein Node-Projekt an, installieren die Abhängigkeiten, starten das Script über das npm tool window und sehen eine ESLint-Meldung. Befehlskarten B08 bis B10 zeigen die Dateien und Befehle.</p>",
+        "en": "<p>The same evaluation, a different language, the same IDE platform. In WebStorm you create a Node project, install the dependencies, start the script via the npm tool window and see an ESLint message. Command cards B08 to B10 show the files and commands.</p>"
+      },
+      "schritte": [
+        {
+          "text": {
+            "de": "In WebStorm <code>New Project</code> → <code>Empty Project</code>, Name <code>velocity-node</code>, Location <code>~/dev</code> bzw. <code>C:\\dev</code>. Aus den Kopiervorlagen <code>package.json</code> und <code>index.js</code> in den Projektordner gelegt, dazu den Ordner <code>data</code> mit <code>velocity-kostprobe.json</code>. Prüffrage: Zeigt der Project-Baum die drei Einträge <code>data</code>, <code>index.js</code>, <code>package.json</code>?",
+            "en": "In WebStorm <code>New Project</code> → <code>Empty Project</code>, name <code>velocity-node</code>, location <code>~/dev</code> or <code>C:\\dev</code>. Placed <code>package.json</code> and <code>index.js</code> from the templates into the project folder, plus the folder <code>data</code> with <code>velocity-kostprobe.json</code>. Check: does the Project tree show the three entries <code>data</code>, <code>index.js</code>, <code>package.json</code>?"
+          }
+        },
+        {
+          "text": {
+            "de": "<code>Settings → Languages &amp; Frameworks → JavaScript Runtime</code> geöffnet. Prüffrage: Steht unter <code>Node runtime</code> eine Version (20 oder neuer) und unter <code>Package manager</code> <code>npm</code>? Falls dort nichts steht: Node von nodejs.org installieren und WebStorm neu starten.",
+            "en": "Opened <code>Settings → Languages &amp; Frameworks → JavaScript Runtime</code>. Check: does <code>Node runtime</code> show a version (20 or newer) and <code>Package manager</code> show <code>npm</code>? If nothing is there: install Node from nodejs.org and restart WebStorm."
+          }
+        },
+        {
+          "text": {
+            "de": "<code>package.json</code> geöffnet; WebStorm zeigt den Hinweis <code>Run 'npm install'</code> – angeklickt (oder im Terminal <code>npm install</code>). Prüffrage: Sind <code>node_modules</code> und <code>package-lock.json</code> im Project-Baum erschienen?",
+            "en": "Opened <code>package.json</code>; WebStorm shows the notification <code>Run 'npm install'</code> – clicked it (or ran <code>npm install</code> in the terminal). Check: have <code>node_modules</code> and <code>package-lock.json</code> appeared in the Project tree?"
+          }
+        },
+        {
+          "text": {
+            "de": "Rechtsklick auf <code>package.json</code> → <code>Show npm Scripts</code>, im npm tool window Doppelklick auf <code>start</code>. Prüffrage: Zeigt das Run tool window die Tabelle mit drei Stationen und die Zeile <code>3 Stationen, 18 Räder insgesamt</code> – dieselben Zahlen wie in PyCharm?",
+            "en": "Right-click <code>package.json</code> → <code>Show npm Scripts</code>, double-click <code>start</code> in the npm tool window. Check: does the Run tool window show the table with three stations and the line <code>3 Stationen, 18 Räder insgesamt</code> – the same numbers as in PyCharm?"
+          }
+        },
+        {
+          "text": {
+            "de": "Im Terminal (<code>Alt+F12</code> / <code>⌥F12</code>) <code>npm init @eslint/config@latest</code> ausgeführt und die Fragen beantwortet (Probleme finden, CommonJS, kein Framework, kein TypeScript, Node). Danach <code>Settings → Languages &amp; Frameworks → JavaScript → Code Quality Tools → ESLint</code> geprüft. Prüffrage: Liegt <code>eslint.config.js</code> im Projekt, und steht ESLint auf <code>Automatic ESLint configuration</code>?",
+            "en": "In the terminal (<code>Alt+F12</code> / <code>⌥F12</code>) ran <code>npm init @eslint/config@latest</code> and answered the questions (find problems, CommonJS, no framework, no TypeScript, Node). Then checked <code>Settings → Languages &amp; Frameworks → JavaScript → Code Quality Tools → ESLint</code>. Check: is <code>eslint.config.js</code> in the project, and is ESLint set to <code>Automatic ESLint configuration</code>?"
+          }
+        },
+        {
+          "text": {
+            "de": "In <code>index.js</code> oberhalb von <code>main();</code> die Zeile <code>const test = 1;</code> eingefügt. Prüffrage: Unterstreicht WebStorm <code>test</code>, und nennt der Hinweis beim Überfahren die ESLint-Regel <code>no-unused-vars</code>? Zeile wieder entfernt – und das Häkchen <code>Run eslint --fix on save</code> gesehen, aber für diesen Fall nicht gebraucht.",
+            "en": "In <code>index.js</code> above <code>main();</code> inserted the line <code>const test = 1;</code>. Check: does WebStorm underline <code>test</code>, and does the hover hint name the ESLint rule <code>no-unused-vars</code>? Removed the line again – and noticed the checkbox <code>Run eslint --fix on save</code>, not needed for this case."
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Vergleichen Sie die Schritte mit W03-01: Projekt anlegen, Laufzeit prüfen (Interpreter dort, Node runtime hier), Abhängigkeiten installieren (requirements.txt dort, package.json hier), Script über die IDE starten. Die Bedienung ist dieselbe, weil beide IDEs dieselbe Plattform sind – und deshalb lernt man in Lab 03 beide auf einmal. ESLint ist das Gegenstück zu den Inspektionen von PyCharm: eine Meldung im Editor, bevor das Programm läuft.",
+        "en": "Compare the steps with W03-01: create a project, check the runtime (interpreter there, Node runtime here), install dependencies (requirements.txt there, package.json here), start the script via the IDE. The handling is the same because both IDEs are the same platform – which is why lab 03 teaches both at once. ESLint is the counterpart to PyCharm's inspections: a message in the editor before the program runs."
+      }
+    },
+    {
+      "id": "W03-05",
+      "typ": "quiz",
+      "titel": {
+        "de": "Lizenzen, Stand 09/2026",
+        "en": "Licences, as of 09/2026"
+      },
+      "aufgabe": {
+        "de": "<p>Vier Fragen zu den Lizenzwegen. Sie entscheiden, welche Lizenz Sie für das Semester wählen – und ob Sie sie beim Werkstudentenjob benutzen dürfen.</p>",
+        "en": "<p>Four questions on the licence routes. They decide which licence you choose for the semester – and whether you may use it at your part-time job.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Der 30-Tage-Pro-Trial von PyCharm ist abgelaufen, Sie haben keine Lizenz aktiviert. Was funktioniert weiterhin kostenlos? Mehrere Antworten sind richtig.",
+            "en": "PyCharm's 30-day Pro trial has expired, you have not activated any licence. What keeps working for free? Several answers are correct."
+          },
+          "mehrfach": true,
+          "optionen": [
+            {
+              "de": "Editor, Debugger, Run Configurations, Python Console, Terminal und Git",
+              "en": "Editor, debugger, Run Configurations, Python Console, terminal and Git"
+            },
+            {
+              "de": "Lokale Jupyter-Notebooks im Projekt",
+              "en": "Local Jupyter notebooks in the project"
+            },
+            {
+              "de": "Das Database tool window mit SQL-Konsole",
+              "en": "The Database tool window with SQL console"
+            },
+            {
+              "de": "Remote-Interpreter über SSH, Docker oder WSL",
+              "en": "Remote interpreters via SSH, Docker or WSL"
+            }
+          ],
+          "richtig": [
+            0,
+            1
+          ],
+          "erklaerung": {
+            "de": "Seit 2025.1 ist PyCharm ein Produkt mit kostenlosem Kern; lokale Notebooks gehören dazu. Database tools, Web-Frameworks, Remote-Interpreter und SQL-Zellen sind Pro – nach dem Trial ausgegraut, nicht verschwunden. Jede Hauptversion (dreimal im Jahr) schenkt einen neuen 30-Tage-Trial; verlässlicher ist die Bildungslizenz. Für Datenbanken nutzt der Kurs deshalb DataGrip in Lab 09.",
+            "en": "Since 2025.1 PyCharm is one product with a free core; local notebooks are part of it. Database tools, web frameworks, remote interpreters and SQL cells are Pro – greyed out after the trial, not gone. Every major release (three times a year) grants a fresh 30-day trial; the educational licence is more reliable. For databases the course therefore uses DataGrip in lab 09."
+          }
+        },
+        {
+          "frage": {
+            "de": "Welche Bedingungen gelten für WebStorm unter „free for non-commercial use“? Mehrere Antworten sind richtig.",
+            "en": "Which conditions apply to WebStorm under “free for non-commercial use”? Several answers are correct."
+          },
+          "mehrfach": true,
+          "optionen": [
+            {
+              "de": "Anonymisierte Telemetrie ist verpflichtend und lässt sich unter dieser Lizenz nicht abschalten.",
+              "en": "Anonymised telemetry is mandatory and cannot be switched off under this licence."
+            },
+            {
+              "de": "Ein Jahr Laufzeit; automatische Verlängerung nur, wenn die Lizenz in den letzten sechs Monaten benutzt wurde.",
+              "en": "One year; automatic renewal only if the licence was used in the last six months."
+            },
+            {
+              "de": "Die Aktivierung geht offline mit einem Aktivierungscode.",
+              "en": "Activation works offline with an activation code."
+            },
+            {
+              "de": "Ein Nachweis der Immatrikulation ist nötig.",
+              "en": "Proof of enrolment is required."
+            }
+          ],
+          "richtig": [
+            0,
+            1
+          ],
+          "erklaerung": {
+            "de": "Kein Nachweis, dafür Telemetrie – das ist der Handel. Aktiviert wird online über Help → Register → Non-commercial use → Start Non-Commercial Use mit JetBrains-Konto; Offline-Codes und private Support-Tickets sind ausgeschlossen. Wer die Telemetrie nicht will, nimmt die Bildungslizenz.",
+            "en": "No proof, but telemetry – that is the deal. Activation is online via Help → Register → Non-commercial use → Start Non-Commercial Use with a JetBrains Account; offline codes and private support tickets are excluded. Whoever does not want the telemetry takes the educational licence."
+          }
+        },
+        {
+          "frage": {
+            "de": "Worin unterscheidet sich die Educational licence (Student Pack) von „free for non-commercial use“?",
+            "en": "How does the educational licence (Student Pack) differ from “free for non-commercial use”?"
+          },
+          "optionen": [
+            {
+              "de": "Sie verlangt einen Nachweis (Hochschul-E-Mail, ISIC oder GitHub Student Developer Pack), gilt dafür für alle JetBrains-IDEs einschließlich PyCharm Pro und macht Telemetrie nicht zur Bedingung.",
+              "en": "It requires proof (university email, ISIC or GitHub Student Developer Pack), but in return covers all JetBrains IDEs including PyCharm Pro and does not make telemetry a condition."
+            },
+            {
+              "de": "Sie ist kostenpflichtig, aber mit Rabatt.",
+              "en": "It is paid, but discounted."
+            },
+            {
+              "de": "Sie gilt nur für PyCharm, nicht für WebStorm.",
+              "en": "It covers only PyCharm, not WebStorm."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Beide Wege sind kostenlos. Die Bildungslizenz kostet einen Nachweis – seit 07/2024 werden keine offiziellen Hochschuldokumente mehr angenommen, wohl aber die Hochschul-E-Mail oder „Authorize with GitHub“ über das Student Developer Pack – und deckt dafür alle IDEs ab, ein Jahr lang, verlängerbar, auf mehreren Rechnern. Beantragt wird sie unter jetbrains.com/shop/eform/students.",
+            "en": "Both routes are free. The educational licence costs a proof – since 07/2024 official university documents are no longer accepted, but the university email or “Authorize with GitHub” via the Student Developer Pack are – and in return covers all IDEs, for one year, renewable, on several machines. You apply at jetbrains.com/shop/eform/students."
+          }
+        },
+        {
+          "frage": {
+            "de": "Sie arbeiten neben dem Studium als Werkstudentin in einem Unternehmen und sollen dort Python-Skripte pflegen. Dürfen Sie dafür Ihre JetBrains-Bildungslizenz oder die Non-commercial-Lizenz nutzen?",
+            "en": "Alongside your studies you work as a student employee at a company and are asked to maintain Python scripts there. May you use your JetBrains educational licence or the non-commercial licence for that?"
+          },
+          "optionen": [
+            {
+              "de": "Nein. Beide Lizenzen gelten ausdrücklich nicht für kommerzielle Arbeit, auch nicht für Werkstudentenjobs, Praktika oder Ausbildung im Unternehmen. Das Unternehmen braucht eine eigene Lizenz – oder Sie nutzen dort den kostenlosen PyCharm-Kern.",
+              "en": "No. Both licences expressly do not cover commercial work, including student jobs, internships or apprenticeships at companies. The company needs its own licence – or you use the free PyCharm core there."
+            },
+            {
+              "de": "Ja, solange Sie immatrikuliert sind, gilt die Lizenz für alles, was Sie tun.",
+              "en": "Yes, as long as you are enrolled the licence covers everything you do."
+            },
+            {
+              "de": "Ja, aber nur mit der Non-commercial-Lizenz, weil sie keinen Nachweis verlangt.",
+              "en": "Yes, but only with the non-commercial licence, because it needs no proof."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Kommerzielle Nutzung heißt nach JetBrains: Produkte entwickeln und daraus wirtschaftlichen Nutzen ziehen – und das tut das Unternehmen, nicht Sie als Person. Die Bildungslizenz ist auf nicht-kommerzielle Bildungszwecke beschränkt; die Non-commercial-Lizenz ebenso. Der kostenlose PyCharm-Kern hat diese Einschränkung nicht.",
+            "en": "Commercial use, according to JetBrains, means developing products and earning commercial benefits from it – and the company does that, not you as a person. The educational licence is restricted to non-commercial educational purposes; the non-commercial licence likewise. The free PyCharm core has no such restriction."
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Die Empfehlung des Kurses, Stand 09/2026: Bildungslizenz beantragen, bevor der erste Trial endet – sie deckt PyCharm Pro und WebStorm ab und verlangt keine Telemetrie. Wer den Nachweis nicht führen kann oder will: PyCharm-Kern kostenlos, WebStorm non-commercial, DataGrip non-commercial für Lab 09. Und im Job gilt keiner der beiden Wege.",
+        "en": "The course's recommendation, as of 09/2026: apply for the educational licence before the first trial ends – it covers PyCharm Pro and WebStorm and demands no telemetry. Whoever cannot or does not want to provide proof: PyCharm core for free, WebStorm non-commercial, DataGrip non-commercial for lab 09. And at work neither of the two routes applies."
+      }
+    }
+  ]
+}

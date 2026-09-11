@@ -1,0 +1,17 @@
+# velocity-api – Abhängigkeiten (WInf-SP-Lab 11, Deploy bei Render)
+#
+# Schreibweise „>=Untergrenze,<nächste Hauptversion“ wie in Lab 03. Render
+# installiert bei JEDEM Build neu – ohne Obergrenze kann ein Deploy an dem
+# Tag scheitern, an dem ein Paket eine neue Hauptversion bekommt, obwohl
+# sich am eigenen Code nichts geändert hat.
+#
+# Wer es exakt will, friert die lokal getesteten Versionen ein:
+#   python -m pip freeze > requirements.txt
+#
+# Dazu die Python-Version festnageln (Environment Variable PYTHON_VERSION
+# oder Datei .python-version) – Render nimmt seit 02/2026 standardmäßig
+# 3.14.x, und nicht jedes Paket hat dafür schon fertige Wheels.
+
+fastapi>=0.115,<1            # der Web-Rahmen: Routen, Validierung, JSON-Antworten
+uvicorn[standard]>=0.30,<1   # der Server, der die App ausführt – der Start Command bei Render
+psycopg[binary]>=3.2,<4      # PostgreSQL-Treiber, Version 3; [binary] bringt libpq mit

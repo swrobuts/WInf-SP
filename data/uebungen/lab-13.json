@@ -1,0 +1,1007 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": {
+        "de": "CSV laden: Connect → To a File → Text file",
+        "en": "Load a CSV: Connect → To a File → Text file"
+      },
+      "prompt": "🖱",
+      "befehl": "Connect → To a File → Text file → fahrten.csv → Open\n\nData Source page (prüfen, bevor Sie zeichnen):\n  Symbol über der Spalte     Abc  monat · wochentag · bezirk · station · rad_typ · tarif\n                             #    fahrt_id · stunde · dauer_min · preis_eur\n  Datentyp ändern            Klick auf das Symbol → Number (decimal) · Number (whole) · Date · String\n  Kennung nicht summieren    fahrt_id → Rechtsklick → Convert to Dimension\n  Trennzeichen / Zeichensatz Text File Properties… → Field separator · Character set\n  Unsaubere Kopfzeilen       ☑ Use Data Interpreter (linke Leiste)\n  Oben rechts                ⦿ Live   ○ Extract\n\nSheet 1 (unten links) öffnet das Worksheet.",
+      "teile": [
+        {
+          "was": "Text file",
+          "bedeutet": {
+            "de": "Der Connector für CSV und TSV; das Trennzeichen erkennt Tableau selbst. Ein Excel-Export mit Semikolon steht in „Text File Properties…“ unter Field separator.",
+            "en": "The connector for CSV and TSV; Tableau detects the delimiter itself. An Excel export with semicolons is set under Field separator in “Text File Properties…”."
+          }
+        },
+        {
+          "was": "Abc / #",
+          "bedeutet": {
+            "de": "Der Datentyp, den Tableau aus den ersten Zeilen erraten hat. Steht über preis_eur ein Abc, war das Dezimalzeichen ein Komma – dann summiert nichts. Hier korrigieren, nicht später im Worksheet.",
+            "en": "The data type Tableau guessed from the first rows. If preis_eur shows Abc, the decimal separator was a comma – then nothing sums. Correct it here, not later in the worksheet."
+          }
+        },
+        {
+          "was": "Convert to Dimension",
+          "bedeutet": {
+            "de": "fahrt_id ist eine Zahl, also landet sie bei den Measures und würde summiert. Als Dimension ist sie eine Kennung, die man zählt (COUNTD), nicht addiert.",
+            "en": "fahrt_id is a number, so it lands among the measures and would be summed. As a dimension it is an identifier you count (COUNTD), not add."
+          }
+        },
+        {
+          "was": "Use Data Interpreter",
+          "bedeutet": {
+            "de": "Erkennt Titelzeilen, Leerzeilen und mehrzeilige Köpfe in Excel- und Textdateien und schneidet sie weg. Für eine saubere Export-CSV nicht nötig, für Tabellen aus Berichten oft die Rettung.",
+            "en": "Detects title rows, blank rows and multi-line headers in Excel and text files and trims them. Not needed for a clean export CSV, often the rescue for tables taken from reports."
+          }
+        },
+        {
+          "was": "Live / Extract",
+          "bedeutet": {
+            "de": "Live liest die Datei bei jeder Änderung neu; Extract kopiert sie in eine .hyper-Datei. Für eine CSV ist das gleichgültig – für eine Datenbank entscheidet es über Tempo und Aktualität (Abschnitt Verbinden).",
+            "en": "Live re-reads the file on every change; Extract copies it into a .hyper file. For a CSV it does not matter – for a database it decides speed and freshness (section Connecting)."
+          }
+        }
+      ]
+    },
+    "B02": {
+      "titel": {
+        "de": "PostgreSQL (Supabase) anbinden – Free Edition oder Creator",
+        "en": "Connect PostgreSQL (Supabase) – Free Edition or Creator"
+      },
+      "prompt": "🖱",
+      "befehl": "Connect → To a Server → PostgreSQL\n  Server          aws-0-eu-central-1.pooler.supabase.com\n  Port            5432\n  Database        postgres\n  Authentication  Username and Password\n  Username        postgres.[REF]\n  Password        ••••••••\n  ☑ Require SSL\n  Initial SQL     (leer lassen)\n→ Sign In\n\nFehlt der Treiber, zeigt der Dialog eine Meldung mit Link zur Driver Download page\n(tableau.com/support/drivers). Mac: JDBC-Treiber (.jar) nach ~/Library/Tableau/Drivers.",
+      "teile": [
+        {
+          "was": "Server",
+          "bedeutet": {
+            "de": "Der Session Pooler aus Lab 08, nicht db.[REF].supabase.co: Die Direktverbindung löst nur über IPv6 auf und scheitert im Hochschulnetz mit einer Zeitüberschreitung.",
+            "en": "The session pooler from lab 08, not db.[REF].supabase.co: the direct connection resolves over IPv6 only and fails on the university network with a timeout."
+          }
+        },
+        {
+          "was": "Port 5432",
+          "bedeutet": {
+            "de": "Session Mode. Port 6543 ist der Transaction Pooler – Tableaus Hilfe warnt: „Tableau relies on stateful connections“. Auf 6543 bricht die Verbindung mitten in der Sitzung ab.",
+            "en": "Session mode. Port 6543 is the transaction pooler – Tableau's help warns: “Tableau relies on stateful connections”. On 6543 the connection breaks mid-session."
+          }
+        },
+        {
+          "was": "postgres.[REF]",
+          "bedeutet": {
+            "de": "Beim Pooler trägt der Benutzername die Projektkennung. Nur „postgres“ ergibt einen Anmeldefehler, der wie ein falsches Passwort aussieht.",
+            "en": "With the pooler the user name carries the project reference. Just “postgres” yields an authentication error that looks like a wrong password."
+          }
+        },
+        {
+          "was": "Require SSL",
+          "bedeutet": {
+            "de": "Supabase verlangt Verschlüsselung auf dem Pooler. Ohne das Häkchen kann die Anmeldung abgewiesen werden, obwohl alle Angaben stimmen.",
+            "en": "Supabase requires encryption on the pooler. Without the checkbox the login can be rejected although every entry is correct."
+          }
+        },
+        {
+          "was": "Nicht in der Public Edition",
+          "bedeutet": {
+            "de": "Die Public Edition kennt unter „To a Server“ keine Datenbanken und kein ODBC. Wer sie nutzt, exportiert die Tabelle als CSV (Karte B07) und geht über B01.",
+            "en": "The Public Edition has no databases and no ODBC under “To a Server”. Whoever uses it exports the table as CSV (card B07) and goes via B01."
+          }
+        },
+        {
+          "was": "Other Databases (ODBC)",
+          "bedeutet": {
+            "de": "Der Weg für SQLite (Lab 06): SQLite3 ODBC Driver, 64-Bit, auf dem Mac zusätzlich ein ODBC-Manager. Tableau garantiert dafür keine Funktionsvielfalt – für den Kurs ist der CSV-Export der verlässlichere Weg.",
+            "en": "The route for SQLite (lab 06): SQLite3 ODBC Driver, 64-bit, on the Mac an ODBC manager in addition. Tableau guarantees no feature coverage for it – for the course the CSV export is the more reliable route."
+          }
+        }
+      ]
+    },
+    "B03": {
+      "titel": {
+        "de": "Data Source page: Relationships ziehen, Live oder Extract",
+        "en": "Data Source page: drag relationships, Live or Extract"
+      },
+      "prompt": "🖱",
+      "befehl": "Linke Leiste (Table, Schema mart): dim_datum · dim_kunde · dim_rad · dim_station · fact_fahrt   (Sternschema aus Lab 10)\n\n1  fact_fahrt auf die Leinwand ziehen\n2  dim_station daneben ziehen → eine „Noodle“ verbindet beide → Dialog Edit Relationship:\n     fact_fahrt.start_station_sk  =  dim_station.station_sk\n     Performance Options ▸ Cardinality: Many ▸ One · Referential Integrity: Some records match\n3  ebenso die übrigen Dimensionen, jede direkt an fact_fahrt:\n     fact_fahrt.rad_sk      =  dim_rad.rad_sk\n     fact_fahrt.kunde_sk    =  dim_kunde.kunde_sk\n     fact_fahrt.datum_key   =  dim_datum.datum_key\n4  Zielstation: dim_station ein zweites Mal ziehen → Rechtsklick auf die Kachel → Rename → „dim_station (Ziel)“\n     fact_fahrt.ziel_station_sk  =  dim_station (Ziel).station_sk\n5  Oben rechts:  ○ Live   ⦿ Extract   → Sheet 1 → Speicherort der .hyper-Datei wählen\n\nDoppelklick auf eine Kachel öffnet die physische Ebene (Joins) – hier nicht nötig.\nSpäter aktualisieren:  Data → [Data Source] → Extract → Refresh",
+      "teile": [
+        {
+          "was": "Noodle",
+          "bedeutet": {
+            "de": "Die Linie zwischen zwei Kacheln auf der logischen Ebene. Sie ist kein Join: Tableau entscheidet je Worksheet, wie verknüpft wird, und dupliziert keine Zeilen.",
+            "en": "The line between two tiles on the logical layer. It is not a join: Tableau decides per worksheet how to link, and duplicates no rows."
+          }
+        },
+        {
+          "was": "station_sk statt station_id",
+          "bedeutet": {
+            "de": "Die Relationship läuft über den Surrogatschlüssel des Sternschemas (station_sk, rad_sk, kunde_sk), nicht über den natürlichen Schlüssel station_id – so, wie Lab 10 die Faktentabelle befüllt hat. Das Datum verbindet sich über datum_key im Format YYYYMMDD.",
+            "en": "The relationship runs over the star schema's surrogate key (station_sk, rad_sk, kunde_sk), not over the natural key station_id – the way lab 10 populated the fact table. The date connects via datum_key in the format YYYYMMDD."
+          }
+        },
+        {
+          "was": "dim_station (Ziel)",
+          "bedeutet": {
+            "de": "fact_fahrt zeigt zweimal auf dim_station: start_station_sk und ziel_station_sk. Eine logische Tabelle kann nur eine Relationship zur Faktentabelle tragen – deshalb dieselbe Tabelle ein zweites Mal ziehen und umbenennen (Role-Playing Dimension). Ohne den zweiten Eintrag könnten Sie nur nach Start- oder nur nach Zielstation auswerten.",
+            "en": "fact_fahrt points to dim_station twice: start_station_sk and ziel_station_sk. A logical table can carry only one relationship to the fact table – hence drag the same table a second time and rename it (role-playing dimension). Without the second entry you could analyse by start station or by destination station only."
+          }
+        },
+        {
+          "was": "Cardinality · Referential Integrity",
+          "bedeutet": {
+            "de": "Performance-Hinweise, keine Prüfung: „Many ▸ One“ sagt, dass eine Station viele Fahrten hat; „All records match“ erlaubt Tableau schnellere Joins – nur setzen, wenn jede Fahrt wirklich eine Station hat.",
+            "en": "Performance hints, not checks: “Many ▸ One” says a station has many rides; “All records match” lets Tableau use faster joins – set it only if every ride really has a station."
+          }
+        },
+        {
+          "was": "Extract",
+          "bedeutet": {
+            "de": "Eine Kopie in Tableaus Spaltenformat .hyper. Schnell, offline nutzbar, und Voraussetzung für Tableau Public. Der Preis: Die Daten sind so alt wie der letzte Refresh.",
+            "en": "A copy in Tableau's columnar .hyper format. Fast, usable offline, and the prerequisite for Tableau Public. The price: the data is as old as the last refresh."
+          }
+        },
+        {
+          "was": "Live",
+          "bedeutet": {
+            "de": "Jede Änderung im Worksheet schickt eine Abfrage an Supabase. Aktuell, aber abhängig von Netz und Datenbank – und die Datenbank pausiert im Free-Plan nach etwa einer Woche.",
+            "en": "Every change in the worksheet sends a query to Supabase. Fresh, but dependent on network and database – and the database pauses after roughly a week on the free plan."
+          }
+        },
+        {
+          "was": "Doppelklick auf die Kachel",
+          "bedeutet": {
+            "de": "Wechselt in die physische Ebene: Venn-Diagramme, Inner/Left/Right/Full Outer, Union. Dort werden Zeilen wirklich verschmolzen – mit der Fan-out-Falle aus dem Abschnitt Stolpersteine.",
+            "en": "Switches to the physical layer: Venn diagrams, Inner/Left/Right/Full Outer, Union. There rows really are merged – with the fan-out trap from the stumbling blocks section."
+          }
+        }
+      ]
+    },
+    "B04": {
+      "titel": {
+        "de": "Tastenkürzel im Worksheet (Windows / Mac)",
+        "en": "Keyboard shortcuts in the worksheet (Windows / Mac)"
+      },
+      "prompt": "⌨",
+      "befehl": "Ctrl+M        /  Cmd+T             New Worksheet\nCtrl+1        /  Cmd+1             Show Me ein- und ausblenden\nCtrl+W        /  Ctrl+Cmd+W        Swap Rows and Columns\nF5            /  Cmd+R             Refresh Data Source\nF10           /  Option+Cmd+0      Toggle Automatic Updates (Pause)\nF9            /  Shift+Cmd+0       Run Update\nAlt+Shift+Backspace / Option+Shift+Delete   Clear Sheet\nCtrl+Z · Ctrl+Y  /  Cmd+Z · Cmd+Shift+Z    Undo · Redo\nCtrl+Ziehen   /  Cmd+Ziehen        Pille kopieren statt verschieben\nF7            /  Option+Return     Presentation Mode",
+      "teile": [
+        {
+          "was": "Ctrl+M / Cmd+T",
+          "bedeutet": {
+            "de": "Ein neues Worksheet je Frage. Ein Dashboard besteht aus mehreren Worksheets; wer alles in eines zeichnet, hat später nichts zum Zusammenstellen.",
+            "en": "One new worksheet per question. A dashboard consists of several worksheets; whoever draws everything into one has nothing to assemble later."
+          }
+        },
+        {
+          "was": "Ctrl+W",
+          "bedeutet": {
+            "de": "Tauscht Rows und Columns – aus senkrechten Balken werden waagerechte. In Tableau ist die Ausrichtung eine Frage der Regale, nicht des Diagrammtyps.",
+            "en": "Swaps Rows and Columns – vertical bars become horizontal. In Tableau the orientation is a matter of shelves, not of chart type."
+          }
+        },
+        {
+          "was": "F10",
+          "bedeutet": {
+            "de": "Hält die automatischen Abfragen an. Bei einer Live-Verbindung nach Supabase spart das bei jedem Ziehen eine Abfrage; F9 führt dann alles auf einmal aus.",
+            "en": "Pauses automatic queries. With a live connection to Supabase this saves a query per drag; F9 then runs everything at once."
+          }
+        },
+        {
+          "was": "Ctrl+Ziehen",
+          "bedeutet": {
+            "de": "Eine Pille auf ein zweites Regal kopieren – etwa SUM(Preis Eur) zusätzlich auf Label. Ohne Taste wird sie verschoben.",
+            "en": "Copy a pill onto a second shelf – e.g. SUM(Preis Eur) additionally onto Label. Without the key it is moved."
+          }
+        }
+      ]
+    },
+    "B05": {
+      "titel": {
+        "de": "Aggregation und Datum an der Pille ändern",
+        "en": "Change aggregation and date at the pill"
+      },
+      "prompt": "🖱",
+      "befehl": "Kennzahl:   Rechtsklick auf SUM(Preis Eur) → Measure (Sum) →\n              Sum · Average · Median · Count · Count (Distinct) · Minimum · Maximum · Percentile · Std. Dev · Variance · Attribute · Dimension\nJede Zeile einzeln (Scatterplot):   Analysis → ☐ Aggregate Measures\n\nDatum:      Rechtsklick auf die Datumspille →\n              oberer Block    Year · Quarter · Month · Day        = Date parts, blau, Köpfe – alle Januare zusammen\n              unterer Block   Year 2026 · Quarter Q2 2026 · Month May 2026 · Week · Day\n                                                                   = Date values, grün, durchgehende Achse\n              Exact Date · Attribute · Measure · Custom…\n\nFarbe:      Rechtsklick → Convert to Continuous  /  Convert to Discrete\nRolle:      Rechtsklick im Data pane → Convert to Dimension  /  Convert to Measure",
+      "teile": [
+        {
+          "was": "Measure (Sum)",
+          "bedeutet": {
+            "de": "Der Klammerinhalt zeigt die aktuelle Aggregation. Sie gilt für diese Pille auf diesem Regal – nicht für das Feld. Dasselbe Feld kann auf Rows als SUM und auf Label als AVG liegen.",
+            "en": "The bracket shows the current aggregation. It applies to this pill on this shelf – not to the field. The same field can sit on Rows as SUM and on Label as AVG."
+          }
+        },
+        {
+          "was": "Count (Distinct)",
+          "bedeutet": {
+            "de": "Zählt verschiedene Werte. Auf Fahrt Id ist das die Zahl der Fahrten; Count zählt Zeilen und liefert nach einem Join mit Fan-out zu viel.",
+            "en": "Counts distinct values. On Fahrt Id that is the number of rides; Count counts rows and returns too much after a join with fan-out."
+          }
+        },
+        {
+          "was": "Aggregate Measures",
+          "bedeutet": {
+            "de": "Abgeschaltet zeichnet Tableau eine Marke je Zeile der Datenquelle – 1.500 Punkte für Dauer gegen Preis. Danach wieder einschalten, sonst wundert man sich über die nächste Balkengrafik.",
+            "en": "Switched off, Tableau draws one mark per row of the data source – 1,500 points for duration against price. Switch it on again afterwards, or the next bar chart will surprise you."
+          }
+        },
+        {
+          "was": "Oberer Block",
+          "bedeutet": {
+            "de": "Date parts: Month ohne Jahr. Alle Januare aus 2025/26 werden zu einer Kategorie – richtig für Saisonvergleiche, falsch für einen Verlauf über zwölf Monate.",
+            "en": "Date parts: Month without year. All Januaries from 2025/26 become one category – right for seasonal comparisons, wrong for a course over twelve months."
+          }
+        },
+        {
+          "was": "Unterer Block",
+          "bedeutet": {
+            "de": "Date values: Month May 2026 ist ein Zeitpunkt auf einer Achse. Sep 2025 bis Aug 2026 werden zwölf Punkte auf einer grünen Achse – die Linie, die Sie für den Jahresverlauf wollen.",
+            "en": "Date values: Month May 2026 is a point on an axis. Sep 2025 to Aug 2026 become twelve points on a green axis – the line you want for the annual course."
+          }
+        },
+        {
+          "was": "Convert to Continuous",
+          "bedeutet": {
+            "de": "Ändert nur die Farbe: aus Köpfen wird eine Achse. Dimension oder Kennzahl bleibt, was es war – die zwei Fragen sind unabhängig voneinander.",
+            "en": "Changes only the colour: headers become an axis. Dimension or measure stays what it was – the two questions are independent of each other."
+          }
+        }
+      ]
+    },
+    "B06": {
+      "titel": {
+        "de": "Calculated Fields für Velo City (Vorlage lab-13-berechnete_felder.txt)",
+        "en": "Calculated Fields for Velo City (template lab-13-berechnete_felder.txt)"
+      },
+      "prompt": "📄",
+      "befehl": "// Analysis → Create Calculated Field…  – Name oben, Formel unten, Prüfzeile: The calculation is valid.\n\n// 1) Umsatz je Fahrt – Aggregat: beide Seiten aggregiert\nSUM([Preis Eur]) / COUNTD([Fahrt Id])\n\n// 2) Ist E-Bike – Zeilenrechnung, TRUE/FALSE je Fahrt → Dimension\n[Rad Typ] = \"EBIKE\"\n\n// 3) Dauerklasse – IF/ELSEIF je Zeile → Dimension (Text)\nIF [Dauer Min] < 10 THEN \"kurz (unter 10 min)\"\nELSEIF [Dauer Min] < 30 THEN \"mittel (10 bis 29 min)\"\nELSE \"lang (30 min und mehr)\"\nEND\n\n// 4) Fahrten je Station (FIXED) – LOD, rechnet vor den Dimension Filters\n{ FIXED [Station] : COUNTD([Fahrt Id]) }\n\n// 5) Anteil am Gesamtumsatz – Table Calculation, rechnet auf dem Ergebnis der Viz\n//    Rechtsklick auf SUM(Preis Eur) → Quick Table Calculation → Percent of Total, oder:\nSUM([Preis Eur]) / TOTAL(SUM([Preis Eur]))",
+      "teile": [
+        {
+          "was": "SUM(…) / COUNTD(…)",
+          "bedeutet": {
+            "de": "Zähler und Nenner aggregiert – Tableau rechnet das Verhältnis je Zelle der Viz neu. [Preis Eur] / [Fahrt Id] je Zeile wäre Unsinn, und SUM([Preis Eur]) / [Fahrt Id] ist der Fehler „Cannot mix aggregate and non-aggregate arguments with this function.“",
+            "en": "Numerator and denominator aggregated – Tableau recomputes the ratio per cell of the viz. [Preis Eur] / [Fahrt Id] per row would be nonsense, and SUM([Preis Eur]) / [Fahrt Id] is the error “Cannot mix aggregate and non-aggregate arguments with this function.”"
+          }
+        },
+        {
+          "was": "[Rad Typ] = \"EBIKE\"",
+          "bedeutet": {
+            "de": "Ein Vergleich je Zeile liefert einen Wahrheitswert. Tableau legt das Feld als Dimension ab – es lässt sich auf Color oder Filters ziehen wie jede andere.",
+            "en": "A comparison per row yields a boolean. Tableau files the field as a dimension – it can be dragged onto Color or Filters like any other."
+          }
+        },
+        {
+          "was": "IF … ELSEIF … END",
+          "bedeutet": {
+            "de": "Klassen aus einer Zahl. Das END ist Pflicht; ohne ELSE erhalten nicht abgedeckte Zeilen Null – und der Nulls-Indikator unten rechts erscheint.",
+            "en": "Classes from a number. END is mandatory; without ELSE, rows not covered get null – and the nulls indicator at the bottom right appears."
+          }
+        },
+        {
+          "was": "{ FIXED [Station] : … }",
+          "bedeutet": {
+            "de": "Ein Level-of-Detail-Ausdruck: die Zahl je Station, gleichgültig, was in der Viz liegt. Auf einem Sheet mit Bezirk auf Rows zeigt er trotzdem Stationswerte – und ein Filter auf Rad Typ ändert ihn nicht.",
+            "en": "A level-of-detail expression: the number per station, regardless of what sits in the viz. On a sheet with district on Rows it still shows station values – and a filter on bike type does not change it."
+          }
+        },
+        {
+          "was": "TOTAL(SUM(…))",
+          "bedeutet": {
+            "de": "Eine Table Calculation: Sie rechnet auf dem, was die Viz schon abgefragt hat. Compute Using bestimmt, worüber die 100 % laufen. Nach einem Filter sind die 100 % das, was übrig ist.",
+            "en": "A table calculation: it computes on what the viz has already queried. Compute Using determines what the 100 % runs over. After a filter the 100 % is what remains."
+          }
+        }
+      ]
+    },
+    "B07": {
+      "titel": {
+        "de": "Flache Tabelle als CSV exportieren (Vorlage lab-13-export.sql)",
+        "en": "Export the flat table as CSV (template lab-13-export.sql)"
+      },
+      "prompt": "📄",
+      "befehl": "-- A) sqlite3 velocity.db  (Lab 06) – nur diesen Block einfügen\n.mode csv\n.headers on\n.once fahrten.csv\nSELECT f.fahrt_id,\n       strftime('%Y-%m', f.start_zeit)                 AS monat,\n       CASE strftime('%w', f.start_zeit)\n            WHEN '0' THEN 'So' WHEN '1' THEN 'Mo' WHEN '2' THEN 'Di'\n            WHEN '3' THEN 'Mi' WHEN '4' THEN 'Do' WHEN '5' THEN 'Fr'\n            ELSE 'Sa' END                               AS wochentag,\n       CAST(strftime('%H', f.start_zeit) AS INTEGER)   AS stunde,\n       s.bezirk, f.start_name AS station, f.rad_typ, k.tarif, f.dauer_min, f.preis_eur\nFROM fahrt_mit_typ f\nJOIN station s ON s.station_id = f.start_station\nJOIN kunde   k ON k.kunde_id   = f.kunde_id\nORDER BY f.fahrt_id;\n\n-- B) psql über den Session Pooler (Lab 08) – eine Zeile\n\\copy (SELECT f.fahrt_id, to_char(f.start_zeit, 'YYYY-MM') AS monat, (ARRAY['So','Mo','Di','Mi','Do','Fr','Sa'])[extract(dow FROM f.start_zeit)::int + 1] AS wochentag, extract(hour FROM f.start_zeit)::int AS stunde, s.bezirk, f.start_name AS station, f.rad_typ, k.tarif, f.dauer_min, f.preis_eur FROM fahrt_mit_typ f JOIN station s ON s.station_id = f.start_station JOIN kunde k ON k.kunde_id = f.kunde_id ORDER BY f.fahrt_id) TO 'fahrten.csv' WITH (FORMAT csv, HEADER)",
+      "teile": [
+        {
+          "was": ".mode csv · .headers on · .once",
+          "bedeutet": {
+            "de": "Punktbefehle der sqlite3-Shell, kein SQL: Ausgabeformat CSV, Kopfzeile an, und die nächste Abfrage geht einmalig in die Datei statt auf den Bildschirm.",
+            "en": "Dot commands of the sqlite3 shell, not SQL: output format CSV, header on, and the next query goes into the file once instead of onto the screen."
+          }
+        },
+        {
+          "was": "fahrt_mit_typ",
+          "bedeutet": {
+            "de": "Die Sicht aus Lab 06/08 liefert schon rad_typ und start_name. Für tarif und bezirk kommen kunde und station dazu – dieselben Joins, die Tableau sonst als Relationship ziehen würde.",
+            "en": "The view from labs 06/08 already provides rad_typ and start_name. For tarif and bezirk, kunde and station are added – the same joins Tableau would otherwise draw as relationships."
+          }
+        },
+        {
+          "was": "strftime / to_char",
+          "bedeutet": {
+            "de": "Monat als Text 2025-09: In SQLite ist start_zeit TEXT nach ISO 8601, in Postgres ein timestamp. Zwei Dialekte, dieselbe Spalte im Ergebnis – die Kopfzeile ist in beiden Fällen identisch mit regal-fahrten.json.",
+            "en": "Month as text 2025-09: in SQLite start_zeit is TEXT in ISO 8601, in Postgres a timestamp. Two dialects, the same column in the result – the header is identical to regal-fahrten.json in both cases."
+          }
+        },
+        {
+          "was": "\\copy",
+          "bedeutet": {
+            "de": "Ein Befehl von psql, nicht von Postgres: Die Datei entsteht auf Ihrem Rechner. COPY ohne Backslash schriebe auf den Server – bei Supabase nicht erlaubt. \\copy braucht die ganze Abfrage in einer Zeile.",
+            "en": "A psql command, not a Postgres one: the file is created on your machine. COPY without the backslash would write on the server – not allowed on Supabase. \\copy needs the whole query on one line."
+          }
+        },
+        {
+          "was": "Kontrolle",
+          "bedeutet": {
+            "de": "1.500 Zeilen, Umsatz gesamt 3.172,14 €, CITY 913 / EBIKE 444 / CARGO 143. Auf der Data Source page steht unten rechts die Zeilenzahl; preis_eur muss ein # tragen.",
+            "en": "1,500 rows, total revenue 3,172.14 €, CITY 913 / EBIKE 444 / CARGO 143. The Data Source page shows the row count at the bottom right; preis_eur must carry a #."
+          }
+        }
+      ]
+    },
+    "B08": {
+      "titel": {
+        "de": "Dashboard, Actions und Veröffentlichen",
+        "en": "Dashboard, actions and publishing"
+      },
+      "prompt": "🖱",
+      "befehl": "Dashboard → New Dashboard\n  Size: Automatic · Fixed size        Objekte: Sheets · Horizontal · Vertical · Text · Image · Web Page · Blank · Navigation · Download\n  Tiled (rastet ein) · Floating (frei)\n  Sheet auf dem Dashboard → Trichter-Symbol „Use as Filter“ → ein Klick auf einen Balken filtert die anderen Sheets\nDashboard → Actions… → Add Action ▸ Filter · Highlight · Go to URL · Go to Sheet · Change Parameter · Change Set Value\n  Run action on: Hover · Select · Menu\nStory → New Story → Story Points (Blank · Duplicate · Save as New)\n\nVeröffentlichen und abgeben:\n  Public Edition   Server → Tableau Public → Save to Tableau Public As…     alles öffentlich, Daten als Extract eingebettet\n                   lokal:  File → Save   (nicht das Speichern-Symbol der Toolbar – das veröffentlicht)\n                   Profil: ☐ Allow workbook and its data to be downloaded by others\n  Free Edition     kein Server → Sign In, kein Publish\n                   Abgabe: File → Print to PDF…  ·  Dashboard → Export Image…  ·  File → Export As PowerPoint…\n  Cloud-Site       Server → Publish Workbook…  (Student Course License + Cloud-Site des Kurses)",
+      "teile": [
+        {
+          "was": "Use as Filter",
+          "bedeutet": {
+            "de": "Macht ein Sheet zum Steuerpult: Klick auf „Altstadt“ im Balkendiagramm filtert die Linie daneben auf die Altstadt. Dasselbe Ergebnis wie eine Filter-Action, in einem Klick.",
+            "en": "Turns a sheet into a control: clicking “Altstadt” in the bar chart filters the line next to it to Altstadt. The same result as a filter action, in one click."
+          }
+        },
+        {
+          "was": "Actions…",
+          "bedeutet": {
+            "de": "Filter und Highlight wirken zwischen Sheets, Go to URL verlinkt nach außen (etwa auf die Stationsseite). Run action on Select ist der übliche Fall; Hover ist für Tooltips.",
+            "en": "Filter and Highlight act between sheets, Go to URL links outward (e.g. to the station page). Run action on Select is the usual case; Hover is for tooltips."
+          }
+        },
+        {
+          "was": "Save to Tableau Public As…",
+          "bedeutet": {
+            "de": "Erzeugt einen Extract der Daten und lädt ihn mit dem Workbook hoch. „Workbooks and data published to your Tableau Public profile are not private and are freely accessible to anyone.“ Nur mit synthetischen oder offenen Daten.",
+            "en": "Creates an extract of the data and uploads it with the workbook. “Workbooks and data published to your Tableau Public profile are not private and are freely accessible to anyone.” Only with synthetic or open data."
+          }
+        },
+        {
+          "was": "File → Save",
+          "bedeutet": {
+            "de": "Seit Version 2024.1.2 speichert die Public Edition lokal als .twb/.twbx. Das Speichern-Symbol in der Toolbar tut das nicht – es veröffentlicht. Zwei Wege, die gleich aussehen und Gegenteiliges bewirken.",
+            "en": "Since version 2024.1.2 the Public Edition saves locally as .twb/.twbx. The save icon in the toolbar does not – it publishes. Two routes that look alike and do the opposite."
+          }
+        },
+        {
+          "was": "Free Edition – Abgabe",
+          "bedeutet": {
+            "de": "Die Lizenz erlaubt Weitergabe nur in statischer Form: Screenshots, PDF. Eine .twbx darf nicht geteilt werden, also auch nicht in Moodle hochgeladen.",
+            "en": "The licence allows sharing only in static form: screenshots, PDF. A .twbx must not be shared, so not uploaded to Moodle either."
+          }
+        }
+      ]
+    }
+  },
+  "regal": {
+    "daten": "data/regal-fahrten.json",
+    "felder": [
+      {
+        "id": "monat",
+        "typ": "dimension",
+        "geordnet": true,
+        "titel": {
+          "de": "Monat",
+          "en": "Month"
+        },
+        "reihenfolge": [
+          "2025-09",
+          "2025-10",
+          "2025-11",
+          "2025-12",
+          "2026-01",
+          "2026-02",
+          "2026-03",
+          "2026-04",
+          "2026-05",
+          "2026-06",
+          "2026-07",
+          "2026-08"
+        ],
+        "erklaerung": {
+          "de": "Geordnete Dimension – wie eine grüne Datumspille (Date value) ergibt sie eine Achse und eine Linie.",
+          "en": "Ordered dimension – like a green date pill (date value) it yields an axis and a line."
+        }
+      },
+      {
+        "id": "wochentag",
+        "typ": "dimension",
+        "titel": {
+          "de": "Wochentag",
+          "en": "Weekday"
+        },
+        "reihenfolge": [
+          "Mo",
+          "Di",
+          "Mi",
+          "Do",
+          "Fr",
+          "Sa",
+          "So"
+        ]
+      },
+      {
+        "id": "stunde",
+        "typ": "dimension",
+        "geordnet": true,
+        "titel": {
+          "de": "Stunde",
+          "en": "Hour"
+        },
+        "reihenfolge": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ]
+      },
+      {
+        "id": "bezirk",
+        "typ": "dimension",
+        "titel": {
+          "de": "Bezirk",
+          "en": "District"
+        }
+      },
+      {
+        "id": "station",
+        "typ": "dimension",
+        "titel": {
+          "de": "Startstation",
+          "en": "Start station"
+        }
+      },
+      {
+        "id": "rad_typ",
+        "typ": "dimension",
+        "titel": {
+          "de": "Radtyp",
+          "en": "Bike type"
+        }
+      },
+      {
+        "id": "tarif",
+        "typ": "dimension",
+        "titel": {
+          "de": "Tarif",
+          "en": "Plan"
+        }
+      },
+      {
+        "id": "fahrt_id",
+        "typ": "kennzahl",
+        "titel": {
+          "de": "Fahrt-ID",
+          "en": "Ride ID"
+        },
+        "erklaerung": {
+          "de": "Eine Kennung – Σ darüber ist die klassische Falle. COUNT zählt Fahrten.",
+          "en": "An identifier – Σ over it is the classic trap. COUNT counts rides."
+        }
+      },
+      {
+        "id": "dauer_min",
+        "typ": "kennzahl",
+        "titel": {
+          "de": "Dauer (min)",
+          "en": "Duration (min)"
+        }
+      },
+      {
+        "id": "preis_eur",
+        "typ": "kennzahl",
+        "titel": {
+          "de": "Preis (EUR)",
+          "en": "Price (EUR)"
+        }
+      }
+    ]
+  },
+  "spielplaetze": {
+    "frei": {
+      "variante": "tableau",
+      "startBelegung": {
+        "spalten": [],
+        "zeilen": [],
+        "farbe": null,
+        "filter": {}
+      }
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W13-01",
+      "typ": "regal",
+      "variante": "tableau",
+      "titel": {
+        "de": "Umsatz je Bezirk",
+        "en": "Revenue per district"
+      },
+      "aufgabe": {
+        "de": "<p>Dieselbe Frage wie in Lab 12, diesmal mit Regalen: <strong>Wie viel Umsatz macht Velo City je Startbezirk?</strong> Legen Sie <em>Bezirk</em> auf <code>Columns</code> und <em>Preis (EUR)</em> auf <code>Rows</code>. Die Kennzahl kommt mit ihrer Standardaggregation auf das Regal – prüfen Sie, dass dort <code>SUM</code> steht. Kein weiteres Regal belegen.</p>",
+        "en": "<p>The same question as in lab 12, this time with shelves: <strong>how much revenue does Velo City make per start district?</strong> Put <em>District</em> on <code>Columns</code> and <em>Price (EUR)</em> on <code>Rows</code>. The measure arrives on the shelf with its default aggregation – check that it says <code>SUM</code>. Leave every other shelf empty.</p>"
+      },
+      "ziel": {
+        "spalten": [
+          "bezirk"
+        ],
+        "zeilen": [
+          "SUM:preis_eur"
+        ]
+      },
+      "loesungBelegung": {
+        "spalten": [
+          "bezirk"
+        ],
+        "zeilen": [
+          {
+            "feld": "preis_eur",
+            "agg": "SUM"
+          }
+        ],
+        "farbe": null,
+        "filter": {}
+      },
+      "rueckmeldung": {
+        "de": "Eine blaue Pille auf Columns liefert die Köpfe (sieben Bezirke), eine grüne SUM-Pille auf Rows die Achse – senkrechte Balken. Die Altstadt mit drei Stationen liegt vorn. In Tableau wäre das dieselbe Belegung; Show Me hätte „horizontal bars“ vorgeschlagen, weil Kategorien sich waagerecht besser lesen lassen. Die Summe aller Balken ist 3.172,14 € – der Kontrollwert aus Lab 06.",
+        "en": "A blue pill on Columns gives the headers (seven districts), a green SUM pill on Rows gives the axis – vertical bars. Altstadt with its three stations leads. In Tableau this would be the same layout; Show Me would have suggested “horizontal bars” because categories read better horizontally. The bars sum to 3,172.14 € – the control value from lab 06."
+      }
+    },
+    {
+      "id": "W13-02",
+      "typ": "regal",
+      "variante": "tableau",
+      "titel": {
+        "de": "Fahrten im Jahresverlauf je Tarif",
+        "en": "Rides over the year per plan"
+      },
+      "aufgabe": {
+        "de": "<p><strong>Wie entwickeln sich die Fahrten von September 2025 bis August 2026 – und unterscheiden sich die Tarife?</strong> Legen Sie <em>Monat</em> auf <code>Columns</code>, <em>Fahrt-ID</em> auf <code>Rows</code> und stellen Sie die Aggregation auf <code>COUNT</code> – eine Kennung wird gezählt, nicht summiert. Dann <em>Tarif</em> auf <code>Color</code>. Kein Filter.</p>",
+        "en": "<p><strong>How do rides develop from September 2025 to August 2026 – and do the plans differ?</strong> Put <em>Month</em> on <code>Columns</code>, <em>Ride ID</em> on <code>Rows</code> and set the aggregation to <code>COUNT</code> – an identifier is counted, not summed. Then <em>Plan</em> on <code>Color</code>. No filter.</p>"
+      },
+      "ziel": {
+        "spalten": [
+          "monat"
+        ],
+        "zeilen": [
+          "COUNT:fahrt_id"
+        ],
+        "farbe": "tarif"
+      },
+      "loesungBelegung": {
+        "spalten": [
+          "monat"
+        ],
+        "zeilen": [
+          {
+            "feld": "fahrt_id",
+            "agg": "COUNT"
+          }
+        ],
+        "farbe": "tarif",
+        "filter": {}
+      },
+      "rueckmeldung": {
+        "de": "Monat ist eine geordnete Dimension: Der Simulator zeichnet eine Achse und eine Linie – genau das, was in Tableau eine grüne Datumspille (Date value, unterer Block des Kontextmenüs) tut. Wäre Monat ein blauer Date part, stünden zwölf Köpfe nebeneinander und die Januare beider Jahre lägen in einem Kopf. Color mit Tarif erzeugt drei Linien, eine je Serie; SUM auf Fahrt-ID hätte Summen von Kennungen gezeichnet – die Falle aus Lab 12, hier mit demselben Ausweg: COUNT (in Tableau COUNTD).",
+        "en": "Month is an ordered dimension: the simulator draws an axis and a line – exactly what a green date pill (date value, lower block of the context menu) does in Tableau. Were Month a blue date part, twelve headers would stand side by side and the Januaries of both years would sit in one header. Color with Plan creates three lines, one per series; SUM on Ride ID would have drawn sums of identifiers – the trap from lab 12, here with the same way out: COUNT (COUNTD in Tableau)."
+      }
+    },
+    {
+      "id": "W13-03",
+      "typ": "regal",
+      "variante": "tableau",
+      "titel": {
+        "de": "Stationen nach mittlerer Dauer, nur E-Bikes, waagerecht",
+        "en": "Stations by average duration, e-bikes only, horizontal"
+      },
+      "aufgabe": {
+        "de": "<p><strong>An welcher Station dauern E-Bike-Fahrten im Mittel am längsten?</strong> Zehn Stationsnamen lesen sich waagerecht besser: Legen Sie <em>Startstation</em> auf <code>Rows</code> und <em>Dauer (min)</em> auf <code>Columns</code> mit Aggregation <code>AVG</code>. Setzen Sie unter <code>Filters</code> den <em>Radtyp</em> auf <code>EBIKE</code>. Color bleibt leer.</p>",
+        "en": "<p><strong>At which station do e-bike rides last longest on average?</strong> Ten station names read better horizontally: put <em>Start station</em> on <code>Rows</code> and <em>Duration (min)</em> on <code>Columns</code> with aggregation <code>AVG</code>. Under <code>Filters</code> set <em>Bike type</em> to <code>EBIKE</code>. Leave Color empty.</p>"
+      },
+      "ziel": {
+        "zeilen": [
+          "station"
+        ],
+        "spalten": [
+          "AVG:dauer_min"
+        ],
+        "filter": {
+          "rad_typ": [
+            "EBIKE"
+          ]
+        }
+      },
+      "loesungBelegung": {
+        "spalten": [
+          {
+            "feld": "dauer_min",
+            "agg": "AVG"
+          }
+        ],
+        "zeilen": [
+          "station"
+        ],
+        "farbe": null,
+        "filter": {
+          "rad_typ": [
+            "EBIKE"
+          ]
+        }
+      },
+      "rueckmeldung": {
+        "de": "Dimension auf Rows, Kennzahl auf Columns: waagerechte Balken. In Tableau ist das dieselbe Belegung wie in W13-01 nach Ctrl+W (Swap Rows and Columns) – die Ausrichtung ist eine Frage der Regale, nicht des Diagrammtyps. AVG statt SUM, weil eine Summe von Minuten die Stationen mit vielen Fahrten belohnt, nicht die mit langen. Der Filter auf EBIKE ist ein Dimension Filter: Er wirkt vor der Aggregation, das Mittel wird nur aus E-Bike-Fahrten gebildet.",
+        "en": "Dimension on Rows, measure on Columns: horizontal bars. In Tableau this is the same layout as W13-01 after Ctrl+W (Swap Rows and Columns) – orientation is a matter of shelves, not of chart type. AVG instead of SUM, because a sum of minutes rewards stations with many rides, not those with long ones. The filter on EBIKE is a dimension filter: it acts before aggregation, the average is formed from e-bike rides only."
+      }
+    },
+    {
+      "id": "W13-04",
+      "typ": "quiz",
+      "titel": {
+        "de": "Blau, grün, LOD und Live",
+        "en": "Blue, green, LOD and live"
+      },
+      "aufgabe": {
+        "de": "<p>Fünf Fragen zu den Begriffen, die in Tableau am häufigsten verwechselt werden. Die vierte hat mehr als eine richtige Antwort.</p>",
+        "en": "<p>Five questions on the concepts most often confused in Tableau. The fourth has more than one correct answer.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Eine Pille auf dem Regal Columns ist grün. Was sagt die Farbe – und nur die Farbe – aus?",
+            "en": "A pill on the Columns shelf is green. What does the colour – and only the colour – tell you?"
+          },
+          "optionen": [
+            {
+              "de": "Das Feld ist stetig (Continuous): Es erzeugt eine Achse. Ob es Dimension oder Kennzahl ist, sagt die Farbe nicht.",
+              "en": "The field is continuous: it creates an axis. Whether it is a dimension or a measure, the colour does not say."
+            },
+            {
+              "de": "Das Feld ist eine Kennzahl (Measure) und wird summiert.",
+              "en": "The field is a measure and gets summed."
+            },
+            {
+              "de": "Das Feld stammt aus einem Extract, nicht aus einer Live-Verbindung.",
+              "en": "The field comes from an extract, not from a live connection."
+            },
+            {
+              "de": "Das Feld ist gefiltert.",
+              "en": "The field is filtered."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Grün heißt stetig, blau heißt diskret – nicht mehr. Kennzahlen sind meist grün und Dimensionen meist blau, aber eine grüne Datumspille ist eine stetige Dimension, und ein blaues SUM(Preis Eur) eine diskrete Kennzahl. Extract und Filter haben keine Pillenfarbe.",
+            "en": "Green means continuous, blue means discrete – nothing more. Measures are usually green and dimensions usually blue, but a green date pill is a continuous dimension, and a blue SUM(Preis Eur) a discrete measure. Extract and filter have no pill colour."
+          }
+        },
+        {
+          "frage": {
+            "de": "Sie legen das Datum auf Columns und wählen im oberen Block des Kontextmenüs „Month“. Die Daten reichen von September 2025 bis August 2026. Was zeigt die Viz?",
+            "en": "You put the date on Columns and choose “Month” from the upper block of the context menu. The data runs from September 2025 to August 2026. What does the viz show?"
+          },
+          "optionen": [
+            {
+              "de": "Zwölf blaue Köpfe Januar bis Dezember; die Fahrten aus Januar 2026 und einem etwaigen Januar 2025 lägen im selben Kopf – ein Date part ohne Jahr.",
+              "en": "Twelve blue headers January to December; rides from January 2026 and any January 2025 would sit in the same header – a date part without year."
+            },
+            {
+              "de": "Eine grüne Zeitachse von September 2025 bis August 2026 mit einer Linie.",
+              "en": "A green time axis from September 2025 to August 2026 with a line."
+            },
+            {
+              "de": "Eine Fehlermeldung, weil Monat ohne Jahr nicht eindeutig ist.",
+              "en": "An error message because month without year is ambiguous."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Der obere Block sind Date parts: diskrete Bestandteile ohne Bezug zum Jahr, ideal für Saisonvergleiche. Die Achse mit Verlauf liefert der untere Block (Date values, etwa „Month May 2026“). Eine Fehlermeldung gibt es nicht – Tableau rechnet, was man bestellt.",
+            "en": "The upper block is date parts: discrete components without reference to the year, ideal for seasonal comparisons. The axis with a course comes from the lower block (date values, e.g. “Month May 2026”). There is no error message – Tableau computes what you order."
+          }
+        },
+        {
+          "frage": {
+            "de": "Zwei Felder zeigen den Anteil je Radtyp: A ist eine Quick Table Calculation „Percent of Total“, B ist { FIXED [Rad Typ] : SUM([Preis Eur]) } geteilt durch { FIXED : SUM([Preis Eur]) }. Sie setzen einen Filter auf Tarif = Jahr. Was passiert?",
+            "en": "Two fields show the share per bike type: A is a quick table calculation “Percent of Total”, B is { FIXED [Rad Typ] : SUM([Preis Eur]) } divided by { FIXED : SUM([Preis Eur]) }. You add a filter on plan = Jahr. What happens?"
+          },
+          "optionen": [
+            {
+              "de": "A ändert sich (die Anteile beziehen sich nun auf den Jahrestarif und summieren wieder auf 100 %), B bleibt gleich, weil FIXED vor dem Dimension Filter rechnet.",
+              "en": "A changes (the shares now refer to the annual plan and sum to 100 % again), B stays the same because FIXED computes before the dimension filter."
+            },
+            {
+              "de": "Beide ändern sich gleich – ein Filter wirkt auf alle Berechnungen.",
+              "en": "Both change alike – a filter acts on every calculation."
+            },
+            {
+              "de": "B ändert sich, A bleibt gleich, weil Table Calculations vor Filtern rechnen.",
+              "en": "B changes, A stays the same because table calculations compute before filters."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Die Reihenfolge lautet: Extract → Data source → Context → FIXED → Dimension Filter → INCLUDE/EXCLUDE → Measure Filter → Table calc. Eine Table Calculation rechnet ganz am Ende auf dem, was in der Viz steht; ein FIXED-Ausdruck rechnet vor gewöhnlichen Dimension Filters. Soll B den Filter beachten, macht man ihn zum Context Filter („Add to Context“).",
+            "en": "The order is: extract → data source → context → FIXED → dimension filter → INCLUDE/EXCLUDE → measure filter → table calc. A table calculation computes at the very end on what is in the viz; a FIXED expression computes before ordinary dimension filters. If B is to respect the filter, make it a context filter (“Add to Context”)."
+          }
+        },
+        {
+          "frage": {
+            "de": "Live oder Extract – welche Aussagen stimmen?",
+            "en": "Live or Extract – which statements are true?"
+          },
+          "mehrfach": true,
+          "optionen": [
+            {
+              "de": "Ein Extract ist eine Momentaufnahme in einer .hyper-Datei; neue Zeilen in Supabase erscheinen erst nach Extract → Refresh.",
+              "en": "An extract is a snapshot in a .hyper file; new rows in Supabase appear only after Extract → Refresh."
+            },
+            {
+              "de": "Bei einer Live-Verbindung schickt jedes Ziehen einer Pille eine Abfrage an die Datenbank.",
+              "en": "With a live connection every drag of a pill sends a query to the database."
+            },
+            {
+              "de": "Auf Tableau Public liegt immer ein Extract – eine Live-Verbindung zu Supabase wird beim Veröffentlichen nicht mitgenommen.",
+              "en": "On Tableau Public there is always an extract – a live connection to Supabase is not carried along when publishing."
+            },
+            {
+              "de": "Ein Extract hält die Daten aktuell, weil er sich selbst aktualisiert.",
+              "en": "An extract keeps the data fresh because it refreshes itself."
+            }
+          ],
+          "richtig": [
+            0,
+            1,
+            2
+          ],
+          "erklaerung": {
+            "de": "Drei von vier stimmen. Der Extract aktualisiert sich nicht von allein – auf dem Desktop nur per Refresh, in Tableau Cloud per Zeitplan (bei lokalen Quellen mit Tableau Bridge). Dieselbe Unterscheidung wie Import und DirectQuery in Lab 12.",
+            "en": "Three of four are true. The extract does not refresh itself – on the desktop only via Refresh, in Tableau Cloud on a schedule (with Tableau Bridge for local sources). The same distinction as Import and DirectQuery in lab 12."
+          }
+        },
+        {
+          "frage": {
+            "de": "Sie verbinden fact_fahrt mit dim_station. Wann dupliziert Tableau Zeilen der Faktentabelle?",
+            "en": "You connect fact_fahrt with dim_station. When does Tableau duplicate rows of the fact table?"
+          },
+          "optionen": [
+            {
+              "de": "Bei einem physischen Join (Doppelklick auf die Kachel), wenn auf der Dimensionsseite mehrere Zeilen je Schlüssel stehen – der Fan-out. Eine Relationship auf der logischen Ebene behält die Körnung jeder Tabelle.",
+              "en": "With a physical join (double-click on the tile) when the dimension side has several rows per key – the fan-out. A relationship on the logical layer keeps each table's grain."
+            },
+            {
+              "de": "Bei einer Relationship, weil Tableau dort immer einen Full Outer Join baut.",
+              "en": "With a relationship, because Tableau always builds a full outer join there."
+            },
+            {
+              "de": "Nie – Tableau erkennt Duplikate und entfernt sie.",
+              "en": "Never – Tableau detects duplicates and removes them."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Die logische Ebene (Noodles) verschmilzt keine Zeilen; Tableau baut je Worksheet die passende Abfrage. Erst die physische Ebene macht aus zwei Tabellen eine flache – und dann zählt COUNT jede Fahrt so oft, wie sie Partner findet. Duplikate erkennt Tableau nicht; das ist die Aufgabe des Sternschemas aus Lab 10.",
+            "en": "The logical layer (noodles) merges no rows; Tableau builds the fitting query per worksheet. Only the physical layer turns two tables into one flat one – and then COUNT counts each ride as often as it finds partners. Tableau does not detect duplicates; that is the job of the star schema from lab 10."
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Fünf Unterscheidungen, die in keinem Menü stehen: diskret/stetig ist nicht Dimension/Kennzahl, Date part ist nicht Date value, Table Calculation ist nicht LOD, Extract ist nicht Live, Relationship ist nicht Join. Wer sie auseinanderhält, liest jede Viz an ihren Pillen ab.",
+        "en": "Five distinctions found in no menu: discrete/continuous is not dimension/measure, date part is not date value, table calculation is not LOD, extract is not live, relationship is not join. Whoever keeps them apart reads any viz off its pills."
+      }
+    },
+    {
+      "id": "W13-05",
+      "typ": "zuordnen",
+      "titel": {
+        "de": "Edition oder Produkt → Eigenschaft",
+        "en": "Edition or product → property"
+      },
+      "aufgabe": {
+        "de": "<p>Sieben Produkte aus der Tableau-Landschaft, Stand 09/2026. Ordnen Sie jedem die Eigenschaft zu, die es von den anderen unterscheidet. Zwei Produkte teilen sich ein Ziel.</p>",
+        "en": "<p>Seven products from the Tableau landscape, as of 09/2026. Assign to each the property that sets it apart from the others. Two products share one target.</p>"
+      },
+      "ziele": [
+        {
+          "id": "db",
+          "text": {
+            "de": "Kostenlos, volle Autorenfunktionen, lokale Datenbanken und ODBC – aber kein Veröffentlichen und keine Weitergabe von .twbx",
+            "en": "Free, full authoring, local databases and ODBC – but no publishing and no sharing of .twbx"
+          }
+        },
+        {
+          "id": "datei",
+          "text": {
+            "de": "Kostenlose Desktop-App nur für Dateien; veröffentlicht ausschließlich nach Tableau Public, nicht kommerziell",
+            "en": "Free desktop app for files only; publishes exclusively to Tableau Public, non-commercial"
+          }
+        },
+        {
+          "id": "web",
+          "text": {
+            "de": "Web-Plattform: veröffentlichte Workbooks samt Daten sind für jeden sichtbar – das Portfolio",
+            "en": "Web platform: published workbooks including data are visible to anyone – the portfolio"
+          }
+        },
+        {
+          "id": "creator",
+          "text": {
+            "de": "Im Creator-Seat enthalten (Standard: 75 $ je Nutzer und Monat): Autorenwerkzeuge, neue Data Sources anlegen",
+            "en": "Included in the Creator seat (Standard: $75 per user and month): authoring tools, create new data sources"
+          }
+        },
+        {
+          "id": "viewer",
+          "text": {
+            "de": "Bezahlte Cloud-Rolle ohne Autorenwerkzeuge: ansehen, filtern, kommentieren (Standard: 15 $ je Nutzer und Monat)",
+            "en": "Paid cloud role without authoring tools: view, filter, comment (Standard: $15 per user and month)"
+          }
+        },
+        {
+          "id": "kurs",
+          "text": {
+            "de": "Von Lehrenden beantragt: Desktop und Prep Builder für die Kursdauer, ein Schlüssel für alle Teilnehmenden",
+            "en": "Requested by instructors: Desktop and Prep Builder for the course duration, one key for all participants"
+          }
+        }
+      ],
+      "paare": [
+        {
+          "begriff": {
+            "de": "Tableau Desktop Free Edition",
+            "en": "Tableau Desktop Free Edition"
+          },
+          "ziel": "db"
+        },
+        {
+          "begriff": {
+            "de": "Tableau Desktop Public Edition",
+            "en": "Tableau Desktop Public Edition"
+          },
+          "ziel": "datei"
+        },
+        {
+          "begriff": {
+            "de": "Tableau Public",
+            "en": "Tableau Public"
+          },
+          "ziel": "web"
+        },
+        {
+          "begriff": {
+            "de": "Tableau Cloud – Creator",
+            "en": "Tableau Cloud – Creator"
+          },
+          "ziel": "creator"
+        },
+        {
+          "begriff": {
+            "de": "Tableau Cloud – Viewer",
+            "en": "Tableau Cloud – Viewer"
+          },
+          "ziel": "viewer"
+        },
+        {
+          "begriff": {
+            "de": "Tableau Prep Builder",
+            "en": "Tableau Prep Builder"
+          },
+          "ziel": "creator"
+        },
+        {
+          "begriff": {
+            "de": "Student Course License (Tableau for Teaching)",
+            "en": "Student Course License (Tableau for Teaching)"
+          },
+          "ziel": "kurs"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Die Unterscheidung, die im Kurs zählt: Free Edition kann Supabase anbinden und nichts veröffentlichen; Public Edition kann nur Dateien laden und alles nur öffentlich veröffentlichen. Beides zusammen – Datenbank und legitime Abgabe – gibt es nur über die Student Course License mit der Cloud-Site des Kurses. Prep Builder steckt im Creator-Seat und in den Lehrlizenzen, nicht in der Public Edition.",
+        "en": "The distinction that matters for the course: the Free Edition can connect to Supabase and publish nothing; the Public Edition can only load files and publish everything publicly only. Both together – database and legitimate submission – exist only via the Student Course License with the course's cloud site. Prep Builder sits in the Creator seat and in the teaching licences, not in the Public Edition."
+      }
+    },
+    {
+      "id": "W13-06",
+      "typ": "checkliste",
+      "titel": {
+        "de": "Ein Dashboard für Velo City – in Tableau Desktop",
+        "en": "A dashboard for Velo City – in Tableau Desktop"
+      },
+      "aufgabe": {
+        "de": "<p>Diese Liste arbeiten Sie in Tableau Desktop ab – Free Edition oder Public Edition, beide genügen. Datenquelle ist die CSV aus <code>vorlagen/lab-13-export.sql</code> (Karte B07) oder der Export aus Lab 09. Am Ende haben Sie zwei Worksheets, ein Calculated Field, einen provozierten und behobenen Fehler und ein Dashboard, das auf Klick filtert.</p>",
+        "en": "<p>You work through this list in Tableau Desktop – Free Edition or Public Edition, either will do. The data source is the CSV from <code>vorlagen/lab-13-export.sql</code> (card B07) or the export from lab 09. At the end you have two worksheets, one calculated field, one provoked and fixed error, and a dashboard that filters on click.</p>"
+      },
+      "schritte": [
+        {
+          "text": {
+            "de": "<code>Connect → To a File → Text file</code>: <code>fahrten.csv</code> geladen. Steht auf der Data Source page unten rechts <code>1,500 rows</code>?",
+            "en": "<code>Connect → To a File → Text file</code>: <code>fahrten.csv</code> loaded. Does the Data Source page say <code>1,500 rows</code> at the bottom right?"
+          }
+        },
+        {
+          "text": {
+            "de": "Datentypen geprüft: <code>preis_eur</code> und <code>dauer_min</code> tragen ein <code>#</code>, <code>monat</code> ein <code>Abc</code>; <code>fahrt_id</code> per Rechtsklick auf <code>Convert to Dimension</code> gesetzt. Steht Fahrt Id jetzt im Data pane oben bei den Dimensionen, nicht unten bei den Measures?",
+            "en": "Data types checked: <code>preis_eur</code> and <code>dauer_min</code> carry a <code>#</code>, <code>monat</code> an <code>Abc</code>; <code>fahrt_id</code> set to <code>Convert to Dimension</code> via right-click. Is Fahrt Id now in the upper dimensions part of the Data pane, not among the measures below?"
+          }
+        },
+        {
+          "text": {
+            "de": "Sheet 1: <em>Bezirk</em> auf Columns, <em>Preis Eur</em> auf Rows. Zeigt die Pille <code>SUM(Preis Eur)</code> und die Viz sieben senkrechte Balken, deren Summe 3.172,14 ist (Tooltip oder <code>Analysis → Totals → Show Column Grand Totals</code>)?",
+            "en": "Sheet 1: <em>Bezirk</em> on Columns, <em>Preis Eur</em> on Rows. Does the pill read <code>SUM(Preis Eur)</code> and does the viz show seven vertical bars summing to 3,172.14 (tooltip or <code>Analysis → Totals → Show Column Grand Totals</code>)?"
+          }
+        },
+        {
+          "text": {
+            "de": "Sheet 2 (<code>Ctrl+M</code> / <code>Cmd+T</code>): <em>Monat</em> auf Columns, <em>Fahrt Id</em> auf Rows mit <code>Measure → Count (Distinct)</code>, <em>Rad Typ</em> auf <code>Color</code>. Zeigt die Viz drei Linien über zwölf Monate von 2025-09 bis 2026-08 – und ist die Monatspille, weil sie Text ist, blau mit einem Kopf je Monat statt einer grünen Achse?",
+            "en": "Sheet 2 (<code>Ctrl+M</code> / <code>Cmd+T</code>): <em>Monat</em> on Columns, <em>Fahrt Id</em> on Rows with <code>Measure → Count (Distinct)</code>, <em>Rad Typ</em> on <code>Color</code>. Does the viz show three lines across twelve months from 2025-09 to 2026-08 – and is the month pill, being text, blue with one header per month instead of a green axis?"
+          }
+        },
+        {
+          "text": {
+            "de": "<code>Analysis → Create Calculated Field…</code>, Name <code>Umsatz je Fahrt</code>, Formel <code>SUM([Preis Eur]) / COUNTD([Fahrt Id])</code> aus der Vorlage. Steht unten im Dialog <code>The calculation is valid.</code>, und liegt das neue Feld im Data pane bei den Measures?",
+            "en": "<code>Analysis → Create Calculated Field…</code>, name <code>Umsatz je Fahrt</code>, formula <code>SUM([Preis Eur]) / COUNTD([Fahrt Id])</code> from the template. Does the dialog say <code>The calculation is valid.</code> at the bottom, and is the new field among the measures in the Data pane?"
+          }
+        },
+        {
+          "text": {
+            "de": "Fehler provoziert: Formel auf <code>SUM([Preis Eur]) / [Fahrt Id]</code> geändert. Erscheint <code>Cannot mix aggregate and non-aggregate arguments with this function.</code>? Dann zurück auf <code>COUNTD([Fahrt Id])</code> – ist die Meldung weg?",
+            "en": "Error provoked: formula changed to <code>SUM([Preis Eur]) / [Fahrt Id]</code>. Does <code>Cannot mix aggregate and non-aggregate arguments with this function.</code> appear? Then back to <code>COUNTD([Fahrt Id])</code> – is the message gone?"
+          }
+        },
+        {
+          "text": {
+            "de": "<code>Dashboard → New Dashboard</code>, beide Sheets hineingezogen (Tiled), auf Sheet 1 das Trichter-Symbol <code>Use as Filter</code> aktiviert. Filtert ein Klick auf den Balken „Altstadt“ die Linien in Sheet 2 – und bringt ein zweiter Klick alles zurück?",
+            "en": "<code>Dashboard → New Dashboard</code>, both sheets dragged in (Tiled), on Sheet 1 the funnel icon <code>Use as Filter</code> enabled. Does a click on the “Altstadt” bar filter the lines in Sheet 2 – and does a second click bring everything back?"
+          }
+        },
+        {
+          "text": {
+            "de": "Gesichert und abgegeben: <code>File → Save</code> als <code>velocity.twbx</code> (in der Public Edition <strong>nicht</strong> das Speichern-Symbol der Toolbar – das veröffentlicht) und <code>File → Print to PDF…</code> für das Dashboard. Liegt die PDF auf Ihrem Rechner, und ist auf Ihrem Tableau-Public-Profil <em>nichts</em> erschienen?",
+            "en": "Saved and submitted: <code>File → Save</code> as <code>velocity.twbx</code> (in the Public Edition <strong>not</strong> the toolbar's save icon – that publishes) and <code>File → Print to PDF…</code> for the dashboard. Is the PDF on your machine, and has <em>nothing</em> appeared on your Tableau Public profile?"
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Sie haben den ganzen Weg gesehen: Datei laden, Typen prüfen, zwei Fragen mit Regalen beantworten, ein Aggregat rechnen, den häufigsten Fehler lesen und beheben, ein Dashboard mit Filterwirkung bauen und es abgeben, ohne etwas zu veröffentlichen. Mit der Free Edition oder einer Kurslizenz ersetzt Karte B02 den ersten Schritt durch die Supabase-Verbindung – alles Weitere bleibt gleich.",
+        "en": "You have seen the whole route: load a file, check types, answer two questions with shelves, compute an aggregate, read and fix the most common error, build a dashboard with filter effect and submit it without publishing anything. With the Free Edition or a course licence, card B02 replaces the first step with the Supabase connection – everything else stays the same."
+      }
+    }
+  ]
+}

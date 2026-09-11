@@ -1,0 +1,1261 @@
+{
+  "konsolen": {
+    "frei": {
+      "begruessung": [
+        {
+          "de": "Freie Konsole. Nichts hier richtet Schaden an — probieren Sie ruhig aus, was ein Befehl tut.",
+          "en": "Free console. Nothing here does any damage — go ahead and try what a command does."
+        },
+        {
+          "de": "Im Heimatverzeichnis liegen: Dokumente, Downloads, velocity. Beginnen Sie mit  ls",
+          "en": "The home directory holds: Dokumente, Downloads, velocity. Start with  ls"
+        }
+      ]
+    }
+  },
+  "befehle": {
+    "B01": {
+      "titel": {
+        "de": "Wo stehe ich gerade?",
+        "en": "Where am I standing?"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "pwd",
+          "teile": [
+            {
+              "was": "pwd",
+              "bedeutet": {
+                "de": "„print working directory“ — gibt den vollständigen Pfad des Arbeitsverzeichnisses aus. Ohne Optionen, ohne Gegenstand.",
+                "en": "“print working directory” — prints the full path of the working directory. No options, no object."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Get-Location",
+          "teile": [
+            {
+              "was": "Get-Location",
+              "bedeutet": {
+                "de": "PowerShell-Name. Die Kurzformen pwd und gl sind eingebaut und tun dasselbe.",
+                "en": "The PowerShell name. The short forms pwd and gl are built in and do the same."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "cd",
+          "teile": [
+            {
+              "was": "cd",
+              "bedeutet": {
+                "de": "In der Eingabeaufforderung gibt cd ohne Gegenstand den aktuellen Pfad aus, statt zu wechseln. Kein Tippfehler.",
+                "en": "In Command Prompt, cd without an object prints the current path instead of changing it. Not a typo."
+              }
+            }
+          ]
+        }
+      },
+      "ausgabe": {
+        "mac": "/Users/studi",
+        "win": "Path\n----\nC:\\Users\\studi",
+        "cmd": "C:\\Users\\studi"
+      }
+    },
+    "B02": {
+      "titel": {
+        "de": "Was liegt hier?",
+        "en": "What is in here?"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "ls -la Downloads",
+          "teile": [
+            {
+              "was": "ls",
+              "bedeutet": {
+                "de": "„list“ — listet den Inhalt eines Verzeichnisses. Ohne Gegenstand: das aktuelle.",
+                "en": "“list” — lists the contents of a directory. Without an object: the current one."
+              }
+            },
+            {
+              "was": "-l",
+              "bedeutet": {
+                "de": "Lange Form: eine Zeile je Eintrag, mit Rechten, Größe und Änderungszeit.",
+                "en": "Long form: one line per entry, with permissions, size and modification time."
+              }
+            },
+            {
+              "was": "-a",
+              "bedeutet": {
+                "de": "„all“ — zeigt auch versteckte Einträge, also solche mit einem Punkt am Anfang (.git, .env, .gitignore). Ohne -a bleiben sie unsichtbar, und genau dort liegen die Dateien, um die es in Lab 02 geht.",
+                "en": "“all” — also shows hidden entries, i.e. those starting with a dot (.git, .env, .gitignore). Without -a they stay invisible, and that is exactly where the files lab 02 is about live."
+              }
+            },
+            {
+              "was": "Downloads",
+              "bedeutet": {
+                "de": "Der Gegenstand. Weggelassen: das Arbeitsverzeichnis.",
+                "en": "The object. Omitted: the working directory."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Get-ChildItem -Force Downloads",
+          "teile": [
+            {
+              "was": "Get-ChildItem",
+              "bedeutet": {
+                "de": "PowerShell-Name. Eingebaute Kurzformen: ls, dir, gci — alle drei funktionieren.",
+                "en": "The PowerShell name. Built-in short forms: ls, dir, gci — all three work."
+              }
+            },
+            {
+              "was": "-Force",
+              "bedeutet": {
+                "de": "Zeigt auch versteckte und Systemeinträge — die Entsprechung zu -a.",
+                "en": "Also shows hidden and system entries — the equivalent of -a."
+              }
+            },
+            {
+              "was": "Downloads",
+              "bedeutet": {
+                "de": "Der Gegenstand. Weggelassen: das Arbeitsverzeichnis.",
+                "en": "The object. Omitted: the working directory."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "dir /a Downloads",
+          "teile": [
+            {
+              "was": "dir",
+              "bedeutet": {
+                "de": "Der Listenbefehl der Eingabeaufforderung. ls kennt sie nicht.",
+                "en": "Command Prompt's listing command. It does not know ls."
+              }
+            },
+            {
+              "was": "/a",
+              "bedeutet": {
+                "de": "Zeigt auch versteckte Einträge. Beachten Sie den Schrägstrich statt des Bindestrichs — die alte Windows-Schreibweise für Optionen.",
+                "en": "Also shows hidden entries. Note the slash instead of the dash — the old Windows notation for options."
+              }
+            },
+            {
+              "was": "Downloads",
+              "bedeutet": {
+                "de": "Der Gegenstand.",
+                "en": "The object."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B03": {
+      "titel": {
+        "de": "In einen Ordner wechseln — und zurück",
+        "en": "Change into a folder — and back"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "cd velocity/analytics",
+          "teile": [
+            {
+              "was": "cd",
+              "bedeutet": {
+                "de": "„change directory“. Der Prompt zeigt danach den neuen Ort.",
+                "en": "“change directory”. The prompt shows the new location afterwards."
+              }
+            },
+            {
+              "was": "velocity/analytics",
+              "bedeutet": {
+                "de": "Relativer Pfad: zwei Ebenen abwärts in einem Schritt. Der Schrägstrich trennt.",
+                "en": "A relative path: two levels down in one step. The slash separates."
+              }
+            },
+            {
+              "was": "cd ..",
+              "bedeutet": {
+                "de": "Eine Ebene zurück. cd ../.. sind zwei, cd ~ ist direkt nach Hause, cd allein ebenfalls.",
+                "en": "One level back. cd ../.. is two, cd ~ goes straight home, cd alone does too."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Set-Location velocity\\analytics",
+          "teile": [
+            {
+              "was": "Set-Location",
+              "bedeutet": {
+                "de": "PowerShell-Name. Kurzformen: cd, sl, chdir.",
+                "en": "The PowerShell name. Short forms: cd, sl, chdir."
+              }
+            },
+            {
+              "was": "velocity\\analytics",
+              "bedeutet": {
+                "de": "Rückstrich als Trenner — PowerShell akzeptiert aber auch den Schrägstrich, was beim Kopieren von Anleitungen hilft.",
+                "en": "Backslash as separator — PowerShell also accepts the forward slash, which helps when copying guides."
+              }
+            },
+            {
+              "was": "cd ..",
+              "bedeutet": {
+                "de": "Eine Ebene zurück. cd ~ führt nach C:\\Users\\<Name>.",
+                "en": "One level back. cd ~ leads to C:\\Users\\<name>."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "cd velocity\\analytics",
+          "teile": [
+            {
+              "was": "cd",
+              "bedeutet": {
+                "de": "Wechselt das Verzeichnis. Achtung: Ein Wechsel auf ein anderes Laufwerk braucht zusätzlich cd /d D:\\Daten oder einfach D:",
+                "en": "Changes the directory. Careful: switching to another drive additionally needs cd /d D:\\Data, or simply D:"
+              }
+            },
+            {
+              "was": "velocity\\analytics",
+              "bedeutet": {
+                "de": "Relativer Pfad mit Rückstrich.",
+                "en": "A relative path with a backslash."
+              }
+            },
+            {
+              "was": "cd ..",
+              "bedeutet": {
+                "de": "Eine Ebene zurück. Das Zeichen ~ kennt die Eingabeaufforderung nicht.",
+                "en": "One level back. Command Prompt does not know the ~ symbol."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B04": {
+      "titel": {
+        "de": "Ordner anlegen",
+        "en": "Create a folder"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "mkdir -p projekt/daten/rohdaten",
+          "teile": [
+            {
+              "was": "mkdir",
+              "bedeutet": {
+                "de": "„make directory“.",
+                "en": "“make directory”."
+              }
+            },
+            {
+              "was": "-p",
+              "bedeutet": {
+                "de": "„parents“ — legt fehlende Zwischenordner mit an und meldet keinen Fehler, wenn der Ordner schon existiert. Ohne -p scheitert der Befehl, sobald ein Zwischenschritt fehlt.",
+                "en": "“parents” — creates missing intermediate folders too and reports no error if the folder already exists. Without -p the command fails as soon as an intermediate step is missing."
+              }
+            },
+            {
+              "was": "projekt/daten/rohdaten",
+              "bedeutet": {
+                "de": "Drei Ebenen in einem Aufruf.",
+                "en": "Three levels in one call."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "New-Item -ItemType Directory -Force projekt\\daten\\rohdaten",
+          "teile": [
+            {
+              "was": "New-Item",
+              "bedeutet": {
+                "de": "Der eine PowerShell-Befehl für alles Neue — was entsteht, sagt -ItemType.",
+                "en": "The one PowerShell command for anything new — what it creates is said by -ItemType."
+              }
+            },
+            {
+              "was": "-ItemType Directory",
+              "bedeutet": {
+                "de": "Ein Ordner. Für eine Datei stünde hier File.",
+                "en": "A folder. For a file this would read File."
+              }
+            },
+            {
+              "was": "-Force",
+              "bedeutet": {
+                "de": "Legt Zwischenordner mit an und beschwert sich nicht über Vorhandenes — die Entsprechung zu -p.",
+                "en": "Creates intermediate folders and does not complain about what exists — the equivalent of -p."
+              }
+            },
+            {
+              "was": "mkdir",
+              "bedeutet": {
+                "de": "Ist als Alias vorhanden und legt Zwischenordner ohnehin mit an: mkdir projekt\\daten\\rohdaten genügt.",
+                "en": "Exists as an alias and creates intermediate folders anyway: mkdir projekt\\daten\\rohdaten is enough."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "md projekt\\daten\\rohdaten",
+          "teile": [
+            {
+              "was": "md",
+              "bedeutet": {
+                "de": "Kurz für mkdir; beide funktionieren und legen Zwischenordner mit an.",
+                "en": "Short for mkdir; both work and create intermediate folders."
+              }
+            },
+            {
+              "was": "projekt\\daten\\rohdaten",
+              "bedeutet": {
+                "de": "Drei Ebenen in einem Aufruf.",
+                "en": "Three levels in one call."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B05": {
+      "titel": {
+        "de": "Datei anlegen — leer oder mit Inhalt",
+        "en": "Create a file — empty or with content"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "touch notiz.txt\necho \"Kickoff 14.10.\" > notiz.txt\necho \"Zwischenstand 18.11.\" >> notiz.txt",
+          "teile": [
+            {
+              "was": "touch",
+              "bedeutet": {
+                "de": "Legt eine leere Datei an, wenn sie fehlt; existiert sie, wird nur ihr Änderungsdatum aktualisiert. Löscht nie Inhalt.",
+                "en": "Creates an empty file if it is missing; if it exists, only its modification date is updated. Never deletes content."
+              }
+            },
+            {
+              "was": "echo",
+              "bedeutet": {
+                "de": "Gibt seinen Text aus. Ohne Umleitung erscheint er auf dem Bildschirm.",
+                "en": "Prints its text. Without redirection it appears on screen."
+              }
+            },
+            {
+              "was": ">",
+              "bedeutet": {
+                "de": "Umleitung in eine Datei — überschreibt sie vollständig, ohne zu fragen.",
+                "en": "Redirection into a file — overwrites it completely, without asking."
+              }
+            },
+            {
+              "was": ">>",
+              "bedeutet": {
+                "de": "Umleitung, die anhängt. Der Unterschied zwischen „nur der letzte Lauf“ und „alle Läufe“.",
+                "en": "Redirection that appends. The difference between “only the last run” and “all runs”."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "New-Item -ItemType File notiz.txt\nSet-Content notiz.txt \"Kickoff 14.10.\"\nAdd-Content notiz.txt \"Zwischenstand 18.11.\"",
+          "teile": [
+            {
+              "was": "New-Item -ItemType File",
+              "bedeutet": {
+                "de": "Legt eine leere Datei an. Anders als touch scheitert es, wenn die Datei schon existiert — dann hilft -Force.",
+                "en": "Creates an empty file. Unlike touch it fails if the file already exists — then -Force helps."
+              }
+            },
+            {
+              "was": "Set-Content",
+              "bedeutet": {
+                "de": "Schreibt den Inhalt und überschreibt Vorhandenes. Entspricht dem einfachen >.",
+                "en": "Writes the content and overwrites what is there. Corresponds to a single >."
+              }
+            },
+            {
+              "was": "Add-Content",
+              "bedeutet": {
+                "de": "Hängt an. Entspricht >>.",
+                "en": "Appends. Corresponds to >>."
+              }
+            },
+            {
+              "was": ">",
+              "bedeutet": {
+                "de": "Funktioniert auch in PowerShell, schreibt aber standardmäßig in UTF-16 — bei CSV-Dateien eine beliebte Fehlerquelle. Set-Content mit -Encoding utf8 ist verlässlicher.",
+                "en": "Works in PowerShell too, but writes UTF-16 by default — a popular source of errors with CSV files. Set-Content with -Encoding utf8 is more reliable."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "type nul > notiz.txt\necho Kickoff 14.10. > notiz.txt\necho Zwischenstand 18.11. >> notiz.txt",
+          "teile": [
+            {
+              "was": "type nul >",
+              "bedeutet": {
+                "de": "Der übliche Umweg, um in der Eingabeaufforderung eine leere Datei zu erzeugen — ein touch gibt es nicht.",
+                "en": "The usual detour to create an empty file in Command Prompt — there is no touch."
+              }
+            },
+            {
+              "was": "echo",
+              "bedeutet": {
+                "de": "Gibt Text aus. Anführungszeichen würden hier mitgeschrieben, deshalb stehen sie nicht dabei.",
+                "en": "Prints text. Quotation marks would be written along here, which is why they are omitted."
+              }
+            },
+            {
+              "was": ">  bzw.  >>",
+              "bedeutet": {
+                "de": "Überschreiben beziehungsweise anhängen — wie in den Unix-Shells.",
+                "en": "Overwrite or append — as in the Unix shells."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B06": {
+      "titel": {
+        "de": "Eine Datei ansehen",
+        "en": "Look at a file"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "cat Downloads/fahrten_2026.csv",
+          "teile": [
+            {
+              "was": "cat",
+              "bedeutet": {
+                "de": "Von „concatenate“ — gibt den vollständigen Inhalt aus. Bei einer Datei mit 100.000 Zeilen rauscht sie durch; dann nimmt man head.",
+                "en": "From “concatenate” — prints the full content. With a 100,000-line file it rushes past; then use head."
+              }
+            },
+            {
+              "was": "head -5 datei",
+              "bedeutet": {
+                "de": "Nur die ersten fünf Zeilen. Der schnellste Weg zu Trennzeichen, Kopfzeile und Dezimaltrennung.",
+                "en": "Only the first five lines. The fastest route to separator, header row and decimal mark."
+              }
+            },
+            {
+              "was": "less datei",
+              "bedeutet": {
+                "de": "Blättern statt rauschen: Pfeiltasten bewegen, / sucht, q verlässt.",
+                "en": "Page instead of rush: arrow keys move, / searches, q leaves."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Get-Content Downloads\\fahrten_2026.csv",
+          "teile": [
+            {
+              "was": "Get-Content",
+              "bedeutet": {
+                "de": "PowerShell-Name. Kurzformen: cat, gc, type — alle eingebaut.",
+                "en": "The PowerShell name. Short forms: cat, gc, type — all built in."
+              }
+            },
+            {
+              "was": "-TotalCount 5",
+              "bedeutet": {
+                "de": "Nur die ersten fünf Zeilen — die Entsprechung zu head -5.",
+                "en": "Only the first five lines — the equivalent of head -5."
+              }
+            },
+            {
+              "was": "-Tail 5",
+              "bedeutet": {
+                "de": "Die letzten fünf Zeilen. Mit -Wait bleibt es offen und zeigt neue Zeilen mit — nützlich bei Protokolldateien.",
+                "en": "The last five lines. With -Wait it stays open and shows new lines as they arrive — useful for log files."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "type Downloads\\fahrten_2026.csv",
+          "teile": [
+            {
+              "was": "type",
+              "bedeutet": {
+                "de": "Gibt den vollständigen Inhalt aus.",
+                "en": "Prints the full content."
+              }
+            },
+            {
+              "was": "more datei",
+              "bedeutet": {
+                "de": "Blättert seitenweise; Leertaste weiter, q verlässt.",
+                "en": "Pages through; space continues, q leaves."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B07": {
+      "titel": {
+        "de": "Nur die ersten Zeilen — der CSV-Blick",
+        "en": "Only the first lines — the CSV glance"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "head -3 Downloads/fahrten_2026.csv",
+          "teile": [
+            {
+              "was": "head",
+              "bedeutet": {
+                "de": "Der Anfang einer Datei. Ohne Option zehn Zeilen.",
+                "en": "The beginning of a file. Ten lines without an option."
+              }
+            },
+            {
+              "was": "-3",
+              "bedeutet": {
+                "de": "Drei Zeilen. Ausgeschrieben -n 3.",
+                "en": "Three lines. Spelled out, -n 3."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Get-Content Downloads\\fahrten_2026.csv -TotalCount 3",
+          "teile": [
+            {
+              "was": "-TotalCount 3",
+              "bedeutet": {
+                "de": "Liest nur drei Zeilen und hört dann auf — wichtig bei großen Dateien, weil Get-Content sonst alles in den Arbeitsspeicher holt.",
+                "en": "Reads only three lines and then stops — important with large files, because Get-Content otherwise pulls everything into memory."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "more /e /p Downloads\\fahrten_2026.csv",
+          "teile": [
+            {
+              "was": "more",
+              "bedeutet": {
+                "de": "Die Eingabeaufforderung hat kein head. more zeigt seitenweise; für einen kurzen Blick genügt das.",
+                "en": "Command Prompt has no head. more shows page by page; for a quick glance that is enough."
+              }
+            }
+          ]
+        }
+      },
+      "ausgabe": {
+        "alle": "fahrt_id;rad_id;start;ziel;dauer_min\n1;R-014;Juliuspromenade;Hauptbahnhof;9\n2;R-227;Residenz;Sanderring;6"
+      }
+    },
+    "B08": {
+      "titel": {
+        "de": "Kopieren",
+        "en": "Copy"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "cp Downloads/fahrten_2026.csv velocity/analytics/",
+          "teile": [
+            {
+              "was": "cp",
+              "bedeutet": {
+                "de": "„copy“. Erst die Quelle, dann das Ziel — immer in dieser Reihenfolge.",
+                "en": "“copy”. Source first, then target — always in that order."
+              }
+            },
+            {
+              "was": "Ziel mit /",
+              "bedeutet": {
+                "de": "Endet das Ziel auf einem Trennzeichen oder ist es ein vorhandener Ordner, wird hineinkopiert. Sonst wird es zum neuen Dateinamen — und eine gleichnamige Datei stillschweigend überschrieben.",
+                "en": "If the target ends in a separator or is an existing folder, the file is copied into it. Otherwise it becomes the new file name — and a file of that name is silently overwritten."
+              }
+            },
+            {
+              "was": "-r",
+              "bedeutet": {
+                "de": "„recursive“ — nötig, um einen ganzen Ordner mit Inhalt zu kopieren.",
+                "en": "“recursive” — needed to copy a whole folder with its contents."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Copy-Item Downloads\\fahrten_2026.csv velocity\\analytics\\",
+          "teile": [
+            {
+              "was": "Copy-Item",
+              "bedeutet": {
+                "de": "PowerShell-Name. Kurzformen: cp, copy, ci.",
+                "en": "The PowerShell name. Short forms: cp, copy, ci."
+              }
+            },
+            {
+              "was": "-Recurse",
+              "bedeutet": {
+                "de": "Für ganze Ordner — die Entsprechung zu -r.",
+                "en": "For whole folders — the equivalent of -r."
+              }
+            },
+            {
+              "was": "-Force",
+              "bedeutet": {
+                "de": "Überschreibt vorhandene Ziele ohne Rückfrage. Ohne -Force fragt PowerShell bei schreibgeschützten Dateien nach.",
+                "en": "Overwrites existing targets without asking. Without -Force, PowerShell asks about read-only files."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "copy Downloads\\fahrten_2026.csv velocity\\analytics\\",
+          "teile": [
+            {
+              "was": "copy",
+              "bedeutet": {
+                "de": "Kopiert Dateien. Für ganze Ordner mit Unterordnern nimmt man xcopy /e oder robocopy.",
+                "en": "Copies files. For whole folders with subfolders use xcopy /e or robocopy."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B09": {
+      "titel": {
+        "de": "Verschieben — und umbenennen",
+        "en": "Move — and rename"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "mv notiz.txt Dokumente/termine.txt",
+          "teile": [
+            {
+              "was": "mv",
+              "bedeutet": {
+                "de": "„move“. Verschieben und Umbenennen sind derselbe Vorgang: Ein Dateiname ist nur ein Eintrag in einem Ordner, und mv schreibt diesen Eintrag um.",
+                "en": "“move”. Moving and renaming are the same operation: a file name is just an entry in a folder, and mv rewrites that entry."
+              }
+            },
+            {
+              "was": "notiz.txt",
+              "bedeutet": {
+                "de": "Die Quelle.",
+                "en": "The source."
+              }
+            },
+            {
+              "was": "Dokumente/termine.txt",
+              "bedeutet": {
+                "de": "Ziel mit neuem Namen — verschiebt und benennt in einem Schritt um. Nur Dokumente/ hätte den Namen behalten.",
+                "en": "Target with a new name — moves and renames in one step. Just Dokumente/ would have kept the name."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Move-Item notiz.txt Dokumente\\termine.txt",
+          "teile": [
+            {
+              "was": "Move-Item",
+              "bedeutet": {
+                "de": "PowerShell-Name. Kurzformen: mv, move, mi.",
+                "en": "The PowerShell name. Short forms: mv, move, mi."
+              }
+            },
+            {
+              "was": "Rename-Item",
+              "bedeutet": {
+                "de": "Nur umbenennen, ohne zu verschieben — in PowerShell ein eigener Befehl, anders als in den Unix-Shells: Rename-Item Dokumente\\notizen.txt termine.txt. Der zweite Wert ist ein Name, kein Pfad; steht dort ein Pfad, wird der Befehl abgewiesen.",
+                "en": "Rename only, without moving — a separate command in PowerShell, unlike in the Unix shells: Rename-Item Dokumente\\notizen.txt termine.txt. The second value is a name, not a path; put a path there and the command is refused."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "move notiz.txt Dokumente\\termine.txt",
+          "teile": [
+            {
+              "was": "move",
+              "bedeutet": {
+                "de": "Verschiebt und benennt um.",
+                "en": "Moves and renames."
+              }
+            },
+            {
+              "was": "ren",
+              "bedeutet": {
+                "de": "Benennt nur um, ohne zu verschieben: ren Dokumente\\notizen.txt termine.txt. Der zweite Wert ist ein Name, kein Pfad — für einen anderen Ordner ist move der Befehl.",
+                "en": "Renames only, without moving: ren Dokumente\\notizen.txt termine.txt. The second value is a name, not a path — for a different folder move is the command."
+              }
+            }
+          ]
+        }
+      }
+    },
+    "B10": {
+      "titel": {
+        "de": "Löschen — ohne Papierkorb",
+        "en": "Delete — without a wastebasket"
+      },
+      "varianten": {
+        "mac": {
+          "befehl": "rm notiz.txt",
+          "teile": [
+            {
+              "was": "rm",
+              "bedeutet": {
+                "de": "„remove“. Es gibt keine Rückfrage, keinen Papierkorb und kein Rückgängig.",
+                "en": "“remove”. There is no confirmation, no wastebasket and no undo."
+              }
+            },
+            {
+              "was": "-r",
+              "bedeutet": {
+                "de": "Löscht einen Ordner samt Inhalt. Ohne -r verweigert rm bei Ordnern — das ist eine Schutzmaßnahme, keine Schikane.",
+                "en": "Deletes a folder including its contents. Without -r, rm refuses on folders — a safeguard, not an obstruction."
+              }
+            },
+            {
+              "was": "-f",
+              "bedeutet": {
+                "de": "„force“ — unterdrückt alle Rückfragen und Fehlermeldungen. Die Kombination rm -rf löscht schweigend alles unterhalb des angegebenen Pfades. Lesen Sie die Zeile laut, bevor Sie Enter drücken.",
+                "en": "“force” — suppresses all questions and error messages. The combination rm -rf silently deletes everything below the given path. Read the line aloud before pressing Enter."
+              }
+            },
+            {
+              "was": "-i",
+              "bedeutet": {
+                "de": "Fragt bei jeder Datei nach. Für den Anfang die freundlichere Fassung.",
+                "en": "Asks about every file. The friendlier version to begin with."
+              }
+            }
+          ]
+        },
+        "win": {
+          "befehl": "Remove-Item notiz.txt",
+          "teile": [
+            {
+              "was": "Remove-Item",
+              "bedeutet": {
+                "de": "PowerShell-Name. Kurzformen: rm, del, ri, erase.",
+                "en": "The PowerShell name. Short forms: rm, del, ri, erase."
+              }
+            },
+            {
+              "was": "-Recurse",
+              "bedeutet": {
+                "de": "Für Ordner mit Inhalt.",
+                "en": "For folders with contents."
+              }
+            },
+            {
+              "was": "-WhatIf",
+              "bedeutet": {
+                "de": "Der beste Parameter von PowerShell: zeigt an, was passieren würde, ohne es zu tun. Vor jedem Löschbefehl einmal mit -WhatIf.",
+                "en": "PowerShell's best parameter: shows what would happen without doing it. Run every deletion command with -WhatIf once first."
+              }
+            },
+            {
+              "was": "-Confirm",
+              "bedeutet": {
+                "de": "Fragt bei jedem Eintrag nach.",
+                "en": "Asks about every entry."
+              }
+            }
+          ]
+        },
+        "cmd": {
+          "befehl": "del notiz.txt",
+          "teile": [
+            {
+              "was": "del",
+              "bedeutet": {
+                "de": "Löscht Dateien. Auch hier kein Papierkorb.",
+                "en": "Deletes files. No wastebasket here either."
+              }
+            },
+            {
+              "was": "rd /s /q ordner",
+              "bedeutet": {
+                "de": "Löscht einen Ordner samt Inhalt ohne Rückfrage — die Entsprechung zu rm -rf, mit demselben Gewicht.",
+                "en": "Deletes a folder including contents without asking — the equivalent of rm -rf, with the same weight."
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W01-01",
+      "typ": "terminal",
+      "titel": {
+        "de": "Sich orientieren",
+        "en": "Find your bearings"
+      },
+      "aufgabe": {
+        "de": "<p>Drei Handgriffe, mit denen jede Sitzung an einer Konsole beginnt: Wo bin ich, was liegt hier, wie komme ich woandershin. Arbeiten Sie sich in den Ordner <code>velocity/analytics</code> vor und sehen Sie sich an, was dort liegt.</p><p>Der Schalter in den Befehlskarten oben wechselt auch hier die Shell — probieren Sie die Aufgabe gern in beiden Fassungen.</p>",
+        "en": "<p>Three actions every console session begins with: where am I, what is here, how do I get somewhere else. Work your way into the folder <code>velocity/analytics</code> and look at what is there.</p><p>The switch in the command cards above changes the shell here too — feel free to do the exercise in both versions.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 1 von 6. Beginnen Sie damit, herauszufinden, wo Sie stehen.",
+          "en": "Assignment 1 of 6. Start by finding out where you are."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "Das Arbeitsverzeichnis ausgeben (pwd, Get-Location oder cd)",
+            "en": "Print the working directory (pwd, Get-Location or cd)"
+          },
+          "muster": "^(pwd|Get-Location|gl|cd)\\s*$"
+        },
+        {
+          "text": {
+            "de": "Den Inhalt des Heimatverzeichnisses auflisten",
+            "en": "List the contents of the home directory"
+          },
+          "muster": "^(ls|dir|Get-ChildItem|gci)\\b"
+        },
+        {
+          "text": {
+            "de": "In den Ordner velocity/analytics wechseln",
+            "en": "Change into the folder velocity/analytics"
+          },
+          "zustand": {
+            "pfad": "velocity/analytics"
+          }
+        },
+        {
+          "text": {
+            "de": "Dort den Inhalt auflisten — welche Datei fällt auf?",
+            "en": "List the contents there — which file stands out?"
+          },
+          "muster": "^(ls|dir|Get-ChildItem|gci)\\b",
+          "zustand": {
+            "pfad": "velocity/analytics"
+          }
+        },
+        {
+          "text": {
+            "de": "Zurück ins Heimatverzeichnis",
+            "en": "Back to the home directory"
+          },
+          "zustand": {
+            "pfad": ""
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Genau diese Folge stellt jeder Fehlersuche voran: erst feststellen, wo man ist, dann sehen, was da ist. Die auffällige Datei ist das Notebook mit der Endung .ipynb — ein Jupyter-Notebook, um das es in Lab 04 geht.",
+        "en": "This exact sequence precedes every troubleshooting session: first establish where you are, then see what is there. The file that stands out is the notebook with the .ipynb extension — a Jupyter notebook, the subject of lab 04."
+      }
+    },
+    {
+      "id": "W01-02",
+      "typ": "terminal",
+      "titel": {
+        "de": "Eine Projektstruktur anlegen",
+        "en": "Create a project structure"
+      },
+      "aufgabe": {
+        "de": "<p>Legen Sie im Heimatverzeichnis die Struktur an, mit der die folgenden Labs arbeiten:</p><div class=\"code-block\">projekt/\n  daten/\n  notizen.md</div><p>Achten Sie darauf, dass <code>daten</code> ein Ordner und <code>notizen.md</code> eine Datei ist. Schreiben Sie in die Datei eine Zeile Text — ohne einen Editor zu öffnen.</p>",
+        "en": "<p>In the home directory, create the structure the following labs work with:</p><div class=\"code-block\">projekt/\n  daten/\n  notizen.md</div><p>Make sure <code>daten</code> is a folder and <code>notizen.md</code> is a file. Write one line of text into the file — without opening an editor.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 2 von 6. Tipp: mkdir kann mit -p mehrere Ebenen in einem Aufruf anlegen.",
+          "en": "Assignment 2 of 6. Hint: with -p, mkdir can create several levels in one call."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "Ordner projekt anlegen",
+            "en": "Create the folder projekt"
+          },
+          "zustand": {
+            "datei": "projekt",
+            "dateiTyp": "ordner"
+          }
+        },
+        {
+          "text": {
+            "de": "Ordner projekt/daten anlegen",
+            "en": "Create the folder projekt/daten"
+          },
+          "zustand": {
+            "datei": "projekt/daten",
+            "dateiTyp": "ordner"
+          }
+        },
+        {
+          "text": {
+            "de": "Datei projekt/notizen.md anlegen",
+            "en": "Create the file projekt/notizen.md"
+          },
+          "zustand": {
+            "datei": "projekt/notizen.md",
+            "dateiTyp": "datei"
+          }
+        },
+        {
+          "text": {
+            "de": "In den Ordner projekt wechseln und den Inhalt prüfen",
+            "en": "Change into the folder projekt and check its contents"
+          },
+          "muster": "^(ls|dir|Get-ChildItem|gci)\\b",
+          "zustand": {
+            "pfad": "projekt"
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Diese Trennung — Rohdaten in einem eigenen Unterordner, Notizen daneben — ist keine Kosmetik. Sie ist die Voraussetzung dafür, in Lab 02 die Daten vom Repository auszunehmen und dennoch den Code weiterzugeben.",
+        "en": "This separation — raw data in its own subfolder, notes beside it — is not cosmetic. It is the precondition for excluding the data from the repository in lab 02 while still passing on the code."
+      }
+    },
+    {
+      "id": "W01-03",
+      "typ": "terminal",
+      "titel": {
+        "de": "Eine CSV-Datei begutachten und ablegen",
+        "en": "Inspect a CSV file and file it away"
+      },
+      "aufgabe": {
+        "de": "<p>Im Ordner <code>Downloads</code> liegt <code>fahrten_2026.csv</code>. Bevor sie in eine Auswertung geht, sind drei Fragen zu klären: Welches Trennzeichen? Gibt es eine Kopfzeile? Wie viele Spalten?</p><p>Sehen Sie sich die Datei an und kopieren Sie sie anschließend nach <code>projekt/daten/</code> — die Aufgabe setzt voraus, dass Sie diesen Ordner in Übung W01-02 angelegt haben. Falls nicht, legen Sie ihn zuerst an.</p>",
+        "en": "<p>The folder <code>Downloads</code> holds <code>fahrten_2026.csv</code>. Before it goes into an analysis, three questions need settling: which separator? Is there a header row? How many columns?</p><p>Look at the file and then copy it into <code>projekt/daten/</code> — the exercise assumes you created that folder in exercise W01-02. If not, create it first.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 3 von 6. Die Datei liegt in Downloads. Sehen Sie zuerst hinein, kopieren Sie dann.",
+          "en": "Assignment 3 of 6. The file is in Downloads. Look inside first, then copy."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "Den Inhalt von Downloads/fahrten_2026.csv ansehen (cat, head, Get-Content oder type)",
+            "en": "Look at the contents of Downloads/fahrten_2026.csv (cat, head, Get-Content or type)"
+          },
+          "muster": "^(cat|head|less|more|type|Get-Content|gc)\\b.*fahrten_2026\\.csv"
+        },
+        {
+          "text": {
+            "de": "Den Zielordner projekt/daten anlegen, falls er noch fehlt",
+            "en": "Create the target folder projekt/daten if it is still missing"
+          },
+          "zustand": {
+            "datei": "projekt/daten",
+            "dateiTyp": "ordner"
+          }
+        },
+        {
+          "text": {
+            "de": "Die Datei nach projekt/daten kopieren (das Original bleibt liegen)",
+            "en": "Copy the file into projekt/daten (the original stays put)"
+          },
+          "zustand": {
+            "datei": "projekt/daten/fahrten_2026.csv"
+          }
+        },
+        {
+          "text": {
+            "de": "Prüfen, dass die Datei in Downloads noch vorhanden ist",
+            "en": "Check that the file is still present in Downloads"
+          },
+          "muster": "^(ls|dir|Get-ChildItem|gci)\\b.*Downloads",
+          "zustand": {
+            "datei": "Downloads/fahrten_2026.csv"
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Trennzeichen Semikolon, Kopfzeile vorhanden, fünf Spalten. Diese drei Angaben braucht pandas beim Einlesen: pd.read_csv(\"fahrten_2026.csv\", sep=\";\"). Wer sie vorher nachsieht, spart sich die Fehlersuche an einem Datenrahmen mit einer einzigen Spalte.",
+        "en": "Semicolon separator, header row present, five columns. Those three facts are what pandas needs when reading: pd.read_csv(\"fahrten_2026.csv\", sep=\";\"). Whoever checks first saves themselves debugging a data frame with a single column."
+      }
+    },
+    {
+      "id": "W01-04",
+      "typ": "quiz",
+      "titel": {
+        "de": "Pfade",
+        "en": "Paths"
+      },
+      "aufgabe": {
+        "de": "<p>Angenommen, Sie stehen in <code>~/velocity/analytics</code>. Beantworten Sie die Fragen aus dieser Position.</p>",
+        "en": "<p>Suppose you are standing in <code>~/velocity/analytics</code>. Answer the questions from that position.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Wohin führt cd ../..?",
+            "en": "Where does cd ../.. lead?"
+          },
+          "optionen": [
+            {
+              "de": "In das Heimatverzeichnis — zwei Ebenen über analytics.",
+              "en": "To the home directory — two levels above analytics."
+            },
+            {
+              "de": "Nach ~/velocity.",
+              "en": "To ~/velocity."
+            },
+            {
+              "de": "In das Wurzelverzeichnis des Systems.",
+              "en": "To the system's root directory."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Jedes .. ist eine Ebene. Von analytics eine Ebene hoch ist velocity, zwei Ebenen hoch ist das Heimatverzeichnis. Ins Wurzelverzeichnis führt cd /.",
+            "en": "Each .. is one level. One level up from analytics is velocity, two levels up is the home directory. cd / leads to the root directory."
+          }
+        },
+        {
+          "frage": {
+            "de": "Welche der folgenden Angaben bezeichnen dieselbe Datei, wenn Sie in ~/velocity/analytics stehen? Mehrere Antworten sind richtig.",
+            "en": "Which of the following denote the same file when you are in ~/velocity/analytics? Several answers are correct."
+          },
+          "mehrfach": true,
+          "optionen": [
+            {
+              "de": "stationen.csv",
+              "en": "stationen.csv"
+            },
+            {
+              "de": "./stationen.csv",
+              "en": "./stationen.csv"
+            },
+            {
+              "de": "~/velocity/analytics/stationen.csv",
+              "en": "~/velocity/analytics/stationen.csv"
+            },
+            {
+              "de": "../stationen.csv",
+              "en": "../stationen.csv"
+            },
+            {
+              "de": "/stationen.csv",
+              "en": "/stationen.csv"
+            }
+          ],
+          "richtig": [
+            0,
+            1,
+            2
+          ],
+          "erklaerung": {
+            "de": "Ohne Vorsatz und mit ./ ist dasselbe gemeint: die Datei im Arbeitsverzeichnis. Der Pfad mit ~ ist absolut und trifft dieselbe Datei — er funktioniert allerdings von jedem Standort aus, die relativen nur von hier. ../stationen.csv sucht eine Ebene höher, /stationen.csv im Wurzelverzeichnis.",
+            "en": "With no prefix and with ./ the same thing is meant: the file in the working directory. The path with ~ is absolute and hits the same file — but it works from any location, the relative ones only from here. ../stationen.csv looks one level up, /stationen.csv in the root directory."
+          }
+        },
+        {
+          "frage": {
+            "de": "In einer Anleitung steht: docker build -t meine-app . — was bedeutet der Punkt am Ende?",
+            "en": "A guide reads: docker build -t my-app . — what does the dot at the end mean?"
+          },
+          "optionen": [
+            {
+              "de": "Er bezeichnet das aktuelle Verzeichnis als Bau-Kontext: Von hier aus wird das Dockerfile gesucht und der Inhalt an den Bau übergeben.",
+              "en": "It denotes the current directory as the build context: the Dockerfile is looked for here and the contents are handed to the build."
+            },
+            {
+              "de": "Er beendet den Befehl, wie ein Punkt einen Satz.",
+              "en": "It ends the command, like a full stop ends a sentence."
+            },
+            {
+              "de": "Er ist ein Tippfehler und kann weggelassen werden.",
+              "en": "It is a typo and can be left out."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Der Punkt ist ein Pfad, nämlich der kürzeste: „hier“. Lässt man ihn weg, fehlt docker build der Gegenstand und der Befehl scheitert. Das Beispiel zeigt, warum sich das Lesen von Pfaden lohnt: Ohne diese Kenntnis wirkt der Punkt wie Zeichensetzung — in Lab 07 kommt er wieder.",
+            "en": "The dot is a path, namely the shortest one: “here”. Leave it out and docker build has no object, and the command fails. The example shows why learning to read paths pays off: without that knowledge the dot looks like punctuation — it returns in lab 07."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W01-05",
+      "typ": "quiz",
+      "titel": {
+        "de": "Drei Shells, drei Eigenheiten",
+        "en": "Three shells, three peculiarities"
+      },
+      "aufgabe": {
+        "de": "<p>Die Unterschiede zwischen den Shells sind gering, aber sie tauchen genau dann auf, wenn man eine Anleitung befolgt, die für ein anderes System geschrieben wurde.</p>",
+        "en": "<p>The differences between the shells are small, but they surface exactly when following a guide written for a different system.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Eine Kommilitonin tippt in der Windows-Eingabeaufforderung ls und erhält eine Fehlermeldung. In PowerShell funktioniert derselbe Befehl. Warum?",
+            "en": "A fellow student types ls in Windows Command Prompt and gets an error. In PowerShell the same command works. Why?"
+          },
+          "optionen": [
+            {
+              "de": "PowerShell hat ls als Alias für Get-ChildItem eingebaut; die Eingabeaufforderung kennt nur dir.",
+              "en": "PowerShell has ls built in as an alias for Get-ChildItem; Command Prompt only knows dir."
+            },
+            {
+              "de": "PowerShell lädt Unix-Befehle bei Bedarf aus dem Internet nach.",
+              "en": "PowerShell downloads Unix commands from the internet as needed."
+            },
+            {
+              "de": "Die Eingabeaufforderung braucht Administratorrechte für ls.",
+              "en": "Command Prompt needs administrator rights for ls."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "PowerShell bringt Aliase für ls, cat, rm, cp, mv, pwd und weitere mit — deshalb funktionieren viele Anleitungen aus der Unix-Welt dort auf Anhieb. Das ist bequem und gelegentlich eine Falle: Die Optionen sind nicht dieselben. ls -la scheitert in PowerShell, weil Get-ChildItem kein -la kennt.",
+            "en": "PowerShell ships aliases for ls, cat, rm, cp, mv, pwd and more — which is why many guides from the Unix world work there straight away. That is convenient and occasionally a trap: the options are not the same. ls -la fails in PowerShell, because Get-ChildItem has no -la."
+          }
+        },
+        {
+          "frage": {
+            "de": "Ein Notebook läuft auf dem MacBook einwandfrei und scheitert im Docker-Container mit FileNotFoundError für Stationen.csv. Die Datei ist vorhanden. Was ist die wahrscheinlichste Ursache?",
+            "en": "A notebook runs fine on the MacBook and fails in a Docker container with FileNotFoundError for Stationen.csv. The file is present. What is the most likely cause?"
+          },
+          "optionen": [
+            {
+              "de": "Die Datei heißt stationen.csv. macOS behandelt Groß- und Kleinschreibung bei Dateinamen standardmäßig nachsichtig, Linux im Container nicht.",
+              "en": "The file is called stationen.csv. macOS treats case in file names leniently by default, Linux in the container does not."
+            },
+            {
+              "de": "Container können grundsätzlich keine CSV-Dateien lesen.",
+              "en": "Containers cannot read CSV files at all."
+            },
+            {
+              "de": "Die Datei ist zu groß für den Container.",
+              "en": "The file is too large for the container."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Diese Fehlersuche kostet regelmäßig einen halben Nachmittag, weil auf dem eigenen Rechner alles stimmt. Die Vorsorge ist einfach: Dateinamen durchgehend klein schreiben, keine Leerzeichen, keine Umlaute. Dieselbe Regel, die schon für Spaltennamen in Datentabellen gilt.",
+            "en": "This debugging regularly costs half an afternoon, because on your own machine everything is fine. The precaution is simple: write file names in lower case throughout, no spaces, no umlauts. The same rule that already applies to column names in data tables."
+          }
+        },
+        {
+          "frage": {
+            "de": "Welche Fehlermeldung passt zu welcher Ursache? Wählen Sie die zutreffende Zuordnung.",
+            "en": "Which error message matches which cause? Choose the correct assignment."
+          },
+          "optionen": [
+            {
+              "de": "command not found → das Programm ist nicht installiert oder nicht im Suchpfad; No such file or directory → falscher Ort oder falscher Name; Permission denied → Ort richtig, Rechte fehlen.",
+              "en": "command not found → the program is not installed or not on the search path; No such file or directory → wrong place or wrong name; Permission denied → right place, missing rights."
+            },
+            {
+              "de": "Alle drei bedeuten dasselbe und lassen sich mit Administratorrechten beheben.",
+              "en": "All three mean the same and can be fixed with administrator rights."
+            },
+            {
+              "de": "command not found → Tippfehler im Dateinamen; No such file or directory → Programm fehlt; Permission denied → Datei ist beschädigt.",
+              "en": "command not found → typo in the file name; No such file or directory → program missing; Permission denied → file is corrupted."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Drei Meldungen, drei Ursachen, drei ganz verschiedene Gegenmittel: installieren beziehungsweise Pfad prüfen, Ort oder Namen korrigieren, Rechte klären. Die Meldung genau zu lesen erspart das Ausprobieren aller drei.",
+            "en": "Three messages, three causes, three completely different remedies: install or check the path, correct the place or the name, sort out the rights. Reading the message precisely saves trying all three."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W01-06",
+      "typ": "terminal",
+      "titel": {
+        "de": "Aufräumen — mit Bedacht",
+        "en": "Tidying up — deliberately"
+      },
+      "aufgabe": {
+        "de": "<p>Zum Abschluss der Umgang mit den Befehlen, bei denen Sorgfalt zählt. Benennen Sie <code>Dokumente/notizen.txt</code> in <code>Dokumente/termine.txt</code> um, legen Sie dann eine überflüssige Datei <code>test.tmp</code> im Heimatverzeichnis an und entfernen Sie sie wieder.</p><p>Prüfen Sie vor dem Löschen mit dem Listenbefehl, dass Sie die richtige Datei treffen. Diese Reihenfolge — erst auflisten, dann löschen — ist die einzige Gewohnheit, die vor einem verlorenen Nachmittag schützt.</p>",
+        "en": "<p>To finish, the commands where care counts. Rename <code>Dokumente/notizen.txt</code> to <code>Dokumente/termine.txt</code>, then create a superfluous file <code>test.tmp</code> in the home directory and remove it again.</p><p>Before deleting, use the listing command to check that you are hitting the right file. This order — list first, then delete — is the one habit that protects against a lost afternoon.</p>"
+      },
+      "begruessung": [
+        {
+          "de": "Auftrag 4 von 6. Umbenennen ist derselbe Befehl wie Verschieben.",
+          "en": "Assignment 4 of 6. Renaming is the same command as moving."
+        }
+      ],
+      "schritte": [
+        {
+          "text": {
+            "de": "Dokumente/notizen.txt in Dokumente/termine.txt umbenennen",
+            "en": "Rename Dokumente/notizen.txt to Dokumente/termine.txt"
+          },
+          "zustand": {
+            "datei": "Dokumente/termine.txt"
+          }
+        },
+        {
+          "text": {
+            "de": "Datei test.tmp im Heimatverzeichnis anlegen",
+            "en": "Create the file test.tmp in the home directory"
+          },
+          "zustand": {
+            "datei": "test.tmp"
+          }
+        },
+        {
+          "text": {
+            "de": "Vor dem Löschen auflisten, um die Datei zu bestätigen",
+            "en": "List before deleting, to confirm the file"
+          },
+          "muster": "^(ls|dir|Get-ChildItem|gci)\\b"
+        },
+        {
+          "text": {
+            "de": "test.tmp löschen",
+            "en": "Delete test.tmp"
+          },
+          "muster": "^(rm|del|Remove-Item|ri|erase)\\b.*test\\.tmp"
+        },
+        {
+          "text": {
+            "de": "Prüfen, dass test.tmp weg und termine.txt noch da ist",
+            "en": "Check that test.tmp is gone and termine.txt is still there"
+          },
+          "muster": "^(ls|dir|Get-ChildItem|gci|cat|type|Get-Content)\\b",
+          "zustand": {
+            "datei": "Dokumente/termine.txt"
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Damit sitzen die zehn Befehle, die in den folgenden Labs vorausgesetzt werden. Der Rest kommt im Zusammenhang: git in Lab 02, docker in Lab 07, psql in Lab 08. Alle folgen demselben Muster aus Befehl, Optionen und Gegenstand — und alle erklären sich mit --help.",
+        "en": "That settles the ten commands the following labs assume. The rest comes in context: git in lab 02, docker in lab 07, psql in lab 08. All follow the same pattern of command, options and object — and all explain themselves with --help."
+      }
+    }
+  ]
+}

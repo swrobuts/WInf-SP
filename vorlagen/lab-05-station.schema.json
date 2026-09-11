@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Station",
+  "description": "Eine Station des Velo-City-Exports (velocity.json, Liste stationen) mit ihren Rädern. JSON kennt keine Kommentare – deshalb stehen die Erläuterungen in description-Feldern.",
+  "type": "object",
+  "properties": {
+    "station_id": {
+      "description": "Laufende Nummer der Station, im Export eine Zahl",
+      "type": "integer",
+      "minimum": 1
+    },
+    "name": {
+      "description": "Anzeigename, z. B. Juliuspromenade",
+      "type": "string",
+      "minLength": 1
+    },
+    "bezirk": {
+      "description": "Stadtbezirk in Würzburg",
+      "type": "string"
+    },
+    "plaetze": {
+      "description": "Zahl der Abstellplätze; integer lässt 14 zu, 14.5 nicht",
+      "type": "integer",
+      "minimum": 0
+    },
+    "eroeffnet": {
+      "description": "Datum als ISO-8601-Zeichenkette – JSON hat keinen Datumstyp",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "raeder": {
+      "description": "Die Räder mit Heimstation hier; eine Liste von Objekten",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rad_id": {
+            "description": "Kennung wie R-001 – eine Zeichenkette, keine Zahl",
+            "type": "string",
+            "pattern": "^R-\\d{3}$"
+          },
+          "typ": {
+            "description": "Nur diese drei Werte sind zulässig",
+            "type": "string",
+            "enum": ["CITY", "EBIKE", "CARGO"]
+          },
+          "baujahr": {
+            "type": "integer",
+            "minimum": 2020
+          },
+          "status": {
+            "type": "string",
+            "enum": ["aktiv", "werkstatt"]
+          }
+        },
+        "required": ["rad_id", "typ", "baujahr", "status"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["station_id", "name", "bezirk", "plaetze", "eroeffnet", "raeder"],
+  "additionalProperties": false
+}

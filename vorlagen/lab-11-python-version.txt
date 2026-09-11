@@ -1,0 +1,14 @@
+3.13
+# ^ Nur die erste Zeile gehört in die Datei. Sie heißt im Projekt
+#   .python-version  (mit führendem Punkt, ohne Endung) und liegt im
+#   Root Directory des Web Service.
+#
+# Render liest daraus die Python-Version für den Build. Anders als bei der
+# Environment Variable PYTHON_VERSION (die vollständig sein muss, z. B.
+# 3.13.5) genügt hier die Nebenversion; Render nimmt dann den aktuellen
+# Patch-Stand. Ist PYTHON_VERSION gesetzt, hat sie Vorrang vor dieser Datei.
+#
+# Warum überhaupt festnageln: Seit 11.02.2026 ist der Default für neue
+# Services 3.14.x (Stand 09/2026). Pakete, die für 3.14 noch keine fertigen
+# Wheels haben, müssen dann beim Build kompiliert werden – und das scheitert
+# auf dem Build-Rechner oft. Lokal genutzte Version = Version bei Render.

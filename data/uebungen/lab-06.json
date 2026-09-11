@@ -1,0 +1,336 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": { "de": "Installieren und die Version prüfen", "en": "Install and check the version" },
+      "varianten": {
+        "mac": {
+          "befehl": "sqlite3 --version\n# vorinstalliert unter /usr/bin/sqlite3 – nichts zu installieren\nwhich sqlite3",
+          "teile": [
+            { "was": "sqlite3 --version", "bedeutet": { "de": "Antwortet mit Versionsnummer und Datum, etwa 3.51.0 2025-06-12. macOS liefert das Programm mit; für die Übungen genügt diese Fassung.", "en": "Answers with version number and date, e.g. 3.51.0 2025-06-12. macOS ships the program; that version is enough for the exercises." } },
+            { "was": "which sqlite3", "bedeutet": { "de": "Zeigt, welches Programm der Name trifft – /usr/bin/sqlite3. Wer über Homebrew eine neuere Fassung installiert, hat danach zwei; which sagt, welche läuft.", "en": "Shows which program the name resolves to – /usr/bin/sqlite3. Whoever installs a newer version via Homebrew then has two; which tells you which one runs." } }
+          ]
+        },
+        "win": {
+          "befehl": "winget install --id SQLite.SQLite\n# danach ein NEUES Terminal öffnen, dann:\nsqlite3 --version",
+          "teile": [
+            { "was": "winget install --id SQLite.SQLite", "bedeutet": { "de": "Holt das Werkzeugpaket von sqlite.org und legt die Befehle sqlite3, sqldiff und sqlite3_analyzer an. Alternative ohne winget: sqlite-tools-win-x64-….zip von sqlite.org/download.html entpacken und den Ordner in den PATH aufnehmen.", "en": "Fetches the tools package from sqlite.org and creates the commands sqlite3, sqldiff and sqlite3_analyzer. Alternative without winget: unzip sqlite-tools-win-x64-….zip from sqlite.org/download.html and add the folder to the PATH." } },
+            { "was": "neues Terminal", "bedeutet": { "de": "Der Suchpfad wird beim Start des Terminals gelesen. Im offenen Fenster bleibt sqlite3 unbekannt – derselbe Effekt wie bei Docker in Lab 07.", "en": "The search path is read when the terminal starts. In the open window sqlite3 stays unknown – the same effect as with Docker in lab 07." } }
+          ]
+        },
+        "cmd": {
+          "befehl": "winget install --id SQLite.SQLite\nrem danach ein NEUES Fenster öffnen, dann:\nsqlite3 --version",
+          "teile": [
+            { "was": "winget install --id SQLite.SQLite", "bedeutet": { "de": "Wie in PowerShell. Der Paketname ist die Kennung des Herstellers auf sqlite.org, nicht ein Drittanbieter.", "en": "As in PowerShell. The package name is the vendor's identifier on sqlite.org, not a third party." } },
+            { "was": "rem", "bedeutet": { "de": "Der Kommentar in cmd.exe – das # der anderen Shells gilt hier nicht.", "en": "The comment in cmd.exe – the # of the other shells does not apply here." } }
+          ]
+        }
+      },
+      "ausgabe": {
+        "mac": "3.51.0 2025-06-12 13:14:41 f0ca7bba1c5e232e5d279fad6338121ab55af0c8c68c84cdfb18ba5114dcaapl (64-bit)\n/usr/bin/sqlite3",
+        "win": "3.53.4 2026-07-24 …  (64-bit)",
+        "cmd": "3.53.4 2026-07-24 …  (64-bit)"
+      }
+    },
+    "B02": {
+      "titel": { "de": "Python braucht keine Installation", "en": "Python needs no installation" },
+      "varianten": {
+        "mac": {
+          "befehl": "python3 -c \"import sqlite3; print(sqlite3.sqlite_version)\"",
+          "teile": [
+            { "was": "import sqlite3", "bedeutet": { "de": "Das Modul ist Teil der Standardbibliothek – kein pip install. Die Bibliothek selbst steckt im Python-Installer.", "en": "The module is part of the standard library – no pip install. The library itself is inside the Python installer." } },
+            { "was": "sqlite3.sqlite_version", "bedeutet": { "de": "Die Version der eingebauten SQLite-Bibliothek, etwa 3.53.4. Sie kann von der Version des Programms sqlite3 abweichen – zwei Fassungen auf einem Rechner sind normal. Das ältere sqlite3.version wurde in Python 3.14 entfernt.", "en": "The version of the built-in SQLite library, e.g. 3.53.4. It can differ from the version of the sqlite3 program – two copies on one machine are normal. The older sqlite3.version was removed in Python 3.14." } }
+          ]
+        },
+        "win": {
+          "befehl": "python -c \"import sqlite3; print(sqlite3.sqlite_version)\"",
+          "teile": [
+            { "was": "python", "bedeutet": { "de": "Unter Windows heißt der Befehl python (oder py), nicht python3 – sonst wie links.", "en": "On Windows the command is python (or py), not python3 – otherwise as on the left." } },
+            { "was": "sqlite3.sqlite_version", "bedeutet": { "de": "Die Version der eingebauten Bibliothek. Liegt sie unter 3.37, fehlt STRICT; unter 3.38 fehlen -> und ->>. Dann Python aktualisieren, nicht SQLite.", "en": "The version of the built-in library. Below 3.37, STRICT is missing; below 3.38, -> and ->> are missing. Then update Python, not SQLite." } }
+          ]
+        },
+        "cmd": {
+          "befehl": "python -c \"import sqlite3; print(sqlite3.sqlite_version)\"",
+          "teile": [
+            { "was": "python -c", "bedeutet": { "de": "Führt die Zeichenkette als Python aus. Praktisch für Einzeiler wie diese Versionsprüfung.", "en": "Runs the string as Python. Handy for one-liners such as this version check." } }
+          ]
+        }
+      },
+      "ausgabe": "3.53.4"
+    },
+    "B03": {
+      "titel": { "de": "Eine sqlite3-Sitzung: Datei öffnen, Skript lesen, Struktur ansehen", "en": "A sqlite3 session: open the file, read the script, inspect the structure" },
+      "prompt": "📄",
+      "befehl": "$ sqlite3\nsqlite> .open velocity.db\nsqlite> .read data/velocity.sqlite.sql\nsqlite> .tables\nfahrt          fahrt_mit_typ  kunde          rad            station\nsqlite> .schema fahrt\nsqlite> .mode box\nsqlite> .headers on\nsqlite> SELECT rad_typ, count(*) AS fahrten, round(sum(preis_eur), 2) AS umsatz\n   ...> FROM fahrt_mit_typ GROUP BY rad_typ ORDER BY umsatz DESC;\n\n-- CSV: zuerst die Tabelle mit Typen anlegen, dann --skip 1 für die Kopfzeile\nsqlite> CREATE TABLE fahrt_csv (fahrt_id INTEGER, rad_id TEXT, dauer_min INTEGER, preis_eur REAL) STRICT;\nsqlite> .import --csv --skip 1 fahrten.csv fahrt_csv\n\nsqlite> .mode json\nsqlite> .output sicherung.sql\nsqlite> .dump\nsqlite> .output\nsqlite> .quit",
+      "teile": [
+        { "was": ".open velocity.db", "bedeutet": { "de": "Öffnet die Datei – und legt sie beim ersten Schreiben an, wenn sie fehlt. Gleichwertig: sqlite3 velocity.db direkt in der Shell. Ohne Dateinamen arbeitet sqlite3 im Arbeitsspeicher, und alles ist beim Beenden weg.", "en": "Opens the file – and creates it on the first write if it is missing. Equivalent: sqlite3 velocity.db straight from the shell. Without a file name sqlite3 works in memory, and everything is gone on exit." } },
+        { "was": ".read data/velocity.sqlite.sql", "bedeutet": { "de": "Führt ein SQL-Skript aus. Das Skript beginnt mit PRAGMA foreign_keys = ON und legt vier Tabellen und die Sicht an. Der Pfad ist relativ zum Ordner, in dem Sie sqlite3 gestartet haben – Lab 01.", "en": "Runs a SQL script. The script begins with PRAGMA foreign_keys = ON and creates four tables and the view. The path is relative to the folder you started sqlite3 in – lab 01." } },
+        { "was": ".tables / .schema fahrt", "bedeutet": { "de": "Dot-Commands: Befehle des Programms sqlite3, nicht der Sprache SQL. Kein Semikolon, am linken Rand, eine Zeile. In Python, DB Browser oder DataGrip gibt es sie nicht – dort: SELECT name FROM sqlite_master WHERE type = 'table'.", "en": "Dot-commands: commands of the sqlite3 program, not of the SQL language. No semicolon, at the left margin, one line. They do not exist in Python, DB Browser or DataGrip – there: SELECT name FROM sqlite_master WHERE type = 'table'." } },
+        { "was": ".mode box / .headers on", "bedeutet": { "de": "Ausgabe als Rahmen mit Spaltennamen statt der voreingestellten |-getrennten Liste. Weitere Modi: column, csv, markdown, json. Nur für die Sitzung – beim nächsten Start gilt wieder list.", "en": "Output as a box with column names instead of the default |-separated list. Further modes: column, csv, markdown, json. For the session only – the next start returns to list." } },
+        { "was": "...>", "bedeutet": { "de": "Der Fortsetzungsprompt: Die Anweisung ist noch nicht mit ; abgeschlossen. Wer ihn unerwartet sieht, hat das Semikolon vergessen – ; eingeben, Enter.", "en": "The continuation prompt: the statement is not yet closed with ;. Whoever sees it unexpectedly forgot the semicolon – type ;, Enter." } },
+        { "was": ".import --csv --skip 1 fahrten.csv fahrt_csv", "bedeutet": { "de": "Liest eine CSV-Datei in die Tabelle; --skip 1 überspringt die Kopfzeile. Existiert die Tabelle noch nicht, legt .import sie selbst an – dann wird die Kopfzeile zu Spaltennamen, und alle Spalten sind TEXT. Darum die Tabelle vorher mit Typen anlegen.", "en": "Reads a CSV file into the table; --skip 1 skips the header. If the table does not exist yet, .import creates it – then the header becomes column names, and all columns are TEXT. Hence create the table with types first." } },
+        { "was": ".mode json", "bedeutet": { "de": "Ergebnisse als JSON-Array von Objekten – dieselbe Form wie ein API-Antwortkörper in Lab 05.", "en": "Results as a JSON array of objects – the same shape as an API response body in lab 05." } },
+        { "was": ".output sicherung.sql / .dump", "bedeutet": { "de": "Die ganze Datenbank als SQL-Text: CREATE- und INSERT-Anweisungen. Genau so ist data/velocity.sqlite.sql entstanden. Kürzer von außen: sqlite3 velocity.db .dump > sicherung.sql", "en": "The whole database as SQL text: CREATE and INSERT statements. That is exactly how data/velocity.sqlite.sql came about. Shorter from outside: sqlite3 velocity.db .dump > sicherung.sql" } }
+      ]
+    },
+    "B04": {
+      "titel": { "de": "Aus Python: verbinden, füllen, abfragen", "en": "From Python: connect, fill, query" },
+      "prompt": "📄",
+      "befehl": "import sqlite3\n\ncon = sqlite3.connect(\"velocity.db\")      # legt die Datei an, wenn sie fehlt\ncon.execute(\"PRAGMA foreign_keys = ON\")   # je Verbindung, sonst gelten keine FKs\n\nzeilen = [(\"R-017\", \"2026-09-02\", 4500), (\"R-034\", \"2026-09-03\", 1250)]\nwith con:                                 # Transaktion: commit am Ende, rollback bei Fehler\n    con.executemany(\n        \"INSERT INTO wartung (rad_id, datum, kosten_cent) VALUES (?, ?, ?)\", zeilen)\n\ncon.row_factory = sqlite3.Row             # Zeilen nach Spaltennamen ansprechen\nfor z in con.execute(\"SELECT rad_id, kosten_cent FROM wartung WHERE datum >= ?\", (\"2026-09-01\",)):\n    print(z[\"rad_id\"], z[\"kosten_cent\"] / 100)\n\ncon.close()                               # with con schließt NICHT",
+      "teile": [
+        { "was": "sqlite3.connect(\"velocity.db\")", "bedeutet": { "de": "Öffnet die Datei – oder legt still eine leere an, wenn der Name nicht stimmt. Ein Tippfehler im Pfad fällt darum erst später auf, als no such table. Mit \":memory:\" statt eines Namens entsteht eine Datenbank im Arbeitsspeicher.", "en": "Opens the file – or silently creates an empty one if the name is wrong. A typo in the path therefore shows up only later, as no such table. With \":memory:\" instead of a name you get a database in memory." } },
+        { "was": "PRAGMA foreign_keys = ON", "bedeutet": { "de": "Fremdschlüssel sind in SQLite standardmäßig aus – aus Rücksicht auf alte Anwendungen. Die Einstellung gilt je Verbindung, also nach jedem connect() neu setzen.", "en": "Foreign keys are off by default in SQLite – out of consideration for old applications. The setting applies per connection, so set it again after every connect()." } },
+        { "was": "with con:", "bedeutet": { "de": "Eine Transaktion: Läuft der Block durch, wird festgeschrieben (commit); bei einer Ausnahme wird zurückgerollt. Ohne with und ohne con.commit() bleiben die Zeilen unbestätigt – ein zweites Programm sieht sie nicht und meldet unter Umständen database is locked.", "en": "A transaction: if the block completes, it commits; on an exception it rolls back. Without with and without con.commit() the rows stay unconfirmed – a second program does not see them and may report database is locked." } },
+        { "was": "executemany(…, zeilen)", "bedeutet": { "de": "Führt dieselbe Anweisung für jedes Tupel der Liste aus – der schnellste Weg für viele Zeilen aus einer Liste, etwa aus json.load().", "en": "Runs the same statement for every tuple in the list – the fastest route for many rows from a list, e.g. from json.load()." } },
+        { "was": "? und (\"2026-09-01\",)", "bedeutet": { "de": "Platzhalter statt f-String: SQLite setzt den Wert ein, kein Anführungszeichen kann die Anweisung verändern. Die Parameter kommen als Tupel – bei einem Wert mit Komma: (1975,). Ein nackter String zählt als Folge von Zeichen: Incorrect number of bindings supplied.", "en": "Placeholder instead of f-string: SQLite inserts the value, no quotation mark can alter the statement. Parameters come as a tuple – a single value with a comma: (1975,). A bare string counts as a sequence of characters: Incorrect number of bindings supplied." } },
+        { "was": "row_factory = sqlite3.Row", "bedeutet": { "de": "Ergebniszeilen verhalten sich danach wie Wörterbücher: z[\"rad_id\"] statt z[0]. Lesbarer und robust gegen eine geänderte Spaltenreihenfolge.", "en": "Result rows then behave like dictionaries: z[\"rad_id\"] instead of z[0]. More readable and robust against a changed column order." } },
+        { "was": "con.close()", "bedeutet": { "de": "Gibt die Datei frei. Solange ein Notebook-Kernel die Verbindung hält, bekommt DB Browser oder ein zweites Skript beim Schreiben database is locked. Seit Python 3.12 gibt es connect(…, autocommit=False) für Standardverhalten nach PEP 249; die Voreinstellung ist die ältere Steuerung.", "en": "Releases the file. As long as a notebook kernel holds the connection, DB Browser or a second script gets database is locked when writing. Since Python 3.12 there is connect(…, autocommit=False) for PEP 249 behaviour; the default is the older control." } }
+      ]
+    },
+    "B05": {
+      "titel": { "de": "pandas: Datenrahmen hinein und heraus", "en": "pandas: data frames in and out" },
+      "prompt": "📄",
+      "befehl": "import sqlite3\nimport pandas as pd\n\ncon = sqlite3.connect(\"velocity.db\")\n\n# hinein: Ergebnis einer Abfrage als Datenrahmen\ndf = pd.read_sql(\n    \"SELECT * FROM fahrt WHERE start_zeit >= ?\", con,\n    params=(\"2026-06-01\",), parse_dates=[\"start_zeit\"])\n\n# heraus: einen Datenrahmen als Tabelle ablegen\nmonat = df.groupby(df[\"start_zeit\"].dt.to_period(\"M\"))[\"preis_eur\"].sum().reset_index()\nmonat[\"start_zeit\"] = monat[\"start_zeit\"].astype(str)\nmonat.to_sql(\"umsatz_monat\", con, if_exists=\"replace\", index=False)\n\ncon.close()",
+      "teile": [
+        { "was": "pd.read_sql(sql, con, params=…)", "bedeutet": { "de": "Führt die Abfrage aus und liefert einen Datenrahmen. Bei einer sqlite3-Verbindung braucht es kein SQLAlchemy; für Postgres in Lab 08 wird daraus create_engine(…).", "en": "Runs the query and returns a data frame. With a sqlite3 connection no SQLAlchemy is needed; for Postgres in lab 08 this becomes create_engine(…)." } },
+        { "was": "parse_dates=[\"start_zeit\"]", "bedeutet": { "de": "Die Spalte kommt als TEXT aus SQLite. parse_dates macht daraus datetime64 – erst dann funktionieren .dt.month, Zeitreihen und Diagramme. Ohne diese Angabe ist start_zeit in pandas ein object.", "en": "The column arrives from SQLite as TEXT. parse_dates turns it into datetime64 – only then do .dt.month, time series and charts work. Without it, start_zeit is an object in pandas." } },
+        { "was": "to_sql(\"umsatz_monat\", con, if_exists=\"replace\", index=False)", "bedeutet": { "de": "Legt die Tabelle an und füllt sie. if_exists: fail (Voreinstellung, bricht ab), replace (löscht und legt neu an), append (hängt an). index=False, sonst landet der Zeilenindex 0, 1, 2 … als Spalte index in der Datenbank.", "en": "Creates the table and fills it. if_exists: fail (default, aborts), replace (drops and recreates), append (adds). index=False, otherwise the row index 0, 1, 2 … lands in the database as a column named index." } },
+        { "was": "Typen nach to_sql", "bedeutet": { "de": "pandas wählt die Spaltentypen selbst: Zahlen werden INTEGER oder REAL, alles andere TEXT. Eine Period-Spalte kann es nicht schreiben – darum astype(str). Wer STRICT-Tabellen oder Fremdschlüssel will, legt die Tabelle vorher selbst an und nutzt append.", "en": "pandas picks the column types itself: numbers become INTEGER or REAL, everything else TEXT. It cannot write a Period column – hence astype(str). Whoever wants STRICT tables or foreign keys creates the table first and uses append." } }
+      ]
+    },
+    "B06": {
+      "titel": { "de": "Flexible Typen – und STRICT als Gegenmittel", "en": "Flexible typing – and STRICT as the remedy" },
+      "prompt": "SQL",
+      "befehl": "-- Gewöhnliche Tabelle: SQLite nimmt, was kommt\nCREATE TABLE messung (wert INTEGER, gemessen DATE);\nINSERT INTO messung VALUES ('abc', '2026-09-11');   -- gelingt\nSELECT wert, typeof(wert), typeof(gemessen) FROM messung;\n-- abc | text | text\n\n-- STRICT (seit 3.37): nur INT, INTEGER, REAL, TEXT, BLOB, ANY – und Prüfung\nCREATE TABLE messung_s (wert INTEGER, gemessen TEXT) STRICT;\nINSERT INTO messung_s VALUES ('abc', '2026-09-11');\n-- Error: cannot store TEXT value in INTEGER column messung_s.wert\nINSERT INTO messung_s VALUES ('42', '2026-09-11');  -- gelingt: '42' wird 42",
+      "teile": [
+        { "was": "typeof(wert)", "bedeutet": { "de": "Zeigt die Speicherklasse des Werts, nicht der Spalte: null, integer, real, text oder blob. Die erste Prüfung nach jedem Import.", "en": "Shows the storage class of the value, not of the column: null, integer, real, text or blob. The first check after every import." } },
+        { "was": "'abc' in INTEGER", "bedeutet": { "de": "Der Typ hängt in SQLite am Wert, nicht an der Spalte. INTEGER ist eine Affinity, ein Wunsch: Was sich verlustfrei wandeln lässt ('42'), wird gewandelt; der Rest bleibt, wie er kam. Die Dokumentation nennt das ein Feature.", "en": "In SQLite the type belongs to the value, not the column. INTEGER is an affinity, a preference: what converts losslessly ('42') is converted; the rest stays as it came. The documentation calls that a feature." } },
+        { "was": "STRICT", "bedeutet": { "de": "Steht nach der schließenden Klammer. Erlaubt nur die sechs Typnamen; DATE, VARCHAR(255) oder BOOLEAN geben unknown datatype. Ein unpassender Wert wird abgewiesen statt gespeichert – für Tabellen, die Sie selbst anlegen, die bessere Voreinstellung.", "en": "Goes after the closing parenthesis. Allows only the six type names; DATE, VARCHAR(255) or BOOLEAN give unknown datatype. A mismatching value is rejected instead of stored – for tables you create yourself, the better default." } },
+        { "was": "gemessen TEXT", "bedeutet": { "de": "Ein Datum ist in SQLite Text nach ISO 8601: '2026-09-11' oder '2026-09-11 07:45:00'. Genau dieses Format lesen date(), datetime() und strftime() – und es sortiert als Text richtig.", "en": "A date in SQLite is text in ISO 8601: '2026-09-11' or '2026-09-11 07:45:00'. Exactly this format is read by date(), datetime() and strftime() – and it sorts correctly as text." } }
+      ]
+    },
+    "B07": {
+      "titel": { "de": "Datum und Zeit ohne Datumstyp", "en": "Date and time without a date type" },
+      "prompt": "SQL",
+      "befehl": "-- Monat aus einem Zeitstempel-Text\nSELECT strftime('%Y-%m', start_zeit) AS monat, count(*) AS fahrten\nFROM fahrt GROUP BY monat ORDER BY monat;\n\n-- Rechnen mit Modifikatoren\nSELECT date('2026-09-11', '+1 month')                 AS in_einem_monat,   -- 2026-10-11\n       datetime('2026-09-11 07:45:00', '+90 minutes') AS rueckgabe,        -- 2026-09-11 09:15:00\n       date('now', 'start of month', '+1 month', '-1 day') AS monatsende,\n       strftime('%w', '2026-09-11')                    AS wochentag;        -- 0 = Sonntag\n\n-- Fahrten am Wochenende\nSELECT count(*) FROM fahrt WHERE strftime('%w', start_zeit) IN ('0', '6');",
+      "teile": [
+        { "was": "strftime('%Y-%m', …)", "bedeutet": { "de": "Formatiert einen Zeit-Text: %Y Jahr, %m Monat, %d Tag, %H Stunde, %w Wochentag (0 = Sonntag), %j Tag im Jahr. Das Ergebnis ist Text – '2025-09' –, der als Text richtig sortiert. In Postgres: to_char() oder date_trunc().", "en": "Formats a time text: %Y year, %m month, %d day, %H hour, %w weekday (0 = Sunday), %j day of year. The result is text – '2025-09' – which sorts correctly as text. In Postgres: to_char() or date_trunc()." } },
+        { "was": "date(d, '+1 month')", "bedeutet": { "de": "Modifikatoren statt INTERVAL: '+1 day', '-3 months', 'start of month', 'start of year', 'weekday 1', 'localtime', 'utc'. Mehrere lassen sich hintereinander schreiben; sie wirken von links nach rechts.", "en": "Modifiers instead of INTERVAL: '+1 day', '-3 months', 'start of month', 'start of year', 'weekday 1', 'localtime', 'utc'. Several can be chained; they apply from left to right." } },
+        { "was": "'now'", "bedeutet": { "de": "Die aktuelle Zeit – in UTC, nicht in Ihrer Zeitzone. 'now', 'localtime' rechnet um. CURRENT_TIMESTAMP als Vorgabewert einer Spalte ist ebenfalls UTC.", "en": "The current time – in UTC, not in your time zone. 'now', 'localtime' converts. CURRENT_TIMESTAMP as a column default is UTC as well." } },
+        { "was": "Nur ISO 8601", "bedeutet": { "de": "Die Funktionen verstehen 'YYYY-MM-DD', 'YYYY-MM-DD HH:MM:SS' und die Form mit T. '11.09.2026' aus einer deutschen Excel-Datei liefert NULL – ohne Fehlermeldung. Also vor dem Import umformen (Lab 05: json.dumps mit isoformat()).", "en": "The functions understand 'YYYY-MM-DD', 'YYYY-MM-DD HH:MM:SS' and the form with T. '11.09.2026' from a German Excel file yields NULL – without an error. So convert before importing (lab 05: json.dumps with isoformat())." } }
+      ]
+    },
+    "B08": {
+      "titel": { "de": "JSON in SQLite: Text hinein, Spalten heraus", "en": "JSON in SQLite: text in, columns out" },
+      "prompt": "SQL",
+      "befehl": "-- Eine Rohtabelle: ein JSON-Dokument je Zeile, wie eine Zeile aus fahrten.jsonl\nCREATE TABLE fahrt_roh (doc TEXT);\nINSERT INTO fahrt_roh VALUES\n  ('{\"fahrt_id\":1,\"rad_id\":\"R-057\",\"start\":{\"station_id\":6,\"zeit\":\"2025-10-05T07:58:00\"},\"ziel\":{\"station_id\":3},\"dauer_min\":7,\"preis_eur\":1.2}');\n\n-- Spalten daraus machen\nSELECT doc ->> '$.fahrt_id'          AS fahrt_id,       -- 1        (integer)\n       doc ->  '$.rad_id'            AS rad_json,       -- \"R-057\"  (JSON-Text, mit Anführungszeichen)\n       doc ->> '$.rad_id'            AS rad_id,         -- R-057    (SQL-Text)\n       doc ->> '$.start.station_id'  AS start_station,  -- 6\n       json_extract(doc, '$.start.zeit') AS start_zeit  -- 2025-10-05T07:58:00\nFROM fahrt_roh;\n\n-- Ein Array wird zur Tabelle\nSELECT value FROM json_each('[\"R-001\", \"R-002\", \"R-003\"]');\n\n-- Und zurück: Zeilen zu JSON\nSELECT bezirk, json_group_array(name) AS stationen FROM station GROUP BY bezirk;",
+      "teile": [
+        { "was": "-> und ->>", "bedeutet": { "de": "Seit 3.38 (02/2022). -> liefert JSON-Text (eine Zeichenkette bleibt in Anführungszeichen), ->> den SQL-Wert: 1 als integer, R-057 als text. Für Spalten fast immer ->>. Dieselben Operatoren gibt es in Postgres – dort ohne $-Pfad, nur mit Schlüssel oder Index.", "en": "Since 3.38 (02/2022). -> returns JSON text (a string keeps its quotation marks), ->> the SQL value: 1 as integer, R-057 as text. For columns almost always ->>. Postgres has the same operators – there without the $ path, only with key or index." } },
+        { "was": "'$.start.station_id'", "bedeutet": { "de": "Ein JSON-Pfad: $ ist das Dokument, .start das Unterobjekt, .station_id das Feld. Arrays mit [0]; das letzte Element mit [#-1]. Lab 05 nannte das JSONPath.", "en": "A JSON path: $ is the document, .start the sub-object, .station_id the field. Arrays with [0]; the last element with [#-1]. Lab 05 called this JSONPath." } },
+        { "was": "json_extract(doc, pfad)", "bedeutet": { "de": "Die Funktionsform von ->>. Mit mehreren Pfaden liefert sie ein JSON-Array. Alle json_*-Funktionen sind seit 3.38 ohne Zusatz eingebaut.", "en": "The function form of ->>. With several paths it returns a JSON array. All json_* functions are built in without extras since 3.38." } },
+        { "was": "json_each(…)", "bedeutet": { "de": "Eine Tabellenfunktion: Aus einem Array wird eine Zeile je Element, mit den Spalten key, value, type. In FROM neben eine Tabelle gestellt – FROM station, json_each(station.raeder) – zerlegt sie ein Array je Zeile. In Postgres: jsonb_array_elements().", "en": "A table-valued function: an array becomes one row per element, with columns key, value, type. Placed next to a table in FROM – FROM station, json_each(station.raeder) – it unnests an array per row. In Postgres: jsonb_array_elements()." } },
+        { "was": "json_group_array(name)", "bedeutet": { "de": "Die Aggregatfunktion in Gegenrichtung: Aus den Zeilen einer Gruppe wird ein JSON-Array. json_object('rad_id', rad_id, 'typ', typ) baut ein Objekt je Zeile – so entsteht ein Export wie velocity.json aus Tabellen.", "en": "The aggregate function in the opposite direction: the rows of a group become a JSON array. json_object('rad_id', rad_id, 'typ', typ) builds an object per row – that is how an export like velocity.json arises from tables." } },
+        { "was": "JSONB (seit 3.45)", "bedeutet": { "de": "Eine binäre Ablageform: jsonb(doc) wandelt um, gespeichert wird ein BLOB, jede json_*-Funktion hat einen jsonb_*-Zwilling. Schneller bei wiederholtem Zugriff; für die Übungen genügt Text.", "en": "A binary storage form: jsonb(doc) converts, a BLOB is stored, every json_* function has a jsonb_* twin. Faster on repeated access; for the exercises text is enough." } }
+      ]
+    },
+    "B09": {
+      "titel": { "de": "DB Browser for SQLite: öffnen, ändern, schreiben", "en": "DB Browser for SQLite: open, change, write" },
+      "prompt": "🖱",
+      "befehl": "File → Open Database… → velocity.db\nDatabase Structure                     – Tabellen, Sichten, Indizes; CREATE-Text je Objekt\nBrowse Data → Table: fahrt             – Zellen editierbar, Filter je Spalte\nExecute SQL → Abfrage → Ctrl+Return    – Ergebnis als Raster; Ctrl+Return nur die Markierung\nWrite Changes (Ctrl+S)                 – erst JETZT wird die Datei geändert\nRevert Changes                         – verwirft alles seit dem letzten Write Changes\nFile → Export → Table(s) as CSV file…  – für Excel und Lab 12/13\nFile → Import → Table from CSV file…   – Typen prüfen: alles wird TEXT",
+      "teile": [
+        { "was": "Write Changes", "bedeutet": { "de": "DB Browser hält alle Änderungen – ob im Raster oder per SQL – in einer offenen Transaktion. Bis zum Klick auf Write Changes ist in der Datei nichts geändert, und jedes andere Programm, das schreiben will, meldet database is locked. Beim Schließen fragt das Programm, ob es schreiben soll.", "en": "DB Browser keeps every change – in the grid or via SQL – in an open transaction. Until you click Write Changes nothing in the file has changed, and any other program that wants to write reports database is locked. On closing, the program asks whether to write." } },
+        { "was": "Execute SQL", "bedeutet": { "de": "Der SQL-Editor mit Vervollständigung. Mehrere Anweisungen im Feld: Ctrl+Return führt alles aus, mit Markierung nur die Markierung – dieselbe Regel wie in DataGrip, Lab 09.", "en": "The SQL editor with completion. Several statements in the field: Ctrl+Return runs all of them, with a selection only the selection – the same rule as in DataGrip, lab 09." } },
+        { "was": "Import → Table from CSV file", "bedeutet": { "de": "Der Dialog zeigt eine Vorschau und lässt Trennzeichen (; für deutsche Dateien) und Kodierung wählen. Die Tabelle entsteht mit TEXT-Spalten – danach mit typeof() prüfen oder vorher selbst anlegen.", "en": "The dialogue shows a preview and lets you pick the separator (; for German files) and encoding. The table is created with TEXT columns – check with typeof() afterwards or create it yourself first." } },
+        { "was": "3.13.1, kostenlos", "bedeutet": { "de": "Quelloffen unter GPLv3 / MPL 2.0, für macOS, Windows und Linux. Installation: Installer von sqlitebrowser.org, winget install -e --id DBBrowserForSQLite.DBBrowserForSQLite oder brew install --cask db-browser-for-sqlite. Stand 09/2026.", "en": "Open source under GPLv3 / MPL 2.0, for macOS, Windows and Linux. Installation: installer from sqlitebrowser.org, winget install -e --id DBBrowserForSQLite.DBBrowserForSQLite or brew install --cask db-browser-for-sqlite. As of 09/2026." } }
+      ]
+    },
+    "B10": {
+      "titel": { "de": "Die Beispielabfragen aus lab-06-abfragen.sql", "en": "The example queries from lab-06-abfragen.sql" },
+      "prompt": "📄",
+      "befehl": "-- Ausführen: sqlite3 velocity.db < lab-06-abfragen.sql   oder   sqlite> .read lab-06-abfragen.sql\n\n-- 3) JOIN: Abfahrten je Station\nSELECT s.name AS station, s.bezirk, count(*) AS abfahrten,\n       round(avg(f.dauer_min), 1) AS dauer_mittel\nFROM fahrt f\nJOIN station s ON s.station_id = f.start_station\nGROUP BY s.station_id\nORDER BY abfahrten DESC;\n\n-- 4) Fensterfunktion: kumulierter Umsatz je Monat\nSELECT monat, umsatz,\n       round(sum(umsatz) OVER (ORDER BY monat), 2) AS kumuliert\nFROM (\n  SELECT strftime('%Y-%m', start_zeit) AS monat,\n         round(sum(preis_eur), 2)       AS umsatz\n  FROM fahrt GROUP BY monat\n)\nORDER BY monat;\n\n-- 5) JSON: Räder in der Werkstatt als Objekte\nSELECT json_object('rad_id', rad_id, 'typ', typ, 'baujahr', baujahr) AS rad_json\nFROM rad WHERE status = 'werkstatt';",
+      "teile": [
+        { "was": "GROUP BY s.station_id", "bedeutet": { "de": "Gruppiert nach dem Schlüssel, zeigt aber name und bezirk – SQLite erlaubt das, weil die Spalten von der Gruppenspalte abhängen. Postgres verlangt hier alle nicht aggregierten Spalten im GROUP BY oder den Primärschlüssel der Tabelle.", "en": "Groups by the key but shows name and bezirk – SQLite allows that because the columns depend on the grouping column. Postgres demands all non-aggregated columns in GROUP BY here, or the table's primary key." } },
+        { "was": "sum(umsatz) OVER (ORDER BY monat)", "bedeutet": { "de": "Eine Fensterfunktion: summiert über alle Zeilen bis zur aktuellen, ohne die Zeilen zu verschmelzen. Seit SQLite 3.25 (2018); auch rank(), row_number(), lag() und lead(). Die Sprache ist dieselbe wie in Postgres.", "en": "A window function: sums over all rows up to the current one without merging the rows. Since SQLite 3.25 (2018); also rank(), row_number(), lag() and lead(). The language is the same as in Postgres." } },
+        { "was": "Unterabfrage in FROM", "bedeutet": { "de": "Erst je Monat aggregieren, dann darüber das Fenster – zwei Schritte, weil eine Fensterfunktion nicht über ein Aggregat derselben Ebene laufen darf. In Postgres würde man dasselbe mit WITH … AS (CTE) schreiben; das geht in SQLite ebenso.", "en": "Aggregate per month first, then the window over that – two steps, because a window function may not run over an aggregate of the same level. In Postgres you would write the same with WITH … AS (CTE); that works in SQLite too." } },
+        { "was": "round(…, 2) auf REAL", "bedeutet": { "de": "preis_eur ist ein REAL, ein binärer Gleitkommawert. Summen darüber tragen Reste wie 1522.5000000000002. Für Anzeige runden; für Abrechnungen Beträge in Cent als INTEGER speichern.", "en": "preis_eur is a REAL, a binary floating-point value. Sums over it carry remainders like 1522.5000000000002. Round for display; for invoicing store amounts in cents as INTEGER." } }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W06-01",
+      "typ": "sql",
+      "titel": { "de": "Aufwärmen: Fahrten und Umsatz je Radtyp", "en": "Warm-up: rides and revenue per bike type" },
+      "aufgabe": {
+        "de": "<p>Die Datenbank auf dieser Seite ist ein echtes SQLite (3.49.1). Ermitteln Sie je <strong>Radtyp</strong> die Anzahl der Fahrten und den Umsatz, auf zwei Nachkommastellen gerundet.</p><p>Spalten in dieser Reihenfolge: <code>rad_typ</code>, <code>fahrten</code>, <code>umsatz</code>. Die Sicht <code>fahrt_mit_typ</code> erspart Ihnen den Verbund. Zum Gegenprüfen: Der Gesamtumsatz beträgt 3.172,14 €.</p>",
+        "en": "<p>The database on this page is a real SQLite (3.49.1). For each <strong>bike type</strong>, determine the number of rides and the revenue, rounded to two decimals.</p><p>Columns in this order: <code>rad_typ</code>, <code>fahrten</code>, <code>umsatz</code>. The view <code>fahrt_mit_typ</code> saves you the join. To cross-check: total revenue is €3,172.14.</p>"
+      },
+      "start": "SELECT rad_typ\nFROM fahrt_mit_typ\n",
+      "loesung": "SELECT rad_typ,\n       count(*)                 AS fahrten,\n       round(sum(preis_eur), 2) AS umsatz\nFROM fahrt_mit_typ\nGROUP BY rad_typ\nORDER BY umsatz DESC;",
+      "sortiert": false,
+      "hinweis": {
+        "de": "<p><code>count(*)</code> zählt Zeilen, <code>sum(preis_eur)</code> summiert, <code>round(…, 2)</code> rundet – und <code>GROUP BY rad_typ</code> bildet je Typ eine Gruppe. Ohne das <code>round()</code> sehen Sie, warum <code>preis_eur</code> als <code>REAL</code> ein Problem ist.</p>",
+        "en": "<p><code>count(*)</code> counts rows, <code>sum(preis_eur)</code> sums, <code>round(…, 2)</code> rounds – and <code>GROUP BY rad_typ</code> forms a group per type. Without the <code>round()</code> you see why <code>preis_eur</code> as <code>REAL</code> is a problem.</p>"
+      },
+      "rueckmeldung": {
+        "de": "CITY 913 Fahrten und 1.522,50 €, EBIKE 444 und 1.153,80 €, CARGO 143 und 495,84 € – dieselben Zahlen, die die Postgres-Fassung in Lab 08 liefert. Die Abfrage ist Zeichen für Zeichen dieselbe; nur die Typen darunter unterscheiden sich: preis_eur ist hier ein REAL, dort ein numeric(6,2).",
+        "en": "CITY 913 rides and €1,522.50, EBIKE 444 and €1,153.80, CARGO 143 and €495.84 – the same numbers the Postgres version in lab 08 delivers. The query is identical character for character; only the types underneath differ: preis_eur is a REAL here, a numeric(6,2) there."
+      }
+    },
+    {
+      "id": "W06-02",
+      "typ": "sql",
+      "titel": { "de": "Umsatz je Monat – ohne Datumstyp", "en": "Revenue per month – without a date type" },
+      "aufgabe": {
+        "de": "<p><code>start_zeit</code> ist in dieser Datenbank ein <code>TEXT</code> wie <code>2025-09-01 07:45:00</code>. Ermitteln Sie den Umsatz je <strong>Monat</strong>, gerundet auf zwei Nachkommastellen, aufsteigend nach Monat sortiert.</p><p>Spalten in dieser Reihenfolge: <code>monat</code> (als <code>2025-09</code>), <code>umsatz</code>. Zwölf Zeilen, September 2025 bis August 2026.</p>",
+        "en": "<p>In this database <code>start_zeit</code> is a <code>TEXT</code> such as <code>2025-09-01 07:45:00</code>. Determine the revenue per <strong>month</strong>, rounded to two decimals, sorted ascending by month.</p><p>Columns in this order: <code>monat</code> (as <code>2025-09</code>), <code>umsatz</code>. Twelve rows, September 2025 to August 2026.</p>"
+      },
+      "start": "SELECT strftime('%Y-%m', start_zeit) AS monat\nFROM fahrt\n",
+      "loesung": "SELECT strftime('%Y-%m', start_zeit) AS monat,\n       round(sum(preis_eur), 2)       AS umsatz\nFROM fahrt\nGROUP BY monat\nORDER BY monat;",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p><code>strftime('%Y-%m', start_zeit)</code> schneidet Jahr und Monat als Text heraus. Nach dem Alias lässt sich gruppieren und sortieren: <code>GROUP BY monat ORDER BY monat</code>. Weil das Ergebnis Text im Format Jahr-Monat ist, sortiert es als Text richtig.</p>",
+        "en": "<p><code>strftime('%Y-%m', start_zeit)</code> cuts out year and month as text. You can group and sort by the alias: <code>GROUP BY monat ORDER BY monat</code>. Because the result is text in year-month format, it sorts correctly as text.</p>"
+      },
+      "rueckmeldung": {
+        "de": "In Postgres (Lab 08) hieße dieselbe Zeile date_trunc('month', start_zeit) oder to_char(start_zeit, 'YYYY-MM') – und start_zeit wäre ein timestamp. Hier trägt der Text die ganze Last: Er funktioniert nur, weil er ISO 8601 ist. Ein '01.09.2025' aus Excel würde strftime() still zu NULL machen.",
+        "en": "In Postgres (lab 08) the same line would be date_trunc('month', start_zeit) or to_char(start_zeit, 'YYYY-MM') – and start_zeit would be a timestamp. Here the text carries the whole load: it works only because it is ISO 8601. A '01.09.2025' from Excel would be turned into NULL by strftime() silently."
+      }
+    },
+    {
+      "id": "W06-03",
+      "typ": "sql",
+      "titel": { "de": "Eine STRICT-Tabelle anlegen und füllen", "en": "Create and fill a STRICT table" },
+      "aufgabe": {
+        "de": "<p>Die Werkstatt möchte Wartungen erfassen. Legen Sie die Tabelle <code>wartung</code> an – <strong>STRICT</strong>, mit Fremdschlüssel auf <code>rad</code> – und fügen Sie zwei Zeilen ein:</p><ul><li><code>wartung_id INTEGER PRIMARY KEY</code></li><li><code>rad_id TEXT NOT NULL REFERENCES rad(rad_id)</code></li><li><code>datum TEXT NOT NULL</code></li><li><code>kosten_cent INTEGER NOT NULL</code></li></ul><p>Zeilen: Rad <code>R-017</code> am <code>2026-09-02</code> für <code>4500</code> Cent, Rad <code>R-034</code> am <code>2026-09-03</code> für <code>1250</code> Cent – in dieser Reihenfolge, <code>wartung_id</code> vergibt SQLite. Geprüft wird <code>SELECT rad_id, datum, kosten_cent FROM wartung ORDER BY wartung_id</code>.</p>",
+        "en": "<p>The workshop wants to record maintenance. Create the table <code>wartung</code> – <strong>STRICT</strong>, with a foreign key to <code>rad</code> – and insert two rows:</p><ul><li><code>wartung_id INTEGER PRIMARY KEY</code></li><li><code>rad_id TEXT NOT NULL REFERENCES rad(rad_id)</code></li><li><code>datum TEXT NOT NULL</code></li><li><code>kosten_cent INTEGER NOT NULL</code></li></ul><p>Rows: bike <code>R-017</code> on <code>2026-09-02</code> for <code>4500</code> cents, bike <code>R-034</code> on <code>2026-09-03</code> for <code>1250</code> cents – in this order, SQLite assigns <code>wartung_id</code>. Checked with <code>SELECT rad_id, datum, kosten_cent FROM wartung ORDER BY wartung_id</code>.</p>"
+      },
+      "vorher": "",
+      "start": "CREATE TABLE wartung (\n  wartung_id INTEGER PRIMARY KEY,\n  \n);\n\nINSERT INTO wartung (rad_id, datum, kosten_cent) VALUES\n  ;",
+      "loesung": "CREATE TABLE wartung (\n  wartung_id  INTEGER PRIMARY KEY,\n  rad_id      TEXT    NOT NULL REFERENCES rad(rad_id),\n  datum       TEXT    NOT NULL,\n  kosten_cent INTEGER NOT NULL\n) STRICT;\n\nINSERT INTO wartung (rad_id, datum, kosten_cent) VALUES\n  ('R-017', '2026-09-02', 4500),\n  ('R-034', '2026-09-03', 1250);",
+      "kontrolle": "SELECT rad_id, datum, kosten_cent FROM wartung ORDER BY wartung_id",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p><code>STRICT</code> steht nach der schließenden Klammer, vor dem Semikolon. Beim <code>INSERT</code> nennen Sie nur die drei Spalten ohne <code>wartung_id</code> – der Primärschlüssel ist ein Alias für die <code>rowid</code> und wird automatisch vergeben. Zwei Zeilen in einem <code>VALUES</code>, durch Komma getrennt.</p><p>Probieren Sie danach: <code>INSERT … VALUES ('R-017', '2026-09-04', 'viel')</code> – die Meldung lautet <code>cannot store TEXT value in INTEGER column wartung.kosten_cent</code>. Und mit <code>'R-999'</code> als Rad: <code>FOREIGN KEY constraint failed</code>.</p>",
+        "en": "<p><code>STRICT</code> goes after the closing parenthesis, before the semicolon. In the <code>INSERT</code> you name only the three columns without <code>wartung_id</code> – the primary key is an alias for the <code>rowid</code> and is assigned automatically. Two rows in one <code>VALUES</code>, separated by a comma.</p><p>Try afterwards: <code>INSERT … VALUES ('R-017', '2026-09-04', 'viel')</code> – the message reads <code>cannot store TEXT value in INTEGER column wartung.kosten_cent</code>. And with <code>'R-999'</code> as the bike: <code>FOREIGN KEY constraint failed</code>.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Drei Entscheidungen stecken in dieser Tabelle: STRICT, damit 'viel' nicht in kosten_cent landet; Cent als INTEGER, damit 45,00 € nicht als 44.99999 gespeichert wird; das Datum als ISO-Text, damit strftime() es liest. Der Fremdschlüssel wirkt hier, weil das Startskript PRAGMA foreign_keys = ON setzt – in Ihrem eigenen Python-Skript müssen Sie das nach jedem connect() selbst tun.",
+        "en": "Three decisions sit in this table: STRICT, so that 'viel' does not land in kosten_cent; cents as INTEGER, so that €45.00 is not stored as 44.99999; the date as ISO text, so that strftime() reads it. The foreign key works here because the seed script sets PRAGMA foreign_keys = ON – in your own Python script you have to do that yourself after every connect()."
+      }
+    },
+    {
+      "id": "W06-04",
+      "typ": "sql",
+      "titel": { "de": "Aus JSON-Dokumenten werden Spalten", "en": "JSON documents become columns" },
+      "aufgabe": {
+        "de": "<p>Die Tabelle <code>fahrt_roh</code> enthält vier Zeilen aus <code>fahrten.jsonl</code> (Lab 05) – je Zeile ein JSON-Dokument in der Spalte <code>doc</code>, mit den Unterobjekten <code>start</code> und <code>ziel</code>. Machen Sie daraus eine Tabelle mit <code>fahrt_id</code>, <code>start_station</code> (aus <code>$.start.station_id</code>) und <code>dauer_min</code> – alle drei <strong>als Zahlen</strong>, nicht als JSON-Text –, aufsteigend nach <code>fahrt_id</code>.</p><p>Ein Blick in die Rohdaten: <code>SELECT doc FROM fahrt_roh;</code></p>",
+        "en": "<p>The table <code>fahrt_roh</code> holds four rows from <code>fahrten.jsonl</code> (lab 05) – one JSON document per row in the column <code>doc</code>, with the sub-objects <code>start</code> and <code>ziel</code>. Turn it into a table with <code>fahrt_id</code>, <code>start_station</code> (from <code>$.start.station_id</code>) and <code>dauer_min</code> – all three <strong>as numbers</strong>, not as JSON text –, ascending by <code>fahrt_id</code>.</p><p>A look at the raw data: <code>SELECT doc FROM fahrt_roh;</code></p>"
+      },
+      "vorher": "CREATE TABLE fahrt_roh (doc TEXT);\nINSERT INTO fahrt_roh (doc) VALUES\n  ('{\"fahrt_id\":1,\"rad_id\":\"R-057\",\"kunde_id\":13,\"start\":{\"station_id\":6,\"zeit\":\"2025-10-05T07:58:00\"},\"ziel\":{\"station_id\":3},\"dauer_min\":7,\"preis_eur\":1.2}'),\n  ('{\"fahrt_id\":2,\"rad_id\":\"R-035\",\"kunde_id\":194,\"start\":{\"station_id\":5,\"zeit\":\"2026-07-04T16:29:00\"},\"ziel\":{\"station_id\":6},\"dauer_min\":6,\"preis_eur\":1.1}'),\n  ('{\"fahrt_id\":3,\"rad_id\":\"R-049\",\"kunde_id\":82,\"start\":{\"station_id\":7,\"zeit\":\"2025-12-25T18:26:00\"},\"ziel\":{\"station_id\":1},\"dauer_min\":22,\"preis_eur\":4.08}'),\n  ('{\"fahrt_id\":4,\"rad_id\":\"R-030\",\"kunde_id\":128,\"start\":{\"station_id\":9,\"zeit\":\"2025-11-15T16:59:00\"},\"ziel\":{\"station_id\":3},\"dauer_min\":5,\"preis_eur\":2.4}');",
+      "start": "SELECT doc ->> '$.fahrt_id' AS fahrt_id\nFROM fahrt_roh\n",
+      "loesung": "SELECT doc ->> '$.fahrt_id'         AS fahrt_id,\n       doc ->> '$.start.station_id' AS start_station,\n       doc ->> '$.dauer_min'        AS dauer_min\nFROM fahrt_roh\nORDER BY fahrt_id;",
+      "sortiert": true,
+      "hinweis": {
+        "de": "<p><code>doc ->> '$.pfad'</code> liefert den SQL-Wert – bei einer Zahl im JSON ein <code>integer</code>. <code>-></code> dagegen liefert JSON-Text; für Spalten brauchen Sie <code>->></code>. Der Pfad zum verschachtelten Feld: <code>'$.start.station_id'</code>. Prüfen Sie mit <code>typeof(doc ->> '$.fahrt_id')</code>.</p>",
+        "en": "<p><code>doc ->> '$.path'</code> returns the SQL value – for a number in the JSON an <code>integer</code>. <code>-></code> by contrast returns JSON text; for columns you need <code>->></code>. The path to the nested field: <code>'$.start.station_id'</code>. Check with <code>typeof(doc ->> '$.fahrt_id')</code>.</p>"
+      },
+      "rueckmeldung": {
+        "de": "Das ist ELT im Kleinen: Extract (fahrten.jsonl), Load (die Rohtabelle mit einem doc je Zeile), Transform (diese Abfrage – erst in der Datenbank werden Spalten daraus). Lab 10 macht genau das mit pandas und einer Staging-Tabelle; Lab 05 hat die Rohdaten gelesen. Und mit CREATE TABLE fahrt_flach AS SELECT … wäre die flache Tabelle dauerhaft.",
+        "en": "That is ELT in miniature: extract (fahrten.jsonl), load (the raw table with one doc per row), transform (this query – only inside the database do columns arise). Lab 10 does exactly that with pandas and a staging table; lab 05 read the raw data. And with CREATE TABLE fahrt_flach AS SELECT … the flat table would be permanent."
+      }
+    },
+    {
+      "id": "W06-05",
+      "typ": "quiz",
+      "titel": { "de": "Typen, Sperren, Grenzen", "en": "Types, locks, limits" },
+      "aufgabe": {
+        "de": "<p>Vier Fragen zu den Eigenheiten, die SQLite von einem Server unterscheiden. Die zweite beschreibt die Situation, die in Übungen am häufigsten Zeit kostet.</p>",
+        "en": "<p>Four questions on the peculiarities that separate SQLite from a server. The second describes the situation that most often costs time in practical sessions.</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Sie führen aus: <code>CREATE TABLE messung (wert INTEGER); INSERT INTO messung VALUES ('abc');</code>. Was passiert?", "en": "You run: <code>CREATE TABLE messung (wert INTEGER); INSERT INTO messung VALUES ('abc');</code>. What happens?" },
+          "optionen": [
+            { "de": "Das INSERT gelingt, und <code>typeof(wert)</code> liefert <code>text</code>. INTEGER ist eine Affinity, kein Zwang – erst <code>STRICT</code> hinter der Klammer lehnt den Wert ab.", "en": "The INSERT succeeds, and <code>typeof(wert)</code> returns <code>text</code>. INTEGER is an affinity, not a constraint – only <code>STRICT</code> after the parenthesis rejects the value." },
+            { "de": "Das INSERT scheitert mit <code>datatype mismatch</code>.", "en": "The INSERT fails with <code>datatype mismatch</code>." },
+            { "de": "SQLite speichert 0, weil 'abc' keine Zahl ist.", "en": "SQLite stores 0 because 'abc' is not a number." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Der Typ hängt am Wert, nicht an der Spalte – die Dokumentation nennt flexible typing ausdrücklich ein Feature. datatype mismatch gibt es nur an einer Stelle: wenn ein Nicht-Integer in eine INTEGER PRIMARY KEY-Spalte soll, denn die ist die rowid. Für eigene Tabellen ist STRICT die richtige Voreinstellung; dann lautet die Meldung cannot store TEXT value in INTEGER column messung.wert.",
+            "en": "The type belongs to the value, not the column – the documentation expressly calls flexible typing a feature. datatype mismatch occurs in one place only: when a non-integer is to go into an INTEGER PRIMARY KEY column, because that is the rowid. For your own tables STRICT is the right default; then the message reads cannot store TEXT value in INTEGER column messung.wert."
+          }
+        },
+        {
+          "frage": { "de": "In einem Notebook läuft <code>con.execute(\"INSERT …\")</code> ohne <code>commit()</code>. Danach meldet DB Browser for SQLite beim <em>Write Changes</em>: <code>database is locked</code>. Was ist die Ursache?", "en": "In a notebook <code>con.execute(\"INSERT …\")</code> runs without <code>commit()</code>. Afterwards DB Browser for SQLite reports on <em>Write Changes</em>: <code>database is locked</code>. What is the cause?" },
+          "optionen": [
+            { "de": "Der Notebook-Kernel hält eine offene Transaktion und damit die Schreibsperre auf die Datei. SQLite erlaubt einen Schreiber zu jedem Zeitpunkt – <code>con.commit()</code> oder <code>con.close()</code> im Notebook, dann klappt es.", "en": "The notebook kernel holds an open transaction and thus the write lock on the file. SQLite allows one writer at any instant – <code>con.commit()</code> or <code>con.close()</code> in the notebook, then it works." },
+            { "de": "Die Datei ist schreibgeschützt; die Rechte müssen im Dateisystem geändert werden.", "en": "The file is read-only; permissions have to be changed in the file system." },
+            { "de": "DB Browser unterstützt keine Datenbanken, die Python angelegt hat.", "en": "DB Browser does not support databases created by Python." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Der umgekehrte Fall ist genauso häufig: DB Browser hält Änderungen bis Write Changes in einer offenen Transaktion, und dann ist es das Python-Skript, das database is locked meldet. Merkregel: Wer schreibt, schließt ab – commit, close, Write Changes –, bevor das nächste Programm die Datei öffnet. Mit einer Zugriffsberechtigung hat das nichts zu tun; die Meldung dafür wäre attempt to write a readonly database.",
+            "en": "The reverse case is just as common: DB Browser keeps changes in an open transaction until Write Changes, and then it is the Python script that reports database is locked. Rule of thumb: whoever writes, finishes – commit, close, Write Changes – before the next program opens the file. It has nothing to do with permissions; that message would be attempt to write a readonly database."
+          }
+        },
+        {
+          "frage": { "de": "Für welche Aufgaben ist SQLite die passende Wahl? Mehrere Antworten sind richtig.", "en": "For which tasks is SQLite the right choice? Several answers are correct." },
+          "mehrfach": true,
+          "optionen": [
+            { "de": "Eine 300-MB-CSV-Datei auf dem Laptop mit SQL auswerten, bevor sie in ein Dashboard geht", "en": "Analysing a 300 MB CSV file on the laptop with SQL before it goes into a dashboard" },
+            { "de": "Die Übungsdatenbank eines Kurses, die jede Person als eine Datei erhält", "en": "A course's exercise database that every person receives as one file" },
+            { "de": "Ein Ticketsystem, in dem 40 Sachbearbeiter gleichzeitig Vorgänge anlegen", "en": "A ticket system in which 40 clerks create cases at the same time" },
+            { "de": "Eine Datei auf OneDrive, die drei Kollegen an drei Rechnern gleichzeitig öffnen", "en": "A file on OneDrive that three colleagues open on three machines at the same time" }
+          ],
+          "richtig": [0, 1],
+          "erklaerung": {
+            "de": "Datenanalyse und Lehre nennt die SQLite-Dokumentation selbst als gute Fälle – eine Datei, kein Server, keine Zugangsdaten. Die beiden anderen scheitern an derselben Grenze: ein Schreiber zu jedem Zeitpunkt, und die Sperre dafür funktioniert über Netzlaufwerke und Synchronisationsdienste nicht zuverlässig – die Datei kann dabei beschädigt werden. Dafür gibt es den Server: Lab 07 im Container, Lab 08 gehostet.",
+            "en": "The SQLite documentation itself names data analysis and education as good cases – one file, no server, no credentials. The other two fail at the same limit: one writer at any instant, and the lock for that does not work reliably over network drives and sync services – the file can get corrupted. That is what the server is for: lab 07 in a container, lab 08 hosted."
+          }
+        },
+        {
+          "frage": { "de": "Ihr Python-Skript fügt eine Fahrt mit <code>rad_id = 'R-999'</code> ein – ein Rad, das es nicht gibt. Die Tabelle hat <code>REFERENCES rad(rad_id)</code>, trotzdem gelingt das INSERT ohne Fehler. Warum?", "en": "Your Python script inserts a ride with <code>rad_id = 'R-999'</code> – a bike that does not exist. The table has <code>REFERENCES rad(rad_id)</code>, yet the INSERT succeeds without an error. Why?" },
+          "optionen": [
+            { "de": "Fremdschlüssel sind in SQLite standardmäßig ausgeschaltet. <code>PRAGMA foreign_keys = ON</code> gilt je Verbindung und muss nach jedem <code>connect()</code> gesetzt werden – erst dann kommt <code>FOREIGN KEY constraint failed</code>.", "en": "Foreign keys are off by default in SQLite. <code>PRAGMA foreign_keys = ON</code> applies per connection and has to be set after every <code>connect()</code> – only then does <code>FOREIGN KEY constraint failed</code> appear." },
+            { "de": "REFERENCES wird in SQLite nur dokumentiert, nie geprüft.", "en": "REFERENCES is only documented in SQLite, never checked." },
+            { "de": "Das Rad R-999 wird automatisch in der Tabelle rad angelegt.", "en": "The bike R-999 is created automatically in the rad table." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Die Prüfung existiert seit 2009, ist aber aus Rücksicht auf ältere Anwendungen abgeschaltet – und die Einstellung ist nicht in der Datei gespeichert, sondern gehört zur Verbindung. Das Startskript dieser Seite setzt sie; Ihr eigenes Skript muss es auch tun, und DB Browser hat dafür einen Haken im Reiter Edit Pragmas. In Postgres gibt es diese Frage nicht: Dort gilt ein Fremdschlüssel immer.",
+            "en": "The check has existed since 2009 but is switched off out of consideration for older applications – and the setting is not stored in the file but belongs to the connection. This page's seed script sets it; your own script has to as well, and DB Browser has a checkbox for it in the Edit Pragmas tab. In Postgres the question does not arise: there a foreign key always applies."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W06-06",
+      "typ": "zuordnen",
+      "titel": { "de": "Fehlermeldung und Ursache", "en": "Error message and cause" },
+      "aufgabe": {
+        "de": "<p>Sechs Meldungen, wie sie die Konsole oder Python ausgeben. Ordnen Sie jeder ihre Ursache zu. Zwei Meldungen haben dieselbe Ursache – und eine davon kommt erst, nachdem SQLite still eine leere Datei angelegt hat.</p>",
+        "en": "<p>Six messages as the console or Python print them. Assign each its cause. Two messages share the same cause – and one of them appears only after SQLite has silently created an empty file.</p>"
+      },
+      "ziele": [
+        { "id": "pfad", "text": { "de": "Pfad oder Name stimmt nicht – falsche Datei, falscher Ordner, falsche Schreibweise", "en": "Path or name is wrong – wrong file, wrong folder, wrong spelling" } },
+        { "id": "sperre", "text": { "de": "Eine andere Verbindung hält eine offene Transaktion (DB Browser ohne Write Changes, Notebook ohne commit)", "en": "Another connection holds an open transaction (DB Browser without Write Changes, notebook without commit)" } },
+        { "id": "strict", "text": { "de": "STRICT-Tabelle: Wert passt nicht zum Spaltentyp", "en": "STRICT table: value does not match the column type" } },
+        { "id": "fk", "text": { "de": "Bezug auf einen Schlüssel, den es nicht gibt – Fremdschlüsselprüfung ist eingeschaltet", "en": "Reference to a key that does not exist – foreign key checking is on" } },
+        { "id": "tupel", "text": { "de": "Parameter als String statt als Tupel übergeben: (1975,) statt \"1975\"", "en": "Parameter passed as a string instead of a tuple: (1975,) instead of \"1975\"" } }
+      ],
+      "paare": [
+        { "begriff": { "de": "sqlite3.OperationalError: no such table: kunden", "en": "sqlite3.OperationalError: no such table: kunden" }, "ziel": "pfad" },
+        { "begriff": { "de": "sqlite3.OperationalError: database is locked", "en": "sqlite3.OperationalError: database is locked" }, "ziel": "sperre" },
+        { "begriff": { "de": "Error: unable to open database \"/daten/velocity.db\": unable to open database file", "en": "Error: unable to open database \"/daten/velocity.db\": unable to open database file" }, "ziel": "pfad" },
+        { "begriff": { "de": "sqlite3.IntegrityError: cannot store TEXT value in INTEGER column wartung.kosten_cent", "en": "sqlite3.IntegrityError: cannot store TEXT value in INTEGER column wartung.kosten_cent" }, "ziel": "strict" },
+        { "begriff": { "de": "sqlite3.IntegrityError: FOREIGN KEY constraint failed", "en": "sqlite3.IntegrityError: FOREIGN KEY constraint failed" }, "ziel": "fk" },
+        { "begriff": { "de": "sqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 1, and there are 4 supplied.", "en": "sqlite3.ProgrammingError: Incorrect number of bindings supplied. The current statement uses 1, and there are 4 supplied." }, "ziel": "tupel" }
+      ],
+      "rueckmeldung": {
+        "de": "no such table ist die tückischste der sechs: Meist stimmt der Tabellenname – aber connect(\"velocty.db\") hat wegen eines Tippfehlers eine neue, leere Datei angelegt, und in der gibt es natürlich keine Tabelle kunde. Ein ls im Projektordner (Lab 01) zeigt die zweite .db-Datei. Die 4 bei den bindings ist die Länge des Strings \"1975\" – Python hat ihn als Folge von vier Zeichen gelesen.",
+        "en": "no such table is the most treacherous of the six: usually the table name is right – but connect(\"velocty.db\") created a new, empty file because of a typo, and that of course contains no table kunde. An ls in the project folder (lab 01) reveals the second .db file. The 4 in the bindings message is the length of the string \"1975\" – Python read it as a sequence of four characters."
+      }
+    }
+  ]
+}

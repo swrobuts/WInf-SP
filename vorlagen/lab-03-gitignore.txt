@@ -1,0 +1,23 @@
+# .gitignore für Kursprojekte (Lab 03) – als „.gitignore“ in den Projektordner legen.
+# Regel des Kurses: Alles, was ein Rechner selbst erzeugt oder was nur für
+# diesen Rechner gilt, bleibt aus dem Repository. Siehe Lab 02.
+
+# --- Python ---------------------------------------------------------------
+.venv/                 # die virtuelle Umgebung – wird je Rechner neu angelegt
+__pycache__/           # kompilierte Zwischenstände
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/    # Sicherungskopien von Notebooks
+
+# --- Node -----------------------------------------------------------------
+node_modules/          # installierte Pakete – package.json genügt zum Wiederherstellen
+npm-debug.log*
+
+# --- IDE ------------------------------------------------------------------
+.idea/                 # PyCharm/WebStorm-Projekteinstellungen mit absoluten Pfaden
+.vscode/
+
+# --- Zugangsdaten und Betriebssystem --------------------------------------
+.env                   # Schlüssel und Passwörter – nie ins Repository
+.DS_Store
+Thumbs.db

@@ -1,0 +1,972 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": {
+        "de": "Ein gültiges Stationsobjekt – Zeile für Zeile",
+        "en": "A valid station object – line by line"
+      },
+      "prompt": "📄",
+      "befehl": "{\n  \"station_id\": 4,\n  \"name\": \"Sanderring\",\n  \"bezirk\": \"Sanderau\",\n  \"plaetze\": 14,\n  \"eroeffnet\": \"2024-05-15\",\n  \"aktiv\": true,\n  \"stillgelegt_am\": null,\n  \"raeder\": [\n    { \"rad_id\": \"R-003\", \"typ\": \"EBIKE\", \"baujahr\": 2023, \"status\": \"aktiv\" },\n    { \"rad_id\": \"R-013\", \"typ\": \"EBIKE\", \"baujahr\": 2024, \"status\": \"aktiv\" }\n  ]\n}",
+      "teile": [
+        {
+          "was": "{ … }",
+          "bedeutet": {
+            "de": "Ein Objekt: eine ungeordnete Sammlung von Name-Wert-Paaren, durch Kommas getrennt. Die Reihenfolge der Schlüssel trägt keine Bedeutung.",
+            "en": "An object: an unordered collection of name/value pairs, separated by commas. The order of the keys carries no meaning."
+          }
+        },
+        {
+          "was": "\"station_id\": 4",
+          "bedeutet": {
+            "de": "Der Schlüssel steht in doppelten Anführungszeichen, immer. Der Wert ist eine Zahl – ohne Anführungszeichen, ohne führende Null, ohne Tausenderpunkt.",
+            "en": "The key is in double quotes, always. The value is a number – no quotes, no leading zero, no thousands separator."
+          }
+        },
+        {
+          "was": "\"name\": \"Sanderring\"",
+          "bedeutet": {
+            "de": "Eine Zeichenkette. Umlaute stehen direkt in UTF-8 darin; nur \" und \\ müssen mit Backslash geschützt werden.",
+            "en": "A string. Umlauts sit directly in it as UTF-8; only \" and \\ have to be escaped with a backslash."
+          }
+        },
+        {
+          "was": "\"eroeffnet\": \"2024-05-15\"",
+          "bedeutet": {
+            "de": "JSON hat keinen Datumstyp. Ein Datum ist eine Zeichenkette nach ISO 8601 – so sortiert es sich richtig und jede Sprache liest es.",
+            "en": "JSON has no date type. A date is a string in ISO 8601 – that way it sorts correctly and every language reads it."
+          }
+        },
+        {
+          "was": "\"aktiv\": true",
+          "bedeutet": {
+            "de": "Eines der drei Literale true, false, null – immer kleingeschrieben. True, False, None und undefined sind keine JSON-Werte. (Im Export kommt dieses Feld nicht vor; es steht hier für den Typ.)",
+            "en": "One of the three literals true, false, null – always lower case. True, False, None and undefined are not JSON values. (This field does not occur in the export; it stands here for the type.)"
+          }
+        },
+        {
+          "was": "\"stillgelegt_am\": null",
+          "bedeutet": {
+            "de": "null bedeutet „bekannt, aber leer“. Ein fehlender Schlüssel bedeutet „nicht angegeben“ – beim Umwandeln in eine Tabelle wird beides zu NULL, beim Prüfen nicht. (Ebenfalls nur zur Anschauung.)",
+            "en": "null means “known but empty”. A missing key means “not stated” – when converting to a table both become NULL, when validating they do not. (Likewise for illustration only.)"
+          }
+        },
+        {
+          "was": "\"raeder\": [ … ]",
+          "bedeutet": {
+            "de": "Ein Feld (array): eine geordnete Liste beliebiger Werte, hier von Objekten. Der Index beginnt bei 0. Diese Verschachtelung ist es, die CSV nicht kann.",
+            "en": "An array: an ordered list of arbitrary values, here of objects. The index starts at 0. This nesting is what CSV cannot do."
+          }
+        },
+        {
+          "was": "… 2024, \"status\": \"aktiv\" }\n  ]",
+          "bedeutet": {
+            "de": "Nach dem letzten Element steht kein Komma – weder im Feld noch im Objekt. Das ist der häufigste Syntaxfehler dieses Labs.",
+            "en": "No comma after the last element – neither in the array nor in the object. That is this lab's most common syntax error."
+          }
+        }
+      ]
+    },
+    "B02": {
+      "titel": {
+        "de": "Mit jq in den Export hineinsehen",
+        "en": "Looking into the export with jq"
+      },
+      "prompt": "$",
+      "befehl": "jq '.stationen[].name' velocity.json\njq -r '.stationen[0].raeder[1].typ' velocity.json\njq '.fahrten | length' velocity.json\njq '[.fahrten[] | select(.dauer_min > 30)] | length' velocity.json",
+      "teile": [
+        {
+          "was": ".stationen[].name",
+          "bedeutet": {
+            "de": "Ein jq-Filter: Punkt für Schlüssel, [] für „jedes Element“. Ergebnis ist ein Wert je Zeile, Zeichenketten mit Anführungszeichen.",
+            "en": "A jq filter: dot for a key, [] for “every element”. The result is one value per line, strings with quotes."
+          }
+        },
+        {
+          "was": "-r",
+          "bedeutet": {
+            "de": "raw output – Zeichenketten ohne Anführungszeichen. Nötig, sobald das Ergebnis in ein anderes Programm weitergereicht wird.",
+            "en": "raw output – strings without quotes. Needed as soon as the result is passed on to another program."
+          }
+        },
+        {
+          "was": ".stationen[0].raeder[1].typ",
+          "bedeutet": {
+            "de": "Dieselbe Stelle wie der JSON Pointer /stationen/0/raeder/1/typ und der JSONPath $.stationen[0].raeder[1].typ – drei Schreibweisen, ein Weg.",
+            "en": "The same place as the JSON pointer /stationen/0/raeder/1/typ and the JSONPath $.stationen[0].raeder[1].typ – three notations, one route."
+          }
+        },
+        {
+          "was": "| length",
+          "bedeutet": {
+            "de": "Die Pipe reicht das Ergebnis des linken Filters an den rechten weiter, wie in der Shell (Lab 01). length zählt die Elemente eines Feldes.",
+            "en": "The pipe passes the left filter's result to the right one, as in the shell (lab 01). length counts an array's elements."
+          }
+        },
+        {
+          "was": "select(.dauer_min > 30)",
+          "bedeutet": {
+            "de": "Behält nur Elemente, für die die Bedingung gilt. Die eckigen Klammern außen sammeln die Treffer wieder in ein Feld, damit length sie zählen kann.",
+            "en": "Keeps only elements for which the condition holds. The outer square brackets collect the hits back into an array so that length can count them."
+          }
+        }
+      ],
+      "ausgabe": "\"Juliuspromenade\"\n\"Hauptbahnhof\"\n\"Residenz\"\n…\nCARGO\n1500\n78"
+    },
+    "B03": {
+      "titel": {
+        "de": "JSON Lines: eine Fahrt je Zeile",
+        "en": "JSON Lines: one ride per line"
+      },
+      "prompt": "$",
+      "befehl": "head -n 2 fahrten.jsonl\nwc -l fahrten.jsonl\njq -c '.fahrten[]' velocity.json > fahrten.jsonl",
+      "teile": [
+        {
+          "was": "head -n 2",
+          "bedeutet": {
+            "de": "Zeigt die ersten zwei Zeilen – bei JSON Lines also die ersten zwei Datensätze. Bei einer normalen JSON-Datei zeigte head nur den Anfang eines einzigen Werts.",
+            "en": "Shows the first two lines – with JSON Lines, that is the first two records. On a normal JSON file, head would show only the beginning of a single value."
+          }
+        },
+        {
+          "was": "wc -l",
+          "bedeutet": {
+            "de": "Zählt Zeilen. 1500 Zeilen sind 1500 Fahrten – ohne die Datei zu parsen. Das ist der Grund, warum Protokolle und Datenströme so gespeichert werden.",
+            "en": "Counts lines. 1,500 lines are 1,500 rides – without parsing the file. That is why logs and data streams are stored this way."
+          }
+        },
+        {
+          "was": "jq -c '.fahrten[]'",
+          "bedeutet": {
+            "de": "-c (compact) schreibt jeden Wert auf eine Zeile; .fahrten[] liefert die Fahrten einzeln. Zusammen wird aus dem Feld im Export eine JSON-Lines-Datei.",
+            "en": "-c (compact) writes each value on one line; .fahrten[] yields the rides one by one. Together, the array in the export becomes a JSON Lines file."
+          }
+        },
+        {
+          "was": "> fahrten.jsonl",
+          "bedeutet": {
+            "de": "Umleitung in eine Datei (Lab 01). Endung .jsonl; alternativ .ndjson.",
+            "en": "Redirection into a file (lab 01). Extension .jsonl; alternatively .ndjson."
+          }
+        }
+      ],
+      "ausgabe": "{\"fahrt_id\":1,\"rad_id\":\"R-057\",\"kunde_id\":13,\"start\":{\"station_id\":6,\"zeit\":\"2025-10-05T07:58:00\"},\"ziel\":{\"station_id\":3},\"dauer_min\":7,\"preis_eur\":1.2}\n{\"fahrt_id\":2,\"rad_id\":\"R-035\",\"kunde_id\":194,\"start\":{\"station_id\":5,\"zeit\":\"2026-07-04T16:29:00\"},\"ziel\":{\"station_id\":6},\"dauer_min\":6,\"preis_eur\":1.1}\n    1500 fahrten.jsonl"
+    },
+    "B04": {
+      "titel": {
+        "de": "Python: lesen, navigieren, schreiben",
+        "en": "Python: read, navigate, write"
+      },
+      "prompt": "📄",
+      "befehl": "import json\n\nwith open(\"velocity-kostprobe.json\", encoding=\"utf-8\") as f:\n    export = json.load(f)                       # Datei -> Python-Objekt (dict)\n\ntyp = export[\"stationen\"][0][\"raeder\"][1][\"typ\"]   # /stationen/0/raeder/1/typ -> \"CARGO\"\nzielzeit = export[\"fahrten\"][0][\"ziel\"].get(\"zeit\")   # None statt KeyError\n\ntext = json.dumps(export[\"stationen\"][0], ensure_ascii=False, indent=2, default=str)\nwith open(\"station.json\", \"w\", encoding=\"utf-8\") as f:\n    f.write(text)\n\nstation = json.loads(text)                      # Zeichenkette -> Python-Objekt",
+      "teile": [
+        {
+          "was": "encoding=\"utf-8\"",
+          "bedeutet": {
+            "de": "Bei jedem open, lesend wie schreibend. Ohne die Angabe nimmt Windows bis Python 3.14 cp1252 (Stand 09/2026; ab 3.15 ist UTF-8 Standard) – dann wird aus Würzburg WÃ¼rzburg oder ein UnicodeDecodeError.",
+            "en": "On every open, reading as well as writing. Without it, Windows uses cp1252 up to Python 3.14 (as of 09/2026; from 3.15 UTF-8 is the default) – then Würzburg becomes WÃ¼rzburg or a UnicodeDecodeError."
+          }
+        },
+        {
+          "was": "json.load / json.loads",
+          "bedeutet": {
+            "de": "load liest aus einer Datei, loads (load string) aus einer Zeichenkette – etwa dem Antwortkörper einer Schnittstelle. Beide liefern dict, list, str, int, float, bool, None.",
+            "en": "load reads from a file, loads (load string) from a string – such as an interface's response body. Both return dict, list, str, int, float, bool, None."
+          }
+        },
+        {
+          "was": "[\"stationen\"][0][\"raeder\"][1][\"typ\"]",
+          "bedeutet": {
+            "de": "Objekt → Schlüssel in eckigen Klammern, Feld → Index ab 0. Jeder Schritt entspricht einem Teil des JSON Pointers.",
+            "en": "Object → key in square brackets, array → index from 0. Each step corresponds to one part of the JSON pointer."
+          }
+        },
+        {
+          "was": ".get(\"zeit\")",
+          "bedeutet": {
+            "de": "Für Schlüssel, die fehlen dürfen: get liefert None (oder einen zweiten Parameter als Ersatzwert) statt eines KeyError. Das Ziel einer Fahrt hat im Export keine Zeit.",
+            "en": "For keys that may be absent: get returns None (or a second parameter as the fallback) instead of a KeyError. A ride's destination has no time in the export."
+          }
+        },
+        {
+          "was": "ensure_ascii=False",
+          "bedeutet": {
+            "de": "Sonst schreibt Python jeden Umlaut als \\u00fc. Das ist gültiges JSON, aber unlesbar – und in einem Diff auf GitHub ein Ärgernis.",
+            "en": "Otherwise Python writes every umlaut as \\u00fc. That is valid JSON but unreadable – and a nuisance in a diff on GitHub."
+          }
+        },
+        {
+          "was": "indent=2",
+          "bedeutet": {
+            "de": "Einrückung mit zwei Leerzeichen. Ohne indent entsteht eine einzige Zeile – richtig für Übertragung und JSON Lines, falsch für Menschen.",
+            "en": "Indentation with two spaces. Without indent, a single line results – right for transmission and JSON Lines, wrong for humans."
+          }
+        },
+        {
+          "was": "default=str",
+          "bedeutet": {
+            "de": "Wird für jeden Wert gerufen, den JSON nicht kennt: date, datetime, Decimal, numpy-Zahlen. Ohne das: TypeError: Object of type datetime is not JSON serializable.",
+            "en": "Called for every value JSON does not know: date, datetime, Decimal, numpy numbers. Without it: TypeError: Object of type datetime is not JSON serializable."
+          }
+        }
+      ]
+    },
+    "B05": {
+      "titel": {
+        "de": "lab-05-station.schema.json – ein Schema für ein Stationsobjekt",
+        "en": "lab-05-station.schema.json – a schema for a station object"
+      },
+      "prompt": "📄",
+      "befehl": "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"title\": \"Station\",\n  \"description\": \"Eine Station des Velo-City-Exports (velocity.json, Liste stationen) mit ihren Rädern. JSON kennt keine Kommentare – deshalb stehen die Erläuterungen in description-Feldern.\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"station_id\": {\n      \"description\": \"Laufende Nummer der Station, im Export eine Zahl\",\n      \"type\": \"integer\",\n      \"minimum\": 1\n    },\n    \"name\": {\n      \"description\": \"Anzeigename, z. B. Juliuspromenade\",\n      \"type\": \"string\",\n      \"minLength\": 1\n    },\n    \"bezirk\": {\n      \"description\": \"Stadtbezirk in Würzburg\",\n      \"type\": \"string\"\n    },\n    \"plaetze\": {\n      \"description\": \"Zahl der Abstellplätze; integer lässt 14 zu, 14.5 nicht\",\n      \"type\": \"integer\",\n      \"minimum\": 0\n    },\n    \"eroeffnet\": {\n      \"description\": \"Datum als ISO-8601-Zeichenkette – JSON hat keinen Datumstyp\",\n      \"type\": \"string\",\n      \"pattern\": \"^\\\\d{4}-\\\\d{2}-\\\\d{2}$\"\n    },\n    \"raeder\": {\n      \"description\": \"Die Räder mit Heimstation hier; eine Liste von Objekten\",\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"rad_id\": {\n            \"description\": \"Kennung wie R-001 – eine Zeichenkette, keine Zahl\",\n            \"type\": \"string\",\n            \"pattern\": \"^R-\\\\d{3}$\"\n          },\n          \"typ\": {\n            \"description\": \"Nur diese drei Werte sind zulässig\",\n            \"type\": \"string\",\n            \"enum\": [\"CITY\", \"EBIKE\", \"CARGO\"]\n          },\n          \"baujahr\": {\n            \"type\": \"integer\",\n            \"minimum\": 2020\n          },\n          \"status\": {\n            \"type\": \"string\",\n            \"enum\": [\"aktiv\", \"werkstatt\"]\n          }\n        },\n        \"required\": [\"rad_id\", \"typ\", \"baujahr\", \"status\"],\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"required\": [\"station_id\", \"name\", \"bezirk\", \"plaetze\", \"eroeffnet\", \"raeder\"],\n  \"additionalProperties\": false\n}",
+      "teile": [
+        {
+          "was": "\"$schema\"",
+          "bedeutet": {
+            "de": "Nennt die Fassung der Schemasprache: JSON Schema 2020-12, die aktuelle Version (Stand 09/2026). Validatoren wählen danach ihre Regeln.",
+            "en": "Names the version of the schema language: JSON Schema 2020-12, the current version (as of 09/2026). Validators choose their rules from it."
+          }
+        },
+        {
+          "was": "\"type\": \"object\" · \"properties\"",
+          "bedeutet": {
+            "de": "Das Dokument muss ein Objekt sein; properties beschreibt je Schlüssel, was dort stehen darf. Typen: object, array, string, number, integer, boolean, null – integer ist ein Zusatz des Schemas, JSON selbst kennt nur number.",
+            "en": "The document has to be an object; properties describes per key what may stand there. Types: object, array, string, number, integer, boolean, null – integer is an addition of the schema; JSON itself only knows number."
+          }
+        },
+        {
+          "was": "\"required\": [ … ]",
+          "bedeutet": {
+            "de": "Ohne diese Liste wäre jedes Feld freiwillig. Ein fehlender Schlüssel meldet sich dann als 'eroeffnet' is a required property.",
+            "en": "Without this list every field would be optional. A missing key then reports as 'eroeffnet' is a required property."
+          }
+        },
+        {
+          "was": "\"pattern\": \"^R-\\\\d{3}$\"",
+          "bedeutet": {
+            "de": "Ein regulärer Ausdruck für die Form einer Zeichenkette. Der Backslash ist in JSON verdoppelt, weil er dort selbst ein Sonderzeichen ist.",
+            "en": "A regular expression for a string's form. The backslash is doubled in JSON because it is a special character there itself."
+          }
+        },
+        {
+          "was": "\"enum\": [\"CITY\", \"EBIKE\", \"CARGO\"]",
+          "bedeutet": {
+            "de": "Eine abgeschlossene Werteliste. TANDEM meldet sich als 'TANDEM' is not one of ['CITY', 'EBIKE', 'CARGO'].",
+            "en": "A closed list of values. TANDEM reports as 'TANDEM' is not one of ['CITY', 'EBIKE', 'CARGO']."
+          }
+        },
+        {
+          "was": "\"items\": { … }",
+          "bedeutet": {
+            "de": "Beschreibt jedes Element des Feldes raeder – hier wieder ein Objekt mit eigenen properties und required. Schemata verschachteln sich wie die Daten.",
+            "en": "Describes every element of the array raeder – here again an object with its own properties and required. Schemas nest like the data."
+          }
+        },
+        {
+          "was": "\"additionalProperties\": false",
+          "bedeutet": {
+            "de": "Verbietet Schlüssel, die nicht in properties stehen. Fängt Tippfehler wie \"plaeze\" ab, die sonst still durchgingen.",
+            "en": "Forbids keys not listed in properties. Catches typos like \"plaeze\" that would otherwise pass silently."
+          }
+        },
+        {
+          "was": "\"description\"",
+          "bedeutet": {
+            "de": "Weil JSON keine Kommentare kennt, tragen description-Felder die Erläuterung. Validatoren ignorieren sie, Menschen und Werkzeuge lesen sie.",
+            "en": "Because JSON has no comments, description fields carry the explanation. Validators ignore them; people and tools read them."
+          }
+        }
+      ]
+    },
+    "B06": {
+      "titel": {
+        "de": "Gegen das Schema prüfen",
+        "en": "Validating against the schema"
+      },
+      "prompt": "📄",
+      "befehl": "import json\nfrom jsonschema import validate, ValidationError   # pip install jsonschema\n\nschema = json.load(open(\"lab-05-station.schema.json\", encoding=\"utf-8\"))\nexport = json.load(open(\"velocity-kostprobe.json\", encoding=\"utf-8\"))\n\nfor station in export[\"stationen\"]:\n    validate(instance=station, schema=schema)     # schweigt, wenn alles passt\n\nkaputt = dict(export[\"stationen\"][0], plaetze=\"Invalid\")\nvalidate(instance=kaputt, schema=schema)          # wirft ValidationError",
+      "teile": [
+        {
+          "was": "validate(instance=…, schema=…)",
+          "bedeutet": {
+            "de": "Prüft ein Python-Objekt gegen ein Schema. Kein Rückgabewert: Entweder es passiert nichts, oder es fliegt eine ValidationError – beim ersten Verstoß.",
+            "en": "Checks a Python object against a schema. No return value: either nothing happens or a ValidationError is raised – at the first violation."
+          }
+        },
+        {
+          "was": "jsonschema 4.26",
+          "bedeutet": {
+            "de": "Das Paket (Stand 09/2026) versteht Draft 3 bis 2020-12. Für viele Dokumente auf einmal: Draft202012Validator(schema).iter_errors(instance) liefert alle Verstöße statt nur des ersten.",
+            "en": "The package (as of 09/2026) understands Draft 3 through 2020-12. For many documents at once: Draft202012Validator(schema).iter_errors(instance) yields all violations instead of only the first."
+          }
+        },
+        {
+          "was": "dict(…, plaetze=\"Invalid\")",
+          "bedeutet": {
+            "de": "Eine Kopie der ersten Station mit einem absichtlich falschen Typ – Zeichenkette statt Zahl. Genau der Fehler, den eine Schnittstelle liefert, die Zahlen als Text sendet.",
+            "en": "A copy of the first station with a deliberately wrong type – string instead of number. Exactly the error an interface delivers that sends numbers as text."
+          }
+        }
+      ],
+      "ausgabe": "jsonschema.exceptions.ValidationError: 'Invalid' is not of type 'integer'\n\nFailed validating 'type' in schema['properties']['plaetze']:\n    {'type': 'integer', 'minimum': 0, …}\n\nOn instance['plaetze']:\n    'Invalid'"
+    },
+    "B07": {
+      "titel": {
+        "de": "Prüfen und formatieren ohne Code: json.tool",
+        "en": "Checking and formatting without code: json.tool"
+      },
+      "prompt": "$",
+      "befehl": "python -m json.tool velocity-kostprobe.json\npython -m json.tool --no-ensure-ascii --indent 2 roh.json schoen.json\necho '{\"a\": 1,}' | python -m json.tool",
+      "teile": [
+        {
+          "was": "python -m json.tool DATEI",
+          "bedeutet": {
+            "de": "Liest die Datei, meldet Syntaxfehler mit Zeile und Spalte, gibt sonst das eingerückte Dokument aus. Kein Paket nötig – Bestandteil von Python.",
+            "en": "Reads the file, reports syntax errors with line and column, otherwise prints the indented document. No package needed – part of Python."
+          }
+        },
+        {
+          "was": "--no-ensure-ascii --indent 2",
+          "bedeutet": {
+            "de": "Umlaute bleiben Umlaute; Einrückung zwei statt vier Leerzeichen. Zweiter Dateiname: Ausgabe in eine neue Datei statt auf den Bildschirm.",
+            "en": "Umlauts stay umlauts; indentation two instead of four spaces. Second file name: output into a new file instead of the screen."
+          }
+        },
+        {
+          "was": "echo '…' | python -m json.tool",
+          "bedeutet": {
+            "de": "Ohne Dateinamen liest das Werkzeug von der Standardeingabe – praktisch, um eine Antwort aus curl zu prüfen: curl -s URL | python -m json.tool.",
+            "en": "Without a file name the tool reads from standard input – handy for checking a response from curl: curl -s URL | python -m json.tool."
+          }
+        }
+      ],
+      "ausgabe": "Expecting property name enclosed in double quotes: line 1 column 9 (char 8)"
+    },
+    "B08": {
+      "titel": {
+        "de": "Von JSON zur Tabelle: json_normalize",
+        "en": "From JSON to a table: json_normalize"
+      },
+      "prompt": "📄",
+      "befehl": "import pandas as pd\n\nstationen = pd.json_normalize(export[\"stationen\"]).drop(columns=\"raeder\")\nraeder = pd.json_normalize(export[\"stationen\"], record_path=\"raeder\", meta=[\"station_id\", \"name\"])\nfahrten = pd.json_normalize(export[\"fahrten\"])      # start.station_id, start.zeit, ziel.station_id\n\nraeder.to_csv(\"raeder.csv\", index=False, encoding=\"utf-8\")\nraeder.head(3)",
+      "teile": [
+        {
+          "was": "pd.json_normalize(liste)",
+          "bedeutet": {
+            "de": "Eine Zeile je Objekt der Liste. Unterobjekte werden zu Punktspalten (start.station_id), Unterlisten bleiben als Liste in der Zelle – und die gehört nicht in eine CSV-Datei, daher drop.",
+            "en": "One row per object in the list. Sub-objects become dotted columns (start.station_id); sub-lists stay as a list in the cell – and that does not belong in a CSV file, hence drop."
+          }
+        },
+        {
+          "was": "record_path=\"raeder\"",
+          "bedeutet": {
+            "de": "Nennt die Liste, deren Elemente zu Zeilen werden: ein Rad je Zeile, 18 Zeilen aus 3 Stationen.",
+            "en": "Names the list whose elements become rows: one bike per row, 18 rows from 3 stations."
+          }
+        },
+        {
+          "was": "meta=[\"station_id\", \"name\"]",
+          "bedeutet": {
+            "de": "Felder des Elternobjekts, die auf jede Kindzeile kopiert werden. station_id ist damit der Fremdschlüssel auf die Stationstabelle – die Beziehung, die die Verschachtelung ausgedrückt hat.",
+            "en": "Fields of the parent object copied onto every child row. station_id thereby becomes the foreign key to the station table – the relationship the nesting had expressed."
+          }
+        },
+        {
+          "was": "index=False",
+          "bedeutet": {
+            "de": "Ohne die Angabe schreibt pandas die Zeilennummer als erste Spalte – eine Spalte, die beim Einlesen niemand haben will.",
+            "en": "Without it pandas writes the row number as the first column – a column nobody wants when reading back."
+          }
+        }
+      ],
+      "ausgabe": "  rad_id    typ  baujahr status station_id             name\n0  R-010  CARGO     2024  aktiv          1  Juliuspromenade\n1  R-020  CARGO     2025  aktiv          1  Juliuspromenade\n2  R-030  CARGO     2023  aktiv          1  Juliuspromenade"
+    },
+    "B09": {
+      "titel": {
+        "de": "JavaScript: JSON.stringify und JSON.parse",
+        "en": "JavaScript: JSON.stringify and JSON.parse"
+      },
+      "prompt": "📄",
+      "befehl": "const text = JSON.stringify({ station_id: 2, name: \"Hauptbahnhof\" }, null, 2);  // Objekt -> Text\nconst obj = JSON.parse(text);                                                   // Text -> Objekt\n\nconst antwort = await fetch(url + \"/rest/v1/station\", { headers: { apikey: KEY } });\nif (!antwort.ok) throw new Error(antwort.status);\nconst stationen = await antwort.json();                                         // Antwortkörper parsen",
+      "teile": [
+        {
+          "was": "JSON.stringify(obj, null, 2)",
+          "bedeutet": {
+            "de": "Der zweite Parameter (ein Filter) bleibt meist null, der dritte ist die Einrückung. undefined und Funktionen fallen still weg, NaN wird zu null, ein Date zu einer ISO-Zeichenkette.",
+            "en": "The second parameter (a filter) usually stays null; the third is the indentation. undefined and functions are silently dropped, NaN becomes null, a Date becomes an ISO string."
+          }
+        },
+        {
+          "was": "JSON.parse(text)",
+          "bedeutet": {
+            "de": "Wirft bei ungültigem Text einen SyntaxError mit der Meldung der jeweiligen Engine. Zahlen werden zu double: 9007199254740993 wird zu 9007199254740992.",
+            "en": "Throws a SyntaxError with the respective engine's message on invalid text. Numbers become doubles: 9007199254740993 becomes 9007199254740992."
+          }
+        },
+        {
+          "was": "antwort.ok",
+          "bedeutet": {
+            "de": "Erst den Status prüfen, dann parsen. Sonst landet bei einem 404 die HTML-Fehlerseite in JSON.parse – Meldung: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON.",
+            "en": "Check the status first, then parse. Otherwise on a 404 the HTML error page lands in JSON.parse – message: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON."
+          }
+        },
+        {
+          "was": "await antwort.json()",
+          "bedeutet": {
+            "de": "Liest den Antwortkörper und parst ihn in einem Schritt. Genau so kommen in Lab 08 die Tabellen aus Supabase und in Lab 11 die Antworten der eigenen API im Browser an.",
+            "en": "Reads the response body and parses it in one step. That is exactly how the tables from Supabase arrive in the browser in lab 08 and your own API's responses in lab 11."
+          }
+        }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W05-01",
+      "typ": "json",
+      "titel": {
+        "de": "Reparieren",
+        "en": "Repair"
+      },
+      "aufgabe": {
+        "de": "<p>Der Text unten ist ein Stationsobjekt aus dem Export, das jemand von Hand nachgebaut hat – mit <strong>drei</strong> Verstößen gegen die Grammatik. Beheben Sie sie, ohne einen Wert zu ändern. „Prüfen“ zeigt Ihnen zu jedem Verstoß die Meldung, die auch <code>JSON.parse</code> im Browser gäbe.</p>",
+        "en": "<p>The text below is a station object from the export that somebody rebuilt by hand – with <strong>three</strong> violations of the grammar. Fix them without changing any value. “Check” shows you for each violation the message that <code>JSON.parse</code> in the browser would also give.</p>"
+      },
+      "start": "{\n  'station_id': 2,\n  \"name\": \"Hauptbahnhof\",\n  \"bezirk\": \"Altstadt\",\n  \"plaetze\": 24, // Stand 09/2026\n  \"eroeffnet\": \"2024-04-02\",\n  \"raeder\": [\n    { \"rad_id\": \"R-001\", \"typ\": \"CITY\", \"baujahr\": 2024, \"status\": \"aktiv\" },\n    { \"rad_id\": \"R-011\", \"typ\": \"CITY\", \"baujahr\": 2025, \"status\": \"aktiv\" },\n  ]\n}",
+      "erwartet": {
+        "station_id": 2,
+        "name": "Hauptbahnhof",
+        "bezirk": "Altstadt",
+        "plaetze": 24,
+        "eroeffnet": "2024-04-02",
+        "raeder": [
+          {
+            "rad_id": "R-001",
+            "typ": "CITY",
+            "baujahr": 2024,
+            "status": "aktiv"
+          },
+          {
+            "rad_id": "R-011",
+            "typ": "CITY",
+            "baujahr": 2025,
+            "status": "aktiv"
+          }
+        ]
+      },
+      "hinweis": {
+        "de": "<p>Die drei Fehlerarten: einfache statt doppelte Anführungszeichen um einen Schlüssel, ein Kommentar mit <code>//</code> (JSON kennt keine) und ein Komma vor einer schließenden Klammer. Die Parsermeldung nennt Zeile und Spalte des <em>ersten</em> Fehlers – nach dem Beheben erscheint der nächste.</p>",
+        "en": "<p>The three kinds of error: single instead of double quotes around a key, a comment with <code>//</code> (JSON has none) and a comma before a closing bracket. The parser message names line and column of the <em>first</em> error – after fixing it, the next one appears.</p>"
+      },
+      "loesung": "{\n  \"station_id\": 2,\n  \"name\": \"Hauptbahnhof\",\n  \"bezirk\": \"Altstadt\",\n  \"plaetze\": 24,\n  \"eroeffnet\": \"2024-04-02\",\n  \"raeder\": [\n    { \"rad_id\": \"R-001\", \"typ\": \"CITY\", \"baujahr\": 2024, \"status\": \"aktiv\" },\n    { \"rad_id\": \"R-011\", \"typ\": \"CITY\", \"baujahr\": 2025, \"status\": \"aktiv\" }\n  ]\n}",
+      "rueckmeldung": {
+        "de": "Genau diese drei Fehler machen den größten Teil aller ungültigen JSON-Dateien aus – weil Python und JavaScript sie alle drei verzeihen. Wer von Hand JSON schreibt, prüft es mit python -m json.tool, bevor es jemand anderes liest.",
+        "en": "Exactly these three errors account for most invalid JSON files – because Python and JavaScript forgive all three. Whoever writes JSON by hand checks it with python -m json.tool before somebody else reads it."
+      }
+    },
+    {
+      "id": "W05-02",
+      "typ": "json",
+      "titel": {
+        "de": "Eine Station beschreiben",
+        "en": "Describing a station"
+      },
+      "aufgabe": {
+        "de": "<p>Schreiben Sie das Stationsobjekt für die Station <strong>Sanderring</strong> (Nummer 4) in der Form des Exports: Bezirk Sanderau, 14 Plätze, eröffnet am 15. Mai 2024. Nennen Sie mindestens zwei ihrer Räder, etwa R-003 (EBIKE, Baujahr 2023) und R-013 (EBIKE, Baujahr 2024), beide mit Status aktiv. Der Anfang unten enthält bereits einen Fehler.</p>",
+        "en": "<p>Write the station object for the station <strong>Sanderring</strong> (number 4) in the form of the export: district Sanderau, 14 docks, opened on 15 May 2024. List at least two of its bikes, for instance R-003 (EBIKE, built 2023) and R-013 (EBIKE, built 2024), both with status aktiv. The beginning below already contains an error.</p>"
+      },
+      "start": "{\n  \"station_id\": \"4\"\n}",
+      "regeln": [
+        {
+          "pfad": "",
+          "typ": "object"
+        },
+        {
+          "pfad": "/station_id",
+          "typ": "number",
+          "wert": 4,
+          "text": {
+            "de": "/station_id fehlt oder ist nicht die Zahl 4 – ohne Anführungszeichen.",
+            "en": "/station_id is missing or is not the number 4 – without quotes."
+          }
+        },
+        {
+          "pfad": "/name",
+          "typ": "string",
+          "wert": "Sanderring"
+        },
+        {
+          "pfad": "/bezirk",
+          "typ": "string",
+          "wert": "Sanderau"
+        },
+        {
+          "pfad": "/plaetze",
+          "typ": "number",
+          "wert": 14
+        },
+        {
+          "pfad": "/eroeffnet",
+          "typ": "string",
+          "muster": "^\\d{4}-\\d{2}-\\d{2}$",
+          "text": {
+            "de": "/eroeffnet fehlt oder ist keine Zeichenkette im Muster JJJJ-MM-TT (ISO 8601).",
+            "en": "/eroeffnet is missing or is not a string in the pattern YYYY-MM-DD (ISO 8601)."
+          }
+        },
+        {
+          "pfad": "/raeder",
+          "typ": "array",
+          "mindestens": 2,
+          "jedes": [
+            {
+              "pfad": "/rad_id",
+              "typ": "string",
+              "muster": "^R-\\d{3}$",
+              "text": {
+                "de": "rad_id fehlt oder ist keine Zeichenkette wie R-003.",
+                "en": "rad_id is missing or is not a string like R-003."
+              }
+            },
+            {
+              "pfad": "/typ",
+              "typ": "string"
+            },
+            {
+              "pfad": "/baujahr",
+              "typ": "number"
+            }
+          ]
+        }
+      ],
+      "hinweis": {
+        "de": "<p>Vorlage ist die Befehlskarte „Ein gültiges Stationsobjekt“ – ohne die Felder <code>aktiv</code> und <code>stillgelegt_am</code>. Achten Sie auf die Typen: <code>station_id</code>, <code>plaetze</code> und <code>baujahr</code> sind Zahlen, <code>rad_id</code> und das Datum sind Zeichenketten. Die Prüfung sagt Ihnen je Pfad, was noch fehlt.</p>",
+        "en": "<p>The template is the command card “A valid station object” – without the fields <code>aktiv</code> and <code>stillgelegt_am</code>. Mind the types: <code>station_id</code>, <code>plaetze</code> and <code>baujahr</code> are numbers, <code>rad_id</code> and the date are strings. The check tells you per path what is still missing.</p>"
+      },
+      "loesung": "{\n  \"station_id\": 4,\n  \"name\": \"Sanderring\",\n  \"bezirk\": \"Sanderau\",\n  \"plaetze\": 14,\n  \"eroeffnet\": \"2024-05-15\",\n  \"raeder\": [\n    { \"rad_id\": \"R-003\", \"typ\": \"EBIKE\", \"baujahr\": 2023, \"status\": \"aktiv\" },\n    { \"rad_id\": \"R-013\", \"typ\": \"EBIKE\", \"baujahr\": 2024, \"status\": \"aktiv\" }\n  ]\n}",
+      "rueckmeldung": {
+        "de": "Die Prüfung, die Sie eben bestanden haben, ist im Kern ein Schema: je Pfad ein Typ, ein Muster, eine Mindestlänge. Im Abschnitt „JSON erzeugen und prüfen“ steht dieselbe Prüfung als JSON Schema 2020-12 – und Lab 06 legt genau diese Felder als Spalten der Tabellen station und rad an.",
+        "en": "The check you just passed is at heart a schema: per path a type, a pattern, a minimum length. In the section “Producing and checking JSON” the same check stands as JSON Schema 2020-12 – and lab 06 creates exactly these fields as columns of the tables station and rad."
+      }
+    },
+    {
+      "id": "W05-03",
+      "typ": "quiz",
+      "titel": {
+        "de": "Grammatik und Grenzen",
+        "en": "Grammar and limits"
+      },
+      "aufgabe": {
+        "de": "<p>Vier Fragen zur Grammatik. Zwei davon betreffen Fehler, die kein Parser meldet – die sind die teureren.</p>",
+        "en": "<p>Four questions on the grammar. Two of them concern errors no parser reports – those are the more expensive ones.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Ein Kollege schickt Ihnen <code>{\"aktiv\": True, \"hinweis\": None}</code>. Was sagt der Parser?",
+            "en": "A colleague sends you <code>{\"aktiv\": True, \"hinweis\": None}</code>. What does the parser say?"
+          },
+          "optionen": [
+            {
+              "de": "Er weist es ab: Die Literale heißen true, false und null und sind kleingeschrieben. True und None sind Python – das Objekt wurde mit print(dict) statt mit json.dumps ausgegeben.",
+              "en": "It rejects it: the literals are true, false and null, lower case. True and None are Python – the object was output with print(dict) instead of json.dumps."
+            },
+            {
+              "de": "Er nimmt es an; Groß- und Kleinschreibung ist bei Literalen frei.",
+              "en": "It accepts it; capitalisation of literals is free."
+            },
+            {
+              "de": "Er nimmt True an und ersetzt None durch null.",
+              "en": "It accepts True and replaces None with null."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "RFC 8259: „The literal names MUST be lowercase.“ Die Meldung lautet in Python Expecting value: line 1 column 11 (char 10) – der Parser erwartet an dieser Stelle einen Wert und findet keinen, den er kennt. Die Ursache ist fast immer dieselbe: Jemand hat die Python-Darstellung eines dict kopiert statt json.dumps aufzurufen.",
+            "en": "RFC 8259: “The literal names MUST be lowercase.” In Python the message reads Expecting value: line 1 column 11 (char 10) – the parser expects a value at this position and finds none it knows. The cause is almost always the same: somebody copied the Python representation of a dict instead of calling json.dumps."
+          }
+        },
+        {
+          "frage": {
+            "de": "Eine Schnittstelle liefert Kundennummern als 64-Bit-Ganzzahlen, etwa 9007199254740993. In Python stimmen sie, im Browser enden sie auf …992. Was ist die richtige Abhilfe?",
+            "en": "An interface delivers customer numbers as 64-bit integers, for instance 9007199254740993. In Python they are correct, in the browser they end in …992. What is the right remedy?"
+          },
+          "optionen": [
+            {
+              "de": "Die Kennung als Zeichenkette übertragen: \"9007199254740993\". Ganze Zahlen sind nur bis 2^53−1 verlässlich, weil JavaScript jede Zahl als double liest.",
+              "en": "Transmit the identifier as a string: \"9007199254740993\". Integers are reliable only up to 2^53−1 because JavaScript reads every number as a double."
+            },
+            {
+              "de": "Die Zahl mit Nachkommastelle schreiben, dann bleibt sie exakt.",
+              "en": "Write the number with a decimal place, then it stays exact."
+            },
+            {
+              "de": "Nichts – das ist ein Anzeigefehler des Browsers, gespeichert wird richtig.",
+              "en": "Nothing – it is a display error of the browser, it is stored correctly."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "JSON unterscheidet keine Ganz- und Gleitkommazahlen; RFC 8259 nennt nur den Bereich [−(2^53)+1, (2^53)−1] als interoperabel. JSON.parse(\"9007199254740993\") liefert 9007199254740992 – ohne Fehler. Kennungen, Kontonummern und Snowflake-IDs gehören deshalb in Anführungszeichen; rechnen muss man mit ihnen ohnehin nicht.",
+            "en": "JSON does not distinguish integers from floats; RFC 8259 names only the range [−(2^53)+1, (2^53)−1] as interoperable. JSON.parse(\"9007199254740993\") returns 9007199254740992 – without an error. Identifiers, account numbers and snowflake IDs therefore belong in quotes; you never need to calculate with them anyway."
+          }
+        },
+        {
+          "frage": {
+            "de": "Eine Datei aus dem Windows-Editor scheitert mit <code>Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)</code>. Was ist passiert?",
+            "en": "A file from Windows Notepad fails with <code>Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)</code>. What happened?"
+          },
+          "optionen": [
+            {
+              "de": "Der Editor hat drei unsichtbare Bytes (die Byte Order Mark) an den Anfang geschrieben. RFC 8259 verbietet sie; Abhilfe: als „UTF-8“ statt „UTF-8 mit BOM“ speichern oder mit encoding=\"utf-8-sig\" lesen.",
+              "en": "The editor wrote three invisible bytes (the byte order mark) at the start. RFC 8259 forbids it; remedy: save as “UTF-8” instead of “UTF-8 with BOM” or read with encoding=\"utf-8-sig\"."
+            },
+            {
+              "de": "Die Datei enthält einen Umlaut, den Python nicht lesen kann.",
+              "en": "The file contains an umlaut Python cannot read."
+            },
+            {
+              "de": "Die erste Zeile ist leer; JSON darf nicht mit einer Leerzeile beginnen.",
+              "en": "The first line is empty; JSON must not begin with a blank line."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Die Meldung nennt die Ursache und die Abhilfe selbst. Umlaute sind in UTF-8 kein Problem, und Leerraum vor dem ersten Wert ist erlaubt. Excel („CSV UTF-8“) und der Windows-Editor schreiben die BOM standardmäßig; JSON Lines und Postgres lehnen sie ebenfalls ab.",
+            "en": "The message names cause and remedy itself. Umlauts are no problem in UTF-8, and whitespace before the first value is allowed. Excel (“CSV UTF-8”) and Windows Notepad write the BOM by default; JSON Lines and Postgres reject it as well."
+          }
+        },
+        {
+          "frage": {
+            "de": "<code>json.dumps({\"stadt\": \"Würzburg\"})</code> liefert <code>{\"stadt\": \"W\\u00fcrzburg\"}</code>. Ist die Datei kaputt?",
+            "en": "<code>json.dumps({\"stadt\": \"Würzburg\"})</code> returns <code>{\"stadt\": \"W\\u00fcrzburg\"}</code>. Is the file broken?"
+          },
+          "optionen": [
+            {
+              "de": "Nein – das ist gültiges JSON, jeder Parser liest wieder Würzburg. Lesbar wird die Datei mit ensure_ascii=False, zusammen mit encoding=\"utf-8\" beim Öffnen.",
+              "en": "No – that is valid JSON; every parser reads Würzburg again. The file becomes readable with ensure_ascii=False, together with encoding=\"utf-8\" when opening."
+            },
+            {
+              "de": "Ja – die Kodierung ist falsch, es hätte WÃ¼rzburg heißen müssen.",
+              "en": "Yes – the encoding is wrong, it should have read WÃ¼rzburg."
+            },
+            {
+              "de": "Ja – Umlaute sind in JSON nicht erlaubt und müssen als ue geschrieben werden.",
+              "en": "Yes – umlauts are not allowed in JSON and have to be written as ue."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "ensure_ascii=True ist die Voreinstellung von json.dumps und schreibt alles außerhalb von ASCII als \\uXXXX. Kein Fehler, aber im Diff und im Editor unleserlich. WÃ¼rzburg dagegen ist ein echter Fehler: UTF-8-Bytes, die als Latin-1 gelesen wurden.",
+            "en": "ensure_ascii=True is json.dumps's default and writes everything outside ASCII as \\uXXXX. Not an error, but illegible in a diff and in the editor. WÃ¼rzburg, by contrast, is a real error: UTF-8 bytes read as Latin-1."
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Die zwei stillen Fehler waren die Kennung über 2^53 und der Rest davon, den man nie sieht: Ein Parser meldet sie nicht, die Daten sind trotzdem falsch. Die zwei lauten Fehler – Literale und BOM – kosten dagegen nur eine Minute, weil die Meldung die Abhilfe nennt.",
+        "en": "The two silent errors were the identifier above 2^53 and what remains of it that you never see: a parser does not report them, the data is wrong nonetheless. The two loud errors – literals and BOM – cost only a minute, because the message names the remedy."
+      }
+    },
+    {
+      "id": "W05-04",
+      "typ": "zuordnen",
+      "titel": {
+        "de": "Fehlermeldung und Ursache",
+        "en": "Error message and cause"
+      },
+      "aufgabe": {
+        "de": "<p>Ordnen Sie jeder Meldung ihre Ursache zu. Die Meldungen stammen wörtlich aus Python 3.12 (<code>json</code>) und Node 26 (V8). Zwei Meldungen haben dieselbe Ursache.</p>",
+        "en": "<p>Assign each message its cause. The messages are verbatim from Python 3.12 (<code>json</code>) and Node 26 (V8). Two messages share the same cause.</p>"
+      },
+      "ziele": [
+        {
+          "id": "anf",
+          "text": {
+            "de": "Einfache Anführungszeichen oder Komma vor der schließenden Klammer",
+            "en": "Single quotes or a comma before the closing bracket"
+          }
+        },
+        {
+          "id": "komma",
+          "text": {
+            "de": "Fehlendes Komma zwischen zwei Werten",
+            "en": "Missing comma between two values"
+          }
+        },
+        {
+          "id": "leer",
+          "text": {
+            "de": "Leere Antwort, HTML-Seite oder Kommentar statt JSON",
+            "en": "Empty response, HTML page or comment instead of JSON"
+          }
+        },
+        {
+          "id": "bom",
+          "text": {
+            "de": "Byte Order Mark am Dateianfang",
+            "en": "Byte order mark at the start of the file"
+          }
+        },
+        {
+          "id": "datum",
+          "text": {
+            "de": "Ein Datumswert beim Schreiben, ohne default=str",
+            "en": "A date value when writing, without default=str"
+          }
+        }
+      ],
+      "paare": [
+        {
+          "begriff": {
+            "de": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)",
+            "en": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+          },
+          "ziel": "anf"
+        },
+        {
+          "begriff": {
+            "de": "Expecting ',' delimiter: line 1 column 9 (char 8)",
+            "en": "Expecting ',' delimiter: line 1 column 9 (char 8)"
+          },
+          "ziel": "komma"
+        },
+        {
+          "begriff": {
+            "de": "Expecting value: line 1 column 1 (char 0)",
+            "en": "Expecting value: line 1 column 1 (char 0)"
+          },
+          "ziel": "leer"
+        },
+        {
+          "begriff": {
+            "de": "Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)",
+            "en": "Unexpected UTF-8 BOM (decode using utf-8-sig): line 1 column 1 (char 0)"
+          },
+          "ziel": "bom"
+        },
+        {
+          "begriff": {
+            "de": "TypeError: Object of type datetime is not JSON serializable",
+            "en": "TypeError: Object of type datetime is not JSON serializable"
+          },
+          "ziel": "datum"
+        },
+        {
+          "begriff": {
+            "de": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+            "en": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+          },
+          "ziel": "leer"
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Zwei Meldungen führen auf dieselbe Ursache: „Expecting value“ in Python und „Unexpected token '<'“ in JavaScript sagen beide, dass gar kein JSON ankam – meist eine HTML-Fehlerseite, weil die URL oder der Schlüssel falsch war. Deshalb steht vor jedem .json() ein Blick auf den Status.",
+        "en": "Two messages lead to the same cause: “Expecting value” in Python and “Unexpected token '<'” in JavaScript both say that no JSON arrived at all – usually an HTML error page, because the URL or the key was wrong. That is why a look at the status precedes every .json()."
+      }
+    },
+    {
+      "id": "W05-05",
+      "typ": "json",
+      "titel": {
+        "de": "Drei Fahrten als Feld",
+        "en": "Three rides as an array"
+      },
+      "aufgabe": {
+        "de": "<p>Unten stehen die ersten zwei Fahrten des Exports als Feld – eine davon mit einem Tippfehler im Typ. Ergänzen Sie die dritte Fahrt in derselben Struktur: Fahrt 3, Rad R-049, Kunde 82, Start an Station 7 am 25. Dezember 2025 um 17:26 Uhr, Ziel Station 1, 22 Minuten, 4,08 EUR. Das Ergebnis muss dem Export bis auf die Reihenfolge der Schlüssel gleichen.</p>",
+        "en": "<p>Below are the first two rides of the export as an array – one of them with a typo in a type. Add the third ride in the same structure: ride 3, bike R-049, customer 82, start at station 7 on 25 December 2025 at 17:26, destination station 1, 22 minutes, 4.08 EUR. The result must equal the export apart from the order of keys.</p>"
+      },
+      "start": "[\n  {\n    \"fahrt_id\": 1,\n    \"rad_id\": \"R-057\",\n    \"kunde_id\": 13,\n    \"start\": {\n      \"station_id\": 6,\n      \"zeit\": \"2025-10-05T07:58:00\"\n    },\n    \"ziel\": {\n      \"station_id\": 3\n    },\n    \"dauer_min\": 7,\n    \"preis_eur\": 1.2\n  },\n  {\n    \"fahrt_id\": 2,\n    \"rad_id\": \"R-035\",\n    \"kunde_id\": 194,\n    \"start\": {\n      \"station_id\": 5,\n      \"zeit\": \"2026-07-04T16:29:00\"\n    },\n    \"ziel\": {\n      \"station_id\": 6\n    },\n    \"dauer_min\": \"6\",\n    \"preis_eur\": 1.1\n  }\n]",
+      "erwartet": [
+        {
+          "fahrt_id": 1,
+          "rad_id": "R-057",
+          "kunde_id": 13,
+          "start": {
+            "station_id": 6,
+            "zeit": "2025-10-05T07:58:00"
+          },
+          "ziel": {
+            "station_id": 3
+          },
+          "dauer_min": 7,
+          "preis_eur": 1.2
+        },
+        {
+          "fahrt_id": 2,
+          "rad_id": "R-035",
+          "kunde_id": 194,
+          "start": {
+            "station_id": 5,
+            "zeit": "2026-07-04T16:29:00"
+          },
+          "ziel": {
+            "station_id": 6
+          },
+          "dauer_min": 6,
+          "preis_eur": 1.1
+        },
+        {
+          "fahrt_id": 3,
+          "rad_id": "R-049",
+          "kunde_id": 82,
+          "start": {
+            "station_id": 7,
+            "zeit": "2025-12-25T18:26:00"
+          },
+          "ziel": {
+            "station_id": 1
+          },
+          "dauer_min": 22,
+          "preis_eur": 4.08
+        }
+      ],
+      "hinweis": {
+        "de": "<p>Die Zeit steht als ISO 8601 ohne Zeitzone: <code>\"2025-12-25T18:26:00\"</code>. <code>start</code> hat zwei Schlüssel, <code>ziel</code> nur einen. Der Preis ist eine Zahl mit Punkt, nicht mit Komma – und <code>dauer_min</code> ist in Fahrt 2 als Zeichenkette geraten.</p>",
+        "en": "<p>The time is ISO 8601 without a time zone: <code>\"2025-12-25T18:26:00\"</code>. <code>start</code> has two keys, <code>ziel</code> only one. The price is a number with a point, not a comma – and <code>dauer_min</code> in ride 2 has ended up as a string.</p>"
+      },
+      "loesung": "[\n  {\n    \"fahrt_id\": 1,\n    \"rad_id\": \"R-057\",\n    \"kunde_id\": 13,\n    \"start\": {\n      \"station_id\": 6,\n      \"zeit\": \"2025-10-05T07:58:00\"\n    },\n    \"ziel\": {\n      \"station_id\": 3\n    },\n    \"dauer_min\": 7,\n    \"preis_eur\": 1.2\n  },\n  {\n    \"fahrt_id\": 2,\n    \"rad_id\": \"R-035\",\n    \"kunde_id\": 194,\n    \"start\": {\n      \"station_id\": 5,\n      \"zeit\": \"2026-07-04T16:29:00\"\n    },\n    \"ziel\": {\n      \"station_id\": 6\n    },\n    \"dauer_min\": 6,\n    \"preis_eur\": 1.1\n  },\n  {\n    \"fahrt_id\": 3,\n    \"rad_id\": \"R-049\",\n    \"kunde_id\": 82,\n    \"start\": {\n      \"station_id\": 7,\n      \"zeit\": \"2025-12-25T18:26:00\"\n    },\n    \"ziel\": {\n      \"station_id\": 1\n    },\n    \"dauer_min\": 22,\n    \"preis_eur\": 4.08\n  }\n]",
+      "rueckmeldung": {
+        "de": "\"6\" und 6 sind für JSON zwei verschiedene Werte, und für pandas zwei verschiedene Spaltentypen: Eine einzige Zeichenkette macht aus der Spalte dauer_min object statt int64, und mean() scheitert. Genau deshalb lohnt sich ein Schema vor dem Laden.",
+        "en": "\"6\" and 6 are two different values for JSON, and two different column types for pandas: a single string turns the column dauer_min into object instead of int64, and mean() fails. That is exactly why a schema before loading pays off."
+      }
+    },
+    {
+      "id": "W05-06",
+      "typ": "quiz",
+      "titel": {
+        "de": "Von der Verschachtelung zur Tabelle",
+        "en": "From nesting to table"
+      },
+      "aufgabe": {
+        "de": "<p>Vier Fragen zu json_normalize, Normalisierung und den Formaten daneben. Die erste hat mehrere richtige Antworten.</p>",
+        "en": "<p>Four questions on json_normalize, normalisation and the neighbouring formats. The first has several correct answers.</p>"
+      },
+      "fragen": [
+        {
+          "frage": {
+            "de": "Der Export soll in relationale Tabellen. Welche Aussagen stimmen?",
+            "en": "The export is to go into relational tables. Which statements are correct?"
+          },
+          "optionen": [
+            {
+              "de": "Aus dem Feld raeder in jeder Station wird eine eigene Tabelle rad mit dem Fremdschlüssel station_id.",
+              "en": "The array raeder in every station becomes its own table rad with the foreign key station_id."
+            },
+            {
+              "de": "Die Unterobjekte start und ziel einer Fahrt werden zu Spalten der Tabelle fahrt: start_station, start_zeit, ziel_station.",
+              "en": "A ride's sub-objects start and ziel become columns of the table fahrt: start_station, start_zeit, ziel_station."
+            },
+            {
+              "de": "Aus start und ziel entstehen zwei eigene Tabellen mit je einem Fremdschlüssel auf fahrt.",
+              "en": "start and ziel become two separate tables, each with a foreign key to fahrt."
+            },
+            {
+              "de": "Die Liste raeder wird als Text in eine Spalte der Tabelle station geschrieben.",
+              "en": "The list raeder is written as text into a column of the table station."
+            }
+          ],
+          "richtig": [
+            0,
+            1
+          ],
+          "mehrfach": true,
+          "erklaerung": {
+            "de": "Die Regel: ein Feld von Objekten wird zur eigenen Tabelle mit Fremdschlüssel (1:n), ein einzelnes Unterobjekt wird flachgeklopft (1:1). start und ziel als eigene Tabellen wären technisch möglich, aber ohne Nutzen – sie haben je Fahrt genau einen Wert. Die Liste als Text zu speichern verhindert jede Abfrage nach Rädern; das ist der Fehler, den Postgres mit jsonb wenigstens abfragbar macht (Lab 10).",
+            "en": "The rule: an array of objects becomes its own table with a foreign key (1:n); a single sub-object is flattened (1:1). start and ziel as separate tables would be technically possible but useless – they have exactly one value per ride. Storing the list as text prevents any query for bikes; that is the mistake Postgres at least makes queryable with jsonb (lab 10)."
+          }
+        },
+        {
+          "frage": {
+            "de": "<code>pd.json_normalize(export[\"stationen\"], record_path=\"raeder\", meta=[\"station_id\"])</code> – was liefert der Aufruf für die Kostprobe mit 3 Stationen und je 6 Rädern?",
+            "en": "<code>pd.json_normalize(export[\"stationen\"], record_path=\"raeder\", meta=[\"station_id\"])</code> – what does the call return for the sample with 3 stations and 6 bikes each?"
+          },
+          "optionen": [
+            {
+              "de": "18 Zeilen – eine je Rad – mit den Spalten rad_id, typ, baujahr, status und einer Spalte station_id, die aus der Elternstation wiederholt wird.",
+              "en": "18 rows – one per bike – with the columns rad_id, typ, baujahr, status and a column station_id repeated from the parent station."
+            },
+            {
+              "de": "3 Zeilen – eine je Station – mit einer Spalte raeder, die je eine Liste enthält.",
+              "en": "3 rows – one per station – with a column raeder containing a list each."
+            },
+            {
+              "de": "18 Zeilen, aber ohne station_id; die Zuordnung zur Station geht verloren.",
+              "en": "18 rows, but without station_id; the assignment to the station is lost."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "record_path nennt die Liste, deren Elemente zu Zeilen werden; meta nennt die Elternfelder, die auf jede Zeile kopiert werden. Ohne record_path bekäme man die 3 Stationszeilen mit der Liste in einer Zelle; ohne meta die 18 Räder ohne Bezug.",
+            "en": "record_path names the list whose elements become rows; meta names the parent fields copied onto every row. Without record_path you would get the 3 station rows with the list in a cell; without meta the 18 bikes without their reference."
+          }
+        },
+        {
+          "frage": {
+            "de": "Ein Sensor schreibt jede Minute einen Datensatz. Warum ist JSON Lines dafür besser geeignet als ein JSON-Feld <code>[ … ]</code>?",
+            "en": "A sensor writes a record every minute. Why is JSON Lines better suited for that than a JSON array <code>[ … ]</code>?"
+          },
+          "optionen": [
+            {
+              "de": "Eine neue Zeile lässt sich anhängen, ohne die Datei zu lesen oder die schließende Klammer zu versetzen; und head, wc -l und ein Abbruch mittendrin lassen die vorhandenen Zeilen gültig.",
+              "en": "A new line can be appended without reading the file or moving the closing bracket; and head, wc -l and an interruption midway leave the existing lines valid."
+            },
+            {
+              "de": "JSON Lines ist kompakter, weil Anführungszeichen entfallen.",
+              "en": "JSON Lines is more compact because quotes are dropped."
+            },
+            {
+              "de": "JSON Lines erlaubt Kommentare zwischen den Datensätzen.",
+              "en": "JSON Lines allows comments between records."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Jede Zeile ist ein vollständiger JSON-Wert; die Datei als Ganzes ist kein JSON. Anführungszeichen und Kommentarregeln sind dieselben wie in JSON. pandas liest es mit pd.read_json(pfad, lines=True); verschachtelte Objekte bleiben dabei Objekte in der Zelle, bis json_normalize sie flachklopft.",
+            "en": "Every line is a complete JSON value; the file as a whole is not JSON. Quotes and comment rules are the same as in JSON. pandas reads it with pd.read_json(path, lines=True); nested objects remain objects in the cell until json_normalize flattens them."
+          }
+        },
+        {
+          "frage": {
+            "de": "In Lab 10 landet der Rohexport zunächst unverändert in einer Postgres-Spalte vom Typ <code>jsonb</code>. Was gewinnt man damit gegenüber einer Spalte vom Typ <code>text</code>?",
+            "en": "In lab 10 the raw export first lands unchanged in a Postgres column of type <code>jsonb</code>. What does that gain over a column of type <code>text</code>?"
+          },
+          "optionen": [
+            {
+              "de": "Postgres prüft beim Einfügen die Syntax, speichert zerlegt und binär, und man kann mit -> und ->> in die Struktur greifen und sie indizieren – ohne die Tabellen vorher zu entwerfen.",
+              "en": "Postgres checks the syntax on insert, stores it decomposed and binary, and you can reach into the structure with -> and ->> and index it – without designing the tables first."
+            },
+            {
+              "de": "Nichts – jsonb ist nur ein anderer Name für text.",
+              "en": "Nothing – jsonb is just another name for text."
+            },
+            {
+              "de": "jsonb bewahrt Leerraum und Schlüsselreihenfolge exakt.",
+              "en": "jsonb preserves whitespace and key order exactly."
+            }
+          ],
+          "richtig": [
+            0
+          ],
+          "erklaerung": {
+            "de": "Genau umgekehrt: jsonb verwirft Leerraum und Schlüsselreihenfolge und behält von doppelten Schlüsseln den letzten – das tut der Typ json nicht, deshalb ist json langsamer. Die Postgres-Dokumentation empfiehlt jsonb für fast alle Anwendungen. Die Zerlegung in Tabellen (ELT) kommt dann in SQL – mit jsonb_array_elements() für die Räder.",
+            "en": "Exactly the other way round: jsonb discards whitespace and key order and keeps the last of duplicate keys – the type json does not, which is why json is slower. The Postgres documentation recommends jsonb for almost all applications. The decomposition into tables (ELT) then follows in SQL – with jsonb_array_elements() for the bikes."
+          }
+        }
+      ],
+      "rueckmeldung": {
+        "de": "Verschachtelung ist Beziehung: Was in JSON ineinander steckt, wird relational zu zwei Tabellen und einem Fremdschlüssel. json_normalize macht das in pandas, jsonb_array_elements() in Postgres – Lab 06 legt die Tabellen an, Lab 10 baut daraus das Sternschema.",
+        "en": "Nesting is relationship: what sits inside each other in JSON becomes two tables and a foreign key relationally. json_normalize does that in pandas, jsonb_array_elements() in Postgres – lab 06 creates the tables, lab 10 builds the star schema from them."
+      }
+    }
+  ]
+}

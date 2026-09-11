@@ -1,0 +1,77 @@
+Lab 12 – Verbindungswerte für Supabase in Power BI Desktop (Stand 09/2026)
+==========================================================================
+
+Weg:  Home → Get data → More… → Database → PostgreSQL database → Connect
+
+Erster Dialog („PostgreSQL database“)
+-------------------------------------
+Server                  aws-0-eu-central-1.pooler.supabase.com:5432
+Database                postgres
+Data Connectivity mode  Import        (nicht DirectQuery – siehe unten)
+Advanced options        leer lassen
+
+Zweiter Dialog (Anmeldung, linker Reiter „Database“)
+----------------------------------------------------
+User name               postgres.[REF]      ← Projektkennung anhängen, nicht nur „postgres“
+Password                Datenbankpasswort aus dem Supabase-Dashboard (Lab 08)
+Select which level …    den Server-Eintrag belassen → Connect
+
+Danach: Navigator → Schema „mart“ aufklappen (das Sternschema aus Lab 10) →
+fact_fahrt, dim_datum, dim_station, dim_rad, dim_kunde ankreuzen → Transform Data
+(Typen prüfen) oder Load. Die Matview fahrten_station_tag wird nicht gebraucht –
+das Modell aggregiert selbst. Power BI erkennt die Fremdschlüssel des Schemas
+(datum_key, start_station_sk, ziel_station_sk, rad_sk, kunde_sk) meist von allein;
+in der Model view trotzdem prüfen.
+
+Woher die Werte kommen
+----------------------
+Supabase-Dashboard → Connect → Abschnitt „Session pooler“. Host (aws-0, aws-1 …)
+und Region dort ablesen; [REF] ist die Projektkennung aus der URL des Dashboards.
+Die Zeile oben ist ein Beispiel für ein Projekt in Central EU (Frankfurt).
+
+Warum der Pooler und nicht db.[REF].supabase.co
+-----------------------------------------------
+Der direkte Host löst nur über IPv6 auf. In einem Netz ohne IPv6 (viele Hochschul-
+WLANs, viele VPN-Zugänge) endet der Versuch in einer Zeitüberschreitung, deren
+Meldung die Ursache nicht nennt. Der Session Pooler ist über IPv4 erreichbar
+und in allen Plänen enthalten (Lab 08).
+
+Warum Port 5432 und nicht 6543
+------------------------------
+5432 = Session Mode: Die Verbindung bleibt Ihnen zugeordnet, Sitzungszustand und
+       Prepared Statements funktionieren.
+6543 = Transaction Mode: Verbindungen werden je Transaktion geteilt; Prepared
+       Statements werden nicht unterstützt. Der Npgsql-Treiber in Power BI
+       verwendet Prepared Statements und langlebige Sitzungen – Abfragen scheitern
+       oder laufen unzuverlässig. Für BI-Werkzeuge immer 5432.
+
+Treiber
+-------
+Npgsql ist seit dem Power BI Desktop vom Oktober 2024 mitgeliefert (Version 4.0.17).
+Nichts nachinstallieren. Npgsql 4.1 oder neuer NICHT installieren – es wird nicht
+unterstützt und kann den Connector stören. Bei Fehlermeldungen, die
+„System.Runtime.CompilerServices.Unsafe“ oder „Npgsql“ nennen: Power BI Desktop
+über den Microsoft Store aktualisieren.
+
+SSL
+---
+Supabase verlangt verschlüsselte Verbindungen; der Connector handelt SSL selbst aus.
+Bei einem Zertifikatsfehler: Project Settings → Database → Zertifikat laden und
+unter Windows in „Trusted Root Certification Authorities“ importieren.
+Immer den Hostnamen eintragen, nie die IP-Adresse (Zertifikat passt sonst nicht).
+
+Import oder DirectQuery
+-----------------------
+Import: Kopie der Tabellen im Modell, schnell, alle Funktionen. Für 1.500 Fahrten
+        und für jeden Kursbericht die richtige Wahl.
+DirectQuery: jede Interaktion wird zur SQL-Abfrage an Supabase; langsamer, keine
+        Auto-date/time-Hierarchien, und ein pausiertes Projekt macht den Bericht leer.
+
+Nach dem Publish (Power BI Service)
+-----------------------------------
+Supabase ist eine Cloud-Quelle: kein On-premises data gateway nötig. Im Service
+unter Semantic model → Settings → Data source credentials einmal Benutzer und
+Passwort eintragen, dann Scheduled refresh einrichten (bis zu 8 Aktualisierungen
+je Tag ohne Kapazität). Achtung: Ein Free-Projekt bei Supabase pausiert nach
+7 Tagen ohne Zugriff – ein geplanter Refresh scheitert dann, bis das Projekt im
+Dashboard wieder gestartet ist.

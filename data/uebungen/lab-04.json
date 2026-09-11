@@ -1,0 +1,271 @@
+{
+  "befehle": {
+    "B01": {
+      "titel": { "de": "Tastenkürzel, die man am ersten Tag braucht", "en": "Shortcuts you need on day one" },
+      "prompt": "⌨",
+      "befehl": "Strg+Enter      Zelle ausführen, Cursor bleibt stehen\nShift+Enter     Zelle ausführen und zur nächsten springen\nStrg+M B        neue Code-Zelle darunter einfügen\nStrg+M M        Code-Zelle in Textzelle (Markdown) verwandeln\nStrg+M D        Zelle löschen        ·  Strg+M Z  macht es rückgängig\nStrg+M .        laufende Zelle unterbrechen",
+      "teile": [
+        { "was": "Strg+M", "bedeutet": { "de": "Die Vorsilbe für alle Notebook-Befehle. Auf dem Mac ⌘+M. Danach folgt ein einzelner Buchstabe – die Kombination lässt sich nicht in einem Griff tippen, sondern in zwei.", "en": "The prefix for all notebook commands. On a Mac ⌘+M. A single letter follows – the combination is not typed in one grip but in two." } },
+        { "was": "Strg+M .", "bedeutet": { "de": "Bricht eine laufende Zelle ab, ohne die Variablen zu verlieren. Der sanftere Eingriff gegenüber dem Neustart der Sitzung.", "en": "Aborts a running cell without losing the variables. The gentler intervention compared with restarting the session." } }
+      ]
+    },
+    "B02": {
+      "titel": { "de": "Die vier Menüpunkte unter „Laufzeit“", "en": "The four menu items under “Runtime”" },
+      "prompt": "☰",
+      "befehl": "Laufzeit → Sitzung neu starten            Kernel neu, Dateien in /content/ bleiben\nLaufzeit → Laufzeit trennen und löschen    Maschine weg, /content/ und pip-Pakete weg\nLaufzeit → Alle ausführen                  von oben nach unten – der Reproduzierbarkeitstest\nLaufzeit → Laufzeittyp ändern              CPU / GPU / TPU",
+      "teile": [
+        { "was": "Sitzung neu starten", "bedeutet": { "de": "Beendet den Python-Prozess. Alle Variablen sind weg, hochgeladene Dateien und installierte Pakete bleiben. Der richtige Griff, wenn eine Variable in einen Zustand geraten ist, den man nicht mehr durchschaut.", "en": "Terminates the Python process. All variables are gone, uploaded files and installed packages stay. The right move when a variable has got into a state you no longer understand." } },
+        { "was": "Laufzeit trennen und löschen", "bedeutet": { "de": "Gibt die virtuelle Maschine zurück. Alles, was nicht in Drive liegt, ist verloren. Der richtige Griff, wenn eine Installation die Umgebung durcheinandergebracht hat.", "en": "Returns the virtual machine. Everything not in Drive is lost. The right move when an installation has messed up the environment." } },
+        { "was": "Alle ausführen", "bedeutet": { "de": "Führt alle Zellen in Dokumentreihenfolge aus. In Verbindung mit einem vorherigen Neustart die einzige verlässliche Aussage darüber, ob das Notebook trägt.", "en": "Executes all cells in document order. Combined with a prior restart, the only reliable statement about whether the notebook holds up." } }
+      ]
+    },
+    "B03": {
+      "titel": { "de": "Die erste Zelle jedes Notebooks", "en": "The first cell of every notebook" },
+      "prompt": "[1]",
+      "befehl": "%pip install pandas==2.2.2 matplotlib==3.9.2\n\nimport pandas as pd\nimport matplotlib.pyplot as plt\n\npd.set_option(\"display.max_columns\", 50)",
+      "teile": [
+        { "was": "%pip", "bedeutet": { "de": "Das Prozentzeichen macht daraus einen „Magic Command“: Er installiert in genau den Kernel, der das Notebook ausführt. Das !pip mit Ausrufezeichen kann in einer anderen Umgebung landen – ein Unterschied, der ganze Nachmittage kostet.", "en": "The percent sign turns this into a “magic command”: it installs into exactly the kernel executing the notebook. The !pip with an exclamation mark can end up in a different environment – a difference that costs whole afternoons." } },
+        { "was": "==2.2.2", "bedeutet": { "de": "Eine festgenagelte Version. Ohne sie liefert dasselbe Notebook in sechs Monaten ein anderes Ergebnis, weil die Bibliothek sich geändert hat. Reproduzierbarkeit beginnt hier, nicht beim Modell.", "en": "A pinned version. Without it the same notebook gives a different result in six months because the library has changed. Reproducibility begins here, not at the model." } },
+        { "was": "import ... as pd", "bedeutet": { "de": "Alle Einbindungen in der ersten Zelle. Dann genügt nach einem Neustart ein Blick nach oben, um zu wissen, was gebraucht wird.", "en": "All imports in the first cell. Then after a restart one glance upward is enough to know what is needed." } },
+        { "was": "set_option", "bedeutet": { "de": "Anzeigeeinstellungen gehören ebenfalls nach oben, nicht mitten in die Auswertung.", "en": "Display settings belong at the top too, not in the middle of the analysis." } }
+      ]
+    },
+    "B04": {
+      "titel": { "de": "Daten aus einer URL lesen – der reproduzierbare Weg", "en": "Read data from a URL – the reproducible route" },
+      "prompt": "[2]",
+      "befehl": "import pandas as pd\n\ndf = pd.read_csv(\n    \"https://raw.githubusercontent.com/swrobuts/velocity-fallstudie/main/analytics/stationen.csv\",\n    sep=\";\",\n    decimal=\",\",\n)\ndf.head()",
+      "teile": [
+        { "was": "read_csv(URL)", "bedeutet": { "de": "pandas liest unmittelbar von einer Adresse. Es wird nichts hochgeladen, nichts geht verloren, und wer das Notebook öffnet, hat dieselben Daten. Für Lehrmaterial der beste Weg.", "en": "pandas reads straight from an address. Nothing is uploaded, nothing is lost, and whoever opens the notebook has the same data. The best route for teaching material." } },
+        { "was": "sep=\";\"", "bedeutet": { "de": "Deutsche Ausleitungen trennen mit Semikolon, weil das Komma als Dezimaltrenner belegt ist. Ohne diese Angabe landet die ganze Zeile in einer Spalte.", "en": "German exports separate with a semicolon, because the comma is taken as the decimal mark. Without this, the whole line lands in a single column." } },
+        { "was": "decimal=\",\"", "bedeutet": { "de": "Macht aus „1,50“ die Zahl 1.5 statt der Zeichenkette \"1,50\". Fehlt es, sind alle Rechnungen darauf still falsch – die Spalte ist dann Text.", "en": "Turns “1,50” into the number 1.5 instead of the string \"1,50\". Without it, every calculation on it is silently wrong – the column is text." } },
+        { "was": "df.head()", "bedeutet": { "de": "Die ersten fünf Zeilen. Immer hinsehen, statt zu glauben, dass es geklappt hat.", "en": "The first five rows. Always look, instead of believing it worked." } }
+      ]
+    },
+    "B05": {
+      "titel": { "de": "Datei vom eigenen Rechner hochladen – flüchtig", "en": "Upload a file from your own machine – transient" },
+      "prompt": "[3]",
+      "befehl": "from google.colab import files\n\nhochgeladen = files.upload()      # öffnet einen Dateiauswahl-Dialog\ndf = pd.read_csv(\"fahrten_2026.csv\", sep=\";\")",
+      "teile": [
+        { "was": "files.upload()", "bedeutet": { "de": "Öffnet den Dateiauswahl-Dialog des Browsers. Die Datei landet unter /content/ – und ist mit der Laufzeit wieder weg.", "en": "Opens the browser's file picker. The file lands under /content/ – and is gone again with the runtime." } },
+        { "was": "/content/", "bedeutet": { "de": "Das Arbeitsverzeichnis der Laufzeit. Bequem, aber flüchtig: Nach „Laufzeit trennen und löschen“ ist der Ordner leer. Für Zwischenergebnisse, die überleben sollen, ist er der falsche Ort.", "en": "The runtime's working directory. Convenient but transient: after “disconnect and delete runtime” the folder is empty. For intermediate results that should survive it is the wrong place." } },
+        { "was": "Seitenleiste", "bedeutet": { "de": "Derselbe Vorgang geht ohne Code: linke Seitenleiste, Ordnersymbol, dann Datei hineinziehen.", "en": "The same operation works without code: left sidebar, folder icon, then drag the file in." } }
+      ]
+    },
+    "B06": {
+      "titel": { "de": "Google Drive einbinden – dauerhaft", "en": "Mount Google Drive – persistent" },
+      "prompt": "[4]",
+      "befehl": "from google.colab import drive\n\ndrive.mount(\"/content/drive\")\n\ndf = pd.read_csv(\"/content/drive/MyDrive/WInf-SP/fahrten_2026.csv\", sep=\";\")\ndf.to_csv(\"/content/drive/MyDrive/WInf-SP/ergebnis.csv\", index=False)",
+      "teile": [
+        { "was": "drive.mount", "bedeutet": { "de": "Öffnet einen Bestätigungsdialog. Danach erscheint das gesamte Drive des angemeldeten Kontos unter /content/drive.", "en": "Opens a confirmation dialogue. Afterwards the entire Drive of the signed-in account appears under /content/drive." } },
+        { "was": "MyDrive", "bedeutet": { "de": "Der Name Ihres eigenen Drive-Bereichs – geteilte Ablagen liegen unter anderen Namen. Der Pfad ist zu beachten: MyDrive ohne Leerzeichen.", "en": "The name of your own Drive area – shared drives sit under different names. Mind the path: MyDrive without a space." } },
+        { "was": "to_csv(..., index=False)", "bedeutet": { "de": "Schreibt das Ergebnis nach Drive, wo es die Laufzeit überlebt. index=False verhindert eine zusätzliche Spalte mit Zeilennummern, die niemand haben will.", "en": "Writes the result to Drive, where it survives the runtime. index=False prevents an extra column of row numbers nobody wants." } }
+      ]
+    },
+    "B07": {
+      "titel": { "de": "Zugangsdaten – niemals im Klartext", "en": "Credentials – never in plain text" },
+      "prompt": "[5]",
+      "befehl": "from google.colab import userdata\n\nschluessel = userdata.get(\"SUPABASE_KEY\")\n\n# Anlegen: linke Seitenleiste → Schlüsselsymbol → „Neues Secret hinzufügen“\n# Danach je Notebook einmal den Zugriff erlauben.",
+      "teile": [
+        { "was": "userdata.get", "bedeutet": { "de": "Liest ein Geheimnis aus dem Secrets-Panel des Kontos. Es steht nicht im Notebook und wandert deshalb nicht mit, wenn Sie die Datei weitergeben oder nach GitHub speichern.", "en": "Reads a secret from the account's secrets panel. It is not in the notebook and therefore does not travel when you pass the file on or save it to GitHub." } },
+        { "was": "Schlüsselsymbol", "bedeutet": { "de": "Das Panel liegt in der linken Seitenleiste. Jedes Notebook muss den Zugriff auf ein Secret einmal ausdrücklich erhalten – deshalb kann ein geteiltes Notebook Ihre Schlüssel nicht lesen.", "en": "The panel sits in the left sidebar. Every notebook has to be granted access to a secret once explicitly – which is why a shared notebook cannot read your keys." } },
+        { "was": "Was nicht geht", "bedeutet": { "de": "schluessel = \"sb_secret_9f3…\" in einer Code-Zelle. Diese Zeile steht danach in der Datei, im Versionsverlauf von Drive und in jedem Commit.", "en": "key = \"sb_secret_9f3…\" in a code cell. That line then sits in the file, in Drive's version history and in every commit." } }
+      ]
+    },
+    "B08": {
+      "titel": { "de": "Ein Notebook aus GitHub in Colab öffnen", "en": "Open a notebook from GitHub in Colab" },
+      "prompt": "🔗",
+      "befehl": "https://github.com/ORG/REPO/blob/main/analyse.ipynb\n              ↓  ersetzen\nhttps://colab.research.google.com/github/ORG/REPO/blob/main/analyse.ipynb",
+      "teile": [
+        { "was": "colab.research.google.com/github/", "bedeutet": { "de": "Ersetzt github.com/ am Anfang der Adresse. Der Rest bleibt Zeichen für Zeichen gleich – deshalb lässt sich die Umschreibung von Hand machen.", "en": "Replaces github.com/ at the start of the address. The rest stays identical character for character – which is why the rewrite can be done by hand." } },
+        { "was": "Öffnen heißt nicht Verbinden", "bedeutet": { "de": "Colab öffnet eine Kopie. Änderungen liegen zunächst nur in Ihrer Sitzung; ohne ausdrückliches Zurückspeichern bleibt das Repository unberührt.", "en": "Colab opens a copy. Changes initially live only in your session; without an explicit save back, the repository stays untouched." } },
+        { "was": "Badge im README", "bedeutet": { "de": "[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ORG/REPO/blob/main/analyse.ipynb) – derselbe Link als Bildmarke. So findet man ihn in vielen Repositories.", "en": "[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ORG/REPO/blob/main/analyse.ipynb) – the same link as a badge. That is how it appears in many repositories." } }
+      ]
+    },
+    "B09": {
+      "titel": { "de": "Zurückspeichern nach GitHub", "en": "Save back to GitHub" },
+      "prompt": "☰",
+      "befehl": "Datei → Kopie in GitHub speichern\n\n  1  Beim ersten Mal: Zugriff für Colab bestätigen (Schreibrechte)\n  2  Repository und Zweig wählen\n  3  Dateipfad angeben\n  4  Commit-Nachricht schreiben  ← keine Formalie, siehe Lab 02",
+      "teile": [
+        { "was": "Schreibrechte", "bedeutet": { "de": "Colab braucht sie, um einen Commit anzulegen. Der Zugriff lässt sich in den GitHub-Einstellungen jederzeit wieder entziehen.", "en": "Colab needs them to create a commit. The access can be revoked in GitHub's settings at any time." } },
+        { "was": "Commit-Nachricht", "bedeutet": { "de": "„Update“ ist keine. Was geändert wurde und warum – in einem Satz. In sechs Wochen liest man diese Zeile und nicht den Unterschied.", "en": "“Update” is not one. What changed and why – in one sentence. In six weeks you will read this line and not the diff." } },
+        { "was": "Ausgaben gehen mit", "bedeutet": { "de": "Der Commit enthält alle Zellausgaben. Vor dem Speichern prüfen, ob in einer Tabelle etwas steht, das nicht öffentlich werden soll.", "en": "The commit contains all cell outputs. Before saving, check whether a table holds anything that should not become public." } }
+      ]
+    }
+  },
+  "uebungen": [
+    {
+      "id": "W04-01",
+      "typ": "checkliste",
+      "titel": { "de": "Das erste Notebook in Betrieb nehmen", "en": "Put the first notebook into operation" },
+      "aufgabe": {
+        "de": "<p>Öffnen Sie <code>colab.research.google.com</code> in einem zweiten Fenster und arbeiten Sie diese Schritte dort ab. Am Ende haben Sie ein Notebook, das die Fallstudiendaten einliest und ein Diagramm zeichnet — und Sie haben gesehen, was bei einem Neustart passiert.</p>",
+        "en": "<p>Open <code>colab.research.google.com</code> in a second window and work through these steps there. At the end you have a notebook that reads the case study data and draws a chart — and you have seen what happens on a restart.</p>"
+      },
+      "schritte": [
+        { "text": { "de": "Neues Notebook anlegen (<code>Datei → Neues Notebook</code>) und in <code>winf-lab-02.ipynb</code> umbenennen.", "en": "Create a new notebook (<code>File → New notebook</code>) and rename it to <code>winf-lab-02.ipynb</code>." } },
+        { "text": { "de": "Erste Zelle: <code>import pandas as pd</code> und <code>import matplotlib.pyplot as plt</code>. Mit <code>Strg+Enter</code> ausführen und prüfen, dass links <code>[1]</code> steht.", "en": "First cell: <code>import pandas as pd</code> and <code>import matplotlib.pyplot as plt</code>. Run with <code>Strg+Enter</code> and check that <code>[1]</code> appears on the left." } },
+        { "text": { "de": "Zweite Zelle: eine CSV-Datei aus einer URL lesen (Befehlskarte oben) und <code>df.head()</code> ausgeben. Die Spaltentypen mit <code>df.dtypes</code> prüfen — steht dort <code>object</code>, wo eine Zahl stehen sollte?", "en": "Second cell: read a CSV file from a URL (command card above) and print <code>df.head()</code>. Check the column types with <code>df.dtypes</code> — is there an <code>object</code> where a number should be?" } },
+        { "text": { "de": "Dritte Zelle: ein einfaches Diagramm zeichnen, etwa <code>df[\"plaetze\"].plot(kind=\"bar\")</code>.", "en": "Third cell: draw a simple chart, for example <code>df[\"plaetze\"].plot(kind=\"bar\")</code>." } },
+        { "text": { "de": "<code>Laufzeit → Sitzung neu starten</code>. Dann die dritte Zelle allein ausführen. Lesen Sie die Fehlermeldung und erklären Sie sie sich, bevor Sie weitermachen.", "en": "<code>Runtime → Restart session</code>. Then run the third cell on its own. Read the error message and explain it to yourself before continuing." } },
+        { "text": { "de": "<code>Laufzeit → Alle ausführen</code>. Jetzt läuft alles wieder. Vergleichen Sie die Zahlen in den eckigen Klammern mit der Reihenfolge im Dokument.", "en": "<code>Runtime → Run all</code>. Now everything works again. Compare the numbers in the square brackets with the order in the document." } },
+        { "text": { "de": "Notebook in Drive prüfen: Es liegt unter <code>Colab Notebooks</code>. Öffnen Sie es aus Drive heraus erneut — die Ausgaben sind noch da, die Variablen nicht.", "en": "Check the notebook in Drive: it sits under <code>Colab Notebooks</code>. Open it again from Drive — the outputs are still there, the variables are not." } }
+      ],
+      "rueckmeldung": {
+        "de": "Der Schritt mit dem Neustart ist der wichtigste dieses Labs. Die Fehlermeldung heißt NameError, weil der Kernel neu ist und df nicht kennt — obwohl zwei Zellen weiter oben eine gefüllte Tabelle steht. Das ist der Unterschied zwischen gespeicherter Ausgabe und lebendem Zustand.",
+        "en": "The restart step is the most important one in this lab. The error message reads NameError, because the kernel is new and does not know df — even though a filled table sits two cells above. That is the difference between stored output and live state."
+      }
+    },
+    {
+      "id": "W04-02",
+      "typ": "quiz",
+      "titel": { "de": "Zustand und Ausführungsreihenfolge", "en": "State and execution order" },
+      "aufgabe": {
+        "de": "<p>Drei Situationen aus der Korrektur abgegebener Notebooks. Was ist jeweils passiert?</p>",
+        "en": "<p>Three situations from marking submitted notebooks. What happened in each case?</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Ein Notebook zeigt in Zelle 4 eine Tabelle mit 1.500 Zeilen. Die Klammern lauten von oben nach unten: [1], [2], [9], [3]. Was folgt daraus?", "en": "A notebook shows a 1,500-row table in cell 4. The brackets read, from top to bottom: [1], [2], [9], [3]. What follows?" },
+          "optionen": [
+            { "de": "Die Zellen wurden nicht in Dokumentreihenfolge ausgeführt. Das Ergebnis in Zelle 4 kann von einem Zustand abhängen, der im Dokument nicht mehr erzeugt wird — die Auswertung ist so nicht reproduzierbar.", "en": "The cells were not executed in document order. The result in cell 4 may depend on a state the document no longer produces — the analysis is not reproducible this way." },
+            { "de": "Die Zahlen sind Zeilennummern und ohne Bedeutung.", "en": "The numbers are line numbers and have no meaning." },
+            { "de": "Das Notebook wurde neun Mal vollständig ausgeführt.", "en": "The notebook was fully executed nine times." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Die Klammern zählen Ausführungen im aktuellen Kernel. Springende Zahlen bedeuten: hier wurde hin und her gearbeitet. Das ist beim Entwickeln normal und bei der Abgabe ein Mangel. Der Nachweis ist immer derselbe: Sitzung neu starten, alles ausführen, prüfen.",
+            "en": "The brackets count executions in the current kernel. Jumping numbers mean: work went back and forth here. That is normal while developing and a defect on submission. The proof is always the same: restart the session, run everything, check."
+          }
+        },
+        {
+          "frage": { "de": "Eine Studierende schreibt in Zelle 3 df = df.drop(columns=[\"preis\"]) und führt die Zelle zweimal aus. Was passiert beim zweiten Mal?", "en": "A student writes df = df.drop(columns=[\"preis\"]) in cell 3 and runs the cell twice. What happens the second time?" },
+          "optionen": [
+            { "de": "Ein KeyError, weil die Spalte nach dem ersten Durchlauf nicht mehr existiert. Mit errors=\"ignore\" bliebe die Zelle wiederholbar.", "en": "A KeyError, because the column no longer exists after the first run. With errors=\"ignore\" the cell would stay repeatable." },
+            { "de": "Nichts, weil pandas den Befehl beim zweiten Mal überspringt.", "en": "Nothing, because pandas skips the command the second time." },
+            { "de": "Die Spalte wird ein zweites Mal entfernt und die Tabelle dadurch leer.", "en": "The column is removed a second time and the table becomes empty as a result." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Zellen, die den Zustand verändern, sind der häufigste Grund dafür, dass ein Notebook beim zweiten Durchlauf scheitert. Zwei Wege: entweder wiederholbar schreiben (errors=\"ignore\", eine neue Variable statt derselben) oder von einer frisch eingelesenen Tabelle ausgehen.",
+            "en": "Cells that change state are the most common reason a notebook fails on a second run. Two ways out: write them repeatably (errors=\"ignore\", a new variable instead of the same one) or start from a freshly read table."
+          }
+        },
+        {
+          "frage": { "de": "Was ist der Unterschied zwischen %pip install pandas und !pip install pandas?", "en": "What is the difference between %pip install pandas and !pip install pandas?" },
+          "optionen": [
+            { "de": "%pip installiert in genau den Kernel, der das Notebook ausführt; !pip startet eine Shell und kann in einer anderen Python-Umgebung landen.", "en": "%pip installs into exactly the kernel executing the notebook; !pip starts a shell and may end up in a different Python environment." },
+            { "de": "Kein Unterschied, beide Schreibweisen sind gleichwertig.", "en": "No difference, both notations are equivalent." },
+            { "de": "%pip installiert dauerhaft, !pip nur für die aktuelle Zelle.", "en": "%pip installs permanently, !pip only for the current cell." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "In Colab führen beide meist zum Ziel, weil dort nur eine Umgebung existiert. Auf dem eigenen Rechner mit virtueller Umgebung ist der Unterschied entscheidend — und dann erscheint ein ModuleNotFoundError für ein Paket, das gerade erfolgreich installiert wurde. Deshalb: durchgehend %pip. Lab 03 kommt darauf zurück.",
+            "en": "In Colab both usually work, because only one environment exists there. On your own machine with a virtual environment the difference is decisive — and then a ModuleNotFoundError appears for a package that was just installed successfully. Hence: %pip throughout. Lab 03 returns to this."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W04-03",
+      "typ": "zuordnen",
+      "titel": { "de": "Was überlebt was?", "en": "What survives what?" },
+      "aufgabe": {
+        "de": "<p>Ordnen Sie jedem Artefakt zu, bis wann es erhalten bleibt. Die Frage entscheidet, wohin ein Zwischenergebnis geschrieben wird.</p>",
+        "en": "<p>Assign to each artefact how long it is kept. The answer decides where an intermediate result is written.</p>"
+      },
+      "ziele": [
+        { "id": "kernel", "text": { "de": "Nur bis zum Neustart der Sitzung", "en": "Only until the session restarts" } },
+        { "id": "laufzeit", "text": { "de": "Bis die Laufzeit endet", "en": "Until the runtime ends" } },
+        { "id": "dauer", "text": { "de": "Dauerhaft (unabhängig von der Laufzeit)", "en": "Permanently (independent of the runtime)" } }
+      ],
+      "paare": [
+        { "begriff": { "de": "Der DataFrame df im Arbeitsspeicher", "en": "The DataFrame df in memory" }, "ziel": "kernel" },
+        { "begriff": { "de": "Eine mit files.upload() hochgeladene CSV unter /content/", "en": "A CSV uploaded with files.upload() under /content/" }, "ziel": "laufzeit" },
+        { "begriff": { "de": "Ein mit %pip install nachinstalliertes Paket", "en": "A package installed with %pip install" }, "ziel": "laufzeit" },
+        { "begriff": { "de": "Eine mit to_csv nach /content/drive/MyDrive/ geschriebene Datei", "en": "A file written with to_csv to /content/drive/MyDrive/" }, "ziel": "dauer" },
+        { "begriff": { "de": "Der Code und der erklärende Text des Notebooks", "en": "The notebook's code and explanatory text" }, "ziel": "dauer" },
+        { "begriff": { "de": "Ein im Secrets-Panel angelegter Zugriffsschlüssel", "en": "An access key created in the secrets panel" }, "ziel": "dauer" },
+        { "begriff": { "de": "Eine geöffnete Datenbankverbindung", "en": "An open database connection" }, "ziel": "kernel" }
+      ],
+      "rueckmeldung": {
+        "de": "Die Regel lässt sich in einem Satz zusammenfassen: Alles, was in der geliehenen Maschine liegt, gehört ihr — nicht Ihnen. Was überleben soll, geht nach Drive, in ein Repository oder in eine Datenbank. Das gilt in derselben Form für Container in Lab 07, dort heißen die Begriffe nur anders.",
+        "en": "The rule can be summed up in one sentence: everything inside the borrowed machine belongs to it — not to you. What should survive goes to Drive, to a repository or to a database. The same holds for containers in lab 07; only the terms differ there."
+      }
+    },
+    {
+      "id": "W04-04",
+      "typ": "quiz",
+      "titel": { "de": "Daten, Schlüssel und die Grenzen des Erlaubten", "en": "Data, keys and the limits of what is permitted" },
+      "aufgabe": {
+        "de": "<p>Vier Entscheidungen, die im Kurs regelmäßig anfallen. Zwei davon haben rechtliche Folgen.</p>",
+        "en": "<p>Four decisions that come up regularly in the course. Two of them have legal consequences.</p>"
+      },
+      "fragen": [
+        {
+          "frage": { "de": "Sie schreiben eine Abschlussarbeit mit einem Unternehmen und erhalten eine CSV-Datei mit 40.000 Kundendatensätzen inklusive Namen und Adressen. Welche Vorgehensweise ist tragfähig?", "en": "You are writing a thesis with a company and receive a CSV file with 40,000 customer records including names and addresses. Which approach holds up?" },
+          "optionen": [
+            { "de": "Die Verarbeitung vorab mit dem Unternehmen klären und auf einer lokalen Installation oder in einer hochschuleigenen Umgebung rechnen. Wo Personenbezug entbehrlich ist, vorher pseudonymisieren.", "en": "Clear the processing with the company beforehand and compute on a local installation or in a university environment. Where the personal reference is dispensable, pseudonymise first." },
+            { "de": "In Colab hochladen, aber das Notebook nicht teilen — dann sieht die Datei niemand.", "en": "Upload to Colab but do not share the notebook — then nobody sees the file." },
+            { "de": "In Colab hochladen und die Datei nach der Auswertung löschen.", "en": "Upload to Colab and delete the file after the analysis." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Der Upload selbst ist die Verarbeitung — sie ist mit dem Hochladen geschehen, unabhängig davon, wer das Notebook später sieht oder ob die Datei gelöscht wird. Colab-Laufzeiten und Drive liegen bei Google in den USA; die Übermittlung braucht eine Rechtsgrundlage, und die kann Ihnen nur das Unternehmen geben. Die praktikable Antwort ist meist: pseudonymisieren und lokal rechnen.",
+            "en": "The upload itself is the processing — it has happened with the upload, regardless of who sees the notebook later or whether the file is deleted. Colab runtimes and Drive sit with Google in the United States; the transfer needs a legal basis, and only the company can give you that. The practical answer is usually: pseudonymise and compute locally."
+          }
+        },
+        {
+          "frage": { "de": "Wohin gehört ein Supabase-Zugriffsschlüssel in einem Colab-Notebook?", "en": "Where does a Supabase access key belong in a Colab notebook?" },
+          "optionen": [
+            { "de": "In das Secrets-Panel, ausgelesen mit userdata.get(). Der Schlüssel steht dann nicht in der Datei.", "en": "In the secrets panel, read with userdata.get(). The key is then not in the file." },
+            { "de": "In eine Code-Zelle am Anfang, damit er leicht zu ändern ist.", "en": "In a code cell at the beginning, so it is easy to change." },
+            { "de": "In eine Textzelle, weil Textzellen nicht ausgeführt werden.", "en": "In a text cell, because text cells are not executed." }
+          ],
+          "richtig": [0],
+          "erklaerung": {
+            "de": "Eine Textzelle ist genauso Teil der Datei wie eine Code-Zelle — sie wird nur nicht ausgeführt. Beim Speichern nach GitHub wandert sie mit. Das Secrets-Panel ist der einzige Ort, der nicht mitwandert.",
+            "en": "A text cell is just as much part of the file as a code cell — it merely is not executed. When saving to GitHub it travels along. The secrets panel is the only place that does not."
+          }
+        },
+        {
+          "frage": { "de": "Eine Zelle bricht mit „Sitzung abgestürzt nach Verwendung des gesamten verfügbaren RAM“ ab. Welche Maßnahmen greifen zuerst? Mehrere Antworten sind richtig.", "en": "A cell aborts with “Session crashed after using all available RAM”. Which measures apply first? Several answers are correct." },
+          "mehrfach": true,
+          "optionen": [
+            { "de": "Nur die benötigten Spalten lesen: pd.read_csv(..., usecols=[...]).", "en": "Read only the columns needed: pd.read_csv(..., usecols=[...])." },
+            { "de": "Datentypen vorgeben, etwa dtype={\"rad_id\": \"category\"} statt Text.", "en": "Set data types, e.g. dtype={\"rad_id\": \"category\"} instead of text." },
+            { "de": "In Abschnitten lesen und je Abschnitt aggregieren: chunksize=100_000.", "en": "Read in chunks and aggregate per chunk: chunksize=100_000." },
+            { "de": "Eine Grafikkarte als Hardwarebeschleuniger anfordern.", "en": "Request a graphics card as hardware accelerator." }
+          ],
+          "richtig": [0, 1, 2],
+          "erklaerung": {
+            "de": "Eine Grafikkarte bringt mehr Rechenwerke, nicht mehr Arbeitsspeicher für pandas — und verbraucht ein knappes Kontingent. Die drei anderen Maßnahmen verkleinern den Bedarf und sind auch dann richtig, wenn genug Speicher da ist: Sie machen die Auswertung schneller und ihre Absichten deutlicher.",
+            "en": "A graphics card brings more compute units, not more memory for pandas — and consumes a scarce allowance. The other three measures reduce the need and are right even when there is enough memory: they make the analysis faster and its intentions clearer."
+          }
+        }
+      ]
+    },
+    {
+      "id": "W04-05",
+      "typ": "checkliste",
+      "titel": { "de": "Ein Notebook abgabefertig machen", "en": "Make a notebook ready for submission" },
+      "aufgabe": {
+        "de": "<p>Diese Liste ist keine Übung für heute, sondern ein Verfahren für jede Abgabe in diesem Studiengang. Arbeiten Sie sie an dem Notebook aus Übung W04-01 einmal durch, damit die Reihenfolge sitzt.</p>",
+        "en": "<p>This list is not an exercise for today but a procedure for every submission in this programme. Work through it once on the notebook from exercise W04-01 so that the order sticks.</p>"
+      },
+      "schritte": [
+        { "text": { "de": "Alle <code>import</code>- und <code>%pip install</code>-Zeilen in die erste Zelle verschoben, Versionen festgenagelt.", "en": "All <code>import</code> and <code>%pip install</code> lines moved into the first cell, versions pinned." } },
+        { "text": { "de": "Datenquelle so eingebunden, dass sie ohne Zutun erreichbar ist — URL statt Upload, oder ein Pfad in Drive, der im Text genannt ist.", "en": "Data source wired in so that it is reachable without intervention — URL instead of upload, or a Drive path named in the text." } },
+        { "text": { "de": "Kein Zugangsdatum, kein Schlüssel, kein Passwort im Dokument. Auch nicht in einer Textzelle und auch nicht auskommentiert.", "en": "No credential, no key, no password in the document. Not in a text cell either, and not commented out." } },
+        { "text": { "de": "Jede Code-Zelle hat darüber eine Textzelle mit einem Satz: was sie tut und warum. Nicht wie sie es tut — das steht im Code.", "en": "Every code cell has a text cell above it with one sentence: what it does and why. Not how it does it — that is in the code." } },
+        { "text": { "de": "<code>Laufzeit → Sitzung neu starten</code>, dann <code>Alle ausführen</code>. Läuft fehlerfrei von oben nach unten durch.", "en": "<code>Runtime → Restart session</code>, then <code>Run all</code>. Runs through from top to bottom without error." } },
+        { "text": { "de": "Die Klammern links stehen danach in aufsteigender Reihenfolge: [1], [2], [3], … Keine Lücken, keine Sprünge.", "en": "The brackets on the left are then in ascending order: [1], [2], [3], … No gaps, no jumps." } },
+        { "text": { "de": "Die Zahlen im Text stimmen mit den Ausgaben überein. Wer eine Zahl im Fließtext nennt, hat sie nach dem letzten Durchlauf nachgesehen.", "en": "The figures in the text match the outputs. Whoever names a figure in prose has checked it after the last run." } },
+        { "text": { "de": "Ausgaben geprüft: Steht in einer Tabelle etwas, das nicht in eine Abgabe gehört? Dann Zelle ohne Ausgabe speichern oder die Tabelle einschränken.", "en": "Outputs checked: is there anything in a table that does not belong in a submission? Then save the cell without output or restrict the table." } }
+      ],
+      "rueckmeldung": {
+        "de": "Die entscheidenden Punkte sind der fünfte und der sechste. Sie kosten eine Minute und trennen ein Ergebnis von einem Arbeitsstand. In der Vorlesung heißt dasselbe Kriterium Generalisierbarkeit und Reproduzierbarkeit — hier ist es ein Knopf im Menü.",
+        "en": "The decisive points are the fifth and the sixth. They cost a minute and separate a result from a working state. In the lecture the same criterion is called generalisability and reproducibility — here it is a button in the menu."
+      }
+    }
+  ]
+}
