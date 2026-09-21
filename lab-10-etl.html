@@ -91,11 +91,11 @@
       <span lang="de">Und es hat eine zweite Seite. Wenn im Bericht eine Zahl nicht stimmt – 3.200 Fahrten statt 1.500 –
         wo suchen Sie? Im Export? Beim Aufklappen? Beim Verbinden? In der Formel im Dashboard? Eine Verarbeitung, die
         in einem Notebook von oben nach unten läuft, gibt darauf keine Antwort. Eine Pipeline mit benannten Schichten
-        schon: Man prüft die Zeilenzahl an jedem Glied und findet das eine, an dem sie sich verdoppelt.</span>
+        schon: Man prüft die Zeilenzahl an jeder Stufe und findet die eine, an der sie sich verdoppelt.</span>
       <span lang="en">And it has a second side. When a figure in the report is wrong – 3,200 rides instead of 1,500 –
         where do you look? In the export? In the flattening? In the join? In the formula in the dashboard? A process
         that runs top to bottom in a notebook gives no answer. A pipeline with named layers does: you check the row
-        count at every link and find the one where it doubles.</span>
+        count at every stage and find the one where it doubles.</span>
     </p>
     <div class="kette">
       <div class="glied hell"><span class="titel"><span lang="de">Quelle</span><span lang="en">Source</span></span><span class="was">JSON · CSV · API</span></div>
@@ -121,11 +121,11 @@
         tests). Everything else in this lab is technique for establishing those three properties.</span></p>
     </div>
     <p>
-      <span lang="de">Die Kette oben ist der rote Faden. Die Quelle ist der Export aus Lab 05. Staging auf dem Laptop
+      <span lang="de">Die Stufenfolge oben ist der rote Faden. Die Quelle ist der Export aus Lab 05. Staging auf dem Laptop
         ist die SQLite-Datei aus Lab 06, Staging und Mart im Netz sind Schemata in der Supabase-Datenbank aus Lab 08.
         Nachsehen können Sie in beiden mit DataGrip (Lab 09). Den Dienst, der die Pipeline nachts ausführt, betreibt
         Lab 11. Und die BI-Werkzeuge in Lab 12 und 13 lesen das Sternschema – deshalb ist es das Ziel.</span>
-      <span lang="en">The chain above is the thread. The source is the export from lab 05. Staging on the laptop is the
+      <span lang="en">The sequence of stages above is the thread. The source is the export from lab 05. Staging on the laptop is the
         SQLite file from lab 06, staging and mart online are schemas in the Supabase database from lab 08. You can
         inspect both with DataGrip (lab 09). The service that runs the pipeline at night is operated in lab 11. And the
         BI tools in labs 12 and 13 read the star schema – which is why it is the target.</span>
@@ -268,7 +268,7 @@
   <section class="section-block" id="anatomie">
     <h2><span lang="de">Anatomie einer Pipeline</span><span lang="en">Anatomy of a pipeline</span></h2>
     <p>
-      <span lang="de">Die Kette aus dem ersten Abschnitt hat Schichten, und jede Schicht hat eine Regel. Die
+      <span lang="de">Die Stufenfolge aus dem ersten Abschnitt hat Schichten, und jede Schicht hat eine Regel. Die
         <strong>Quellen</strong> sind das, was Sie nicht kontrollieren: eine operative Datenbank in dritter Normalform,
         eine REST-API mit verschachteltem JSON und Seitenblättern, Dateien (CSV, Excel, JSON). Die
         <strong>Staging-Schicht</strong> ist die erste, die Ihnen gehört – und ihre Regel lautet: unverändert. Jede Zeile
@@ -276,7 +276,7 @@
         beschreibt diese Schicht als eine, die „the raw state of the data source in its original formats“ bewahrt. Wer
         sie hat, kann eine falsche Umformung korrigieren und wiederholen, ohne die Quelle erneut zu befragen – die
         vielleicht gar nicht mehr liefert, was sie gestern lieferte.</span>
-      <span lang="en">The chain from the first section has layers, and every layer has a rule. The <strong>sources</strong>
+      <span lang="en">The sequence from the first section has layers, and every layer has a rule. The <strong>sources</strong>
         are what you do not control: an operational database in third normal form, a REST API with nested JSON and
         pagination, files (CSV, Excel, JSON). The <strong>staging layer</strong> is the first one that belongs to you –
         and its rule is: unchanged. Every row as delivered, plus two columns, <code>loaded_at</code> (when) and

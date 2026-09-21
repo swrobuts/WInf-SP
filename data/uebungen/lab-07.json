@@ -38,8 +38,8 @@
         {
           "was": "docker run --rm hello-world",
           "bedeutet": {
-            "de": "Der eigentliche Test: Er zieht ein Abbild aus dem Netz, startet einen Container, gibt Text aus und räumt sich weg. Erscheint „Hello from Docker!“, funktioniert die ganze Kette.",
-            "en": "The actual test: it pulls an image from the network, starts a container, prints text and cleans itself up. If “Hello from Docker!” appears, the whole chain works."
+            "de": "Der eigentliche Test: Er zieht ein Abbild aus dem Netz, startet einen Container, gibt Text aus und räumt sich weg. Erscheint „Hello from Docker!“, funktioniert der ganze Ablauf.",
+            "en": "The actual test: it pulls an image from the network, starts a container, prints text and cleans itself up. If “Hello from Docker!” appears, the whole sequence works."
           }
         },
         {

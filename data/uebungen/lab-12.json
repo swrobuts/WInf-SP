@@ -266,8 +266,8 @@
       "typ": "zuordnen",
       "titel": { "de": "Wo erledigt man was?", "en": "Where is what done?" },
       "aufgabe": {
-        "de": "<p>Power BI hat vier Arbeitsorte und einen Dienst dahinter. Ordnen Sie jede Aufgabe dem Ort zu, an dem sie hingehört. Die Regel: so früh wie möglich in der Kette – aber nicht früher.</p>",
-        "en": "<p>Power BI has four workplaces and a service behind them. Assign each task to the place it belongs. The rule: as early in the chain as possible – but not earlier.</p>"
+        "de": "<p>Power BI hat vier Arbeitsorte und einen Dienst dahinter. Ordnen Sie jede Aufgabe dem Ort zu, an dem sie hingehört. Die Regel: so früh wie möglich im Ablauf – aber nicht früher.</p>",
+        "en": "<p>Power BI has four workplaces and a service behind them. Assign each task to the place it belongs. The rule: as early in the process as possible – but not earlier.</p>"
       },
       "ziele": [
         { "id": "pq", "text": { "de": "Power Query Editor", "en": "Power Query Editor" } },
@@ -286,8 +286,8 @@
         { "begriff": { "de": "Scheduled refresh auf 6 Uhr stellen", "en": "Set scheduled refresh to 6 a.m." }, "ziel": "service" }
       ],
       "rueckmeldung": {
-        "de": "Die Reihenfolge ist die Kette des Labs: Power Query bereinigt Rohdaten (Typen, Zusammenfügen), die Model view beschreibt Struktur (Beziehungen, Datumstabelle), DAX definiert Kennzahlen, der Report zeigt sie, der Service betreibt das Ganze. Eine Kennzahl in Power Query zu berechnen ginge auch – aber dann wäre sie eine gespeicherte Spalte ohne Filter Context, und der Bericht könnte sie nicht nach Bezirk oder Monat neu berechnen.",
-        "en": "The order is the lab's chain: Power Query cleans raw data (types, appending), Model view describes structure (relationships, date table), DAX defines metrics, the report shows them, the service operates the whole thing. Computing a metric in Power Query would work too – but then it would be a stored column without filter context, and the report could not recompute it per district or month."
+        "de": "Die Reihenfolge ist der Ablauf des Labs: Power Query bereinigt Rohdaten (Typen, Zusammenfügen), die Model view beschreibt Struktur (Beziehungen, Datumstabelle), DAX definiert Kennzahlen, der Report zeigt sie, der Service betreibt das Ganze. Eine Kennzahl in Power Query zu berechnen ginge auch – aber dann wäre sie eine gespeicherte Spalte ohne Filter Context, und der Bericht könnte sie nicht nach Bezirk oder Monat neu berechnen.",
+        "en": "The order is the lab's sequence: Power Query cleans raw data (types, appending), Model view describes structure (relationships, date table), DAX defines metrics, the report shows them, the service operates the whole thing. Computing a metric in Power Query would work too – but then it would be a stored column without filter context, and the report could not recompute it per district or month."
       }
     },
     {
