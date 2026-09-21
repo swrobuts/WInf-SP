@@ -2,7 +2,7 @@
   "befehle": {
     "B01": {
       "titel": {
-        "de": "Datenquelle anlegen",
+        "de": "Data Source anlegen",
         "en": "Create a data source"
       },
       "prompt": "☰",
@@ -56,14 +56,14 @@
         {
           "was": "Database analytics",
           "bedeutet": {
-            "de": "Der Name, den POSTGRES_DB beim ersten Start gesetzt hat. Ohne diese Umgebungsvariable heißt die Datenbank postgres.",
+            "de": "Der Name, den POSTGRES_DB beim ersten Start gesetzt hat. Ohne diese Environment Variable heißt die Datenbank postgres.",
             "en": "The name POSTGRES_DB set on first start. Without that environment variable the database is called postgres."
           }
         },
         {
           "was": "Beide anlegen",
           "bedeutet": {
-            "de": "Zwei Datenquellen nebeneinander — lokaler Container und gehostetes Supabase — zeigen unmittelbar, dass es sich um dasselbe PostgreSQL handelt: dieselbe Vervollständigung, dieselben Diagramme, dieselben Fehlermeldungen.",
+            "de": "Zwei Data Sources nebeneinander — lokaler Container und gehostetes Supabase — zeigen unmittelbar, dass es sich um dasselbe PostgreSQL handelt: dieselbe Code Completion, dieselben Diagramme, dieselben Fehlermeldungen.",
             "en": "Two data sources side by side — local container and hosted Supabase — show immediately that this is the same PostgreSQL: same completion, same diagrams, same error messages."
           }
         }
@@ -75,7 +75,7 @@
         "en": "Set the visible schemas"
       },
       "prompt": "☰",
-      "befehl": "Klick auf den Verweis  N of M  neben dem Namen der Datenquelle\n   oder:  Rechtsklick auf die Datenquelle → Tools → Manage Shown Schemas…\n   oder:  Show-Options-Menü → All Namespaces\n\nBei Supabase genügt in der Regel:  public",
+      "befehl": "Klick auf den Verweis  N of M  neben dem Namen der Data Source\n   oder:  Rechtsklick auf die Data Source → Tools → Manage Shown Schemas…\n   oder:  Show-Options-Menü → All Namespaces\n\nBei Supabase genügt in der Regel:  public",
       "teile": [
         {
           "was": "N of M",
@@ -87,14 +87,14 @@
         {
           "was": "Introspektion",
           "bedeutet": {
-            "de": "Das Einlesen des Schemas. Nur eingelesene Objekte kennt die Vervollständigung. Nach dem Anlegen einer Tabelle außerhalb von DataGrip hilft Rechtsklick → Refresh.",
+            "de": "Das Einlesen des Schemas. Nur eingelesene Objekte kennt die Code Completion. Nach dem Anlegen einer Tabelle außerhalb von DataGrip hilft Rechtsklick → Refresh.",
             "en": "The reading of the schema. The completion only knows objects that have been read. After creating a table outside DataGrip, right-click → Refresh helps."
           }
         },
         {
           "was": "All Namespaces",
           "bedeutet": {
-            "de": "Schaltet alles sichtbar. Bequem zur Fehlersuche, unübersichtlich im Alltag: Bei Supabase erscheinen dann auch die internen Schemata für Authentifizierung und Dateiablage in der Vervollständigung.",
+            "de": "Schaltet alles sichtbar. Bequem zur Fehlersuche, unübersichtlich im Alltag: Bei Supabase erscheinen dann auch die internen Schemata für Authentifizierung und Dateiablage in der Code Completion.",
             "en": "Sets everything visible. Convenient for troubleshooting, cluttered in daily use: with Supabase the internal schemas for authentication and file storage then also appear in the completion."
           }
         }
@@ -106,7 +106,7 @@
         "en": "Open a console and execute"
       },
       "prompt": "⌨",
-      "befehl": "F4                Standardkonsole der markierten Datenquelle\nStrg+Shift+Q      neue Konsole\n\nStrg+Enter        Anweisung unter dem Cursor ausführen\n   ⌘Enter auf macOS.  Bei mehreren Anweisungen erscheint eine Auswahlliste —\n   lesen, nicht wegklicken. Markierter Text läuft ohne Rückfrage.\n\nStrg+Alt+E        Abfragehistorie\nStrg+Leertaste    Vervollständigung erzwingen\nAlt+Enter         Kontextaktionen und Korrekturvorschläge",
+      "befehl": "F4                Standardkonsole der markierten Data Source\nStrg+Shift+Q      neue Konsole\n\nStrg+Enter        Anweisung unter dem Cursor ausführen\n   ⌘Enter auf macOS.  Bei mehreren Anweisungen erscheint eine Auswahlliste —\n   lesen, nicht wegklicken. Markierter Text läuft ohne Rückfrage.\n\nStrg+Alt+E        Abfragehistorie\nStrg+Leertaste    Code Completion erzwingen\nAlt+Enter         Kontextaktionen und Korrekturvorschläge",
       "teile": [
         {
           "was": "run all statements",
@@ -132,7 +132,7 @@
         {
           "was": "Playground vs. Script",
           "bedeutet": {
-            "de": "Eine Abfragekonsole ist ein Playground: alle Objekte im selben Zusammenhang. Eine lokale .sql-Datei ist ein Skript: ein USE oder SET search_path darin überschreibt den Zusammenhang.",
+            "de": "Eine Query Console ist ein Playground: alle Objekte im selben Zusammenhang. Eine lokale .sql-Datei ist ein Skript: ein USE oder SET search_path darin überschreibt den Zusammenhang.",
             "en": "A query console is a playground: all objects in the same context. A local .sql file is a script: a USE or SET search_path inside it overrides the context."
           }
         }
@@ -140,11 +140,11 @@
     },
     "B05": {
       "titel": {
-        "de": "Der Tx-Schalter und das Datenraster",
+        "de": "Der Tx-Schalter und der Data Editor",
         "en": "The Tx switch and the data grid"
       },
       "prompt": "☰",
-      "befehl": "Tx:  ▾     in der Werkzeugleiste der Konsole und des Datenrasters\n\n  Tx:Auto     jede abgeschickte Änderung ist sofort dauerhaft\n              Submit and Commit / Roll Back sind ausgegraut\n  Tx:Manual   Änderungen sammeln sich bis Submit and Commit\n              oder Roll Back\n\nVoreinstellung je Datenquelle:  Dialog → Reiter Options → Auto-commit\nSchreibschutz:                  Dialog → Reiter Options → Read-only\n\nIm Raster:\n  Preview Pending Changes    zeigt das erzeugte SQL, VOR dem Abschicken\n  Strg+Enter                 Submit\n  Strg+Alt+Z                 Änderungen verwerfen",
+      "befehl": "Tx:  ▾     in der Werkzeugleiste der Konsole und des Data Editors\n\n  Tx:Auto     jede abgeschickte Änderung ist sofort dauerhaft\n              Submit and Commit / Roll Back sind ausgegraut\n  Tx:Manual   Änderungen sammeln sich bis Submit and Commit\n              oder Roll Back\n\nVoreinstellung je Data Source:  Dialog → Reiter Options → Auto-commit\nSchreibschutz:                  Dialog → Reiter Options → Read-only\n\nIm Raster:\n  Preview Pending Changes    zeigt das erzeugte SQL, VOR dem Abschicken\n  Strg+Enter                 Submit\n  Strg+Alt+Z                 Änderungen verwerfen",
       "teile": [
         {
           "was": "Preview Pending Changes",
@@ -156,7 +156,7 @@
         {
           "was": "Read-only",
           "bedeutet": {
-            "de": "Ein Haken je Datenquelle. Für eine Produktionsdatenbank keine Vorsicht, sondern Pflicht: Er verhindert die ganze Klasse von Unfällen, die aus einem Klick im Raster entstehen.",
+            "de": "Ein Haken je Data Source. Für eine Produktionsdatenbank keine Vorsicht, sondern Pflicht: Er verhindert die ganze Klasse von Unfällen, die aus einem Klick im Raster entstehen.",
             "en": "One checkbox per data source. For a production database not caution but duty: it prevents the whole class of accidents that arise from a click in the grid."
           }
         },
@@ -309,7 +309,7 @@
     },
     "B10": {
       "titel": {
-        "de": "Datenquelle für eine SQLite-Datei",
+        "de": "Data Source für eine SQLite-Datei",
         "en": "Data source for an SQLite file"
       },
       "prompt": "🖱",
@@ -339,7 +339,7 @@
         {
           "was": "Kein Schemaregister",
           "bedeutet": {
-            "de": "Eine SQLite-Datei hat genau ein Schema (main). Der Schritt „sichtbare Schemata“ entfällt; Tabellen und Sichten stehen direkt unter der Datenquelle.",
+            "de": "Eine SQLite-Datei hat genau ein Schema (main). Der Schritt „sichtbare Schemata“ entfällt; Tabellen und Sichten stehen direkt unter der Data Source.",
             "en": "An SQLite file has exactly one schema (main). The “visible schemas” step does not apply; tables and views sit directly under the data source."
           }
         }
@@ -367,13 +367,13 @@
         },
         {
           "text": {
-            "de": "Datenquelle angelegt. Bei Supabase: Session Pooler, <strong>Port 5432</strong> (nicht 6543), Benutzername <code>postgres.[REF]</code>.",
+            "de": "Data Source angelegt. Bei Supabase: Session Pooler, <strong>Port 5432</strong> (nicht 6543), Benutzername <code>postgres.[REF]</code>.",
             "en": "Data source created. With Supabase: session pooler, <strong>port 5432</strong> (not 6543), user name <code>postgres.[REF]</code>."
           }
         },
         {
           "text": {
-            "de": "Eine zweite Datenquelle vom Typ <strong>SQLite</strong> auf die <code>velocity.db</code> aus Lab 06 angelegt, <code>Download missing driver files</code> geklickt und geprüft, dass die Tabellen <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code> und die Sicht <code>fahrt_mit_typ</code> im Baum erscheinen.",
+            "de": "Eine zweite Data Source vom Typ <strong>SQLite</strong> auf die <code>velocity.db</code> aus Lab 06 angelegt, <code>Download missing driver files</code> geklickt und geprüft, dass die Tabellen <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code> und die Sicht <code>fahrt_mit_typ</code> im Baum erscheinen.",
             "en": "Created a second data source of type <strong>SQLite</strong> pointing at the <code>velocity.db</code> from lab 06, clicked <code>Download missing driver files</code> and checked that the tables <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code> and the view <code>fahrt_mit_typ</code> appear in the tree."
           }
         },
@@ -397,19 +397,19 @@
         },
         {
           "text": {
-            "de": "Im Reiter <code>Options</code> der Datenquelle <code>Tx:Manual</code> als Voreinstellung gesetzt.",
+            "de": "Im Reiter <code>Options</code> der Data Source <code>Tx:Manual</code> als Voreinstellung gesetzt.",
             "en": "Set <code>Tx:Manual</code> as the default in the data source's <code>Options</code> tab."
           }
         },
         {
           "text": {
-            "de": "Eine zweite Datenquelle auf dieselbe Datenbank angelegt und dort <code>Read-only</code> gesetzt — so haben Sie einen Zugang zum Nachsehen und einen zum Ändern.",
+            "de": "Eine zweite Data Source auf dieselbe Datenbank angelegt und dort <code>Read-only</code> gesetzt — so haben Sie einen Zugang zum Nachsehen und einen zum Ändern.",
             "en": "Created a second data source on the same database and set <code>Read-only</code> there — so you have one access for looking and one for changing."
           }
         },
         {
           "text": {
-            "de": "Konsole mit <code>F4</code> geöffnet und eine Abfrage ausgeführt. Vervollständigung getestet: Tabellenname anfangen, <code>Strg+Leertaste</code>.",
+            "de": "Konsole mit <code>F4</code> geöffnet und eine Abfrage ausgeführt. Code Completion getestet: Tabellenname anfangen, <code>Strg+Leertaste</code>.",
             "en": "Opened a console with <code>F4</code> and ran a query. Tested completion: start a table name, <code>Strg+Space</code>."
           }
         },
@@ -421,7 +421,7 @@
         }
       ],
       "rueckmeldung": {
-        "de": "Der siebte Schritt ist ein Kniff, der sich lohnt: Zwei Datenquellen auf dieselbe Datenbank, eine davon auf Read-only. Zum Nachsehen nimmt man die geschützte, zum Ändern die andere — und dann ist ein versehentlicher Klick im Datenraster keine Gefahr mehr, sondern eine Fehlermeldung.",
+        "de": "Der siebte Schritt ist ein Kniff, der sich lohnt: Zwei Data Sources auf dieselbe Datenbank, eine davon auf Read-only. Zum Nachsehen nimmt man die geschützte, zum Ändern die andere — und dann ist ein versehentlicher Klick im Data Editor keine Gefahr mehr, sondern eine Fehlermeldung.",
         "en": "The seventh step is a trick worth having: two data sources on the same database, one of them read-only. For looking you take the protected one, for changing the other — and then an accidental click in the data grid is no longer a danger but an error message."
       }
     },
@@ -562,7 +562,7 @@
         }
       ],
       "rueckmeldung": {
-        "de": "Drei dieser sieben Handgriffe betreffen Sicherheit: der Tx-Schalter, die Vorschau und der Schreibschutz. Sie sind alle unauffällig, kosten alle Sekunden und verhindern jeweils eine ganze Klasse von Zwischenfällen. Das erste Zeichen einer Person, die routiniert mit Datenbanken umgeht, ist nicht schnelles SQL — es ist eine auf Read-only gestellte Datenquelle.",
+        "de": "Drei dieser sieben Handgriffe betreffen Sicherheit: der Tx-Schalter, die Vorschau und der Schreibschutz. Sie sind alle unauffällig, kosten alle Sekunden und verhindern jeweils eine ganze Klasse von Zwischenfällen. Das erste Zeichen einer Person, die routiniert mit Datenbanken umgeht, ist nicht schnelles SQL — es ist eine auf Read-only gestellte Data Source.",
         "en": "Three of these seven actions concern safety: the Tx switch, the preview and the write protection. They are all inconspicuous, all cost seconds and each prevents a whole class of incidents. The first sign of somebody who handles databases routinely is not fast SQL — it is a data source set to read-only."
       }
     },
@@ -570,11 +570,11 @@
       "id": "W09-04",
       "typ": "quiz",
       "titel": {
-        "de": "Transaktionsmodus und Datenraster",
+        "de": "Transaktionsmodus und Data Editor",
         "en": "Transaction mode and data grid"
       },
       "aufgabe": {
-        "de": "<p>Vier Situationen im Datenraster. Die dritte ist der Fall, der im Kurs schon Tabellen gekostet hat.</p>",
+        "de": "<p>Vier Situationen im Data Editor. Die dritte ist der Fall, der im Kurs schon Tabellen gekostet hat.</p>",
         "en": "<p>Four situations in the data grid. The third is the case that has already cost tables in this course.</p>"
       },
       "fragen": [
@@ -585,7 +585,7 @@
           },
           "optionen": [
             {
-              "de": "Das Festschreiben: <code>Submit and Commit</code>. Bis dahin ist die Änderung nur in Ihrer Transaktion sichtbar — und verfällt, wenn die Verbindung abbricht.",
+              "de": "Das Committen: <code>Submit and Commit</code>. Bis dahin ist die Änderung nur in Ihrer Transaktion sichtbar — und verfällt, wenn die Verbindung abbricht.",
               "en": "The commit: <code>Submit and Commit</code>. Until then the change is visible only inside your transaction — and is lost if the connection drops."
             },
             {
@@ -601,7 +601,7 @@
             0
           ],
           "erklaerung": {
-            "de": "Genau das ist der Unterschied zwischen Abschicken und Festschreiben. In Tx:Manual sammeln sich Änderungen in einer offenen Transaktion — sichtbar nur für Sie. Ein Refresh bei der Kollegin würde nichts ändern, weil ihre Sitzung die offene Transaktion nicht sehen kann. Und ein Verbindungsabbruch würde die Änderung verwerfen: unbequem, aber der Sinn der Sache.",
+            "de": "Genau das ist der Unterschied zwischen Submit und Commit. In Tx:Manual sammeln sich Änderungen in einer offenen Transaktion — sichtbar nur für Sie. Ein Refresh bei der Kollegin würde nichts ändern, weil ihre Sitzung die offene Transaktion nicht sehen kann. Und ein Verbindungsabbruch würde die Änderung verwerfen: unbequem, aber der Sinn der Sache.",
             "en": "That is exactly the difference between submitting and committing. In Tx:Manual changes accumulate in an open transaction — visible only to you. A refresh on her side would change nothing, because her session cannot see the open transaction. And a connection drop would discard the change: inconvenient, but the point of the thing."
           }
         },
@@ -612,7 +612,7 @@
           },
           "optionen": [
             {
-              "de": "Weil jede abgeschickte Änderung schon festgeschrieben ist. Es gibt nichts mehr zurückzunehmen — und genau das macht diesen Modus für Produktionsdatenbanken ungeeignet.",
+              "de": "Weil jede abgeschickte Änderung schon committet ist. Es gibt nichts mehr zurückzunehmen — und genau das macht diesen Modus für Produktionsdatenbanken ungeeignet.",
               "en": "Because every submitted change is already committed. There is nothing left to take back — and that is exactly what makes this mode unsuitable for production databases."
             },
             {
@@ -628,7 +628,7 @@
             0
           ],
           "erklaerung": {
-            "de": "Der Modus heißt Auto-Commit: Jede Anweisung wird sofort festgeschrieben. Die ausgegrauten Knöpfe sind also nicht ein fehlendes Merkmal, sondern eine Aussage über den Zustand — es gibt keine offene Transaktion. Für eine Übungsdatenbank bequem, für alles andere die falsche Voreinstellung.",
+            "de": "Der Modus heißt Auto-Commit: Jede Anweisung wird sofort committet. Die ausgegrauten Knöpfe sind also nicht ein fehlendes Merkmal, sondern eine Aussage über den Zustand — es gibt keine offene Transaktion. Für eine Übungsdatenbank bequem, für alles andere die falsche Voreinstellung.",
             "en": "The mode is called auto-commit: every statement is committed immediately. The greyed-out buttons are therefore not a missing feature but a statement about the state — there is no open transaction. Convenient for an exercise database, the wrong default for everything else."
           }
         },
@@ -643,7 +643,7 @@
               "en": "First write it as a <code>SELECT</code> with the same <code>WHERE</code>, note the row count, then rewrite it as an <code>UPDATE</code> and run it in <code>Tx:Manual</code> — with <code>Roll Back</code> as the way back."
             },
             {
-              "de": "Die Zellen im Datenraster einzeln ändern, das ist übersichtlicher.",
+              "de": "Die Zellen im Data Editor einzeln ändern, das ist übersichtlicher.",
               "en": "Change the cells individually in the data grid, that is clearer."
             },
             {
@@ -702,7 +702,7 @@
       "fragen": [
         {
           "frage": {
-            "de": "Sie haben in Supabase eine Tabelle angelegt. In DataGrip erscheint sie nicht im Baum, und die Vervollständigung kennt sie nicht. Woran liegt es am wahrscheinlichsten?",
+            "de": "Sie haben in Supabase eine Tabelle angelegt. In DataGrip erscheint sie nicht im Baum, und die Code Completion kennt sie nicht. Woran liegt es am wahrscheinlichsten?",
             "en": "You created a table in Supabase. In DataGrip it does not appear in the tree, and the completion does not know it. What is the most likely cause?"
           },
           "optionen": [
@@ -723,7 +723,7 @@
             0
           ],
           "erklaerung": {
-            "de": "Row Level Security wirkt auf die erzeugte Schnittstelle und auf Rollen, nicht auf die Anzeige eines Datenbank-Clients, der als Datenbankbenutzer verbunden ist. Und ein veralteter Treiber würde die Verbindung verweigern, nicht einzelne Tabellen ausblenden. Was Sie im Baum sehen, entscheidet allein die Sichtbarkeitseinstellung — und die ist eine Anzeigeeinstellung, kein Recht.",
+            "de": "Row Level Security wirkt auf die erzeugte API und auf Rollen, nicht auf die Anzeige eines Datenbank-Clients, der als Datenbankbenutzer verbunden ist. Und ein veralteter Treiber würde die Verbindung verweigern, nicht einzelne Tabellen ausblenden. Was Sie im Baum sehen, entscheidet allein die Sichtbarkeitseinstellung — und die ist eine Anzeigeeinstellung, kein Recht.",
             "en": "Row level security acts on the generated interface and on roles, not on the display of a database client connected as a database user. And an out-of-date driver would refuse the connection, not hide individual tables. What you see in the tree is decided solely by the visibility setting — and that is a display setting, not a permission."
           }
         },
@@ -762,7 +762,7 @@
           "mehrfach": true,
           "optionen": [
             {
-              "de": "Datenquelle auf <code>Read-only</code>, solange nur gelesen wird.",
+              "de": "Data Source auf <code>Read-only</code>, solange nur gelesen wird.",
               "en": "Set the data source to <code>Read-only</code> as long as you are only reading."
             },
             {

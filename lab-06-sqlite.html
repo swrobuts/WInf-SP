@@ -419,8 +419,8 @@ sqlite> .quit</div>
 
     <h3><span lang="de">Weg 3: pandas</span><span lang="en">Route 3: pandas</span></h3>
     <p>
-      <span lang="de">Für die Auswertung ist der Datenrahmen das Ziel, nicht die Tabelle. <code>read_sql</code> holt ein
-        Abfrageergebnis in pandas, <code>to_sql</code> legt einen Datenrahmen als Tabelle ab – der Weg, den Lab 10
+      <span lang="de">Für die Auswertung ist der DataFrame das Ziel, nicht die Tabelle. <code>read_sql</code> holt ein
+        Abfrageergebnis in pandas, <code>to_sql</code> legt einen DataFrame als Tabelle ab – der Weg, den Lab 10
         für das Staging nimmt und Lab 04 für die Auswertung.</span>
       <span lang="en">For analysis the data frame is the target, not the table. <code>read_sql</code> fetches a query
         result into pandas, <code>to_sql</code> stores a data frame as a table – the route lab 10 takes for staging and
@@ -480,15 +480,13 @@ Result: 3 rows returned in 4ms</div>
   <section class="section-block" id="typen">
     <h2><span lang="de">Das Typsystem</span><span lang="en">The type system</span></h2>
     <p>
-      <span lang="de">Hier liegt der eigentliche Unterschied zu allem, was DABA über Datentypen gesagt hat. SQLite
-        kennt <strong>fünf Speicherklassen</strong> – <code>NULL</code>, <code>INTEGER</code>, <code>REAL</code>,
-        <code>TEXT</code>, <code>BLOB</code> –, und sie beschreiben den <em>Wert</em>, nicht die Spalte. Eine Spalte
+      <span lang="de">SQLite kennt <strong>fünf Speicherklassen</strong> – <code>NULL</code>, <code>INTEGER</code>, <code>REAL</code>,
+        <code>TEXT</code>, <code>BLOB</code> –, und sie beschreiben den <em>Wert</em>, nicht die Spalte; das ist der Bruch mit allem, was DABA über Datentypen gesagt hat. Eine Spalte
         hat nur eine <strong>Affinity</strong>, einen Wunsch: Passt der Wert verlustfrei hinein, wird er gewandelt;
         sonst wird er gespeichert, wie er kam. <code>'abc'</code> in einer <code>INTEGER</code>-Spalte ist kein Fehler,
         sondern ein Text in einer Integer-Spalte. Die Dokumentation nennt das ausdrücklich ein Feature.</span>
-      <span lang="en">Here lies the real difference from everything DABA said about data types. SQLite has
-        <strong>five storage classes</strong> – <code>NULL</code>, <code>INTEGER</code>, <code>REAL</code>,
-        <code>TEXT</code>, <code>BLOB</code> – and they describe the <em>value</em>, not the column. A column has only
+      <span lang="en">SQLite has <strong>five storage classes</strong> – <code>NULL</code>, <code>INTEGER</code>, <code>REAL</code>,
+        <code>TEXT</code>, <code>BLOB</code> – and they describe the <em>value</em>, not the column; that is the break with everything DABA said about data types. A column has only
         an <strong>affinity</strong>, a preference: if the value fits losslessly it is converted; otherwise it is stored
         as it came. <code>'abc'</code> in an <code>INTEGER</code> column is not an error but a text in an integer
         column. The documentation expressly calls that a feature.</span>
@@ -630,12 +628,12 @@ Result: 3 rows returned in 4ms</div>
   <section class="section-block" id="json">
     <h2><span lang="de">JSON in SQLite</span><span lang="en">JSON in SQLite</span></h2>
     <p>
-      <span lang="de">Die Brücke zu Lab 05. Seit Version 3.38 (02/2022) kann SQLite JSON-Text lesen, zerlegen und
+      <span lang="de">Seit Version 3.38 (02/2022) kann SQLite JSON-Text lesen, zerlegen und
         erzeugen – ohne Erweiterung. Ein JSON-Dokument ist dabei einfach ein <code>TEXT</code>-Wert; die Funktionen
         und die zwei Operatoren <code>-&gt;</code> und <code>-&gt;&gt;</code> greifen hinein. Das erlaubt einen
         Arbeitsablauf, den Lab 10 <em>ELT</em> nennt: Rohdaten unverändert laden, erst in der Datenbank in Spalten
         verwandeln.</span>
-      <span lang="en">The bridge to lab 05. Since version 3.38 (02/2022) SQLite can read, take apart and produce JSON
+      <span lang="en">Since version 3.38 (02/2022) SQLite can read, take apart and produce JSON
         text – without an extension. A JSON document is simply a <code>TEXT</code> value; the functions and the two
         operators <code>-&gt;</code> and <code>-&gt;&gt;</code> reach into it. That allows a workflow lab 10 calls
         <em>ELT</em>: load raw data unchanged, turn it into columns only inside the database.</span>

@@ -45,12 +45,11 @@
   <h1 class="lab-title">Supabase</h1>
   <p class="lab-intro">
     <span lang="de">In Lab 07 haben Sie eine Datenbank selbst betrieben. Hier betreibt sie jemand anderes – und
-      darunter arbeitet dasselbe PostgreSQL: dieselben Datentypen, dieselben Sichten, dieselben Erweiterungen. Das
-      Neue ist nicht SQL, sondern die Zugriffskontrolle: Sie liegt in der Datenbank selbst, und wer das übersieht,
+      darunter arbeitet dasselbe PostgreSQL: dieselben Datentypen, dieselben Sichten, dieselben Erweiterungen. Neu ist die Zugriffskontrolle: Sie liegt in der Datenbank selbst, und wer das übersieht,
       stellt seine Tabelle ins offene Netz. Dieses Lab führt durch die Inbetriebnahme, die zwei Schlüsselarten und die
       Regel, mit der eine Tabelle abgesichert wird.</span>
     <span lang="en">In lab 07 you ran a database yourself. Here somebody else runs it – and underneath sits the same
-      PostgreSQL: same data types, same views, same extensions. What is new is not SQL but access control: it lives in
+      PostgreSQL: same data types, same views, same extensions. What is new is access control: it lives in
       the database itself, and whoever overlooks that puts their table on the open internet. This lab walks through
       setting it up, the two kinds of key and the rule that secures a table.</span>
   </p>
@@ -71,12 +70,11 @@
     <p>
       <span lang="de">Supabase ist eine quelloffene Entwicklungsplattform, die eine verwaltete PostgreSQL-Datenbank mit
         den Diensten bündelt, die Anwendungen darum herum brauchen: Benutzerverwaltung, aus dem Schema erzeugte
-        Schnittstellen, Dateiablage, Benachrichtigungen über Änderungen. Für diesen Kurs ist vor allem eines wichtig:
-        Der SQL-Zugang bleibt offen, weil darunter ein vollständiges PostgreSQL arbeitet. Was Sie in DABA über SQL
+        APIs, Dateiablage, Benachrichtigungen über Änderungen. Für diesen Kurs zählt: Der SQL-Zugang bleibt offen, weil darunter ein vollständiges PostgreSQL arbeitet. Was Sie in DABA über SQL
         gelernt haben, gilt hier unverändert.</span>
       <span lang="en">Supabase is an open-source development platform bundling a managed PostgreSQL database with the
         services applications need around it: user management, interfaces generated from the schema, file storage,
-        change notifications. For this course one thing matters above all: the SQL access stays open, because a complete
+        change notifications. For this course the point is: the SQL access stays open, because a complete
         PostgreSQL works underneath. What you learned about SQL in DABA applies here unchanged.</span>
     </p>
     <div class="concept-box">
@@ -148,7 +146,7 @@
       <h3><span lang="de">Zwei Angaben, die nur einmal kommen</span><span lang="en">Two entries that come only once</span></h3>
       <p><span lang="de"><strong>Das Datenbankpasswort</strong> wird bei der Anlage einmal angezeigt und danach nie
         wieder. Sofort in den Passwortmanager – ohne dieses Passwort ist keine Direktverbindung möglich, und ein
-        Zurücksetzen ändert alle Verbindungszeichenketten.</span>
+        Zurücksetzen ändert alle Connection Strings.</span>
       <span lang="en"><strong>The database password</strong> is shown once at creation and never again. Straight into the
         password manager – without it no direct connection is possible, and a reset changes every connection
         string.</span></p>
@@ -168,7 +166,7 @@
      Database Password  → erzeugen und SOFORT sichern
      Region             Central EU (Frankfurt) · eu-central-1
 4  1–2 Minuten warten
-5  Oben der Knopf „Connect“ → dort liegen alle Verbindungszeichenketten</div>
+5  Oben der Knopf „Connect“ → dort liegen alle Connection Strings</div>
     <div class="table-scroll">
       <table>
         <thead>
@@ -260,12 +258,12 @@
   <section class="section-block" id="rls">
     <h2><span lang="de">Row Level Security</span><span lang="en">Row level security</span></h2>
     <p>
-      <span lang="de">Das ist der Abschnitt, der über Lab 07 hinausgeht. Supabase erzeugt aus Ihrem Schema eine
-        Schnittstelle, über die jede Tabelle über das Internet ansprechbar ist. Ob eine Anfrage Zeilen zurückbekommt,
+      <span lang="de">Supabase erzeugt aus Ihrem Schema eine
+        API, über die jede Tabelle über das Internet ansprechbar ist. Ob eine Anfrage Zeilen zurückbekommt,
         entscheidet nicht die Anwendung und nicht der Schlüssel, sondern eine <strong>Regel in der Datenbank</strong>.
         Neue Tabellen im Schema <code>public</code> starten dabei mit Rechten für die Rollen, die von außen
         zugreifen – solange <em>Row Level Security</em> nicht eingeschaltet ist.</span>
-      <span lang="en">This is the section that goes beyond lab 07. Supabase generates an interface from your schema
+      <span lang="en">Supabase generates an interface from your schema
         through which every table is addressable over the internet. Whether a request gets rows back is decided not by
         the application and not by the key but by a <strong>rule inside the database</strong>. New tables in the
         <code>public</code> schema start with permissions for the roles that access from outside – as long as <em>row
@@ -274,8 +272,8 @@
     <div class="challenge-box">
       <h3><span lang="de">Die Regel in einer Zeile</span><span lang="en">The rule in one line</span></h3>
       <p><span lang="de">Nach <strong>jedem</strong> <code>CREATE TABLE</code> folgt
-        <code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code>. Danach liefert die Schnittstelle <em>keine</em> Zeile
-        mehr, bis Sie eine Regel schreiben. Das wirkt wie ein Fehler und ist die richtige Voreinstellung: Standardmäßig
+        <code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code>. Danach liefert die API <em>keine</em> Zeile
+        mehr, bis Sie eine Regel schreiben. Das sieht nach einem Fehler aus und ist die richtige Voreinstellung: Standardmäßig
         verweigern, ausdrücklich erlauben.</span>
       <span lang="en">After <strong>every</strong> <code>CREATE TABLE</code> comes
         <code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code>. Afterwards the interface returns <em>no</em> row until you
@@ -360,7 +358,7 @@
   <section class="section-block" id="verbinden">
     <h2><span lang="de">Verbinden – drei Wege</span><span lang="en">Connecting – three routes</span></h2>
     <p>
-      <span lang="de">Der Knopf <code>Connect</code> zeigt drei Verbindungszeichenketten, und die Wahl ist keine
+      <span lang="de">Der Knopf <code>Connect</code> zeigt drei Connection Strings, und die Wahl ist keine
         Geschmacksfrage: In vielen Hochschulnetzen funktioniert genau eine davon.</span>
       <span lang="en">The <code>Connect</code> button shows three connection strings, and the choice is not a matter of
         taste: in many university networks exactly one of them works.</span>
@@ -422,7 +420,7 @@
       <div class="karte">
         <div class="kopfzeile"><span lang="de">Sicherung</span><span lang="en">Backup</span></div>
         <p><span lang="de">Im kostenlosen Plan gibt es keine automatische Wiederherstellung auf einen Zeitpunkt. Eine
-          eigene Sicherung ist ein Befehl: <code>pg_dump</code> gegen die Verbindungszeichenkette. Vor Semesterende
+          eigene Sicherung ist ein Befehl: <code>pg_dump</code> gegen den Connection String. Vor Semesterende
           einmal ausführen und die Datei aufbewahren.</span>
         <span lang="en">The free plan has no automatic point-in-time restore. Your own backup is one command:
           <code>pg_dump</code> against the connection string. Run it once before the end of the semester and keep the
@@ -443,7 +441,7 @@
         <p><span lang="de">Die Plattform ist quelloffen und läuft per Docker Compose auf eigener Infrastruktur – damit
           entfallen Grenzen, Pausieren und die Frage des Speicherorts vollständig. Der Preis: Betrieb, Aktualisierungen,
           Sicherungen und Überwachung liegen bei Ihnen. Bemerkenswert dabei: Selbst gehostetes Supabase ist selbst ein
-          Compose-Stapel – Lab 07 und Lab 08 treffen sich hier.</span>
+          Compose-Stack – Lab 07 und Lab 08 treffen sich hier.</span>
         <span lang="en">The platform is open source and runs on your own infrastructure via Docker Compose – which
           removes limits, pausing and the residency question entirely. The price: operation, updates, backups and
           monitoring are yours. Notably: self-hosted Supabase is itself a Compose stack – labs 07 and 08 meet
@@ -486,7 +484,7 @@
     <ul>
       <li><span lang="de">Unter Supabase arbeitet ein vollständiges PostgreSQL. SQL-Kenntnisse übertragen sich unverändert; neu ist die Zugriffskontrolle.</span><span lang="en">A complete PostgreSQL works underneath Supabase. SQL knowledge carries over unchanged; what is new is access control.</span></li>
       <li><span lang="de">Zwei Angaben bei der Projektanlage sind endgültig: das Datenbankpasswort (nur einmal sichtbar) und die Region. „Europe“ umfasst auch London und Zürich – beide außerhalb der EU.</span><span lang="en">Two entries at project creation are final: the database password (shown only once) and the region. “Europe” also covers London and Zurich – both outside the EU.</span></li>
-      <li><span lang="de">Nach jedem <code>CREATE TABLE</code> folgt <code>ENABLE ROW LEVEL SECURITY</code>. Danach liefert die Schnittstelle nichts mehr, bis eine Regel es erlaubt – das ist die richtige Voreinstellung, kein Fehler.</span><span lang="en">After every <code>CREATE TABLE</code> comes <code>ENABLE ROW LEVEL SECURITY</code>. Afterwards the interface returns nothing until a rule permits it – that is the right default, not an error.</span></li>
+      <li><span lang="de">Nach jedem <code>CREATE TABLE</code> folgt <code>ENABLE ROW LEVEL SECURITY</code>. Danach liefert die API nichts mehr, bis eine Regel es erlaubt – das ist die richtige Voreinstellung, kein Fehler.</span><span lang="en">After every <code>CREATE TABLE</code> comes <code>ENABLE ROW LEVEL SECURITY</code>. Afterwards the interface returns nothing until a rule permits it – that is the right default, not an error.</span></li>
       <li><span lang="de">Der öffentliche Schlüssel unterliegt den Regeln und darf im Quellcode stehen. Der geheime umgeht sie vollständig und gehört ausschließlich auf einen Server.</span><span lang="en">The publishable key is subject to the rules and may sit in source code. The secret one bypasses them entirely and belongs on a server only.</span></li>
       <li><span lang="de">Die Direktverbindung löst nur über IPv6 auf. In Hochschulnetzen ist der Session Pooler auf Port 5432 der Weg – mit Benutzernamen <code>postgres.[REF]</code>.</span><span lang="en">The direct connection resolves over IPv6 only. In university networks the session pooler on port 5432 is the route – with user name <code>postgres.[REF]</code>.</span></li>
       <li><span lang="de">Der kostenlose Plan pausiert nach etwa einer Woche, erlaubt zwei Projekte und 500 MB und sichert nicht automatisch. Wer mehr braucht oder personenbezogene Daten verarbeitet, kommt zum Selbst-Hosting – und damit zurück zu Lab 07.</span><span lang="en">The free plan pauses after roughly a week, allows two projects and 500 MB and does not back up automatically. Whoever needs more, or processes personal data, arrives at self-hosting – and thus back at lab 07.</span></li>

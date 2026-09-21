@@ -986,7 +986,7 @@
         }
       ],
       "rueckmeldung": {
-        "de": "Trennzeichen Semikolon, Kopfzeile vorhanden, fünf Spalten. Diese drei Angaben braucht pandas beim Einlesen: pd.read_csv(\"fahrten_2026.csv\", sep=\";\"). Wer sie vorher nachsieht, spart sich die Fehlersuche an einem Datenrahmen mit einer einzigen Spalte.",
+        "de": "Trennzeichen Semikolon, Kopfzeile vorhanden, fünf Spalten. Diese drei Angaben braucht pandas beim Einlesen: pd.read_csv(\"fahrten_2026.csv\", sep=\";\"). Wer sie vorher nachsieht, spart sich die Fehlersuche an einem DataFrame mit einer einzigen Spalte.",
         "en": "Semicolon separator, header row present, five columns. Those three facts are what pandas needs when reading: pd.read_csv(\"fahrten_2026.csv\", sep=\";\"). Whoever checks first saves themselves debugging a data frame with a single column."
       }
     },

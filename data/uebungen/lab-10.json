@@ -253,8 +253,8 @@
         {
           "was": "cron.schedule('…', '15 2 * * *', $$…$$)",
           "bedeutet": {
-            "de": "Die Erweiterung pg_cron (auf Supabase unter Database → Extensions einschaltbar) plant SQL innerhalb der Datenbank. Die fünf Felder: Minute Stunde Tag Monat Wochentag. Wichtig: pg_cron rechnet in UTC – 02:15 UTC ist in Würzburg 04:15 im Sommer und 03:15 im Winter.",
-            "en": "The pg_cron extension (on Supabase enabled under Database → Extensions) schedules SQL inside the database. The five fields: minute hour day month weekday. Important: pg_cron works in UTC – 02:15 UTC is 04:15 in Würzburg in summer and 03:15 in winter."
+            "de": "Die Erweiterung pg_cron (auf Supabase unter Database → Extensions einschaltbar) plant SQL innerhalb der Datenbank. Die fünf Felder: Minute Stunde Tag Monat Wochentag. Zeitzone: pg_cron rechnet in UTC – 02:15 UTC ist in Würzburg 04:15 im Sommer und 03:15 im Winter.",
+            "en": "The pg_cron extension (on Supabase enabled under Database → Extensions) schedules SQL inside the database. The five fields: minute hour day month weekday. Time zone: pg_cron works in UTC – 02:15 UTC is 04:15 in Würzburg in summer and 03:15 in winter."
           }
         },
         {
@@ -313,8 +313,8 @@
     },
     "B09": {
       "titel": {
-        "de": "Der Werkzeugkasten: requests → pandas → to_sql",
-        "en": "The toolkit: requests → pandas → to_sql"
+        "de": "Die Bibliotheken: requests → pandas → to_sql",
+        "en": "The libraries: requests → pandas → to_sql"
       },
       "prompt": "Python",
       "befehl": "import os, logging, requests, pandas as pd\nfrom dotenv import load_dotenv\nfrom sqlalchemy import create_engine, Numeric\n\nload_dotenv()                                   # .env → os.environ\nlog = logging.getLogger(\"etl\")\n\n# Extract\nr = requests.get(os.environ[\"VELOCITY_QUELLE\"], timeout=30)\nr.raise_for_status()\nexport = r.json()\n\n# Transform (leicht: Struktur, Typen, Duplikate)\ndf = pd.json_normalize(export[\"fahrten\"], sep=\"_\")\ndf[\"start_zeit\"] = (pd.to_datetime(df[\"start_zeit\"])\n                      .dt.tz_localize(\"Europe/Berlin\").dt.tz_convert(\"UTC\"))\ndf = df.astype({\"fahrt_id\": \"int64\", \"dauer_min\": \"int64\"})\ndf = df.drop_duplicates(subset=[\"fahrt_id\"], keep=\"last\")\ndf[\"loaded_at\"] = pd.Timestamp.now(tz=\"UTC\")\n\n# Load\nengine = create_engine(os.environ[\"DATABASE_URL\"])\n#   sqlite:///velocity.db            – Datei im Arbeitsverzeichnis\n#   postgresql+psycopg://user:pw@host:5432/postgres?sslmode=require\nn = df.to_sql(\"fahrt\", engine, schema=\"staging\", if_exists=\"replace\",\n              index=False, chunksize=500, method=\"multi\",\n              dtype={\"preis_eur\": Numeric(6, 2)})\nlog.info(\"fahrt: %s Zeilen geladen\", n)",

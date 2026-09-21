@@ -43,7 +43,7 @@
   <div class="lab-num-big">05</div>
   <h1 class="lab-title"><span lang="de">JSON-Datenstrukturen</span><span lang="en">JSON data structures</span></h1>
   <p class="lab-intro">
-    <span lang="de">Jede Schnittstelle, die Sie in diesem Kurs ansprechen, antwortet mit JSON; jede Konfigurationsdatei,
+    <span lang="de">Jede API, die Sie in diesem Kurs ansprechen, antwortet mit JSON; jede Konfigurationsdatei,
       die Sie anlegen, ist JSON oder ein naher Verwandter; und das Notebook aus Lab 04 ist selbst eine JSON-Datei. Das
       Format ist klein – sechs Werttypen, zwei Klammern – und trotzdem scheitern Datenprojekte regelmäßig an einem
       einfachen Anführungszeichen, einem Komma zu viel oder einer Zahl, die eigentlich eine Kennung ist. Dieses Lab
@@ -80,10 +80,10 @@
     </p>
     <div class="karten">
       <div class="karte">
-        <div class="kopfzeile"><span lang="de">Schnittstellen</span><span lang="en">Interfaces</span></div>
-        <p><span lang="de">Eine REST-Schnittstelle antwortet mit <code>Content-Type: application/json</code>. Supabase
+        <div class="kopfzeile"><span lang="de">APIs</span><span lang="en">Interfaces</span></div>
+        <p><span lang="de">Eine REST-API antwortet mit <code>Content-Type: application/json</code>. Supabase
           liefert in Lab 08 jede Tabelle als JSON-Feld von Objekten; die eigene API aus Lab 11 antwortet ebenso. Wer
-          die Antwort nicht lesen kann, kann die Schnittstelle nicht benutzen.</span>
+          die Antwort nicht lesen kann, kann die API nicht benutzen.</span>
         <span lang="en">A REST interface answers with <code>Content-Type: application/json</code>. In lab 08 Supabase
           delivers every table as a JSON array of objects; your own API from lab 11 answers the same way. Whoever cannot
           read the answer cannot use the interface.</span></p>
@@ -203,7 +203,7 @@
       <span class="pfeil">→</span>
       <div class="glied"><span class="titel">Lab 06</span><span class="was"><span lang="de">dieselben Daten als Tabellen in SQLite</span><span lang="en">the same data as tables in SQLite</span></span></div>
       <span class="pfeil">→</span>
-      <div class="glied"><span class="titel">Lab 08 · 11</span><span class="was"><span lang="de">Schnittstellen antworten JSON</span><span lang="en">interfaces answer JSON</span></span></div>
+      <div class="glied"><span class="titel">Lab 08 · 11</span><span class="was"><span lang="de">APIs antworten JSON</span><span lang="en">interfaces answer JSON</span></span></div>
       <span class="pfeil">→</span>
       <div class="glied"><span class="titel">Lab 10</span><span class="was"><span lang="de">Rohexport als jsonb → Sternschema</span><span lang="en">raw export as jsonb → star schema</span></span></div>
     </div>
@@ -388,7 +388,7 @@
           <code>settings.json</code> und <code>tasks.json</code> hält. JSON5 geht weiter: unquotierte Schlüssel,
           einfache Anführungszeichen, <code>Infinity</code>. Beides ist gedacht für Dateien, die Menschen von Hand
           pflegen, und beides ist mit <code>json.loads</code> und <code>JSON.parse</code> <strong>nicht</strong> lesbar.
-          Wer eine <code>settings.json</code> als Vorlage für eine Schnittstellenantwort nimmt, merkt das an
+          Wer eine <code>settings.json</code> als Vorlage für eine API-Antwort nimmt, merkt das an
           <code>Expecting property name enclosed in double quotes</code>.</span>
         <span lang="en">JSON with comments and trailing commas – the mode in which VS Code keeps its
           <code>settings.json</code> and <code>tasks.json</code>. JSON5 goes further: unquoted keys, single quotes,
@@ -449,7 +449,7 @@
           <tr><td><span lang="de">Kommentare</span><span lang="en">Comments</span></td><td><strong><span lang="de">nein</span><span lang="en">no</span></strong></td><td><code>#</code></td><td><code>#</code></td><td><code>&lt;!-- --&gt;</code></td><td><span lang="de">nein</span><span lang="en">no</span></td></tr>
           <tr><td><span lang="de">Datentypen</span><span lang="en">Data types</span></td><td>6</td><td><span lang="de">viele, implizit</span><span lang="en">many, implicit</span></td><td><span lang="de">viele, inkl. Datum</span><span lang="en">many, incl. date</span></td><td><span lang="de">nur Text (XSD ergänzt Typen)</span><span lang="en">text only (XSD adds types)</span></td><td><span lang="de">nur Text</span><span lang="en">text only</span></td></tr>
           <tr><td><span lang="de">Schemasprache</span><span lang="en">Schema language</span></td><td>JSON Schema</td><td><span lang="de">JSON Schema (über YAML)</span><span lang="en">JSON Schema (via YAML)</span></td><td>–</td><td>XSD / DTD</td><td>–</td></tr>
-          <tr><td><span lang="de">Hauptverwendung</span><span lang="en">Main use</span></td><td><span lang="de">Schnittstellen, Konfiguration, Dokumentdatenbanken</span><span lang="en">interfaces, configuration, document databases</span></td><td><span lang="de">DevOps-Konfiguration</span><span lang="en">DevOps configuration</span></td><td><span lang="de">Werkzeugkonfiguration</span><span lang="en">tool configuration</span></td><td><span lang="de">Dokumente, B2B (XRechnung)</span><span lang="en">documents, B2B (e-invoicing)</span></td><td><span lang="de">Tabellenaustausch, Excel</span><span lang="en">tabular exchange, Excel</span></td></tr>
+          <tr><td><span lang="de">Hauptverwendung</span><span lang="en">Main use</span></td><td><span lang="de">APIs, Konfiguration, Dokumentdatenbanken</span><span lang="en">interfaces, configuration, document databases</span></td><td><span lang="de">DevOps-Konfiguration</span><span lang="en">DevOps configuration</span></td><td><span lang="de">Werkzeugkonfiguration</span><span lang="en">tool configuration</span></td><td><span lang="de">Dokumente, B2B (XRechnung)</span><span lang="en">documents, B2B (e-invoicing)</span></td><td><span lang="de">Tabellenaustausch, Excel</span><span lang="en">tabular exchange, Excel</span></td></tr>
           <tr><td><span lang="de">Von Hand schreibbar</span><span lang="en">Hand-written</span></td><td><span lang="de">mäßig</span><span lang="en">so-so</span></td><td><span lang="de">gut</span><span lang="en">good</span></td><td><span lang="de">gut</span><span lang="en">good</span></td><td><span lang="de">schlecht</span><span lang="en">poor</span></td><td><span lang="de">geht</span><span lang="en">okay</span></td></tr>
         </tbody>
       </table>

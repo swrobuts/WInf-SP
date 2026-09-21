@@ -32,7 +32,7 @@
   <a class="sidebar-link" href="#begriffe"><span lang="de">Git, GitHub, drei Bereiche</span><span lang="en">Git, GitHub, three areas</span></a>
   <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme</span><span lang="en">Setting it up</span></a>
   <a class="sidebar-link" href="#ablauf"><span lang="de">Der Grundablauf</span><span lang="en">The basic cycle</span></a>
-  <a class="sidebar-link" href="#zweige"><span lang="de">Zweige und Zusammenführen</span><span lang="en">Branches and merging</span></a>
+  <a class="sidebar-link" href="#zweige"><span lang="de">Branches und Merge</span><span lang="en">Branches and merge</span></a>
   <a class="sidebar-link" href="#gitignore"><span lang="de">Was nicht hineingehört</span><span lang="en">What must stay out</span></a>
   <a class="sidebar-link" href="#notebooks"><span lang="de">Notebooks in Git</span><span lang="en">Notebooks in Git</span></a>
   <a class="sidebar-link" href="#geheim"><span lang="de">Wenn ein Schlüssel entwischt</span><span lang="en">When a key escapes</span></a>
@@ -132,7 +132,7 @@
       <span lang="de">Git funktioniert vollständig ohne GitHub. GitHub ohne Git nicht. Das ist mehr als eine
         Begriffsklärung: Es heißt, dass Sie den ganzen Ablauf lokal üben können und dass ein Ausfall des Webdienstes Ihre
         Geschichte nicht berührt. <strong>Pull Request</strong> ist keine Git-Funktion, sondern eine Erfindung von
-        GitHub – ein Antrag, einen Zweig in einen anderen zu überführen, samt Ort für Durchsicht und Kommentare.</span>
+        GitHub – ein Antrag, einen Branch in einen anderen zu überführen, samt Ort für Durchsicht und Kommentare.</span>
       <span lang="en">Git works entirely without GitHub. GitHub does not work without Git. That is more than
         terminology: it means you can practise the whole cycle locally and that an outage of the web service does not
         touch your history. A <strong>pull request</strong> is not a Git function but an invention of GitHub – a request
@@ -163,7 +163,7 @@
     <p>
       <span lang="de">Ein GitHub-Konto ist kostenlos; legen Sie es mit der Hochschul-E-Mail an und beantragen Sie
         gleich den <strong>GitHub Student Developer Pack</strong> (education.github.com/pack): Er schaltet den
-        Copilot-Student-Plan frei (Stand 09/2026: unbegrenzte Vervollständigungen, 200 AI-Credits im Monat – kein
+        Copilot-Student-Plan frei (Stand 09/2026: unbegrenzte Completions, 200 AI-Credits im Monat – kein
         Copilot-Pro-Sitz mehr) und dient in Lab 03 als Nachweis für die JetBrains-Bildungslizenz. Hier kommen die drei
         Schritte auf dem eigenen Rechner: Git installieren, sich einmalig zu erkennen geben, sich anmelden können.</span>
       <span lang="en">A GitHub account is free; create it with your university email and apply straight away for the
@@ -215,12 +215,12 @@
   </section>
 
   <section class="section-block" id="zweige">
-    <h2><span lang="de">Zweige und Zusammenführen</span><span lang="en">Branches and merging</span></h2>
+    <h2><span lang="de">Branches und Merge</span><span lang="en">Branches and merge</span></h2>
     <p>
-      <span lang="de">Ein <strong>Zweig</strong> ist ein benannter Zeiger auf einen Commit – nichts weiter. Genau
-        deshalb ist er billig: Ein neuer Zweig kopiert keine Dateien, er setzt eine Marke. Für Analytics ist das die
+      <span lang="de">Ein <strong>Branch</strong> ist ein benannter Zeiger auf einen Commit – nichts weiter. Genau
+        deshalb ist er billig: Ein neuer Branch kopiert keine Dateien, er setzt eine Marke. Für Analytics ist das die
         Antwort auf die häufigste Frage im Projekt: „Was wäre, wenn wir die Ausreißer anders behandeln?“ Man probiert
-        es auf einem Zweig aus und behält den bisherigen Stand unberührt.</span>
+        es auf einem Branch aus und behält den bisherigen Stand unberührt.</span>
       <span lang="en">A <strong>branch</strong> is a named pointer to a commit – nothing more. That is exactly why it is
         cheap: a new branch copies no files, it sets a marker. For analytics it is the answer to the most common
         question in a project: “what if we treat the outliers differently?” You try it on a branch and keep the previous
@@ -230,7 +230,7 @@
     <div data-befehl="B09"></div>
     <div class="info-box">
       <h3><span lang="de">Konflikte lesen, nicht fürchten</span><span lang="en">Read conflicts, do not fear them</span></h3>
-      <p><span lang="de">Ein <strong>Merge-Konflikt</strong> entsteht, wenn zwei Zweige dieselbe Zeile geändert haben.
+      <p><span lang="de">Ein <strong>Merge-Konflikt</strong> entsteht, wenn zwei Branches dieselbe Zeile geändert haben.
         Git schreibt dann beide Fassungen in die Datei und markiert sie:</span>
       <span lang="en">A <strong>merge conflict</strong> arises when two branches changed the same line. Git then writes
         both versions into the file and marks them:</span></p>
@@ -249,8 +249,8 @@ schwelle = 0.99
         else – see the next section.</span></p>
     </div>
     <p>
-      <span lang="de">In der Zusammenarbeit kommt zwischen Zweig und Zusammenführung der <strong>Pull
-        Request</strong>: Sie schieben Ihren Zweig nach GitHub, beantragen die Überführung, und jemand liest den
+      <span lang="de">In der Zusammenarbeit kommt zwischen Branch und Merge der <strong>Pull
+        Request</strong>: Sie schieben Ihren Branch nach GitHub, beantragen die Überführung, und jemand liest den
         Unterschied, bevor er in den Hauptzweig geht. In einer Gruppenarbeit ist das die Stelle, an der die
         Arbeitsteilung tatsächlich sichtbar wird – und an der ein Fehler auffällt, bevor er im Bericht steht. Ein
         <strong>Issue</strong> ist der zugehörige Notizzettel für offene Punkte; <code>Closes #12</code> in einer
@@ -334,8 +334,7 @@ schwelle = 0.99
     <h2><span lang="de">Wenn ein Schlüssel entwischt</span><span lang="en">When a key escapes</span></h2>
     <p>
       <span lang="de">Es passiert – meist über eine <code>.env</code>-Datei, die vor der <code>.gitignore</code> da war,
-        oder über ein Notebook mit einem Schlüssel in einer Code-Zelle. Wichtig ist die Reihenfolge der Reaktion, und
-        sie ist nicht die, die man intuitiv wählt.</span>
+        oder über ein Notebook mit einem Schlüssel in einer Code-Zelle. Die Reihenfolge der Reaktion entscheidet, und sie ist nicht die, die man intuitiv wählt.</span>
       <span lang="en">It happens – usually through a <code>.env</code> file that predated the <code>.gitignore</code>, or
         through a notebook with a key in a code cell. What matters is the order of the response, and it is not the one
         intuition suggests.</span>
@@ -346,7 +345,7 @@ schwelle = 0.99
         <li><span lang="de"><strong>Den Schlüssel beim Anbieter widerrufen.</strong> Sofort, vor allem anderen. Ein widerrufener Schlüssel in einem öffentlichen Repository ist harmlos.</span><span lang="en"><strong>Revoke the key with the provider.</strong> Immediately, before anything else. A revoked key in a public repository is harmless.</span></li>
         <li><span lang="de"><strong>Einen neuen erzeugen</strong> und die betroffenen Dienste umstellen.</span><span lang="en"><strong>Create a new one</strong> and switch the affected services over.</span></li>
         <li><span lang="de"><strong>Die Protokolle prüfen:</strong> Wurde der Schlüssel in der Zwischenzeit benutzt?</span><span lang="en"><strong>Check the logs:</strong> was the key used in the meantime?</span></li>
-        <li><span lang="de"><strong>Die Ursache beheben:</strong> <code>.gitignore</code> ergänzen, Schlüssel aus dem Code in eine Umgebungsvariable verschieben.</span><span lang="en"><strong>Fix the cause:</strong> extend the <code>.gitignore</code>, move the key from the code into an environment variable.</span></li>
+        <li><span lang="de"><strong>Die Ursache beheben:</strong> <code>.gitignore</code> ergänzen, Schlüssel aus dem Code in eine Environment Variable verschieben.</span><span lang="en"><strong>Fix the cause:</strong> extend the <code>.gitignore</code>, move the key from the code into an environment variable.</span></li>
         <li><span lang="de"><strong>Erst dann</strong> über das Umschreiben der Geschichte nachdenken – falls überhaupt nötig.</span><span lang="en"><strong>Only then</strong> think about rewriting the history – if it is needed at all.</span></li>
       </ol>
       <p><span lang="de">GitHub formuliert es unmissverständlich: Den Schlüssel aus dem Code zu entfernen, einen neuen
@@ -375,8 +374,8 @@ schwelle = 0.99
     <h2><span lang="de">Spielplatz</span><span lang="en">Playground</span></h2>
     <p>
       <span lang="de">Eine Konsole ohne Auftrag, in der <code>git</code> nachgebildet ist. Sie können ein Repository
-        anlegen oder klonen, Dateien anlegen, vormerken, festschreiben, Zweige öffnen und zusammenführen. Der
-        Fernserver ist ebenfalls nachgebildet: <code>git push</code> funktioniert, sobald ein <code>origin</code>
+        anlegen oder klonen, Dateien anlegen, stagen (git add), committen (git commit), Branches anlegen und mergen. Der
+        Remote ist ebenfalls nachgebildet: <code>git push</code> funktioniert, sobald ein <code>origin</code>
         eingetragen ist – aber es verlässt nichts diesen Browser.</span>
       <span lang="en">A console without an assignment, with <code>git</code> modelled in it. You can create or clone a
         repository, create files, stage them, commit, open branches and merge them. The remote is modelled too:
@@ -388,7 +387,7 @@ schwelle = 0.99
   <section class="section-block" id="uebungen">
     <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
     <p>
-      <span lang="de">Sechs Übungen: dreimal an der Konsole – klonen und lesen, eine Änderung festhalten, mit Zweigen
+      <span lang="de">Sechs Übungen: dreimal an der Konsole – klonen und lesen, eine Änderung festhalten, mit Branches
         arbeiten – und dreimal zum Nachdenken über Begriffe, Ausschlüsse und den Umgang mit einem entwischten
         Schlüssel.</span>
       <span lang="en">Six exercises: three at the console – clone and read, record a change, work with branches – and
@@ -408,7 +407,7 @@ schwelle = 0.99
     <ul>
       <li><span lang="de">Git ist das Programm auf Ihrem Rechner, GitHub der Dienst, der Repositories aufbewahrt. Pull Requests und Issues sind GitHub-Funktionen, keine Git-Funktionen.</span><span lang="en">Git is the program on your machine, GitHub the service that hosts repositories. Pull requests and issues are GitHub functions, not Git functions.</span></li>
       <li><span lang="de">Drei Bereiche: Arbeitsverzeichnis, Staging, Repository. <code>git add</code> wählt aus, <code>git commit</code> schreibt fest, <code>git push</code> überträgt. <code>git status</code> zeigt, wo Sie stehen – und ist der Befehl, den man am häufigsten braucht.</span><span lang="en">Three areas: working directory, staging, repository. <code>git add</code> selects, <code>git commit</code> records, <code>git push</code> transfers. <code>git status</code> shows where you stand – and is the command needed most often.</span></li>
-      <li><span lang="de">Ein Zweig ist ein Zeiger, kein Kopiervorgang. Er ist die richtige Antwort auf „was wäre, wenn“ – und ein Konflikt beim Zusammenführen ist eine Frage, keine Störung.</span><span lang="en">A branch is a pointer, not a copy operation. It is the right answer to “what if” – and a merge conflict is a question, not a malfunction.</span></li>
+      <li><span lang="de">Ein Branch ist ein Zeiger, kein Kopiervorgang. Er ist die richtige Antwort auf „was wäre, wenn“ – und ein Merge-Konflikt ist eine Frage, keine Störung.</span><span lang="en">A branch is a pointer, not a copy operation. It is the right answer to “what if” – and a merge conflict is a question, not a malfunction.</span></li>
       <li><span lang="de">Daten und Geheimnisse gehören nicht ins Repository. Die <code>.gitignore</code> steht im ersten Commit, weil sie nur nach vorn wirkt.</span><span lang="en">Data and secrets do not belong in the repository. The <code>.gitignore</code> goes in the first commit, because it only works forward.</span></li>
       <li><span lang="de">Notebooks sind JSON mit eingebetteten Ausgaben. Ohne <code>nbstripout</code> sind Unterschiede unlesbar, Konflikte zerstörend und Ausgaben eine Veröffentlichung.</span><span lang="en">Notebooks are JSON with embedded outputs. Without <code>nbstripout</code>, diffs are unreadable, conflicts destructive and outputs a publication.</span></li>
       <li><span lang="de">Ein entwischter Schlüssel wird zuerst widerrufen, nicht zuerst gelöscht. Löschen entfernt ihn aus der Gegenwart, nicht aus der Geschichte – und nicht aus den Kopien, die schon gemacht wurden.</span><span lang="en">An escaped key is revoked first, not deleted first. Deleting removes it from the present, not from the history – and not from the copies already made.</span></li>

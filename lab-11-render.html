@@ -46,7 +46,7 @@
   <h1 class="lab-title">Render</h1>
   <p class="lab-intro">
     <span lang="de">Der Dienst läuft auf Ihrem Rechner, die Datenbank liegt bei Supabase, der Code auf GitHub – und
-      niemand außer Ihnen kann die Schnittstelle aufrufen. Dieses Lab bringt den Dienst ins Netz, ohne dass jemand
+      niemand außer Ihnen kann die API aufrufen. Dieses Lab bringt den Dienst ins Netz, ohne dass jemand
       einen Server pflegt: Render baut aus dem Repository, startet den Prozess und gibt ihm eine Adresse. Die
       eigentliche Lernfrage sind drei Einstellungen, an denen fast jeder erste Deploy scheitert – und das Protokoll,
       das genau sagt, welche.</span>
@@ -108,7 +108,7 @@
           </tr>
           <tr>
             <td><strong>PaaS</strong><br><span class="hinweis-klein"><span lang="de">Plattform</span><span lang="en">Platform</span></span></td>
-            <td><span lang="de">Sie liefern ein Repository mit Build- und Startbefehl; die Plattform baut, startet, überwacht, vergibt Adresse und Zertifikat.</span><span lang="en">You deliver a repository with build and start command; the platform builds, starts, supervises, assigns address and certificate.</span></td>
+            <td><span lang="de">Sie liefern ein Repository mit Build Command und Start Command; die Plattform baut, startet, überwacht, vergibt Adresse und Zertifikat.</span><span lang="en">You deliver a repository with build and start command; the platform builds, starts, supervises, assigns address and certificate.</span></td>
             <td><span lang="de"><strong>Render</strong>: Free Web Service ohne Zahlungsmittel, Frankfurt wählbar. <strong>Railway</strong>: einmalig 5 $ Guthaben, danach 1 $ je Monat – praktisch nicht nutzbar. <strong>Heroku</strong>: kein Free Tier seit 2022, ab 5 $. <strong>Fly.io</strong>: kein Free Tier für neue Konten, Karte Pflicht. <strong>Koyeb</strong>: ein Free Web Service in Frankfurt, aber Karte Pflicht. <strong>PythonAnywhere</strong>: nur Python, eine Web-App, monatlich zu verlängern.</span><span lang="en"><strong>Render</strong>: free web service without a payment method, Frankfurt selectable. <strong>Railway</strong>: one-off $5 credit, then $1 per month – practically unusable. <strong>Heroku</strong>: no free tier since 2022, from $5. <strong>Fly.io</strong>: no free tier for new accounts, card required. <strong>Koyeb</strong>: one free web service in Frankfurt, but card required. <strong>PythonAnywhere</strong>: Python only, one web app, to be renewed monthly.</span></td>
           </tr>
           <tr>
@@ -287,7 +287,7 @@
       <p><span lang="de">Eine Free Render Postgres läuft 30 Tage nach ihrer Anlage ab – unabhängig davon, ob sie
         benutzt wird. Ein Semester ist länger. Deshalb betreibt Render in diesem Kurs nur den <em>Dienst</em>; die
         Daten bleiben in der Supabase-Datenbank aus Lab 08, deren Free-Projekt bei Inaktivität pausiert, aber erhalten
-        bleibt. Der Dienst bekommt die Verbindungszeichenkette des Session Poolers (Port 5432,
+        bleibt. Der Dienst bekommt den Connection String des Session Poolers (Port 5432,
         <code>sslmode=require</code>) als Environment Variable.</span>
       <span lang="en">A free Render Postgres expires 30 days after its creation – regardless of whether it is used. A
         semester is longer. That is why in this course Render runs only the <em>service</em>; the data stays in the
@@ -345,7 +345,7 @@
         <span lang="en"><strong>Read the port from <code>PORT</code>.</strong> Render sets the variable (default 10000)
           and expects the service exactly there. Render usually finds a different open port as well – but with a
           warning, and without guarantee.</span></li>
-        <li><span lang="de"><strong>Geheimnisse aus der Umgebung.</strong> Die Verbindungszeichenkette kommt aus
+        <li><span lang="de"><strong>Geheimnisse aus der Umgebung.</strong> Der Connection String kommt aus
           <code>os.environ</code>, lokal aus <code>.env</code>, bei Render aus Environment Variables. Die
           <code>.env</code>-Datei liegt nicht im Repository (Lab 02) – Render kennt sie nicht, und das ist
           richtig so.</span>
@@ -613,7 +613,7 @@ KeyError: 'DATABASE_URL'                                          <span class="c
       <p><span lang="de">Die Zeile <code>sync: false</code> ist die Antwort auf die Frage aus Lab 02, wie ein
         Geheimnis in eine versionierte Konfiguration kommt: gar nicht. Die Datei nennt nur den Namen der Variable;
         den Wert fragt Render beim Anlegen ab und speichert ihn außerhalb des Repositorys. Wer stattdessen eine
-        Render-Postgres benutzt, schreibt <code>fromDatabase</code> – dann setzt Render die Verbindungszeichenkette
+        Render-Postgres benutzt, schreibt <code>fromDatabase</code> – dann setzt Render den Connection String
         selbst ein, und sie steht ebenfalls nirgends im Code.</span>
       <span lang="en">The line <code>sync: false</code> answers the question from lab 02 of how a secret gets into a
         versioned configuration: it does not. The file names only the variable; Render prompts for the value at creation

@@ -208,7 +208,7 @@
         und „Professional“ ist aufgehoben; die letzte eigenständige Community-Fassung war 2025.2. Nach der Installation
         läuft automatisch ein <strong>30-Tage-Pro-Trial</strong>, und jede Hauptversion – dreimal im Jahr – schenkt
         einen neuen. Die Restlaufzeit steht oben rechts unter „Trial“. Danach bleibt der <strong>Kern
-        kostenlos</strong>: Editor, Vervollständigung, Inspektionen, Debugger, Run Configurations, Python Console,
+        kostenlos</strong>: Editor, Code Completion, Inspektionen, Debugger, Run Configurations, Python Console,
         Terminal, Git, Plugins, Umgebungen mit venv, Conda, Poetry und uv – und <strong>lokale Jupyter-Notebooks</strong>.
         <strong>Pro</strong> braucht es für Web-Frameworks (Django, Flask, FastAPI), die Database-Tools samt SQL-Zellen,
         Remote-Interpreter (SSH, Docker, WSL) und Remote-Notebooks. Für diesen Kurs heißt das: Alles in Lab 03, 06 und
@@ -387,7 +387,7 @@
       <li><span class="callout">2</span><span><span lang="de">Location plus Name ergibt den Projektordner <code>~/dev/velocity</code>. Kein OneDrive, kein Umlaut, kein Leerzeichen.</span><span lang="en">Location plus name gives the project folder <code>~/dev/velocity</code>. No OneDrive, no umlaut, no space.</span></span></li>
       <li><span class="callout">3</span><span><span lang="de">Legt ein leeres Git-Repository an; das Menü heißt danach „Git“. Die <code>.gitignore</code> aus dem Abschnitt „Git in der IDE“ kommt als Erstes hinein.</span><span lang="en">Creates an empty Git repository; the menu is called “Git” afterwards. The <code>.gitignore</code> from the section “Git in the IDE” goes in first.</span></span></li>
       <li><span class="callout">4</span><span><span lang="de">Interpreter type. „Project venv“ erzeugt <code>.venv</code> im Projektordner. „Custom environment“ bietet Virtualenv, Conda, Pipenv, Poetry, uv, Hatch oder ein vorhandenes Python; ist uv installiert, schlägt PyCharm es seit 2025.3 von selbst vor.</span><span lang="en">Interpreter type. “Project venv” creates <code>.venv</code> in the project folder. “Custom environment” offers Virtualenv, Conda, Pipenv, Poetry, uv, Hatch or an existing Python; if uv is installed, PyCharm suggests it by itself since 2025.3.</span></span></li>
-      <li><span class="callout">5</span><span><span lang="de">Nach „Create“ zeigt die Statusleiste „Scanning files“, dann „Analyzing project to enable smart features“ – solange fehlen Vervollständigung und Navigation.</span><span lang="en">After “Create” the status bar shows “Scanning files”, then “Analyzing project to enable smart features” – until then completion and navigation are missing.</span></span></li>
+      <li><span class="callout">5</span><span><span lang="de">Nach „Create“ zeigt die Statusleiste „Scanning files“, dann „Analyzing project to enable smart features“ – solange fehlen Code Completion und Navigation.</span><span lang="en">After “Create” the status bar shows “Scanning files”, then “Analyzing project to enable smart features” – until then completion and navigation are missing.</span></span></li>
     </ol>
 
     <div data-befehl="B01"></div>
@@ -410,7 +410,7 @@
       </div>
       <div>
         <h3><span lang="de">Indexing: warten oder ausschließen</span><span lang="en">Indexing: wait or exclude</span></h3>
-        <p><span lang="de">Nach dem Öffnen liest die IDE jede Datei des Ordners, um Vervollständigung und Navigation
+        <p><span lang="de">Nach dem Öffnen liest die IDE jede Datei des Ordners, um Code Completion und Navigation
           anzubieten. Bei Quellcode dauert das Sekunden. Bei einem Ordner mit 400 MB JSON-Export (Lab 05) oder einer
           SQLite-Datei (Lab 06) dauert es Minuten – und wiederholt sich bei jeder Änderung. Abhilfe: Rechtsklick auf
           den Datenordner → <code>Mark Directory as → Excluded</code>. Die Dateien bleiben lesbar und die Skripte
@@ -427,14 +427,14 @@
   <section class="section-block" id="interpreter">
     <h2><span lang="de">Der Interpreter</span><span lang="en">The interpreter</span></h2>
     <p>
-      <span lang="de">Hier liegt der Kern des Labs. Auf jedem Rechner gibt es mehrere Pythons: das des
+      <span lang="de">Auf jedem Rechner gibt es mehrere Pythons: das des
         Betriebssystems, eines aus dem Installer, vielleicht Anaconda – und je Projekt eine <code>.venv</code>. Jedes
         hat seinen <strong>eigenen Paketordner</strong>. <code>pip install pandas</code> installiert in genau das
         Python, zu dem dieses <code>pip</code> gehört; ein anderes Python weiß davon nichts. Daraus folgt die Meldung,
         die jedes Semester die meiste Zeit kostet: <code>ModuleNotFoundError: No module named 'pandas'</code> – obwohl
         die Installation gerade Erfolg gemeldet hat. Nichts ist kaputt. Es wurde nur in eine andere Umgebung
         installiert als die, die das Skript ausführt.</span>
-      <span lang="en">This is the core of the lab. Every machine has several Pythons: the operating system's, one from
+      <span lang="en">Every machine has several Pythons: the operating system's, one from
         the installer, perhaps Anaconda – and a <code>.venv</code> per project. Each has its <strong>own package
         folder</strong>. <code>pip install pandas</code> installs into exactly the Python this <code>pip</code> belongs
         to; another Python knows nothing about it. From that follows the message that costs the most time every

@@ -8,7 +8,7 @@
         { "was": "numeric(12,2)", "bedeutet": { "de": "Der richtige Typ für Geldbeträge: exakt, ohne Rundungsfehler. double precision spart Speicher und produziert dafür Summen wie 1234.5600000000002 – in einem Bericht ein Ärgernis, in einer Abrechnung ein Fehler.", "en": "The right type for money: exact, without rounding errors. double precision saves space and produces sums like 1234.5600000000002 in exchange – an annoyance in a report, an error in an invoice." } },
         { "was": "timestamptz", "bedeutet": { "de": "Zeitstempel mit Zeitzone. Ohne das tz kennt der Wert keine Zone, und eine Auswertung über Sommer- und Winterzeit hinweg verschiebt sich um eine Stunde.", "en": "Timestamp with time zone. Without the tz the value knows no zone, and an analysis spanning the summer-time change shifts by an hour." } },
         { "was": "GENERATED ALWAYS AS IDENTITY", "bedeutet": { "de": "Die heutige Schreibweise für eine automatisch gezählte Kennung. serial funktioniert weiterhin, ist aber die ältere Form.", "en": "Today's notation for an automatically counted identifier. serial still works but is the older form." } },
-        { "was": "ENABLE ROW LEVEL SECURITY", "bedeutet": { "de": "Gehört direkt hinter jedes CREATE TABLE, in derselben Ausführung. Ohne diese Zeile ist die Tabelle über die erzeugte Schnittstelle von außen les- und schreibbar.", "en": "Belongs immediately after every CREATE TABLE, in the same execution. Without this line the table is readable and writable from outside through the generated interface." } },
+        { "was": "ENABLE ROW LEVEL SECURITY", "bedeutet": { "de": "Gehört direkt hinter jedes CREATE TABLE, in derselben Ausführung. Ohne diese Zeile ist die Tabelle über die erzeugte API von außen les- und schreibbar.", "en": "Belongs immediately after every CREATE TABLE, in the same execution. Without this line the table is readable and writable from outside through the generated interface." } },
         { "was": "public.", "bedeutet": { "de": "Das Schema ausdrücklich nennen. Supabase legt eigene Schemata für Authentifizierung und Speicher an; wer public wegläßt, landet gelegentlich woanders.", "en": "Name the schema explicitly. Supabase creates its own schemas for authentication and storage; whoever omits public occasionally ends up elsewhere." } }
       ]
     },
@@ -27,7 +27,7 @@
     "B03": {
       "titel": { "de": "Absichern und wieder öffnen", "en": "Secure it, and open it again" },
       "prompt": "SQL",
-      "befehl": "-- 1) Standardmäßig verweigern\nALTER TABLE public.fahrt ENABLE ROW LEVEL SECURITY;\n\n-- Ab hier liefert die Schnittstelle mit dem öffentlichen Schlüssel NICHTS.\n\n-- 2) Lesen für angemeldete Nutzer erlauben\nCREATE POLICY \"fahrt_lesen_angemeldet\"\nON public.fahrt FOR SELECT\nTO authenticated\nUSING ( true );",
+      "befehl": "-- 1) Standardmäßig verweigern\nALTER TABLE public.fahrt ENABLE ROW LEVEL SECURITY;\n\n-- Ab hier liefert die API mit dem öffentlichen Schlüssel NICHTS.\n\n-- 2) Lesen für angemeldete Nutzer erlauben\nCREATE POLICY \"fahrt_lesen_angemeldet\"\nON public.fahrt FOR SELECT\nTO authenticated\nUSING ( true );",
       "teile": [
         { "was": "ENABLE ROW LEVEL SECURITY", "bedeutet": { "de": "Schaltet die Zeilenprüfung ein. Vorher galten die Tabellenrechte, nachher gilt: keine Zeile ohne Regel. Dass danach nichts mehr kommt, ist der Beweis, dass es wirkt.", "en": "Switches row checking on. Before, the table permissions applied; afterwards: no row without a rule. That nothing comes back afterwards is the proof it works." } },
         { "was": "FOR SELECT", "bedeutet": { "de": "Regeln gelten je Vorgang. Eine Leseregel erlaubt kein Einfügen – dafür braucht es eine eigene mit FOR INSERT.", "en": "Rules apply per operation. A read rule permits no inserting – that needs its own with FOR INSERT." } },
@@ -47,7 +47,7 @@
       ]
     },
     "B05": {
-      "titel": { "de": "Drei Verbindungszeichenketten", "en": "Three connection strings" },
+      "titel": { "de": "Drei Connection Strings", "en": "Three connection strings" },
       "prompt": "🔗",
       "befehl": "# Direct – IPv6, für Migrationen und pg_dump\npostgresql://postgres:[PASSWORT]@db.[REF].supabase.co:5432/postgres\n\n# Session Pooler – IPv4, Port 5432: der Weg für DataGrip, DBeaver, psql\npostgres://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:5432/postgres\n\n# Transaction Pooler – IPv4, Port 6543: für Serverless, NICHT für Datenbankwerkzeuge\npostgres://postgres.[REF]:[PASSWORT]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres",
       "teile": [
@@ -63,8 +63,8 @@
       "teile": [
         { "was": "psql-Metabefehle", "bedeutet": { "de": "\\dt listet die Tabellen, \\d station zeigt den Aufbau, \\timing schaltet die Laufzeitmessung ein, \\q verlässt. Vier Befehle, die einen Datenbank-Client fast entbehrlich machen.", "en": "\\dt lists the tables, \\d station shows the structure, \\timing enables timing, \\q quits. Four commands that make a database client almost dispensable." } },
         { "was": "pg_dump -F c", "bedeutet": { "de": "Das komprimierte Eigenformat, das pg_restore versteht. Für eine Sicherung, die man wieder einspielen will, die bessere Wahl als reines SQL.", "en": "The compressed custom format pg_restore understands. For a backup you intend to restore, the better choice than plain SQL." } },
-        { "was": "os.environ[...]", "bedeutet": { "de": "Liest die Verbindungszeichenkette aus einer Umgebungsvariablen. In Colab käme sie aus dem Secrets-Panel (Lab 04), lokal aus einer .env-Datei, die in der .gitignore steht (Lab 02). Nie aus dem Quelltext.", "en": "Reads the connection string from an environment variable. In Colab it would come from the secrets panel (lab 04), locally from a .env file listed in the .gitignore (lab 02). Never from source code." } },
-        { "was": "read_sql", "bedeutet": { "de": "Liest das Ergebnis unmittelbar in einen Datenrahmen. Damit greifen die Labs ineinander: Datenbank in Lab 08, Auswertung in Lab 04, Editor in Lab 03, Versionierung in Lab 02.", "en": "Reads the result straight into a data frame. That ties the labs together: database in lab 08, analysis in lab 04, editor in lab 03, versioning in lab 02." } }
+        { "was": "os.environ[...]", "bedeutet": { "de": "Liest den Connection String aus einer Environment Variables. In Colab käme sie aus dem Secrets-Panel (Lab 04), lokal aus einer .env-Datei, die in der .gitignore steht (Lab 02). Nie aus dem Quelltext.", "en": "Reads the connection string from an environment variable. In Colab it would come from the secrets panel (lab 04), locally from a .env file listed in the .gitignore (lab 02). Never from source code." } },
+        { "was": "read_sql", "bedeutet": { "de": "Liest das Ergebnis unmittelbar in einen DataFrame. Damit greifen die Labs ineinander: Datenbank in Lab 08, Auswertung in Lab 04, Editor in Lab 03, Versionierung in Lab 02.", "en": "Reads the result straight into a data frame. That ties the labs together: database in lab 08, analysis in lab 04, editor in lab 03, versioning in lab 02." } }
       ]
     }
   },
@@ -85,7 +85,7 @@
         { "text": { "de": "<code>Advisors → Security Advisor</code> geöffnet und den Befund gelesen: Die neue Tabelle ist als ungeschützt gemeldet.", "en": "Opened <code>Advisors → Security Advisor</code> and read the finding: the new table is reported as unprotected." } },
         { "text": { "de": "<code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code> ausgeführt und den Security Advisor erneut geprüft — der Befund ist weg.", "en": "Ran <code>ALTER TABLE … ENABLE ROW LEVEL SECURITY;</code> and checked the security advisor again — the finding is gone." } },
         { "text": { "de": "Unter <code>Project Settings → API Keys</code> beide Schlüssel angesehen und verstanden, welcher wohin darf.", "en": "Looked at both keys under <code>Project Settings → API Keys</code> and understood which may go where." } },
-        { "text": { "de": "Über den Knopf <code>Connect</code> die drei Verbindungszeichenketten verglichen und die Session-Pooler-Zeichenkette gesichert — sie wird in Lab 09 gebraucht.", "en": "Compared the three connection strings via the <code>Connect</code> button and saved the session pooler string — it is needed in lab 09." } },
+        { "text": { "de": "Über den Knopf <code>Connect</code> die drei Connection Strings verglichen und die Session-Pooler-Zeichenkette gesichert — sie wird in Lab 09 gebraucht.", "en": "Compared the three connection strings via the <code>Connect</code> button and saved the session pooler string — it is needed in lab 09." } },
         { "text": { "de": "Im Kalender notiert: Das Projekt pausiert nach etwa einer Woche ohne Zugriff und muss dann im Dashboard wiederhergestellt werden.", "en": "Noted in the calendar: the project pauses after roughly a week without access and then has to be restored in the dashboard." } }
       ],
       "rueckmeldung": {
@@ -172,7 +172,7 @@
       },
       "fragen": [
         {
-          "frage": { "de": "Sie schalten Row Level Security für eine Tabelle ein. Ein Aufruf der Schnittstelle mit dem öffentlichen Schlüssel liefert danach ein leeres Ergebnis <code>[]</code>. Was ist passiert?", "en": "You enable row level security for a table. A call to the interface with the publishable key then returns an empty result <code>[]</code>. What happened?" },
+          "frage": { "de": "Sie schalten Row Level Security für eine Tabelle ein. Ein Aufruf der API mit dem öffentlichen Schlüssel liefert danach ein leeres Ergebnis <code>[]</code>. Was ist passiert?", "en": "You enable row level security for a table. A call to the interface with the publishable key then returns an empty result <code>[]</code>. What happened?" },
           "optionen": [
             { "de": "Nichts Unerwartetes: Ohne Regel ist der Zugriff verweigert. Das ist die richtige Voreinstellung — jetzt fehlt eine Policy, die das Lesen ausdrücklich erlaubt.", "en": "Nothing unexpected: without a rule, access is denied. That is the right default — now a policy explicitly permitting reading is missing." },
             { "de": "Die Tabelle ist beim Einschalten geleert worden.", "en": "The table was emptied when it was switched on." },
@@ -180,7 +180,7 @@
           ],
           "richtig": [0],
           "erklaerung": {
-            "de": "Die Daten sind unberührt — im SQL-Editor sehen Sie sie weiter, weil der dort verwendete Zugang die Regeln nicht durchläuft. Genau dieser Unterschied verwirrt: Über die Schnittstelle nichts, im Editor alles. Die Prüfung ist ein curl-Aufruf mit dem öffentlichen Schlüssel.",
+            "de": "Die Daten sind unberührt — im SQL-Editor sehen Sie sie weiter, weil der dort verwendete Zugang die Regeln nicht durchläuft. Genau dieser Unterschied verwirrt: Über die API nichts, im Editor alles. Die Prüfung ist ein curl-Aufruf mit dem öffentlichen Schlüssel.",
             "en": "The data is untouched — in the SQL editor you still see it, because the access used there does not pass through the rules. Exactly that difference confuses: nothing through the interface, everything in the editor. The check is a curl call with the publishable key."
           }
         },
@@ -189,7 +189,7 @@
           "optionen": [
             { "de": "Regeln gelten je Vorgang. Für <code>INSERT</code> braucht es eine eigene Policy mit <code>WITH CHECK</code>.", "en": "Rules apply per operation. <code>INSERT</code> needs its own policy with <code>WITH CHECK</code>." },
             { "de": "<code>USING</code> muss für Einfügungen <code>true</code> lauten.", "en": "<code>USING</code> has to read <code>true</code> for inserts." },
-            { "de": "Einfügen ist über die Schnittstelle grundsätzlich nicht möglich.", "en": "Inserting is fundamentally impossible through the interface." }
+            { "de": "Einfügen ist über die API grundsätzlich nicht möglich.", "en": "Inserting is fundamentally impossible through the interface." }
           ],
           "richtig": [0],
           "erklaerung": {
@@ -213,7 +213,7 @@
         {
           "frage": { "de": "Welche Aussage über den Security Advisor trifft zu?", "en": "Which statement about the security advisor is correct?" },
           "optionen": [
-            { "de": "Er meldet unter anderem Tabellen im Schema public, für die Row Level Security nicht eingeschaltet ist — also solche, die über die Schnittstelle offen erreichbar sind.", "en": "Among other things it reports tables in the public schema for which row level security is not enabled — that is, ones openly reachable through the interface." },
+            { "de": "Er meldet unter anderem Tabellen im Schema public, für die Row Level Security nicht eingeschaltet ist — also solche, die über die API offen erreichbar sind.", "en": "Among other things it reports tables in the public schema for which row level security is not enabled — that is, ones openly reachable through the interface." },
             { "de": "Er schaltet Row Level Security automatisch ein, sobald eine Tabelle entsteht.", "en": "It enables row level security automatically as soon as a table is created." },
             { "de": "Er prüft, ob Passwörter ausreichend lang sind.", "en": "It checks whether passwords are long enough." }
           ],

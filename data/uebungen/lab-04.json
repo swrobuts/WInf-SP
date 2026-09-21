@@ -84,7 +84,7 @@
     "B09": {
       "titel": { "de": "Zurückspeichern nach GitHub", "en": "Save back to GitHub" },
       "prompt": "☰",
-      "befehl": "Datei → Kopie in GitHub speichern\n\n  1  Beim ersten Mal: Zugriff für Colab bestätigen (Schreibrechte)\n  2  Repository und Zweig wählen\n  3  Dateipfad angeben\n  4  Commit-Nachricht schreiben  ← keine Formalie, siehe Lab 02",
+      "befehl": "Datei → Kopie in GitHub speichern\n\n  1  Beim ersten Mal: Zugriff für Colab bestätigen (Schreibrechte)\n  2  Repository und Branch wählen\n  3  Dateipfad angeben\n  4  Commit-Nachricht schreiben  ← keine Formalie, siehe Lab 02",
       "teile": [
         { "was": "Schreibrechte", "bedeutet": { "de": "Colab braucht sie, um einen Commit anzulegen. Der Zugriff lässt sich in den GitHub-Einstellungen jederzeit wieder entziehen.", "en": "Colab needs them to create a commit. The access can be revoked in GitHub's settings at any time." } },
         { "was": "Commit-Nachricht", "bedeutet": { "de": "„Update“ ist keine. Was geändert wurde und warum – in einem Satz. In sechs Wochen liest man diese Zeile und nicht den Unterschied.", "en": "“Update” is not one. What changed and why – in one sentence. In six weeks you will read this line and not the diff." } },

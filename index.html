@@ -42,14 +42,10 @@
     <p class="hero-desc">
       <span lang="de">Dreizehn Labs folgen dem Weg der Daten: Kommandozeile, Versionsverwaltung, Entwicklungsumgebung
         und Notebook; JSON als Austauschformat, SQLite als Datei-Datenbank, Docker als Verpackung, Supabase als
-        gehostetes Postgres und DataGrip als Werkzeug darauf; ETL/ELT als Übergang ins Auswertungsmodell, Render als
-        Bühne für den eigenen Dienst, Power BI und Tableau als Fenster auf das Ergebnis. Konsole, Deploy und BI-Regal
-        sind nachgebildet – die Datenbanken sind echt: PostgreSQL und SQLite laufen in Ihrem Browser.</span>
+        gehostetes Postgres und DataGrip als Werkzeug darauf; ETL/ELT als Übergang ins Auswertungsmodell, Render als Betrieb für den eigenen Dienst, Power BI und Tableau für das Dashboard. Konsole, Deploy und Shelves sind nachgebildet – die Datenbanken sind echt: PostgreSQL und SQLite laufen in Ihrem Browser.</span>
       <span lang="en">Thirteen labs follow the path of the data: command line, version control, development environment
         and notebook; JSON as the exchange format, SQLite as the file database, Docker as the packaging, Supabase as
-        hosted Postgres and DataGrip as the tool on top; ETL/ELT as the passage into the analytical model, Render as the
-        stage for your own service, Power BI and Tableau as the window on the result. Console, deploy and BI shelf are
-        modelled – the databases are real: PostgreSQL and SQLite run in your browser.</span>
+        hosted Postgres and DataGrip as the tool on top; ETL/ELT as the passage into the analytical model, Render as hosting for your own service, Power BI and Tableau for the dashboard. Console, deploy and shelves are modelled – the databases are real: PostgreSQL and SQLite run in your browser.</span>
     </p>
     <div class="hero-badges">
       <span class="hero-badge">Terminal · PowerShell</span>
@@ -100,13 +96,13 @@
     </h2>
     <p>
       <span lang="de">Die Labs sind so geordnet, wie die Daten laufen: erst die Grundwerkzeuge, dann Format und
-        Speicher, dann Verpackung, Hosting und Werkzeug darauf, zuletzt Pipeline, Bereitstellung und Auswertung. Jedes
+        Speicher, dann Verpackung, Hosting und Werkzeug darauf, zuletzt Pipeline, Deploy und Auswertung. Jedes
         Lab erklärt zuerst, wozu das Werkzeug da ist, führt dann durch die Inbetriebnahme und lässt Sie zuletzt
         ausprobieren, was Sie gelesen haben. Alle Labs arbeiten mit derselben Fallstudie: dem Leihradsystem Velo City
         in Würzburg, mit 1.500 synthetischen Fahrten, die als JSON, in SQLite und in PostgreSQL identisch
         vorliegen.</span>
       <span lang="en">The labs are ordered the way the data flows: first the basic tools, then format and storage, then
-        packaging, hosting and the tool on top, finally pipeline, deployment and analysis. Every lab first explains what
+        packaging, hosting and the tool on top, finally pipeline, deploy and analysis. Every lab first explains what
         the tool is for, then walks through setting it up, and finally lets you try out what you have read. All labs
         work with the same case study: the Velo City bike-sharing system in Würzburg, with 1,500 synthetic rides that
         exist identically as JSON, in SQLite and in PostgreSQL.</span>
@@ -119,7 +115,7 @@
     <span class="pfeil">→</span>
     <div class="glied hell"><span class="titel">07–09</span><span class="was"><span lang="de">Container, gehostetes Postgres, Datenbankwerkzeug</span><span lang="en">Container, hosted Postgres, database tool</span></span></div>
     <span class="pfeil">→</span>
-    <div class="glied betont"><span class="titel">10–11</span><span class="was"><span lang="de">Pipeline und Bereitstellung: ETL/ELT, Render</span><span lang="en">Pipeline and deployment: ETL/ELT, Render</span></span></div>
+    <div class="glied betont"><span class="titel">10–11</span><span class="was"><span lang="de">Pipeline und Deploy: ETL/ELT, Render</span><span lang="en">Pipeline and deploy: ETL/ELT, Render</span></span></div>
     <span class="pfeil">→</span>
     <div class="glied betont"><span class="titel">12–13</span><span class="was"><span lang="de">Auswertung: Power BI, Tableau</span><span lang="en">Analysis: Power BI, Tableau</span></span></div>
   </div>
@@ -162,7 +158,7 @@
       <div class="lab-num">05</div>
       <h3><span lang="de">JSON-Datenstrukturen</span><span lang="en">JSON data structures</span></h3>
       <div class="sub">Object, array, nesting, JSON Lines</div>
-      <div class="desc"><span lang="de">Das Format, in dem Schnittstellen antworten und Konfigurationen stehen. Sechs Werttypen, zwei Klammern, keine Kommentare – und die Frage, wie aus einem verschachtelten Dokument eine Tabelle wird.</span><span lang="en">The format APIs answer in and configurations are written in. Six value types, two brackets, no comments – and the question of how a nested document becomes a table.</span></div>
+      <div class="desc"><span lang="de">Das Format, in dem APIs antworten und Konfigurationen stehen. Sechs Werttypen, zwei Klammern, keine Kommentare – und die Frage, wie aus einem verschachtelten Dokument eine Tabelle wird.</span><span lang="en">The format APIs answer in and configurations are written in. Six value types, two brackets, no comments – and the question of how a nested document becomes a table.</span></div>
       <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">90 Min</span><span lang="en">90 min</span></div>
     </a>
 
@@ -178,7 +174,7 @@
       <div class="lab-num">07</div>
       <h3>Docker</h3>
       <div class="sub">Image, container, volume</div>
-      <div class="desc"><span lang="de">Eine Anwendung samt Bibliotheken in ein Abbild verpacken, das überall gleich startet. Eine Datenbank in einer Minute – und die Frage, wovon ihre Daten das Löschen des Containers überleben.</span><span lang="en">Packing an application with its libraries into an image that starts the same everywhere. A database in one minute – and the question of what makes its data survive the container's deletion.</span></div>
+      <div class="desc"><span lang="de">Eine Anwendung samt Bibliotheken in ein Image verpacken, das überall gleich startet. Eine Datenbank in einer Minute – und die Frage, wovon ihre Daten das Löschen des Containers überleben.</span><span lang="en">Packing an application with its libraries into an image that starts the same everywhere. A database in one minute – and the question of what makes its data survive the container's deletion.</span></div>
       <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">120 Min</span><span lang="en">120 min</span></div>
     </a>
 
@@ -186,7 +182,7 @@
       <div class="lab-num">08</div>
       <h3>Supabase</h3>
       <div class="sub">Hosted Postgres, RLS, keys</div>
-      <div class="desc"><span lang="de">Eine verwaltete PostgreSQL-Datenbank mit erzeugter Schnittstelle. Darunter arbeitet gewöhnliches Postgres – die Rechte aber liegen in der Datenbank selbst, und wer das übersieht, stellt seine Tabelle ins offene Netz.</span><span lang="en">A managed PostgreSQL database with a generated interface. Underneath sits ordinary Postgres – but the permissions live in the database itself, and whoever overlooks that puts their table on the open internet.</span></div>
+      <div class="desc"><span lang="de">Eine verwaltete PostgreSQL-Datenbank mit erzeugter API. Darunter arbeitet gewöhnliches Postgres – die Rechte aber liegen in der Datenbank selbst, und wer das übersieht, stellt seine Tabelle ins offene Netz.</span><span lang="en">A managed PostgreSQL database with a generated interface. Underneath sits ordinary Postgres – but the permissions live in the database itself, and whoever overlooks that puts their table on the open internet.</span></div>
       <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">105 Min</span><span lang="en">105 min</span></div>
     </a>
 
@@ -226,7 +222,7 @@
       <div class="lab-num">13</div>
       <h3>Tableau</h3>
       <div class="sub">Dimension, measure, discrete, continuous</div>
-      <div class="desc"><span lang="de">Felder auf Regale legen und zusehen, wie daraus eine Abfrage wird. Blau ist nicht Dimension und Grün nicht Kennzahl – wer das auseinanderhält, versteht, warum ein Balken zur Achse wird.</span><span lang="en">Putting fields on shelves and watching a query emerge. Blue is not dimension and green is not measure – whoever keeps that apart understands why a bar becomes an axis.</span></div>
+      <div class="desc"><span lang="de">Felder auf Shelves legen und zusehen, wie daraus eine Abfrage wird. Blau ist nicht Dimension und Grün nicht Kennzahl – wer das auseinanderhält, versteht, warum ein Balken zur Achse wird.</span><span lang="en">Putting fields on shelves and watching a query emerge. Blue is not dimension and green is not measure – whoever keeps that apart understands why a bar becomes an axis.</span></div>
       <div class="meta">6 <span lang="de">Übungen</span><span lang="en">exercises</span> · <span lang="de">105 Min</span><span lang="en">105 min</span></div>
     </a>
 
@@ -264,9 +260,9 @@
       </div>
       <div class="concept-box">
         <h3><span lang="de">Simulatoren für das, was man nicht einbetten kann</span><span lang="en">Simulators for what cannot be embedded</span></h3>
-        <p><span lang="de">Ein Deploy bei Render, ein Regal in Tableau, das Feldfenster in Power BI: Diese Oberflächen
+        <p><span lang="de">Ein Deploy bei Render, ein Shelf in Tableau, das Feldfenster in Power BI: Diese Oberflächen
           gehören anderen. Die Labs bilden den Mechanismus nach – Build Command, Start Command und das Protokoll;
-          Felder, Regale und das Diagramm, das daraus entsteht. Was hier klappt, klappt draußen aus demselben
+          Felder, Shelves und das Diagramm, das daraus entsteht. Was hier klappt, klappt draußen aus demselben
           Grund.</span>
         <span lang="en">A deploy on Render, a shelf in Tableau, the field pane in Power BI: these interfaces belong to
           others. The labs model the mechanism – build command, start command and the log; fields, shelves and the

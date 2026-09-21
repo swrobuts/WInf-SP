@@ -20,12 +20,15 @@ Projektwurzel: `/Users/robert/Library/CloudStorage/OneDrive-Persönlich/Vorlesun
 
 1. **Zweisprachig, immer.** Jeder sichtbare Text steht doppelt: `<span lang="de">…</span><span lang="en">…</span>`.
    In JSON ist jedes Textfeld `{ "de": "…", "en": "…" }`. Kein Text nur in einer Sprache – der Abnahmelauf prüft das.
-2. **Englische Fachbegriffe bleiben englisch**, in beiden Sprachen: Commit, Branch, Repository, Volume, Image,
-   Container, Measure, Dimension, Pipeline, Staging, Mart, Upsert, Build Command, Start Command, Environment
-   Variable, Row Level Security, Data Source, Interpreter, Run Configuration, Web Service, Blueprint … Deutsche
-   Erklärung dazu ist erwünscht („ein Volume – ein Speicherbereich außerhalb des Containers“), die Übersetzung des
-   Begriffs nicht. Ausnahme: Was das Lab 07 (Docker) und Lab 01 bereits eingedeutscht haben („Abbild“, „Band“) bleibt
-   dort; in neuen Labs wird englisch geschrieben.
+2. **Englische Fachbegriffe bleiben englisch**, in beiden Sprachen: Commit, Branch, Merge, Remote, Repository,
+   Volume, Image, Container, Stack, Host, Measure, Dimension, Shelf, Pill, Marks card, Canvas, View, Field wells,
+   DataFrame, Data Editor, Query Console, Data Source, Connection String, API, Pipeline, Staging, Mart, Upsert,
+   Build Command, Start Command, Environment Variable, Row Level Security, Interpreter, Run Configuration,
+   Code Completion, Web Service, Blueprint … Deutsche Erklärung dazu ist erwünscht („ein Volume – ein
+   Speicherbereich außerhalb des Containers“), die Übersetzung des Begriffs nicht – auch keine Metaphern wie
+   „Kette“ und „Glied“. Die früheren Eindeutschungen („Abbild“, „Band“, „Zweig“, „Regal“, „Datenrahmen“,
+   „Verbindungszeichenkette“) wurden am 21.09.2026 zurückgenommen. Ausnahmen: Wörter der deutschen
+   Betriebssysteme und Fachsprache (Eingabeaufforderung, Zeichenkette, Fensterfunktion, Sicht, Zugangsdaten).
 3. **Ton:** sachlich, präzise, „Sie“, keine Ausrufezeichen, keine Werbung. Jede Aussage zu Preisen, Lizenzen,
    Kontingenten oder Versionen trägt den Stand („Stand 09/2026“) und stammt aus dem Faktenblatt zur Recherche
    (Pfad im Auftrag). Was dort als UNVERIFIED markiert ist, wird entweder weggelassen oder als „nach Herstellerangabe

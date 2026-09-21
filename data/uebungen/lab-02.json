@@ -30,7 +30,7 @@
       "teile": [
         { "was": "--global", "bedeutet": { "de": "Gilt für alle Repositories dieses Benutzerkontos. Ohne --global nur für das aktuelle – nützlich, wenn ein Projekt eine andere Adresse braucht.", "en": "Applies to all repositories of this user account. Without --global only to the current one – useful when a project needs a different address." } },
         { "was": "user.name / user.email", "bedeutet": { "de": "Erscheinen in jedem Commit, dauerhaft und in öffentlichen Repositories weltweit lesbar. Wer das nicht will, aktiviert in den GitHub-Einstellungen „Keep my email addresses private“ und verwendet die dort genannte Ersatzadresse.", "en": "Appear in every commit, permanently, and in public repositories readable worldwide. Whoever does not want that enables “Keep my email addresses private” in GitHub's settings and uses the no-reply address given there." } },
-        { "was": "init.defaultBranch main", "bedeutet": { "de": "Nennt den ersten Zweig main statt master – das ist heute die verbreitete Voreinstellung, und Anleitungen setzen sie voraus.", "en": "Names the first branch main instead of master – that is today's common default, and guides assume it." } },
+        { "was": "init.defaultBranch main", "bedeutet": { "de": "Nennt den ersten Branch main statt master – das ist heute die verbreitete Voreinstellung, und Anleitungen setzen sie voraus.", "en": "Names the first branch main instead of master – that is today's common default, and guides assume it." } },
         { "was": "--list", "bedeutet": { "de": "Zeigt alle Einstellungen. Der erste Griff, wenn Commits mit dem falschen Namen erscheinen.", "en": "Shows all settings. The first thing to reach for when commits appear under the wrong name." } }
       ]
     },
@@ -58,14 +58,14 @@
       "befehl": "git status",
       "ausgabe": "On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges to be committed:\n  (use \"git restore --staged <file>...\" to unstage)\n        new file:   auswertung.py\n\nUntracked files:\n  (use \"git add <file>...\" to include in what will be committed)\n        daten/fahrten_2026.csv",
       "teile": [
-        { "was": "On branch main", "bedeutet": { "de": "Auf welchem Zweig Sie stehen. Die häufigste Ursache für „meine Änderung ist weg“ ist ein Zweigwechsel, der übersehen wurde.", "en": "Which branch you are on. The most common cause of “my change is gone” is a branch switch that went unnoticed." } },
+        { "was": "On branch main", "bedeutet": { "de": "Auf welchem Branch Sie stehen. Die häufigste Ursache für „meine Änderung ist weg“ ist ein Branch-Wechsel, der übersehen wurde.", "en": "Which branch you are on. The most common cause of “my change is gone” is a branch switch that went unnoticed." } },
         { "was": "Changes to be committed", "bedeutet": { "de": "Der Staging-Bereich. Nur was hier steht, geht in den nächsten Commit.", "en": "The staging area. Only what stands here goes into the next commit." } },
-        { "was": "Untracked files", "bedeutet": { "de": "Dateien, die Git noch nicht kennt. Hier gehört die CSV nicht hin, sondern in die .gitignore – siehe unten.", "en": "Files Git does not know yet. The CSV does not belong here but in the .gitignore – see below." } },
+        { "was": "Untracked files", "bedeutet": { "de": "Dateien, die Git noch nicht kennt. Die CSV gehört in die .gitignore – siehe unten.", "en": "Files Git does not know yet. The CSV belongs in the .gitignore – see below." } },
         { "was": "Was man daraus liest", "bedeutet": { "de": "Vor jedem add, vor jedem commit, vor jedem push. Der Befehl kostet nichts und verhindert die meisten Missverständnisse.", "en": "Before every add, before every commit, before every push. The command costs nothing and prevents most misunderstandings." } }
       ]
     },
     "B06": {
-      "titel": { "de": "Vormerken und festschreiben", "en": "Stage and commit" },
+      "titel": { "de": "Stagen und committen", "en": "Stage and commit" },
       "befehl": "git add auswertung.py                              # gezielt – bevorzugt\ngit add .                                          # alles im aktuellen Verzeichnis\ngit commit -m \"Ausreisserbehandlung in Preisspalte ergaenzt\"",
       "teile": [
         { "was": "add <datei>", "bedeutet": { "de": "Merkt eine einzelne Datei für den nächsten Commit vor. So entstehen Commits mit einer Absicht statt Sammelcommits.", "en": "Stages a single file for the next commit. That is how commits with one intention come about instead of catch-all commits." } },
@@ -76,30 +76,30 @@
     },
     "B07": {
       "titel": { "de": "Übertragen und holen", "en": "Push and pull" },
-      "befehl": "git pull                    # IMMER vor dem Arbeiten\ngit push\ngit push -u origin main     # nur beim allerersten Push eines Zweigs\ngit log --oneline --graph --decorate --all",
+      "befehl": "git pull                    # IMMER vor dem Arbeiten\ngit push\ngit push -u origin main     # nur beim allerersten Push eines Branch\ngit log --oneline --graph --decorate --all",
       "teile": [
         { "was": "pull", "bedeutet": { "de": "Holt die Änderungen der anderen. Wer das versäumt, erhält beim Push „rejected – fetch first“ und muss dann erst zusammenführen. Ein pull am Anfang jeder Sitzung erspart das.", "en": "Fetches the others' changes. Whoever skips it gets “rejected – fetch first” on push and then has to merge first. A pull at the start of every session avoids this." } },
         { "was": "push", "bedeutet": { "de": "Überträgt die lokalen Commits zum Server. Vorher liegt alles nur auf Ihrem Rechner – ein Festplattenschaden nimmt es mit.", "en": "Transfers the local commits to the server. Before that, everything lives only on your machine – a disk failure takes it along." } },
-        { "was": "-u origin main", "bedeutet": { "de": "Verknüpft den lokalen Zweig einmalig mit dem gleichnamigen auf dem Server. Danach genügt git push.", "en": "Links the local branch once with the one of the same name on the server. Afterwards git push is enough." } },
+        { "was": "-u origin main", "bedeutet": { "de": "Verknüpft den lokalen Branch einmalig mit dem gleichnamigen auf dem Server. Danach genügt git push.", "en": "Links the local branch once with the one of the same name on the server. Afterwards git push is enough." } },
         { "was": "log --oneline --graph", "bedeutet": { "de": "Die Geschichte als Baum, eine Zeile je Commit. Der Befehl, mit dem man in einem fremden Repository anfängt, um zu verstehen, was dort passiert ist.", "en": "The history as a tree, one line per commit. The command to start with in an unfamiliar repository, to understand what happened there." } }
       ]
     },
     "B08": {
-      "titel": { "de": "Zweig anlegen und wechseln", "en": "Create and switch branches" },
+      "titel": { "de": "Branch anlegen und wechseln", "en": "Create and switch branches" },
       "befehl": "git switch -c experiment/andere-schwelle    # anlegen und hinwechseln\ngit branch                                  # welche gibt es, wo stehe ich\ngit switch main                             # zurück",
       "teile": [
-        { "was": "switch -c", "bedeutet": { "de": "Legt den Zweig an und wechselt in einem Schritt hin. Der ältere Befehl dafür heißt git checkout -b und tut dasselbe – switch ist die neuere, eindeutigere Schreibweise.", "en": "Creates the branch and switches to it in one step. The older command for this is git checkout -b and does the same – switch is the newer, less ambiguous spelling." } },
-        { "was": "Namen mit Schrägstrich", "bedeutet": { "de": "experiment/andere-schwelle ist eine Gliederung, kein Ordner. Übliche Präfixe: feature/, fix/, experiment/. Sie machen eine Zweigliste lesbar.", "en": "experiment/other-threshold is a grouping, not a folder. Common prefixes: feature/, fix/, experiment/. They make a branch list readable." } },
-        { "was": "branch", "bedeutet": { "de": "Listet die Zweige; der aktuelle trägt einen Stern. Mit git branch -d name wird ein zusammengeführter Zweig entfernt.", "en": "Lists the branches; the current one carries an asterisk. git branch -d name removes a merged branch." } },
+        { "was": "switch -c", "bedeutet": { "de": "Legt den Branch an und wechselt in einem Schritt hin. Der ältere Befehl dafür heißt git checkout -b und tut dasselbe – switch ist die neuere, eindeutigere Schreibweise.", "en": "Creates the branch and switches to it in one step. The older command for this is git checkout -b and does the same – switch is the newer, less ambiguous spelling." } },
+        { "was": "Namen mit Schrägstrich", "bedeutet": { "de": "experiment/andere-schwelle ist eine Gliederung, kein Ordner. Übliche Präfixe: feature/, fix/, experiment/. Sie machen eine Branch-Liste lesbar.", "en": "experiment/other-threshold is a grouping, not a folder. Common prefixes: feature/, fix/, experiment/. They make a branch list readable." } },
+        { "was": "branch", "bedeutet": { "de": "Listet die Branches; der aktuelle trägt einen Stern. Mit git branch -d name wird ein zusammengeführter Branch entfernt.", "en": "Lists the branches; the current one carries an asterisk. git branch -d name removes a merged branch." } },
         { "was": "Was beim Wechsel passiert", "bedeutet": { "de": "Git tauscht die Dateien im Arbeitsverzeichnis aus. Nicht festgeschriebene Änderungen können dabei im Weg stehen – dann erst committen oder git stash nutzen.", "en": "Git swaps out the files in the working directory. Uncommitted changes can get in the way – then commit first or use git stash." } }
       ]
     },
     "B09": {
-      "titel": { "de": "Zusammenführen", "en": "Merging" },
-      "befehl": "git switch main            # in den Zielzweig wechseln\ngit merge experiment/andere-schwelle\n\n# bei einem Konflikt: Datei öffnen, Markierungen auflösen, dann\ngit add <datei>\ngit commit",
+      "titel": { "de": "Merge", "en": "Merge" },
+      "befehl": "git switch main            # in den Ziel-Branch wechseln\ngit merge experiment/andere-schwelle\n\n# bei einem Konflikt: Datei öffnen, Markierungen auflösen, dann\ngit add <datei>\ngit commit",
       "teile": [
-        { "was": "Reihenfolge", "bedeutet": { "de": "Zuerst in den Zweig wechseln, der die Änderung aufnehmen soll, dann mergen. Wer es umgekehrt macht, führt in die falsche Richtung zusammen.", "en": "First switch to the branch that should receive the change, then merge. Doing it the other way round merges in the wrong direction." } },
-        { "was": "Fast-forward", "bedeutet": { "de": "Hat der Zielzweig seit der Verzweigung keine eigenen Commits, schiebt Git nur den Zeiger vor. Es entsteht kein Merge-Commit – das ist der einfache Fall.", "en": "If the target branch has no commits of its own since the divergence, Git just moves the pointer forward. No merge commit appears – that is the simple case." } },
+        { "was": "Reihenfolge", "bedeutet": { "de": "Zuerst in den Branch wechseln, der die Änderung aufnehmen soll, dann mergen. Wer es umgekehrt macht, führt in die falsche Richtung zusammen.", "en": "First switch to the branch that should receive the change, then merge. Doing it the other way round merges in the wrong direction." } },
+        { "was": "Fast-forward", "bedeutet": { "de": "Hat der Ziel-Branch seit der Abzweigung keine eigenen Commits, schiebt Git nur den Zeiger vor. Es entsteht kein Merge-Commit – das ist der einfache Fall.", "en": "If the target branch has no commits of its own since the divergence, Git just moves the pointer forward. No merge commit appears – that is the simple case." } },
         { "was": "Konflikt", "bedeutet": { "de": "Beide Seiten haben dieselbe Zeile geändert. Git schreibt beide Fassungen mit Markierungen in die Datei und wartet auf Ihre Entscheidung. Nach dem Auflösen: add und commit.", "en": "Both sides changed the same line. Git writes both versions into the file with markers and waits for your decision. After resolving: add and commit." } },
         { "was": "git merge --abort", "bedeutet": { "de": "Bricht einen Merge ab und stellt den Zustand davor wieder her. Der Ausweg, wenn ein Konflikt unübersichtlich wird.", "en": "Aborts a merge and restores the state before it. The way out when a conflict gets confusing." } }
       ]
@@ -121,7 +121,7 @@
       "teile": [
         { "was": "nbstripout --install", "bedeutet": { "de": "Richtet einen Git-Filter ein, der beim Committen alle Zellausgaben entfernt. Lokal bleiben die Ausgaben sichtbar – nur im Repository landen sie nicht.", "en": "Sets up a Git filter that removes all cell outputs when committing. Locally the outputs stay visible – they just do not reach the repository." } },
         { "was": "Was das löst", "bedeutet": { "de": "Lesbare Unterschiede, kleines Repository, keine Daten in den Ausgaben, harmlosere Konflikte. Vier Probleme mit einem Befehl.", "en": "Readable diffs, a small repository, no data in the outputs, less destructive conflicts. Four problems with one command." } },
-        { "was": "nbdime", "bedeutet": { "de": "Der andere Weg: Ausgaben behalten, aber Unterschiede und Zusammenführungen zellenweise statt zeilenweise darstellen. Wer die Ausgaben als Teil des Ergebnisses versteht, nimmt diesen.", "en": "The other route: keep the outputs but present diffs and merges cell by cell instead of line by line. Whoever regards the outputs as part of the result takes this one." } },
+        { "was": "nbdime", "bedeutet": { "de": "Der andere Weg: Ausgaben behalten, aber Diffs und Merges zellenweise statt zeilenweise darstellen. Wer die Ausgaben als Teil des Ergebnisses versteht, nimmt diesen.", "en": "The other route: keep the outputs but present diffs and merges cell by cell instead of line by line. Whoever regards the outputs as part of the result takes this one." } },
         { "was": "Wann einrichten", "bedeutet": { "de": "Vor dem ersten Commit eines Notebooks. Nachträglich hilft es nur für die Zukunft – die schon eingebetteten Ausgaben bleiben in der Geschichte.", "en": "Before the first commit of a notebook. Afterwards it only helps for the future – the already embedded outputs stay in the history." } }
       ]
     }
@@ -136,7 +136,7 @@
         "en": "<p>The most common encounter with Git is not your own project but someone else's: you are given an address and asked to get an overview. Clone <code>https://github.com/studi/velocity-analyse.git</code>, look at what is inside, and read the history.</p>"
       },
       "begruessung": [
-        { "de": "Auftrag 1 von 3 an der Konsole. Der Fernserver ist nachgebildet — es geht nichts nach außen.", "en": "Assignment 1 of 3 at the console. The remote is modelled — nothing goes outside." }
+        { "de": "Auftrag 1 von 3 an der Konsole. Das Remote ist nachgebildet — es geht nichts nach außen.", "en": "Assignment 1 of 3 at the console. The remote is modelled — nothing goes outside." }
       ],
       "schritte": [
         { "text": { "de": "Prüfen, dass hier noch kein Repository ist (git status)", "en": "Check that there is no repository here yet (git status)" }, "muster": "^git\\s+status" },
@@ -166,8 +166,8 @@
         { "text": { "de": "Das Repository klonen und hineinwechseln", "en": "Clone the repository and change into it" }, "zustand": { "gitRepo": true, "pfad": "velocity-analyse" } },
         { "text": { "de": "Die Datei auswertung.py anlegen", "en": "Create the file auswertung.py" }, "zustand": { "datei": "velocity-analyse/auswertung.py" } },
         { "text": { "de": "git status — die Datei erscheint unter „Untracked files“", "en": "git status — the file appears under “Untracked files”" }, "muster": "^git\\s+status" },
-        { "text": { "de": "Die Datei vormerken (git add) — git status zeigt sie danach unter „Changes to be committed“", "en": "Stage the file (git add) — git status then shows it under “Changes to be committed”" }, "muster": "^git\\s+add\\b", "zustand": { "gitIndexGefuellt": true } },
-        { "text": { "de": "Mit einer aussagekräftigen Nachricht festschreiben (git commit -m \"…\")", "en": "Commit with a meaningful message (git commit -m \"…\")" }, "zustand": { "gitCommits": 2, "gitIndexLeer": true } },
+        { "text": { "de": "Die Datei stagen (git add) — git status zeigt sie danach unter „Changes to be committed“", "en": "Stage the file (git add) — git status then shows it under “Changes to be committed”" }, "muster": "^git\\s+add\\b", "zustand": { "gitIndexGefuellt": true } },
+        { "text": { "de": "Mit einer aussagekräftigen Nachricht committen (git commit -m \"…\")", "en": "Commit with a meaningful message (git commit -m \"…\")" }, "zustand": { "gitCommits": 2, "gitIndexLeer": true } },
         { "text": { "de": "Die Geschichte prüfen — der neue Commit steht oben", "en": "Check the history — the new commit is at the top" }, "muster": "^git\\s+log\\b" },
         { "text": { "de": "Zum Server übertragen (git push)", "en": "Transfer to the server (git push)" }, "zustand": { "gitVeroeffentlicht": true } }
       ],
@@ -179,25 +179,25 @@
     {
       "id": "W02-03",
       "typ": "terminal",
-      "titel": { "de": "Ein Experiment auf einem Zweig", "en": "An experiment on a branch" },
+      "titel": { "de": "Ein Experiment auf einem Branch", "en": "An experiment on a branch" },
       "aufgabe": {
-        "de": "<p>Die Fragestellung: „Was wäre, wenn wir die Ausreißer anders behandeln?“ Statt die vorhandene Auswertung umzubauen, probieren Sie es auf einem Zweig aus — und führen das Ergebnis anschließend zurück.</p><p>Legen Sie einen Zweig <code>experiment</code> an, erzeugen Sie dort eine Datei, schreiben Sie sie fest, wechseln Sie zurück nach <code>main</code> und führen Sie zusammen. Achten Sie darauf, dass die Datei nach dem Wechsel auf <code>main</code> zunächst nicht in der Geschichte steht — und nach dem Zusammenführen doch.</p>",
+        "de": "<p>Die Fragestellung: „Was wäre, wenn wir die Ausreißer anders behandeln?“ Statt die vorhandene Auswertung umzubauen, probieren Sie es auf einem Branch aus — und führen das Ergebnis anschließend zurück.</p><p>Legen Sie einen Branch <code>experiment</code> an, erzeugen Sie dort eine Datei, schreiben Sie sie fest, wechseln Sie zurück nach <code>main</code> und führen Sie zusammen. Achten Sie darauf, dass die Datei nach dem Wechsel auf <code>main</code> zunächst nicht in der Geschichte steht — und nach dem Zusammenführen doch.</p>",
         "en": "<p>The question: “what if we treat the outliers differently?” Instead of rebuilding the existing analysis, you try it on a branch — and merge the result back afterwards.</p><p>Create a branch <code>experiment</code>, produce a file there, commit it, switch back to <code>main</code> and merge. Note that after switching to <code>main</code> the file is not in the history at first — and is after merging.</p>"
       },
       "begruessung": [
         { "de": "Auftrag 3 von 3. Voraussetzung: ein Repository. Klonen oder git init genügt.", "en": "Assignment 3 of 3. Prerequisite: a repository. Cloning or git init is enough." }
       ],
       "schritte": [
-        { "text": { "de": "Ein Repository bereitstellen (klonen oder git init im eigenen Ordner)", "en": "Provide a repository (clone, or git init in your own folder)" }, "zustand": { "gitRepo": true } },
-        { "text": { "de": "Einen Zweig experiment anlegen und hinwechseln (git switch -c)", "en": "Create a branch experiment and switch to it (git switch -c)" }, "zustand": { "gitZweig": "experiment" } },
-        { "text": { "de": "Auf dem Zweig eine Datei anlegen und festschreiben", "en": "Create a file on the branch and commit it" }, "muster": "^git\\s+commit\\b" },
-        { "text": { "de": "Die Zweige auflisten (git branch) — der Stern zeigt, wo Sie stehen", "en": "List the branches (git branch) — the asterisk shows where you are" }, "muster": "^git\\s+branch\\s*$" },
+        { "text": { "de": "Ein Repository anlegen oder klonen (git init oder git clone)", "en": "Create or clone a repository (git init or git clone)" }, "zustand": { "gitRepo": true } },
+        { "text": { "de": "Einen Branch experiment anlegen und hinwechseln (git switch -c)", "en": "Create a branch experiment and switch to it (git switch -c)" }, "zustand": { "gitZweig": "experiment" } },
+        { "text": { "de": "Auf dem Branch eine Datei anlegen und committen", "en": "Create a file on the branch and commit it" }, "muster": "^git\\s+commit\\b" },
+        { "text": { "de": "Die Branches auflisten (git branch) — der Stern zeigt, wo Sie stehen", "en": "List the branches (git branch) — the asterisk shows where you are" }, "muster": "^git\\s+branch\\s*$" },
         { "text": { "de": "Zurück nach main wechseln", "en": "Switch back to main" }, "zustand": { "gitZweig": "main" } },
-        { "text": { "de": "Die Geschichte auf main ansehen — der Commit vom Zweig fehlt hier", "en": "Look at the history on main — the branch's commit is missing here" }, "muster": "^git\\s+log\\b" },
-        { "text": { "de": "Den Zweig experiment nach main zusammenführen (git merge)", "en": "Merge the branch experiment into main (git merge)" }, "muster": "^git\\s+merge\\b" }
+        { "text": { "de": "Die Geschichte auf main ansehen — der Commit vom Branch fehlt hier", "en": "Look at the history on main — the branch's commit is missing here" }, "muster": "^git\\s+log\\b" },
+        { "text": { "de": "Den Branch experiment nach main mergen (git merge)", "en": "Merge the branch experiment into main (git merge)" }, "muster": "^git\\s+merge\\b" }
       ],
       "rueckmeldung": {
-        "de": "Der aussagekräftigste Moment war der sechste Schritt: Auf main fehlte der Commit, obwohl er längst geschrieben war. Ein Zweig ist genau das — eine eigene Sicht auf die Geschichte. Genau deshalb ist er für ein „was wäre, wenn“ das richtige Werkzeug und nicht eine Kopie des Ordners.",
+        "de": "Der aussagekräftigste Moment war der sechste Schritt: Auf main fehlte der Commit, obwohl er längst geschrieben war. Ein Branch ist genau das — eine eigene Sicht auf die Geschichte. Genau deshalb ist er für ein „was wäre, wenn“ das richtige Werkzeug und nicht eine Kopie des Ordners.",
         "en": "The most telling moment was step six: on main the commit was missing, although it had long been written. A branch is exactly that — its own view of the history. That is precisely why it is the right tool for a “what if” and not a copy of the folder."
       }
     },
@@ -331,7 +331,7 @@
       },
       "schritte": [
         { "text": { "de": "<strong>Zuerst:</strong> Den Schlüssel beim Anbieter widerrufen. In Supabase: <code>Project Settings → API Keys</code>, den betroffenen Schlüssel rotieren. Nicht erst aufräumen — zuerst entwerten.", "en": "<strong>First:</strong> revoke the key with the provider. In Supabase: <code>Project Settings → API Keys</code>, rotate the affected key. Do not tidy up first — devalue it first." } },
-        { "text": { "de": "Einen neuen Schlüssel erzeugen und alle Stellen umstellen, die ihn benutzen (Notebook-Secrets, Umgebungsvariablen, Container).", "en": "Create a new key and switch over every place that uses it (notebook secrets, environment variables, containers)." } },
+        { "text": { "de": "Einen neuen Schlüssel erzeugen und alle Stellen umstellen, die ihn benutzen (Notebook-Secrets, Environment Variables, Container).", "en": "Create a new key and switch over every place that uses it (notebook secrets, environment variables, containers)." } },
         { "text": { "de": "Die Protokolle des Dienstes prüfen: Gab es in den zwei Tagen Zugriffe, die nicht von Ihnen stammen? In Supabase unter <code>Logs</code>.", "en": "Check the service's logs: were there accesses in those two days that did not come from you? In Supabase under <code>Logs</code>." } },
         { "text": { "de": "Die Ursache beheben: <code>.env</code> in die <code>.gitignore</code> aufnehmen, die Datei aus dem Arbeitsverzeichnis nehmen, den Schlüssel im Code durch <code>os.environ[\"SUPABASE_KEY\"]</code> ersetzen.", "en": "Fix the cause: add <code>.env</code> to the <code>.gitignore</code>, take the file out of the working directory, replace the key in the code with <code>os.environ[\"SUPABASE_KEY\"]</code>." } },
         { "text": { "de": "Push-Schutz und Secret-Scanning für das Repository einschalten: <code>Settings → Code security</code>. Damit wird der nächste Versuch schon beim Push abgewiesen.", "en": "Enable push protection and secret scanning for the repository: <code>Settings → Code security</code>. That way the next attempt is rejected on push." } },

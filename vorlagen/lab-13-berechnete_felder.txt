@@ -41,7 +41,7 @@ END
 
 // ---------------------------------------------------------------------------
 // 5) Anteil am Gesamtumsatz – KEIN Calculated Field, sondern eine Table Calculation
-//    Weg ohne Formel: SUM(Preis Eur) auf das Regal ziehen → Rechtsklick auf die Pille
+//    Weg ohne Formel: SUM(Preis Eur) auf das Shelf ziehen → Rechtsklick auf die Pille
 //    → Quick Table Calculation → Percent of Total. Die Pille traegt danach ein Dreieck.
 //    Rechtsklick → Edit Table Calculation… → Compute Using legt fest, was 100 % ist
 //    (Table (across), Table (down), Pane, Specific Dimensions).

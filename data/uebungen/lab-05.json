@@ -169,7 +169,7 @@
         {
           "was": "json.load / json.loads",
           "bedeutet": {
-            "de": "load liest aus einer Datei, loads (load string) aus einer Zeichenkette – etwa dem Antwortkörper einer Schnittstelle. Beide liefern dict, list, str, int, float, bool, None.",
+            "de": "load liest aus einer Datei, loads (load string) aus einer Zeichenkette – etwa dem Antwortkörper einer API. Beide liefern dict, list, str, int, float, bool, None.",
             "en": "load reads from a file, loads (load string) from a string – such as an interface's response body. Both return dict, list, str, int, float, bool, None."
           }
         },
@@ -301,7 +301,7 @@
         {
           "was": "dict(…, plaetze=\"Invalid\")",
           "bedeutet": {
-            "de": "Eine Kopie der ersten Station mit einem absichtlich falschen Typ – Zeichenkette statt Zahl. Genau der Fehler, den eine Schnittstelle liefert, die Zahlen als Text sendet.",
+            "de": "Eine Kopie der ersten Station mit einem absichtlich falschen Typ – Zeichenkette statt Zahl. Genau der Fehler, den eine API liefert, die Zahlen als Text sendet.",
             "en": "A copy of the first station with a deliberately wrong type – string instead of number. Exactly the error an interface delivers that sends numbers as text."
           }
         }
@@ -588,7 +588,7 @@
         },
         {
           "frage": {
-            "de": "Eine Schnittstelle liefert Kundennummern als 64-Bit-Ganzzahlen, etwa 9007199254740993. In Python stimmen sie, im Browser enden sie auf …992. Was ist die richtige Abhilfe?",
+            "de": "Eine API liefert Kundennummern als 64-Bit-Ganzzahlen, etwa 9007199254740993. In Python stimmen sie, im Browser enden sie auf …992. Was ist die richtige Abhilfe?",
             "en": "An interface delivers customer numbers as 64-bit integers, for instance 9007199254740993. In Python they are correct, in the browser they end in …992. What is the right remedy?"
           },
           "optionen": [

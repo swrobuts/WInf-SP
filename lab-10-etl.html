@@ -34,7 +34,7 @@
   <a class="sidebar-link" href="#katalog"><span lang="de">Umformungskatalog</span><span lang="en">Transformation catalogue</span></a>
   <a class="sidebar-link" href="#stern"><span lang="de">Das Sternschema</span><span lang="en">The star schema</span></a>
   <a class="sidebar-link" href="#sql"><span lang="de">ELT in SQL</span><span lang="en">ELT in SQL</span></a>
-  <a class="sidebar-link" href="#python"><span lang="de">Der Python-Werkzeugkasten</span><span lang="en">The Python toolkit</span></a>
+  <a class="sidebar-link" href="#python"><span lang="de">Die Python-Bibliotheken</span><span lang="en">The Python libraries</span></a>
   <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Pitfalls</span></a>
   <a class="sidebar-link" href="#spielplatz"><span lang="de">Spielplatz</span><span lang="en">Playground</span></a>
   <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
@@ -47,13 +47,12 @@
   <p class="lab-intro">
     <span lang="de">In Lab 05 haben Sie den Velo-City-Export als verschachteltes JSON gelesen, in Lab 06 eine
       SQLite-Datei auf dem Laptop gefüllt, in Lab 08 eine Postgres-Datenbank bei Supabase eingerichtet. Was noch fehlt,
-      ist der Weg dazwischen – und zwar nicht einmal, sondern jede Nacht, ohne dass jemand daran denkt. Dieses Lab
+      ist der Weg dazwischen – und zwar jede Nacht, ohne dass jemand daran denkt. Dieses Lab
       baut diesen Weg: Rohdaten in eine Staging-Schicht, Umformung in SQL, Ziel ein Sternschema, aus dem in Lab 12
       und 13 ein Dashboard entsteht. Die beiden Buchstabenfolgen ETL und ELT unterscheiden sich nur darin, <em>wo</em>
       die Umformung stattfindet – und genau diese Entscheidung lernen Sie hier zu begründen.</span>
     <span lang="en">In lab 05 you read the Velo City export as nested JSON, in lab 06 you filled an SQLite file on
-      the laptop, in lab 08 you set up a Postgres database on Supabase. What is still missing is the route in between –
-      and not once, but every night, without anyone having to remember. This lab builds that route: raw data into a
+      the laptop, in lab 08 you set up a Postgres database on Supabase. What is still missing is the route in between – every night, without anyone having to remember. This lab builds that route: raw data into a
       staging layer, transformation in SQL, target a star schema from which a dashboard emerges in labs 12 and 13. The
       two letter sequences ETL and ELT differ only in <em>where</em> the transformation takes place – and it is
       precisely that decision you learn to justify here.</span>
@@ -442,10 +441,9 @@
     <h2><span lang="de">Umformungskatalog</span><span lang="en">Transformation catalogue</span></h2>
     <p>
       <span lang="de">Das T besteht aus einer überschaubaren Zahl von Handgriffen, die in jeder Pipeline wiederkehren.
-        Die Tabelle zeigt jeden in beiden Formen – pandas (vor dem Laden) und SQL (nach dem Laden, Postgres) – damit
+        Jeder steht unten in beiden Formen – pandas (vor dem Laden) und SQL (nach dem Laden, Postgres) –, damit
         die Ortsfrage aus dem zweiten Abschnitt keine Frage des Könnens ist.</span>
-      <span lang="en">The T consists of a manageable number of moves that recur in every pipeline. The table shows each
-        in both forms – pandas (before loading) and SQL (after loading, Postgres) – so that the question of place from
+      <span lang="en">The T consists of a manageable number of moves that recur in every pipeline. Each appears below in both forms – pandas (before loading) and SQL (after loading, Postgres) – so that the question of place from
         the second section is not a question of ability.</span>
     </p>
     <div class="table-scroll">
@@ -556,14 +554,13 @@
         wo, wann, womit; (4) die <strong>Fakten</strong> bestimmen – die Zahlen, die je Zeile gemessen werden. Der
         zweite Schritt ist der wichtigste. Der Grain „establishes exactly what a single fact table row represents“ und
         ist laut Kimball „a binding contract on the design“. Für Velo City: <strong>eine Zeile = eine Fahrt</strong>.
-        Alles in der Faktentabelle muss zu diesem Satz passen – Tagessummen gehören nicht hinein, sondern in eine eigene
-        Tabelle mit eigenem Grain.</span>
+        Alles in der Faktentabelle muss zu diesem Satz passen – Tagessummen gehören in eine eigene Tabelle mit eigenem Grain.</span>
       <span lang="en">Kimball's four steps: (1) choose the <strong>business process</strong> – here: a ride takes place;
         (2) declare the <strong>grain</strong>; (3) identify the <strong>dimensions</strong> – who, where, when, with
         what; (4) identify the <strong>facts</strong> – the numbers measured per row. The second step is the most
         important. The grain “establishes exactly what a single fact table row represents” and is, in Kimball's words,
         “a binding contract on the design”. For Velo City: <strong>one row = one ride</strong>. Everything in the fact
-        table must fit that sentence – daily totals do not belong in it but in a separate table with its own grain.</span>
+        table must fit that sentence – daily totals belong in a separate table with its own grain.</span>
     </p>
     <div class="shot">
       <div class="shot-bar"><span class="ampel"><i></i><i></i><i></i></span><span class="titel">DataGrip – Diagram · mart</span><span class="spacer"></span>2026.2</div>
@@ -604,7 +601,7 @@
         „The ‚one‘ side is always a dimension table while the ‚many‘ side is always a fact table.“ Tableau formuliert
         es als Handgriff: die Faktentabelle zuerst ins Modell ziehen, dann die Dimensionen daran anbinden. In beiden
         Werkzeugen werden aus den Dimensionen die Filter und Achsen, aus den Fakten die Balken – das ist der
-        Regal-Simulator in Lab 12 und 13.</span>
+        Shelf-Simulator in Lab 12 und 13.</span>
       <span lang="en">Why the BI tools want stars, the Power BI documentation says in two sentences: “Dimension tables
         enable filtering and grouping. Fact tables enable summarization.” And the relationship determines the role:
         “The ‘one’ side is always a dimension table while the ‘many’ side is always a fact table.” Tableau phrases it
@@ -646,13 +643,13 @@
   <section class="section-block" id="sql">
     <h2><span lang="de">ELT in SQL</span><span lang="en">ELT in SQL</span></h2>
     <p>
-      <span lang="de">Jetzt der Werkzeugkasten für das T in der Zieldatenbank. In dieser Seite läuft ein vollständiges
+      <span lang="de">Das T in der Zieldatenbank ist SQL. In dieser Seite läuft ein vollständiges
         PostgreSQL (PGlite, Stand 09/2026 auf Basis von PostgreSQL 18) mit dem Velo-City-Bestand aus Lab 08 – dieselben
         Tabellen <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code>. Alles, was hier läuft,
         läuft auch auf Supabase, dessen neue Projekte auf Postgres 17 stehen (Stand 09/2026). Jede Karte ist auf dieser
         Maschine geprüft. Was Sie in der Konsole anlegen, bleibt bis zum Zurücksetzen erhalten – Schemata wie
         <code>staging</code> und <code>mart</code> also auch.</span>
-      <span lang="en">Now the toolkit for the T inside the target database. A complete PostgreSQL runs in this page
+      <span lang="en">The T inside the target database is SQL. A complete PostgreSQL runs in this page
         (PGlite, as of 09/2026 based on PostgreSQL 18) with the Velo City data from lab 08 – the same tables
         <code>station</code>, <code>rad</code>, <code>kunde</code>, <code>fahrt</code>. Everything that runs here also
         runs on Supabase, whose new projects are on Postgres 17 (as of 09/2026). Every card has been checked on this
@@ -680,7 +677,7 @@
 
   <!-- ============================================================ 7 -->
   <section class="section-block" id="python">
-    <h2><span lang="de">Der Python-Werkzeugkasten</span><span lang="en">The Python toolkit</span></h2>
+    <h2><span lang="de">Die Python-Bibliotheken</span><span lang="en">The Python libraries</span></h2>
     <p>
       <span lang="de">Für E und L – und das kleine t – reichen fünf Bibliotheken, die Sie bis auf zwei schon kennen:
         <code>requests</code> holt die Datei von einer URL, <code>json</code> und <code>pandas</code> (Lab 04, Lab 05)
@@ -801,7 +798,7 @@
     <div class="karten">
       <div class="karte">
         <div class="kopfzeile"><span lang="de">Umformung im BI-Werkzeug</span><span lang="en">Transformation in the BI tool</span></div>
-        <p><span lang="de">Die Logik steckt in Power Query oder in berechneten Feldern – je Bericht anders, ungetestet,
+        <p><span lang="de">Die Logik steckt in Power Query oder in Calculated Fields – je Bericht anders, ungetestet,
           ohne Lineage. Microsoft selbst rät: „we recommend you first develop a data warehouse and Extract, Transform,
           and Load (ETL) processes to periodically load the data warehouse. Your semantic model can then connect to the
           data warehouse.“ Symptom: zwei Berichte, zwei Umsatzzahlen.</span>
@@ -867,7 +864,7 @@
       </div>
       <div class="karte">
         <div class="kopfzeile"><span lang="de">Zugangsdaten im Code</span><span lang="en">Credentials in the code</span></div>
-        <p><span lang="de">Die Verbindungszeichenkette samt Passwort steht im Skript, das Skript liegt auf GitHub. Die
+        <p><span lang="de">Der Connection String samt Passwort steht im Skript, das Skript liegt auf GitHub. Die
           12-Factor-Regel: „The twelve-factor app stores config in environment variables.“ Abhilfe: <code>.env</code>
           plus <code>load_dotenv()</code>, <code>.env</code> in der <code>.gitignore</code> (Lab 02), auf dem Server die
           Variablen im Dashboard (Lab 11). Und im Protokoll das Passwort ausblenden.</span>

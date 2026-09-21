@@ -39,7 +39,7 @@
         {
           "was": "Danach: Scanning files",
           "bedeutet": {
-            "de": "In der Statusleiste erscheint erst „Scanning files“, dann „Analyzing project to enable smart features“. Solange das läuft, fehlen Vervollständigung und Navigation. Bei einem leeren Projekt dauert es Sekunden; bei einem Ordner mit Rohdaten Minuten – deshalb Datenordner als Excluded markieren.",
+            "de": "In der Statusleiste erscheint erst „Scanning files“, dann „Analyzing project to enable smart features“. Solange das läuft, fehlen Code Completion und Navigation. Bei einem leeren Projekt dauert es Sekunden; bei einem Ordner mit Rohdaten Minuten – deshalb Datenordner als Excluded markieren.",
             "en": "The status bar first shows “Scanning files”, then “Analyzing project to enable smart features”. While that runs, completion and navigation are missing. For an empty project it takes seconds; for a folder full of raw data, minutes – hence mark data folders as Excluded."
           }
         }
@@ -287,8 +287,8 @@
         {
           "was": ".venv/",
           "bedeutet": {
-            "de": "Die virtuelle Umgebung ist mehrere hundert Megabyte groß, enthält absolute Pfade und ist an Betriebssystem und Python-Version gebunden. Sie wird nicht geteilt, sondern auf jedem Rechner aus requirements.txt neu erzeugt.",
-            "en": "The virtual environment is several hundred megabytes, contains absolute paths and is bound to operating system and Python version. It is not shared but recreated on every machine from requirements.txt."
+            "de": "Die virtuelle Umgebung ist mehrere hundert Megabyte groß, enthält absolute Pfade und ist an Betriebssystem und Python-Version gebunden. Jeder Rechner erzeugt sie aus requirements.txt neu.",
+            "en": "The virtual environment is several hundred megabytes, contains absolute paths and is bound to operating system and Python version. Every machine recreates it from requirements.txt."
           }
         },
         {
@@ -580,7 +580,7 @@
               "en": "The IDE's project configuration, including the path to the interpreter. Between two machines it produces conflicts that have nothing to do with the code."
             },
             {
-              "de": "Der Zwischenspeicher der Vervollständigung; er ist mehrere Gigabyte groß.",
+              "de": "Der Zwischenspeicher der Code Completion; er ist mehrere Gigabyte groß.",
               "en": "The completion cache; it is several gigabytes in size."
             },
             {

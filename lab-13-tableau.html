@@ -32,12 +32,12 @@
   <a class="sidebar-link" href="#landschaft"><span lang="de">Editionen und Lizenz</span><span lang="en">Editions and licence</span></a>
   <a class="sidebar-link" href="#begriffe"><span lang="de">Die Begriffe</span><span lang="en">The concepts</span></a>
   <a class="sidebar-link" href="#verbinden"><span lang="de">Verbinden</span><span lang="en">Connecting</span></a>
-  <a class="sidebar-link" href="#regal"><span lang="de">Das Regal</span><span lang="en">The shelf</span></a>
+  <a class="sidebar-link" href="#regal"><span lang="de">Das Shelf</span><span lang="en">The shelf</span></a>
   <a class="sidebar-link" href="#berechnen"><span lang="de">Berechnen</span><span lang="en">Calculating</span></a>
   <a class="sidebar-link" href="#dashboard"><span lang="de">Dashboard und Veröffentlichen</span><span lang="en">Dashboard and publishing</span></a>
   <a class="sidebar-link" href="#vergleich"><span lang="de">Power BI vs. Tableau</span><span lang="en">Power BI vs. Tableau</span></a>
   <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></a>
-  <a class="sidebar-link" href="#simulator"><span lang="de">Regal-Simulator</span><span lang="en">Shelf simulator</span></a>
+  <a class="sidebar-link" href="#simulator"><span lang="de">Shelf-Simulator</span><span lang="en">Shelf simulator</span></a>
   <a class="sidebar-link" href="#uebungen"><span lang="de">Übungen</span><span lang="en">Exercises</span></a>
   <a class="sidebar-link" href="#zusammenfassung"><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></a>
 </nav>
@@ -47,14 +47,13 @@
   <h1 class="lab-title">Tableau</h1>
   <p class="lab-intro">
     <span lang="de">In Lab 12 haben Sie zuerst ein Modell gebaut und dann Fragen gestellt. Tableau dreht das um: Sie
-      ziehen ein Feld auf ein Regal, und in demselben Augenblick ist eine Abfrage formuliert und ihr Ergebnis
-      gezeichnet. Das Werkzeug ist für die visuelle Exploration gemacht – man denkt mit den Händen. Der Preis dafür
+      ziehen ein Feld auf ein Shelf, und in demselben Augenblick ist eine Abfrage formuliert und ihr Ergebnis
+      gezeichnet. Das Werkzeug ist für die visuelle Exploration gemacht: Jede Bewegung eines Feldes ist eine neue Abfrage. Der Preis dafür
       ist ein eigenes Vokabular: blaue und grüne Pillen, Shelves, Marks, Level of Detail. Dieses Lab stellt
       dieselben Fragen an Velo City wie Lab 12 – Fahrten je Bezirk, Umsatz im Jahresverlauf – und beantwortet sie
-      mit Regalen statt mit Measures.</span>
+      mit Shelves statt mit Measures.</span>
     <span lang="en">In lab 12 you first built a model and then asked questions. Tableau turns that around: you drag a
-      field onto a shelf, and in that same moment a query is formulated and its result drawn. The tool is made for
-      visual exploration – you think with your hands. The price is a vocabulary of its own: blue and green pills,
+      field onto a shelf, and in that same moment a query is formulated and its result drawn. The tool is made for visual exploration: every move of a field is a new query. The price is a vocabulary of its own: blue and green pills,
       shelves, marks, level of detail. This lab asks Velo City the same questions as lab 12 – rides per district,
       revenue over the year – and answers them with shelves instead of measures.</span>
   </p>
@@ -78,7 +77,7 @@
         zeigen (die Darstellung). In Lab 06 und Lab 08 haben Sie beides getrennt gemacht – <code>GROUP BY</code> in
         SQL, dann irgendwo ein Diagramm. In Lab 12 hat Power BI die Abfrage hinter Measures und ein Semantic Model
         gelegt. Tableau geht einen dritten Weg, und der hat einen Namen: <strong>VizQL</strong>, die Visual Query
-        Language. Jede Belegung eines Regals ist zugleich eine Abfrage an die Datenquelle und eine visuelle
+        Language. Jede Belegung eines Shelfs ist zugleich eine Abfrage an die Data Source und eine visuelle
         Kodierung ihres Ergebnisses. Das Worksheet <em>ist</em> die Abfrage.</span>
       <span lang="en">A BI tool has to do two things: summarise data (the query) and show the result (the
         presentation). In labs 06 and 08 you did both separately – <code>GROUP BY</code> in SQL, then a chart
@@ -93,7 +92,7 @@
         die Antwort als Balken – die Dimension bestimmt die Gruppierung und die Köpfe, die Kennzahl die Aggregation
         und die Achse. Jede weitere Pille ändert die Abfrage: <em>Rad Typ</em> auf Color erweitert das
         <code>GROUP BY</code>, ein Filter erzeugt ein <code>WHERE</code>. Deshalb gibt es in Tableau keinen Knopf
-        „Diagramm einfügen“: Das Diagramm ist die Folge der Regale, nicht ihr Ausgangspunkt.</span>
+        „Diagramm einfügen“: Das Diagramm ist die Folge der Shelves, nicht ihr Ausgangspunkt.</span>
       <span lang="en">Put <em>Bezirk</em> on Columns and <em>Preis Eur</em> on Rows, and Tableau sends, in effect,
         <code>SELECT bezirk, SUM(preis_eur) FROM fahrten GROUP BY bezirk</code> to the source and draws the answer as
         bars – the dimension determines grouping and headers, the measure aggregation and axis. Every further pill
@@ -203,7 +202,7 @@
           <tr>
             <th><span lang="de">Ziel im Kurs</span><span lang="en">Goal in the course</span></th>
             <th><span lang="de">Edition</span><span lang="en">Edition</span></th>
-            <th><span lang="de">Datenquelle</span><span lang="en">Data source</span></th>
+            <th><span lang="de">Data Source</span><span lang="en">Data source</span></th>
             <th><span lang="de">Abgabe</span><span lang="en">Submission</span></th>
           </tr>
         </thead>
@@ -276,7 +275,7 @@
           <tr>
             <td><strong>Logical layer · Physical layer</strong></td>
             <td><span lang="de">Logisch: Tabellen mit <em>Relationships</em> („Noodles“), jede behält ihre Körnung. Physisch: <em>Joins</em>, die eine flache Tabelle erzeugen – mit Fan-out.</span><span lang="en">Logical: tables with <em>relationships</em> (“noodles”), each keeps its grain. Physical: <em>joins</em> producing one flat table – with fan-out.</span></td>
-            <td><span lang="de">Leinwand der Data Source page; Doppelklick auf eine Kachel öffnet die physische Ebene</span><span lang="en">Canvas of the Data Source page; double-click on a tile opens the physical layer</span></td>
+            <td><span lang="de">Canvas der Data Source page; Doppelklick auf eine Kachel öffnet die physische Ebene</span><span lang="en">Canvas of the Data Source page; double-click on a tile opens the physical layer</span></td>
           </tr>
           <tr>
             <td><strong>Dimension · Measure</strong></td>
@@ -290,13 +289,13 @@
           </tr>
           <tr>
             <td><strong>Shelves</strong></td>
-            <td><span lang="de">Die Regale <code>Columns</code>, <code>Rows</code>, <code>Pages</code>, <code>Filters</code>. Was darauf liegt, bestimmt die Abfrage.</span><span lang="en">The shelves <code>Columns</code>, <code>Rows</code>, <code>Pages</code>, <code>Filters</code>. What lies on them determines the query.</span></td>
-            <td><span lang="de">Oben und links neben der Leinwand</span><span lang="en">Above and to the left of the canvas</span></td>
+            <td><span lang="de">Die Shelves <code>Columns</code>, <code>Rows</code>, <code>Pages</code>, <code>Filters</code>. Was darauf liegt, bestimmt die Abfrage.</span><span lang="en">The shelves <code>Columns</code>, <code>Rows</code>, <code>Pages</code>, <code>Filters</code>. What lies on them determines the query.</span></td>
+            <td><span lang="de">Oben und links neben dem Canvas</span><span lang="en">Above and to the left of the canvas</span></td>
           </tr>
           <tr>
             <td><strong>Marks card</strong></td>
             <td><span lang="de">Markentyp (<code>Automatic</code>, <code>Bar</code>, <code>Line</code>, <code>Circle</code> …) und die Kodierungen <code>Color</code>, <code>Size</code>, <code>Label</code>, <code>Detail</code>, <code>Tooltip</code>, <code>Shape</code>.</span><span lang="en">Mark type (<code>Automatic</code>, <code>Bar</code>, <code>Line</code>, <code>Circle</code> …) and the encodings <code>Color</code>, <code>Size</code>, <code>Label</code>, <code>Detail</code>, <code>Tooltip</code>, <code>Shape</code>.</span></td>
-            <td><span lang="de">Links unter den Regalen</span><span lang="en">Left, below the shelves</span></td>
+            <td><span lang="de">Links unter den Shelves</span><span lang="en">Left, below the shelves</span></td>
           </tr>
           <tr>
             <td><strong>Show Me</strong></td>
@@ -348,7 +347,7 @@
     <p>
       <span lang="de">Nach dem Verbinden landen Sie auf der <strong>Data Source page</strong>. Bei einer CSV steht
         dort eine Tabelle, und es bleibt zu prüfen, ob die Datentypen stimmen. Bei der Datenbank ziehen Sie die
-        Tabellen des Sternschemas <code>mart</code> aus Lab 10 auf die Leinwand und verbinden sie mit Relationships über
+        Tabellen des Sternschemas <code>mart</code> aus Lab 10 auf den Canvas und verbinden sie mit Relationships über
         die Surrogatschlüssel (<code>station_sk</code>, <code>rad_sk</code>, <code>kunde_sk</code>, <code>datum_key</code>) –
         die Faktentabelle in die Mitte, jede Dimension direkt daran.</span>
       <span lang="en">After connecting you land on the <strong>Data Source page</strong>. With a CSV there is one table,
@@ -422,13 +421,11 @@
   </section>
 
   <section class="section-block" id="regal">
-    <h2><span lang="de">Das Regal</span><span lang="en">The shelf</span></h2>
+    <h2><span lang="de">Das Shelf</span><span lang="en">The shelf</span></h2>
     <p>
-      <span lang="de">Das Worksheet hat drei Zonen: links das Data pane mit den Feldern als Pillen, in der Mitte die
-        Regale, die Marks card und die Leinwand, rechts Show Me. Die Arbeit besteht aus Ziehen – und aus dem Lesen
-        dessen, was auf den Regalen liegt.</span>
-      <span lang="en">The worksheet has three zones: the Data pane on the left with the fields as pills, the shelves,
-        Marks card and canvas in the middle, Show Me on the right. The work consists of dragging – and of reading what
+      <span lang="de">Das Worksheet hat drei Zonen: links das Data pane mit den Feldern als Pillen, in der Mitte die Shelves, die Marks card und die View, rechts Show Me. Die Arbeit besteht aus Ziehen – und aus dem Lesen
+        dessen, was auf den Shelves liegt.</span>
+      <span lang="en">The worksheet has three zones: the Data pane on the left with the fields as pills, the shelves, Marks card and view in the middle, Show Me on the right. The work consists of dragging – and of reading what
         lies on the shelves.</span>
     </p>
     <div class="shot">
@@ -484,11 +481,11 @@
       <li><span class="callout">6</span><span><span lang="de">Der Nulls-Indikator unten rechts: Ein Klick bietet „Filter Data“ oder „Show Data at Default Position“. Bevor Sie klicken: Warum sind da Nulls?</span><span lang="en">The nulls indicator at the bottom right: a click offers “Filter Data” or “Show Data at Default Position”. Before you click: why are there nulls?</span></span></li>
     </ol>
     <p>
-      <span lang="de">Eine Kennzahl kommt nie nackt auf ein Regal: Tableau hängt ihr eine Aggregation an, standardmäßig
+      <span lang="de">Eine Kennzahl kommt nie nackt auf ein Shelf: Tableau hängt ihr eine Aggregation an, standardmäßig
         <code>SUM</code>, und die Pille heißt dann <code>SUM(Preis Eur)</code>. Die Aggregation gehört zur Pille, nicht
         zum Feld – dasselbe Feld kann auf Rows als SUM und auf Label als AVG liegen. Für Streudiagramme, in denen
         jede Fahrt ein Punkt sein soll, schaltet man <code>Analysis → Aggregate Measures</code> ab. Für Kennungen wie
-        Fahrt Id gilt dieselbe Regel wie in Lab 12: nicht summieren, sondern zählen – <code>Count (Distinct)</code>,
+        Fahrt Id gilt dieselbe Regel wie in Lab 12: zählen statt summieren – <code>Count (Distinct)</code>,
         oder gleich <code>Convert to Dimension</code>.</span>
       <span lang="en">A measure never arrives naked on a shelf: Tableau attaches an aggregation, <code>SUM</code> by
         default, and the pill is then called <code>SUM(Preis Eur)</code>. The aggregation belongs to the pill, not to
@@ -513,7 +510,7 @@
         hover, <code>Size</code> and <code>Shape</code> encode a second and third quantity.</span></p>
     </div>
     <p>
-      <span lang="de">Die Ausrichtung eines Diagramms ist in Tableau eine Frage der Regale: Dimension auf Columns
+      <span lang="de">Die Ausrichtung eines Diagramms ist in Tableau eine Frage der Shelves: Dimension auf Columns
         und Kennzahl auf Rows ergibt senkrechte Balken, umgekehrt waagerechte. <code>Swap Rows and Columns</code>
         (<code>Ctrl+W</code>) tauscht die beiden. Zehn Stationsnamen lesen sich waagerecht besser – deshalb
         schlägt Show Me für eine Dimension und eine Kennzahl <em>horizontal bars</em> vor.</span>
@@ -582,7 +579,7 @@
         <div class="kopfzeile">Level of Detail (LOD)</div>
         <p><span lang="de">Rechnet <em>vor der Viz</em> auf einer ausdrücklich genannten Ebene:
           <code>{ FIXED [Station] : COUNTD([Fahrt Id]) }</code> ist die Fahrtenzahl je Station, gleichgültig, was auf
-          den Regalen liegt – und gleichgültig, welcher Dimension Filter gesetzt ist, denn FIXED rechnet davor.
+          den Shelves liegt – und gleichgültig, welcher Dimension Filter gesetzt ist, denn FIXED rechnet davor.
           <code>INCLUDE</code> fügt der Viz eine feinere Ebene hinzu (Mittel über Stationen innerhalb des Bezirks),
           <code>EXCLUDE</code> nimmt eine weg (Bezirkssumme neben jeder Station); beide werden danach auf die Ebene
           der Viz zurückaggregiert.</span>
@@ -685,9 +682,9 @@
     <h2><span lang="de">Power BI vs. Tableau</span><span lang="en">Power BI vs. Tableau</span></h2>
     <p>
       <span lang="de">Beide Werkzeuge beantworten dieselben Fragen an dieselben Daten – Sie haben es in Lab 12 und
-        hier gesehen. Der Unterschied liegt darin, <em>wo die Logik wohnt</em>.</span>
+        hier gesehen. Der Unterschied liegt darin, <em>wo die Logik definiert ist</em>.</span>
       <span lang="en">Both tools answer the same questions on the same data – you have seen it in lab 12 and here. The
-        difference lies in <em>where the logic lives</em>.</span>
+        difference lies in <em>where the logic is defined</em>.</span>
     </p>
     <div class="vergleich">
       <div>
@@ -712,11 +709,10 @@
     <div class="info-box">
       <p><span lang="de"><strong>Gemeinsamkeiten.</strong> Import (Power BI) und Extract (Tableau) sind dieselbe Idee,
         DirectQuery und Live ebenso. Beide sprechen PostgreSQL nativ und erreichen Supabase über den Session Pooler.
-        Beide brauchen für lokale Quellen in der Cloud eine Brücke – On-premises data gateway bzw. Tableau Bridge.
+        Beide brauchen für lokale Quellen in der Cloud einen Vermittler – On-premises data gateway bzw. Tableau Bridge.
         Und in beiden lautet die häufigste Falle: eine Kennung summieren.</span>
       <span lang="en"><strong>Common ground.</strong> Import (Power BI) and Extract (Tableau) are the same idea,
-        DirectQuery and Live likewise. Both speak PostgreSQL natively and reach Supabase via the session pooler. Both
-        need a bridge for local sources in the cloud – On-premises data gateway and Tableau Bridge respectively. And in
+        DirectQuery and Live likewise. Both speak PostgreSQL natively and reach Supabase via the session pooler. Both need an intermediary for local sources in the cloud – On-premises data gateway and Tableau Bridge respectively. And in
         both the most common trap reads: summing an identifier.</span></p>
       <p><span lang="de"><strong>Marktlage 09/2026.</strong> Im Gartner Magic Quadrant für Analytics und BI 2026 stehen
         Microsoft und Salesforce (Tableau) beide im Leader-Quadranten. Für Deutschland weisen Erhebungen wie die
@@ -738,11 +734,11 @@
       <div class="karte">
         <div class="kopfzeile">Cannot mix aggregate and non-aggregate arguments with this function.</div>
         <p><span lang="de">Im Calculated-Field-Dialog, sobald <code>SUM([Preis Eur])</code> neben einem rohen
-          <code>[Dauer Min]</code> steht. Die Schwester lautet <code>Cannot mix aggregate and non-aggregate comparisons
+          <code>[Dauer Min]</code> steht. Die verwandte Meldung lautet <code>Cannot mix aggregate and non-aggregate comparisons
           or results in 'IF' expressions.</code> Ausweg: alles aggregieren, das IF in die Aggregation ziehen,
           <code>ATTR()</code>, oder LOD – Abschnitt Berechnen.</span>
         <span lang="en">In the calculated field dialog as soon as <code>SUM([Preis Eur])</code> stands next to a raw
-          <code>[Dauer Min]</code>. Its sibling reads <code>Cannot mix aggregate and non-aggregate comparisons or results
+          <code>[Dauer Min]</code>. The related message reads <code>Cannot mix aggregate and non-aggregate comparisons or results
           in 'IF' expressions.</code> Way out: aggregate everything, pull the IF into the aggregation, <code>ATTR()</code>,
           or LOD – section Calculating.</span></p>
       </div>
@@ -818,11 +814,11 @@
   </section>
 
   <section class="section-block" id="simulator">
-    <h2><span lang="de">Regal-Simulator</span><span lang="en">Shelf simulator</span></h2>
+    <h2><span lang="de">Shelf-Simulator</span><span lang="en">Shelf simulator</span></h2>
     <p>
-      <span lang="de">Ein Regal-Simulator in Tableau-Beschriftung mit den 1.500 Fahrten von Velo City als flacher
+      <span lang="de">Ein Shelf-Simulator in Tableau-Beschriftung mit den 1.500 Fahrten von Velo City als flacher
         Tabelle. Links das Data pane: Dimensionen als <strong>blaue</strong> Pillen (Abc, 📅 für geordnete),
-        Kennzahlen als <strong>grüne</strong> (#). Kennzahlen kommen mit einer Aggregation auf das Regal, die Sie an
+        Measures als <strong>grüne</strong> (#). Measures kommen mit einer Aggregation auf das Shelf, die Sie an
         der Pille umstellen (SUM, AVG, COUNT, MIN, MAX). <code>Columns</code> und <code>Rows</code> bestimmen die
         Ausrichtung: Dimension auf Columns ergibt senkrechte Balken, auf Rows waagerechte; eine geordnete Dimension
         (Monat, Stunde) ergibt eine Linie – wie eine grüne Datumspille. <code>Color</code> erzeugt Serien oder Stapel,
@@ -838,7 +834,7 @@
     <div data-regal="frei" data-variante="tableau"></div>
     <div class="tip-box">
       <p><span lang="de">Probieren Sie die Falle aus Lab 12: Fahrt-ID mit SUM auf Rows. Die Balken sind riesig und
-        bedeuten nichts. Auf COUNT umstellen – jetzt zählt das Regal Fahrten. In Tableau hieße die Pille dann
+        bedeuten nichts. Auf COUNT umstellen – jetzt zählt das Shelf Fahrten. In Tableau hieße die Pille dann
         <code>CNTD(Fahrt Id)</code>.</span>
       <span lang="en">Try the trap from lab 12: Ride ID with SUM on Rows. The bars are huge and mean nothing. Switch to
         COUNT – now the shelf counts rides. In Tableau the pill would then read <code>CNTD(Fahrt Id)</code>.</span></p>
@@ -848,7 +844,7 @@
   <section class="section-block" id="uebungen">
     <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
     <p>
-      <span lang="de">Sechs Übungen: dreimal am Regal-Simulator – dieselben Fragen wie in Lab 12, diesmal mit
+      <span lang="de">Sechs Übungen: dreimal am Shelf-Simulator – dieselben Fragen wie in Lab 12, diesmal mit
         Columns, Rows, Color und Filters – ein Quiz zu den fünf Verwechslungen, eine Zuordnung der Editionen und eine
         Checkliste für Tableau Desktop mit der CSV aus diesem Lab.</span>
       <span lang="en">Six exercises: three at the shelf simulator – the same questions as in lab 12, this time with
@@ -867,7 +863,7 @@
   <section class="section-block" id="zusammenfassung">
     <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
     <ul>
-      <li><span lang="de">VizQL: Jede Belegung eines Regals ist eine Abfrage und ihre Darstellung zugleich. Dimensionen gruppieren und erzeugen Köpfe, Kennzahlen werden aggregiert und erzeugen Achsen; das Diagramm folgt aus den Regalen.</span><span lang="en">VizQL: every placement on a shelf is a query and its presentation at once. Dimensions group and create headers, measures are aggregated and create axes; the chart follows from the shelves.</span></li>
+      <li><span lang="de">VizQL: Jede Belegung eines Shelfs ist eine Abfrage und ihre Darstellung zugleich. Dimensionen gruppieren und erzeugen Köpfe, Kennzahlen werden aggregiert und erzeugen Achsen; das Diagramm folgt aus den Shelves.</span><span lang="en">VizQL: every placement on a shelf is a query and its presentation at once. Dimensions group and create headers, measures are aggregated and create axes; the chart follows from the shelves.</span></li>
       <li><span lang="de">Blau heißt diskret, grün heißt stetig – nicht Dimension oder Kennzahl. Eine grüne Datumspille (Date value) ergibt eine Zeitachse, eine blaue (Date part) Köpfe, die die Jahre zusammenfassen.</span><span lang="en">Blue means discrete, green means continuous – not dimension or measure. A green date pill (date value) yields a time axis, a blue one (date part) headers that collapse the years.</span></li>
       <li><span lang="de">Relationships auf der logischen Ebene behalten die Körnung jeder Tabelle; Joins auf der physischen Ebene verschmelzen Zeilen und erzeugen Fan-out. Live fragt bei jedem Ziehen, Extract ist ein Stand in einer .hyper-Datei.</span><span lang="en">Relationships on the logical layer keep every table's grain; joins on the physical layer merge rows and create fan-out. Live queries on every drag, Extract is a snapshot in a .hyper file.</span></li>
       <li><span lang="de">Drei Rechenebenen: Calculated Fields je Zeile oder je Aggregat („Cannot mix aggregate and non-aggregate arguments“), Table Calculations auf dem Ergebnis der Viz, LOD-Ausdrücke auf einer genannten Ebene davor. FIXED rechnet vor den Dimension Filters, Table Calculations danach.</span><span lang="en">Three calculation levels: calculated fields per row or per aggregate (“Cannot mix aggregate and non-aggregate arguments”), table calculations on the result of the viz, LOD expressions on a named level before it. FIXED computes before dimension filters, table calculations after.</span></li>

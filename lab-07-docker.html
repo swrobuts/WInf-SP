@@ -29,12 +29,12 @@
 <nav class="sidebar" aria-label="Lab-Navigation">
   <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
   <a class="sidebar-link" href="#warum"><span lang="de">Das Problem, das es löst</span><span lang="en">The problem it solves</span></a>
-  <a class="sidebar-link" href="#begriffe"><span lang="de">Abbild, Container, Band</span><span lang="en">Image, container, volume</span></a>
+  <a class="sidebar-link" href="#begriffe"><span lang="de">Image, Container, Volume</span><span lang="en">Image, container, volume</span></a>
   <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme und Lizenz</span><span lang="en">Setting it up, and the licence</span></a>
   <a class="sidebar-link" href="#erste"><span lang="de">Der erste Container</span><span lang="en">The first container</span></a>
   <a class="sidebar-link" href="#ports"><span lang="de">Ports</span><span lang="en">Ports</span></a>
   <a class="sidebar-link" href="#daten"><span lang="de">Daten, die überleben</span><span lang="en">Data that survives</span></a>
-  <a class="sidebar-link" href="#eigen"><span lang="de">Ein eigenes Abbild</span><span lang="en">Your own image</span></a>
+  <a class="sidebar-link" href="#eigen"><span lang="de">Ein eigenes Image</span><span lang="en">Your own image</span></a>
   <a class="sidebar-link" href="#compose"><span lang="de">Mehrere Container: Compose</span><span lang="en">Several containers: Compose</span></a>
   <a class="sidebar-link" href="#aufraeumen"><span lang="de">Aufräumen</span><span lang="en">Tidying up</span></a>
   <a class="sidebar-link" href="#stolper"><span lang="de">Stolpersteine</span><span lang="en">Stumbling blocks</span></a>
@@ -48,7 +48,7 @@
   <h1 class="lab-title">Docker</h1>
   <p class="lab-intro">
     <span lang="de">„Bei mir läuft es“ ist der Satz, an dem Analytics-Projekte scheitern – nicht am Modell. Docker
-      verpackt eine Anwendung samt Bibliotheken und Konfiguration in ein Abbild, das auf jedem Rechner mit
+      verpackt eine Anwendung samt Bibliotheken und Konfiguration in ein Image, das auf jedem Rechner mit
       Container-Laufzeit unverändert startet. Für diesen Kurs heißt das ganz praktisch: Eine PostgreSQL-Datenbank ist
       ein Befehl und eine Minute. Die eigentliche Lernfrage kommt danach – wovon überleben ihre Daten das Löschen des
       Containers? Wer das beantworten kann, hat Docker verstanden.</span>
@@ -59,7 +59,7 @@
       Whoever can answer that has understood Docker.</span>
   </p>
   <div class="lernziele">
-    <span class="lernziel-chip"><span lang="de">Abbild vs. Container</span><span lang="en">Image vs. container</span></span>
+    <span class="lernziel-chip"><span lang="de">Image vs. Container</span><span lang="en">Image vs. container</span></span>
     <span class="lernziel-chip">-p · -v · -e · -d</span>
     <span class="lernziel-chip">Dockerfile · build</span>
     <span class="lernziel-chip">compose.yaml</span>
@@ -87,7 +87,7 @@
     <div class="concept-box">
       <h3><span lang="de">Container ist keine virtuelle Maschine</span><span lang="en">A container is not a virtual machine</span></h3>
       <p><span lang="de">Eine virtuelle Maschine bringt ein vollständiges Betriebssystem samt eigenem Kern mit – ein
-        Gigabyte und eine Minute Startzeit. Ein Container teilt den Kern des Wirtssystems und enthält nur die
+        Gigabyte und eine Minute Startzeit. Ein Container teilt den Kern des Hosts und enthält nur die
         Anwendung samt ihrer Bibliotheken – ein Bruchteil davon und Startzeit in Sekunden. Der Preis: Die Trennung ist
         schwächer als bei einer virtuellen Maschine. Ein Container ist eine Verpackung, keine Festung – für die
         Übungen dieses Kurses ist das ohne Belang, für den Betrieb fremden Codes nicht.</span>
@@ -100,7 +100,7 @@
   </section>
 
   <section class="section-block" id="begriffe">
-    <h2><span lang="de">Abbild, Container, Band</span><span lang="en">Image, container, volume</span></h2>
+    <h2><span lang="de">Image, Container, Volume</span><span lang="en">Image, container, volume</span></h2>
     <p>
       <span lang="de">Drei Begriffe, und die ersten zwei werden am Anfang durchgängig verwechselt. Die Verwechslung ist
         die Ursache der beiden häufigsten Fehlermeldungen des Labs.</span>
@@ -119,19 +119,19 @@
         </thead>
         <tbody>
           <tr>
-            <td><strong><span lang="de">Abbild</span><span lang="en">Image</span></strong></td>
+            <td><strong><span lang="de">Image</span><span lang="en">Image</span></strong></td>
             <td><span lang="de">Eine unveränderliche Vorlage: Anwendung, Bibliotheken, Konfiguration</span><span lang="en">An immutable template: application, libraries, configuration</span></td>
             <td><span lang="de">Der Bauplan</span><span lang="en">The blueprint</span></td>
             <td><code>docker images</code></td>
           </tr>
           <tr>
             <td><strong>Container</strong></td>
-            <td><span lang="de">Eine laufende (oder gestoppte) Instanz eines Abbilds</span><span lang="en">A running (or stopped) instance of an image</span></td>
+            <td><span lang="de">Eine laufende (oder gestoppte) Instanz eines Images</span><span lang="en">A running (or stopped) instance of an image</span></td>
             <td><span lang="de">Das Haus</span><span lang="en">The house</span></td>
             <td><code>docker ps -a</code></td>
           </tr>
           <tr>
-            <td><strong><span lang="de">Band</span><span lang="en">Volume</span></strong></td>
+            <td><strong><span lang="de">Volume</span><span lang="en">Volume</span></strong></td>
             <td><span lang="de">Ein Speicherbereich außerhalb des Containers, den Docker verwaltet</span><span lang="en">A storage area outside the container, managed by Docker</span></td>
             <td><span lang="de">Der Aktenschrank neben dem Haus</span><span lang="en">The filing cabinet beside the house</span></td>
             <td><code>docker volume ls</code></td>
@@ -140,10 +140,10 @@
       </table>
     </div>
     <p>
-      <span lang="de">Aus einem Abbild entstehen beliebig viele Container. Ein Container hat ein eigenes,
+      <span lang="de">Aus einem Image entstehen beliebig viele Container. Ein Container hat ein eigenes,
         <strong>flüchtiges</strong> Dateisystem: Was er schreibt, ist mit ihm weg. Das ist Absicht und der Kern des
         Versprechens – ein Container startet immer im gleichen Zustand. Und es ist der Grund, warum eine Datenbank in
-        einem Container ohne Band ein Missverständnis ist.</span>
+        einem Container ohne Volume ein Missverständnis ist.</span>
       <span lang="en">From one image, any number of containers arise. A container has its own,
         <strong>transient</strong> file system: what it writes is gone with it. That is by design and the core of the
         promise – a container always starts in the same state. And it is the reason why a database in a container without
@@ -152,7 +152,7 @@
     <div class="info-box">
       <p><span lang="de">Dasselbe Denkmodell wie in Lab 04: Die Laufzeit gehört Google und wird eingezogen, was
         überleben soll, geht nach Drive. Hier gehört das Container-Dateisystem Docker und wird gelöscht, was überleben
-        soll, geht in ein Band. Zwei Werkzeuge, dieselbe Unterscheidung zwischen flüchtigem und dauerhaftem
+        soll, geht in ein Volume. Zwei Werkzeuge, dieselbe Unterscheidung zwischen flüchtigem und dauerhaftem
         Speicher.</span>
       <span lang="en">The same mental model as in lab 04: the runtime belongs to Google and gets taken back, what should
         survive goes to Drive. Here the container's file system belongs to Docker and gets deleted, what should survive
@@ -216,9 +216,9 @@
     <div data-befehl="B03"></div>
     <div class="tip-box">
       <p><span lang="de">Nach <code>docker run --rm hello-world</code> zeigt <code>docker ps</code> nichts an, aber
-        <code>docker images</code> zeigt ein Abbild. Genau daran hängt der Unterschied: Der Container ist gelaufen und
+        <code>docker images</code> zeigt ein Image. Genau daran hängt der Unterschied: Der Container ist gelaufen und
         weg, die Vorlage ist geblieben. Wer das nachvollzogen hat, versteht auch, warum <code>docker rmi</code> auf
-        einen Container nicht wirkt und <code>docker rm</code> nicht auf ein Abbild.</span>
+        einen Container nicht wirkt und <code>docker rm</code> nicht auf ein Image.</span>
       <span lang="en">After <code>docker run --rm hello-world</code>, <code>docker ps</code> shows nothing, but
         <code>docker images</code> shows an image. The distinction hangs on exactly that: the container ran and is gone,
         the template stayed. Whoever has followed that also understands why <code>docker rmi</code> has no effect on a
@@ -230,8 +230,8 @@
     <h2><span lang="de">Ports</span><span lang="en">Ports</span></h2>
     <p>
       <span lang="de">Ein Container ist nach außen abgeschlossen. Damit ein Dienst darin erreichbar ist, muss ein Port
-        des Wirtsrechners auf einen Port im Container abgebildet werden. Die Schreibweise ist
-        <code>-p WIRT:CONTAINER</code> – und die Reihenfolge zu verwechseln ist der zweithäufigste Fehler dieses
+        des Hosts auf einen Port im Container abgebildet werden. Die Schreibweise ist
+        <code>-p HOST:CONTAINER</code> – und die Reihenfolge zu verwechseln ist der zweithäufigste Fehler dieses
         Labs.</span>
       <span lang="en">A container is closed off to the outside. For a service inside it to be reachable, a port on the
         host has to be mapped to a port in the container. The notation is <code>-p HOST:CONTAINER</code> – and mixing up
@@ -263,10 +263,10 @@
   <section class="section-block" id="daten">
     <h2><span lang="de">Daten, die überleben</span><span lang="en">Data that survives</span></h2>
     <p>
-      <span lang="de">Hier liegt der Kern des Labs. Ein <strong>Band</strong> (englisch <em>volume</em>) ist ein von
-        Docker verwalteter Speicherbereich, der in den Container eingehängt wird und dessen Löschung überlebt. Ohne Band
-        ist eine Datenbank im Container ein Spielzeug; mit Band ist sie eine Datenbank.</span>
-      <span lang="en">This is the core of the lab. A <strong>volume</strong> is a storage area managed by Docker, mounted
+      <span lang="de">Ein <strong>Volume</strong> (englisch <em>volume</em>) ist ein von
+        Docker verwalteter Speicherbereich, der in den Container eingehängt wird und dessen Löschung überlebt. Ohne Volume
+        ist eine Datenbank im Container ein Spielzeug; mit Volume ist sie eine Datenbank.</span>
+      <span lang="en">A <strong>volume</strong> is a storage area managed by Docker, mounted
         into the container and surviving its deletion. Without a volume, a database in a container is a toy; with a
         volume it is a database.</span>
     </p>
@@ -275,7 +275,7 @@
     <div class="concept-box">
       <h3><span lang="de">Zwei Arten, etwas einzuhängen</span><span lang="en">Two ways of mounting something</span></h3>
       <ul>
-        <li><span lang="de"><strong>Benanntes Band</strong> – <code>-v pgdata:/var/lib/postgresql/data</code>. Docker
+        <li><span lang="de"><strong>Benanntes Volume</strong> – <code>-v pgdata:/var/lib/postgresql/data</code>. Docker
           verwaltet den Ort; Sie geben nur einen Namen. Für Datenbanken der richtige Weg: schnell, plattformunabhängig,
           und Sie können sich nicht versehentlich in einen falschen Ordner schreiben.</span>
         <span lang="en"><strong>Named volume</strong> – <code>-v pgdata:/var/lib/postgresql/data</code>. Docker manages
@@ -294,11 +294,11 @@
   </section>
 
   <section class="section-block" id="eigen">
-    <h2><span lang="de">Ein eigenes Abbild</span><span lang="en">Your own image</span></h2>
+    <h2><span lang="de">Ein eigenes Image</span><span lang="en">Your own image</span></h2>
     <p>
-      <span lang="de">Bis hierhin haben Sie fremde Abbilder benutzt. Ein eigenes entsteht aus einer Textdatei namens
+      <span lang="de">Bis hierhin haben Sie fremde Images benutzt. Ein eigenes entsteht aus einer Textdatei namens
         <code>Dockerfile</code> – und ist der Punkt, an dem aus „bei mir läuft es“ ein
-        <em>reproduzierbares</em> Ergebnis wird: Die Datei sagt vollständig und nachlesbar, aus welchem Grundabbild,
+        <em>reproduzierbares</em> Ergebnis wird: Die Datei sagt vollständig und nachlesbar, aus welchem Base Image,
         mit welchen Paketen und mit welchem Startbefehl die Auswertung läuft.</span>
       <span lang="en">Up to here you have used other people's images. Your own arises from a text file called
         <code>Dockerfile</code> – and is the point where “it works on my machine” becomes a <em>reproducible</em> result:
@@ -334,8 +334,8 @@
     <div data-befehl="B10"></div>
     <div class="warn-box">
       <p><span lang="de">Der gefährlichste Befehl dieses Labs ist <code>docker compose down -v</code>. Ohne
-        <code>-v</code> werden Container und Netz entfernt, die Bänder bleiben – die Datenbank ist beim nächsten
-        <code>up</code> wieder da. Mit <code>-v</code> gehen die Bänder mit, und die Datenbank ist leer. Der
+        <code>-v</code> werden Container und Netz entfernt, die Volumes bleiben – die Datenbank ist beim nächsten
+        <code>up</code> wieder da. Mit <code>-v</code> gehen die Volumes mit, und die Datenbank ist leer. Der
         Unterschied sind zwei Zeichen, und er ist der häufigste Datenverlust im Kurs. In der Konsole auf dieser Seite
         können Sie ihn gefahrlos herbeiführen; die Umgebung sagt Ihnen dann, was passiert ist.</span>
       <span lang="en">The most dangerous command in this lab is <code>docker compose down -v</code>. Without
@@ -349,7 +349,7 @@
   <section class="section-block" id="aufraeumen">
     <h2><span lang="de">Aufräumen</span><span lang="en">Tidying up</span></h2>
     <p>
-      <span lang="de">Abbilder, Bau-Zwischenstände, gestoppte Container und verwaiste Bänder summieren sich. Zwanzig
+      <span lang="de">Images, Bau-Zwischenstände, gestoppte Container und verwaiste Volumes summieren sich. Zwanzig
         bis fünfzig Gigabyte nach einem Semester sind normal, und die Meldung, die dann kommt, lautet nicht „Docker ist
         voll“, sondern „no space left on device“ – irgendwo anders auf dem Rechner.</span>
       <span lang="en">Images, build caches, stopped containers and orphaned volumes add up. Twenty to fifty gigabytes
@@ -374,16 +374,16 @@
       </div>
       <div class="karte">
         <div class="kopfzeile">arm64 · amd64</div>
-        <p><span lang="de">Auf Apple Silicon läuft ein Abbild, das nur für <code>amd64</code> gebaut ist, entweder
+        <p><span lang="de">Auf Apple Silicon läuft ein Image, das nur für <code>amd64</code> gebaut ist, entweder
           emuliert und langsam oder gar nicht – dann meldet sich <code>exec format error</code>. Abhilfe:
-          Mehr-Architektur-Abbilder bevorzugen, sonst <code>--platform linux/amd64</code> ausdrücklich setzen und die
+          Mehr-Architektur-Images bevorzugen, sonst <code>--platform linux/amd64</code> ausdrücklich setzen und die
           Geschwindigkeitseinbuße einkalkulieren.</span>
         <span lang="en">On Apple Silicon an image built only for <code>amd64</code> either runs emulated and slowly or
           not at all – then <code>exec format error</code> appears. Remedy: prefer multi-architecture images, otherwise
           set <code>--platform linux/amd64</code> explicitly and factor in the loss of speed.</span></p>
       </div>
       <div class="karte">
-        <div class="kopfzeile"><span lang="de">Geheimnisse im Abbild</span><span lang="en">Secrets in the image</span></div>
+        <div class="kopfzeile"><span lang="de">Geheimnisse im Image</span><span lang="en">Secrets in the image</span></div>
         <p><span lang="de"><code>COPY .env .</code> oder <code>ENV PASSWORD=…</code> schreibt das Geheimnis in eine
           Schicht – und Schichten bleiben lesbar, auch wenn eine späte Zeile die Datei löscht. Zu prüfen mit
           <code>docker history</code>. Zugangsdaten gehören zur Laufzeit hinein: <code>-e</code>,
@@ -399,7 +399,7 @@
         <p><span lang="de">Unangemeldet erlaubt Docker Hub 100 Abrufe je sechs Stunden – gezählt <strong>je
           IP-Adresse</strong>. Ein Seminarraum teilt sich diese 100 und erhält nach wenigen Minuten
           <code>429 Too Many Requests</code>. Abhilfe: <code>docker login</code> mit persönlichem Konto (200 je sechs
-          Stunden je Person), Abbilder vor der Veranstaltung ziehen, oder einen lokalen Spiegel betreiben.</span>
+          Stunden je Person), Images vor der Veranstaltung ziehen, oder einen lokalen Spiegel betreiben.</span>
         <span lang="en">Anonymously Docker Hub allows 100 pulls per six hours – counted <strong>per IP
           address</strong>. A seminar room shares those 100 and gets <code>429 Too Many Requests</code> after a few
           minutes. Remedy: <code>docker login</code> with a personal account (200 per six hours per person), pull the
@@ -409,14 +409,14 @@
         <div class="kopfzeile"><span lang="de">Container startet und endet</span><span lang="en">Container starts and ends</span></div>
         <p><span lang="de">Ein Container lebt, solange sein Hauptprozess lebt. Endet der Startbefehl, endet der
           Container – das ist kein Fehler, sondern die Definition. <code>docker logs &lt;name&gt;</code> sagt, warum:
-          meist eine fehlende Umgebungsvariable oder ein Tippfehler im Befehl.</span>
+          meist eine fehlende Environment Variable oder ein Tippfehler im Befehl.</span>
         <span lang="en">A container lives as long as its main process lives. When the start command ends, the container
           ends – that is not an error but the definition. <code>docker logs &lt;name&gt;</code> says why: usually a
           missing environment variable or a typo in the command.</span></p>
       </div>
       <div class="karte">
-        <div class="kopfzeile"><span lang="de">Fremde Abbilder</span><span lang="en">Other people's images</span></div>
-        <p><span lang="de">Ein beliebiges Abbild aus dem Hub führt fremden Code aus, im Container mit
+        <div class="kopfzeile"><span lang="de">Fremde Images</span><span lang="en">Other people's images</span></div>
+        <p><span lang="de">Ein beliebiges Image aus dem Hub führt fremden Code aus, im Container mit
           Verwaltungsrechten. Auf <em>Docker Official Image</em> und <em>Verified Publisher</em> achten.
           <code>--privileged</code> und das Einhängen des Docker-Sockets heben die Trennung praktisch auf – in einer
           Anleitung, die das verlangt, sollte man zweimal lesen, wofür.</span>
@@ -431,10 +431,10 @@
   <section class="section-block" id="spielplatz">
     <h2><span lang="de">Spielplatz</span><span lang="en">Playground</span></h2>
     <p>
-      <span lang="de">Eine Konsole mit nachgebildetem <code>docker</code>. Bekannt sind sechs Abbilder:
+      <span lang="de">Eine Konsole mit nachgebildetem <code>docker</code>. Bekannt sind sechs Images:
         <code>hello-world</code>, <code>postgres</code>, <code>nginx</code>, <code>python</code>,
-        <code>adminer</code>, <code>ubuntu</code>. Sie können Container starten, Ports vergeben, Bänder anlegen,
-        Abbilder bauen und einen Compose-Stapel hoch- und herunterfahren – einschließlich des
+        <code>adminer</code>, <code>ubuntu</code>. Sie können Container starten, Ports vergeben, Volumes anlegen,
+        Images bauen und einen Compose-Stack hoch- und herunterfahren – einschließlich des
         <code>-v</code>-Unfalls, der hier nichts kostet.</span>
       <span lang="en">A console with <code>docker</code> modelled in. Six images are known:
         <code>hello-world</code>, <code>postgres</code>, <code>nginx</code>, <code>python</code>,
@@ -448,8 +448,8 @@
   <section class="section-block" id="uebungen">
     <h2><span lang="de">Übungen</span><span lang="en">Exercises</span></h2>
     <p>
-      <span lang="de">Sechs Übungen: viermal an der Konsole – vom ersten Container über eine Datenbank mit Band bis zum
-        Compose-Stapel – und zweimal zum Nachdenken über Begriffe, Lizenz und Stolpersteine.</span>
+      <span lang="de">Sechs Übungen: viermal an der Konsole – vom ersten Container über eine Datenbank mit Volume bis zum
+        Compose-Stack – und zweimal zum Nachdenken über Begriffe, Lizenz und Stolpersteine.</span>
       <span lang="en">Six exercises: four at the console – from the first container through a database with a volume to a
         Compose stack – and two to think through concepts, licence and stumbling blocks.</span>
     </p>
@@ -465,11 +465,11 @@
   <section class="section-block" id="zusammenfassung">
     <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
     <ul>
-      <li><span lang="de">Ein Abbild ist die Vorlage, ein Container eine laufende Instanz davon, ein Band der Speicher daneben. <code>docker images</code>, <code>docker ps -a</code>, <code>docker volume ls</code> zeigen die drei.</span><span lang="en">An image is the template, a container a running instance of it, a volume the storage beside it. <code>docker images</code>, <code>docker ps -a</code>, <code>docker volume ls</code> show the three.</span></li>
-      <li><span lang="de">Das Dateisystem eines Containers ist flüchtig. Für eine Datenbank ist <code>-v name:/pfad</code> nicht Zubehör, sondern Voraussetzung.</span><span lang="en">A container's file system is transient. For a database, <code>-v name:/path</code> is not an accessory but a prerequisite.</span></li>
-      <li><span lang="de"><code>-p WIRT:CONTAINER</code>, in dieser Reihenfolge. Ein Host-Port ist nur einmal zu haben; bei Belegung ausweichen, nicht aufräumen. Für lokale Übungen an <code>127.0.0.1</code> binden.</span><span lang="en"><code>-p HOST:CONTAINER</code>, in that order. A host port is available only once; when taken, move aside rather than tidy up. For local exercises bind to <code>127.0.0.1</code>.</span></li>
+      <li><span lang="de">Ein Image ist die Vorlage, ein Container eine laufende Instanz davon, ein Volume der Speicher daneben. <code>docker images</code>, <code>docker ps -a</code>, <code>docker volume ls</code> zeigen die drei.</span><span lang="en">An image is the template, a container a running instance of it, a volume the storage beside it. <code>docker images</code>, <code>docker ps -a</code>, <code>docker volume ls</code> show the three.</span></li>
+      <li><span lang="de">Das Dateisystem eines Containers ist flüchtig. Für eine Datenbank ist <code>-v name:/pfad</code> Voraussetzung.</span><span lang="en">A container's file system is transient. For a database, <code>-v name:/path</code> is a prerequisite.</span></li>
+      <li><span lang="de"><code>-p HOST:CONTAINER</code>, in dieser Reihenfolge. Ein Host-Port ist nur einmal zu haben; bei Belegung ausweichen, nicht aufräumen. Für lokale Übungen an <code>127.0.0.1</code> binden.</span><span lang="en"><code>-p HOST:CONTAINER</code>, in that order. A host port is available only once; when taken, move aside rather than tidy up. For local exercises bind to <code>127.0.0.1</code>.</span></li>
       <li><span lang="de">Ein Dockerfile macht aus „bei mir läuft es“ ein nachlesbares Ergebnis. Selten Geändertes nach vorn, damit der Schichtenspeicher greift.</span><span lang="en">A Dockerfile turns “it works on my machine” into a readable result. Rarely changed things to the front, so the layer cache takes effect.</span></li>
-      <li><span lang="de"><code>docker compose down</code> behält die Bänder, <code>down -v</code> löscht sie. Zwei Zeichen Unterschied, und der häufigste Datenverlust im Kurs.</span><span lang="en"><code>docker compose down</code> keeps the volumes, <code>down -v</code> deletes them. Two characters of difference, and the most common data loss in the course.</span></li>
+      <li><span lang="de"><code>docker compose down</code> behält die Volumes, <code>down -v</code> löscht sie. Zwei Zeichen Unterschied, und der häufigste Datenverlust im Kurs.</span><span lang="en"><code>docker compose down</code> keeps the volumes, <code>down -v</code> deletes them. Two characters of difference, and the most common data loss in the course.</span></li>
       <li><span lang="de">Docker Desktop ist kostenlos unter zwei Bedingungen, die zusammen gelten müssen, und für Behörden ausdrücklich nicht. Docker Engine, Podman und Rancher Desktop stehen unter freien Lizenzen und sprechen dieselben Befehle.</span><span lang="en">Docker Desktop is free under two conditions that must hold together, and expressly not for government entities. Docker Engine, Podman and Rancher Desktop are under free licences and speak the same commands.</span></li>
     </ul>
     <div data-lab-nav></div>

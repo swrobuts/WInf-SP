@@ -174,7 +174,7 @@
         {
           "was": "Ctrl+W",
           "bedeutet": {
-            "de": "Tauscht Rows und Columns – aus senkrechten Balken werden waagerechte. In Tableau ist die Ausrichtung eine Frage der Regale, nicht des Diagrammtyps.",
+            "de": "Tauscht Rows und Columns – aus senkrechten Balken werden waagerechte. In Tableau ist die Ausrichtung eine Frage der Shelves, nicht des Diagrammtyps.",
             "en": "Swaps Rows and Columns – vertical bars become horizontal. In Tableau the orientation is a matter of shelves, not of chart type."
           }
         },
@@ -188,7 +188,7 @@
         {
           "was": "Ctrl+Ziehen",
           "bedeutet": {
-            "de": "Eine Pille auf ein zweites Regal kopieren – etwa SUM(Preis Eur) zusätzlich auf Label. Ohne Taste wird sie verschoben.",
+            "de": "Eine Pille auf ein zweites Shelf kopieren – etwa SUM(Preis Eur) zusätzlich auf Label. Ohne Taste wird sie verschoben.",
             "en": "Copy a pill onto a second shelf – e.g. SUM(Preis Eur) additionally onto Label. Without the key it is moved."
           }
         }
@@ -205,7 +205,7 @@
         {
           "was": "Measure (Sum)",
           "bedeutet": {
-            "de": "Der Klammerinhalt zeigt die aktuelle Aggregation. Sie gilt für diese Pille auf diesem Regal – nicht für das Feld. Dasselbe Feld kann auf Rows als SUM und auf Label als AVG liegen.",
+            "de": "Der Klammerinhalt zeigt die aktuelle Aggregation. Sie gilt für diese Pille auf diesem Shelf – nicht für das Feld. Dasselbe Feld kann auf Rows als SUM und auf Label als AVG liegen.",
             "en": "The bracket shows the current aggregation. It applies to this pill on this shelf – not to the field. The same field can sit on Rows as SUM and on Label as AVG."
           }
         },
@@ -219,7 +219,7 @@
         {
           "was": "Aggregate Measures",
           "bedeutet": {
-            "de": "Abgeschaltet zeichnet Tableau eine Marke je Zeile der Datenquelle – 1.500 Punkte für Dauer gegen Preis. Danach wieder einschalten, sonst wundert man sich über die nächste Balkengrafik.",
+            "de": "Abgeschaltet zeichnet Tableau eine Marke je Zeile der Data Source – 1.500 Punkte für Dauer gegen Preis. Danach wieder einschalten, sonst wundert man sich über die nächste Balkengrafik.",
             "en": "Switched off, Tableau draws one mark per row of the data source – 1,500 points for duration against price. Switch it on again afterwards, or the next bar chart will surprise you."
           }
         },
@@ -547,7 +547,7 @@
         "en": "Revenue per district"
       },
       "aufgabe": {
-        "de": "<p>Dieselbe Frage wie in Lab 12, diesmal mit Regalen: <strong>Wie viel Umsatz macht Velo City je Startbezirk?</strong> Legen Sie <em>Bezirk</em> auf <code>Columns</code> und <em>Preis (EUR)</em> auf <code>Rows</code>. Die Kennzahl kommt mit ihrer Standardaggregation auf das Regal – prüfen Sie, dass dort <code>SUM</code> steht. Kein weiteres Regal belegen.</p>",
+        "de": "<p>Dieselbe Frage wie in Lab 12, diesmal mit Shelves: <strong>Wie viel Umsatz macht Velo City je Startbezirk?</strong> Legen Sie <em>Bezirk</em> auf <code>Columns</code> und <em>Preis (EUR)</em> auf <code>Rows</code>. Die Kennzahl kommt mit ihrer Standardaggregation auf das Shelf – prüfen Sie, dass dort <code>SUM</code> steht. Kein weiteres Shelf belegen.</p>",
         "en": "<p>The same question as in lab 12, this time with shelves: <strong>how much revenue does Velo City make per start district?</strong> Put <em>District</em> on <code>Columns</code> and <em>Price (EUR)</em> on <code>Rows</code>. The measure arrives on the shelf with its default aggregation – check that it says <code>SUM</code>. Leave every other shelf empty.</p>"
       },
       "ziel": {
@@ -658,7 +658,7 @@
         }
       },
       "rueckmeldung": {
-        "de": "Dimension auf Rows, Kennzahl auf Columns: waagerechte Balken. In Tableau ist das dieselbe Belegung wie in W13-01 nach Ctrl+W (Swap Rows and Columns) – die Ausrichtung ist eine Frage der Regale, nicht des Diagrammtyps. AVG statt SUM, weil eine Summe von Minuten die Stationen mit vielen Fahrten belohnt, nicht die mit langen. Der Filter auf EBIKE ist ein Dimension Filter: Er wirkt vor der Aggregation, das Mittel wird nur aus E-Bike-Fahrten gebildet.",
+        "de": "Dimension auf Rows, Kennzahl auf Columns: waagerechte Balken. In Tableau ist das dieselbe Belegung wie in W13-01 nach Ctrl+W (Swap Rows and Columns) – die Ausrichtung ist eine Frage der Shelves, nicht des Diagrammtyps. AVG statt SUM, weil eine Summe von Minuten die Stationen mit vielen Fahrten belohnt, nicht die mit langen. Der Filter auf EBIKE ist ein Dimension Filter: Er wirkt vor der Aggregation, das Mittel wird nur aus E-Bike-Fahrten gebildet.",
         "en": "Dimension on Rows, measure on Columns: horizontal bars. In Tableau this is the same layout as W13-01 after Ctrl+W (Swap Rows and Columns) – orientation is a matter of shelves, not of chart type. AVG instead of SUM, because a sum of minutes rewards stations with many rides, not those with long ones. The filter on EBIKE is a dimension filter: it acts before aggregation, the average is formed from e-bike rides only."
       }
     },
@@ -676,7 +676,7 @@
       "fragen": [
         {
           "frage": {
-            "de": "Eine Pille auf dem Regal Columns ist grün. Was sagt die Farbe – und nur die Farbe – aus?",
+            "de": "Eine Pille auf dem Shelf Columns ist grün. Was sagt die Farbe – und nur die Farbe – aus?",
             "en": "A pill on the Columns shelf is green. What does the colour – and only the colour – tell you?"
           },
           "optionen": [
@@ -945,7 +945,7 @@
         "en": "A dashboard for Velo City – in Tableau Desktop"
       },
       "aufgabe": {
-        "de": "<p>Diese Liste arbeiten Sie in Tableau Desktop ab – Free Edition oder Public Edition, beide genügen. Datenquelle ist die CSV aus <code>vorlagen/lab-13-export.sql</code> (Karte B07) oder der Export aus Lab 09. Am Ende haben Sie zwei Worksheets, ein Calculated Field, einen provozierten und behobenen Fehler und ein Dashboard, das auf Klick filtert.</p>",
+        "de": "<p>Diese Liste arbeiten Sie in Tableau Desktop ab – Free Edition oder Public Edition, beide genügen. Data Source ist die CSV aus <code>vorlagen/lab-13-export.sql</code> (Karte B07) oder der Export aus Lab 09. Am Ende haben Sie zwei Worksheets, ein Calculated Field, einen provozierten und behobenen Fehler und ein Dashboard, das auf Klick filtert.</p>",
         "en": "<p>You work through this list in Tableau Desktop – Free Edition or Public Edition, either will do. The data source is the CSV from <code>vorlagen/lab-13-export.sql</code> (card B07) or the export from lab 09. At the end you have two worksheets, one calculated field, one provoked and fixed error, and a dashboard that filters on click.</p>"
       },
       "schritte": [
@@ -999,7 +999,7 @@
         }
       ],
       "rueckmeldung": {
-        "de": "Sie haben den ganzen Weg gesehen: Datei laden, Typen prüfen, zwei Fragen mit Regalen beantworten, ein Aggregat rechnen, den häufigsten Fehler lesen und beheben, ein Dashboard mit Filterwirkung bauen und es abgeben, ohne etwas zu veröffentlichen. Mit der Free Edition oder einer Kurslizenz ersetzt Karte B02 den ersten Schritt durch die Supabase-Verbindung – alles Weitere bleibt gleich.",
+        "de": "Sie haben den ganzen Weg gesehen: Datei laden, Typen prüfen, zwei Fragen mit Shelves beantworten, ein Aggregat rechnen, den häufigsten Fehler lesen und beheben, ein Dashboard mit Filterwirkung bauen und es abgeben, ohne etwas zu veröffentlichen. Mit der Free Edition oder einer Kurslizenz ersetzt Karte B02 den ersten Schritt durch die Supabase-Verbindung – alles Weitere bleibt gleich.",
         "en": "You have seen the whole route: load a file, check types, answer two questions with shelves, compute an aggregate, read and fix the most common error, build a dashboard with filter effect and submit it without publishing anything. With the Free Edition or a course licence, card B02 replaces the first step with the Supabase connection – everything else stays the same."
       }
     }

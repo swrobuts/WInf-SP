@@ -49,13 +49,12 @@
     <span lang="de">In Lab 10 ist aus den Rohdaten von Velo City ein Sternschema geworden: eine Faktentabelle mit
       1.500 Fahrten, vier Dimensionen. Jetzt soll jemand damit arbeiten, der kein SQL schreibt. Power BI lädt die
       Tabellen, verbindet sie zu einem Semantic Model, rechnet Kennzahlen als Measures und zeichnet daraus einen
-      Bericht – Umsatz je Bezirk, Fahrten je Monat, Dauer je Radtyp. Der eigentliche Lernstoff ist nicht das
-      Diagramm, sondern das Modell darunter: Wer es richtig baut, bekommt jedes Diagramm geschenkt. Wer es weglässt,
+      Bericht – Umsatz je Bezirk, Fahrten je Monat, Dauer je Radtyp. Der eigentliche Lernstoff ist das Modell unter dem Diagramm: Wer es richtig baut, bekommt jedes Diagramm geschenkt. Wer es weglässt,
       summiert irgendwann Kennungen.</span>
     <span lang="en">In lab 10 the raw data of Velo City became a star schema: one fact table with 1,500 rides, four
       dimensions. Now somebody who does not write SQL is supposed to work with it. Power BI loads the tables, relates
       them into a semantic model, computes metrics as measures and draws a report from that – revenue per district,
-      rides per month, duration per bike type. The actual subject is not the chart but the model underneath: whoever
+      rides per month, duration per bike type. The actual subject is the model underneath the chart: whoever
       builds it right gets every chart for free. Whoever skips it ends up summing identifiers.</span>
   </p>
   <div class="lernziele">
@@ -76,22 +75,18 @@
     <p>
       <span lang="de">Drei Abteilungen von Velo City berichten den Monatsumsatz – und nennen drei Zahlen. Die eine
         zählt Stornierungen mit, die zweite rechnet netto, die dritte hat eine ältere Kopie der Daten. Keine der drei
-        ist falsch gerechnet; sie sind nur <em>verschieden definiert</em>, jede in ihrer eigenen Excel-Datei. Das ist
-        das Problem, das Business-Intelligence-Werkzeuge lösen sollen: nicht das Zeichnen von Balken, sondern eine
-        Kennzahl, die überall dasselbe bedeutet.</span>
+        ist falsch gerechnet; sie sind nur <em>verschieden definiert</em>, jede in ihrer eigenen Excel-Datei. Business-Intelligence-Werkzeuge sollen genau dieses Problem lösen: eine Kennzahl, die überall dasselbe bedeutet.</span>
       <span lang="en">Three departments at Velo City report the monthly revenue – and name three figures. One counts
         cancellations, the second calculates net, the third has an older copy of the data. None of the three is
-        computed wrongly; they are just <em>defined differently</em>, each in its own Excel file. That is the problem
-        business intelligence tools are meant to solve: not drawing bars, but a metric that means the same thing
-        everywhere.</span>
+        computed wrongly; they are just <em>defined differently</em>, each in its own Excel file. Business intelligence tools are meant to solve exactly this problem: a metric that means the same thing everywhere.</span>
     </p>
     <p>
       <span lang="de">Power BI beantwortet das mit einem <strong>Semantic Model</strong>: Tabellen, ihre Beziehungen
-        und die Definitionen der Kennzahlen liegen an einem Ort. Ein Bericht ist nur ein Fenster auf dieses Modell –
+        und die Definitionen der Kennzahlen liegen an einem Ort. Ein Bericht ist nur eine Sicht auf dieses Modell –
         er wählt aus, nach welcher Dimension er eine Kennzahl aufteilt, aber er definiert sie nicht. Zwanzig Berichte,
         ein Modell, eine Zahl für „Umsatz“.</span>
       <span lang="en">Power BI answers that with a <strong>semantic model</strong>: tables, their relationships and
-        the definitions of the metrics live in one place. A report is only a window onto that model – it chooses
+        the definitions of the metrics live in one place. A report is only a view onto that model – it chooses
         which dimension to break a metric down by, but it does not define it. Twenty reports, one model, one figure
         for “revenue”.</span>
     </p>
@@ -135,9 +130,9 @@
   <section class="section-block" id="landschaft">
     <h2><span lang="de">Produktlandschaft und Lizenz</span><span lang="en">Product landscape and licence</span></h2>
     <p>
-      <span lang="de">„Power BI“ ist kein Programm, sondern vier Dinge, die verschieden kosten und verschieden
+      <span lang="de">„Power BI“ steht für vier Dinge, die verschieden kosten und verschieden
         erreichbar sind. Stand 09/2026:</span>
-      <span lang="en">“Power BI” is not one program but four things that cost differently and are reachable
+      <span lang="en">“Power BI” stands for four things that cost differently and are reachable
         differently. As of 09/2026:</span>
     </p>
     <div class="table-scroll">
@@ -162,7 +157,7 @@
           </tr>
           <tr>
             <td><strong>Microsoft Fabric</strong></td>
-            <td><span lang="de">Die Plattform, in der Power BI heute steckt (OneLake, Lakehouse, Data Factory …). Für dieses Lab wichtig: Die Begriffe haben sich verschoben – aus <em>dataset</em> wurde <em>semantic model</em>, die kostenlose Lizenz heißt <em>Fabric (Free)</em>.</span><span lang="en">The platform Power BI now sits in (OneLake, Lakehouse, Data Factory …). Relevant here: the vocabulary has shifted – <em>dataset</em> became <em>semantic model</em>, the free licence is called <em>Fabric (Free)</em>.</span></td>
+            <td><span lang="de">Die Plattform, in der Power BI heute steckt (OneLake, Lakehouse, Data Factory …). Für dieses Lab folgt daraus: Die Begriffe haben sich verschoben – aus <em>dataset</em> wurde <em>semantic model</em>, die kostenlose Lizenz heißt <em>Fabric (Free)</em>.</span><span lang="en">The platform Power BI now sits in (OneLake, Lakehouse, Data Factory …). Relevant here: the vocabulary has shifted – <em>dataset</em> became <em>semantic model</em>, the free licence is called <em>Fabric (Free)</em>.</span></td>
             <td><span lang="de">Kapazitäten (F-SKUs) kauft die Organisation, nicht die Person.</span><span lang="en">Capacities (F SKUs) are bought by the organisation, not the person.</span></td>
           </tr>
           <tr>
@@ -322,12 +317,12 @@
           </tr>
           <tr>
             <td>Visual · Field wells</td>
-            <td><span lang="de">Ein Diagramm auf der Leinwand. Seine Ablagen im Visualizations pane heißen Field wells: <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>, <code>Values</code>, <code>Rows</code>, <code>Columns</code>. Ein <em>Slicer</em> ist ein Visual, das nur filtert.</span><span lang="en">A chart on the canvas. Its slots in the Visualizations pane are called field wells: <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>, <code>Values</code>, <code>Rows</code>, <code>Columns</code>. A <em>slicer</em> is a visual that only filters.</span></td>
+            <td><span lang="de">Ein Diagramm auf dem Canvas. Seine Field wells im Visualizations pane heißen <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>, <code>Values</code>, <code>Rows</code>, <code>Columns</code>. Ein <em>Slicer</em> ist ein Visual, das nur filtert.</span><span lang="en">A chart on the canvas. Its field wells in the Visualizations pane are called <code>X-axis</code>, <code>Y-axis</code>, <code>Legend</code>, <code>Values</code>, <code>Rows</code>, <code>Columns</code>. A <em>slicer</em> is a visual that only filters.</span></td>
             <td>Report view</td>
           </tr>
           <tr>
             <td>Workspace · Gateway</td>
-            <td><span lang="de">Der Ort im Service, an dem Modell und Bericht liegen (<code>My workspace</code> für alle, geteilte Workspaces ab Pro). Ein <em>On-premises data gateway</em> ist die Brücke vom Service zu Quellen, die er nicht direkt erreicht: Dateien auf dem Laptop, SQLite, lokales PostgreSQL.</span><span lang="en">The place in the service where model and report live (<code>My workspace</code> for everyone, shared workspaces from Pro). An <em>On-premises data gateway</em> is the bridge from the service to sources it cannot reach directly: files on the laptop, SQLite, a local PostgreSQL.</span></td>
+            <td><span lang="de">Der Ort im Service, an dem Modell und Bericht liegen (<code>My workspace</code> für alle, geteilte Workspaces ab Pro). Ein <em>On-premises data gateway</em> verbindet den Service mit Quellen, die er nicht direkt erreicht: Dateien auf dem Laptop, SQLite, lokales PostgreSQL.</span><span lang="en">The place in the service where model and report live (<code>My workspace</code> for everyone, shared workspaces from Pro). An <em>On-premises data gateway</em> connects the service to sources it cannot reach directly: files on the laptop, SQLite, a local PostgreSQL.</span></td>
             <td>Service</td>
           </tr>
           <tr>
@@ -552,10 +547,10 @@
   <section class="section-block" id="dax">
     <h2><span lang="de">Kennzahlen: DAX Measures</span><span lang="en">Metrics: DAX measures</span></h2>
     <p>
-      <span lang="de">Hier liegt der Kern des Labs. Ein <strong>Measure</strong> ist eine Formel in DAX, die keinen
+      <span lang="de">Ein <strong>Measure</strong> ist eine Formel in DAX, die keinen
         Wert speichert, sondern bei jeder Abfrage neu rechnet – in genau dem <em>Filter Context</em>, den das Visual
         vorgibt. <code>Modeling → New measure</code>, dann in die Formelleiste:</span>
-      <span lang="en">This is the core of the lab. A <strong>measure</strong> is a DAX formula that stores no value but
+      <span lang="en">A <strong>measure</strong> is a DAX formula that stores no value but
         computes anew on every query – in exactly the <em>filter context</em> the visual provides.
         <code>Modeling → New measure</code>, then into the formula bar:</span>
     </p>
@@ -699,7 +694,7 @@
     </div>
     <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
     <ol class="shot-legende">
-      <li><span class="callout">1</span><span><span lang="de">Die Leinwand mit einem Säulendiagramm. Der Titel entsteht aus den Feldern: „Fahrten by bezirk“. Die Symbole in der Kopfzeile des Visuals sind <code>Drill down</code>, <code>Drill up</code> und <code>Expand all down one level in the hierarchy</code> – sie wirken, sobald auf einer Achse eine Hierarchie liegt (Jahr → Monat).</span><span lang="en">The canvas with a column chart. The title arises from the fields: “Fahrten by bezirk”. The icons in the visual's header are <code>Drill down</code>, <code>Drill up</code> and <code>Expand all down one level in the hierarchy</code> – they act once a hierarchy sits on an axis (year → month).</span></span></li>
+      <li><span class="callout">1</span><span><span lang="de">Der Canvas mit einem Säulendiagramm. Der Titel entsteht aus den Feldern: „Fahrten by bezirk“. Die Symbole in der Kopfzeile des Visuals sind <code>Drill down</code>, <code>Drill up</code> und <code>Expand all down one level in the hierarchy</code> – sie wirken, sobald auf einer Achse eine Hierarchie liegt (Jahr → Monat).</span><span lang="en">The canvas with a column chart. The title arises from the fields: “Fahrten by bezirk”. The icons in the visual's header are <code>Drill down</code>, <code>Drill up</code> and <code>Expand all down one level in the hierarchy</code> – they act once a hierarchy sits on an axis (year → month).</span></span></li>
       <li><span class="callout">2</span><span><span lang="de">Das Visualizations pane: oben die Diagrammtypen, darunter die Field wells des markierten Visuals. <code>X-axis</code> trägt die Dimension <code>bezirk</code>, <code>Y-axis</code> das Measure <code>Fahrten</code>. Der Pinsel daneben öffnet das <em>Format</em> pane (Farben, Achsen, Titel), <code>Format → Edit interactions</code> legt fest, ob ein Klick in einem Visual die anderen filtert oder hervorhebt.</span><span lang="en">The Visualizations pane: chart types on top, the field wells of the selected visual below. <code>X-axis</code> carries the dimension <code>bezirk</code>, <code>Y-axis</code> the measure <code>Fahrten</code>. The paintbrush next to it opens the <em>Format</em> pane (colours, axes, title), <code>Format → Edit interactions</code> decides whether a click in one visual filters or highlights the others.</span></span></li>
       <li><span class="callout">3</span><span><span lang="de">Ein Slicer auf <code>dim_rad[typ]</code>: EBIKE gewählt, und alle Visuals der Seite rechnen im neuen Filter Context – die Altstadt fällt von 712 auf 216, die Karte Fahrten zeigt 444.</span><span lang="en">A slicer on <code>dim_rad[typ]</code>: EBIKE selected, and all visuals on the page compute in the new filter context – Altstadt drops from 712 to 216, the Fahrten card shows 444.</span></span></li>
       <li><span class="callout">4</span><span><span lang="de">Das Filters pane: Filter je Visual, je Seite oder für den ganzen Bericht. Darunter <code>Bookmarks</code> (<code>View → Bookmarks</code>): gespeicherte Zustände aus Filtern, Slicern und Sichtbarkeit, die sich mit Knöpfen ansteuern lassen.</span><span lang="en">The Filters pane: filters per visual, per page or for the whole report. Below, <code>Bookmarks</code> (<code>View → Bookmarks</code>): saved states of filters, slicers and visibility that buttons can jump to.</span></span></li>
@@ -855,15 +850,15 @@
     <p>
       <span lang="de">Der Simulator unten ist eine Nachbildung der Field wells von Power BI: <code>X-axis</code>,
         <code>Y-axis</code>, <code>Legend</code>, <code>Filters</code>. Drei Dinge unterscheiden ihn vom Original.
-        Felder werden in den Ablagen <em>ausgewählt</em> statt gezogen. Σ-Felder – die Kennzahlen – bekommen im Chip
+        Felder werden in den Field wells <em>ausgewählt</em> statt gezogen. Σ-Felder – die Measures – bekommen im Chip
         eine Aggregation, die Sie umstellen können: <code>SUM</code>, <code>AVG</code>, <code>COUNT</code>,
         <code>MIN</code>, <code>MAX</code> – genau die Wahl, die Power BI bei einem impliziten Measure für Sie
         trifft. Und das Diagramm wählen Sie nicht: Es folgt aus der Belegung, wie das Standard-Visual im Original –
-        Dimension auf X-axis und Kennzahl auf Y-axis ergibt Säulen, ein geordnetes Feld wie Monat oder Stunde eine
+        Dimension auf X-axis und Measure auf Y-axis ergibt Säulen, ein geordnetes Feld wie Monat oder Stunde eine
         Linie, eine Legende Serien, nur Dimensionen eine Tabelle.</span>
       <span lang="en">The simulator below is a rendering of Power BI's field wells: <code>X-axis</code>,
         <code>Y-axis</code>, <code>Legend</code>, <code>Filters</code>. Three things separate it from the original.
-        Fields are <em>selected</em> in the slots rather than dragged. Σ fields – the measures – get an aggregation in
+        Fields are <em>selected</em> in the field wells rather than dragged. Σ fields – the measures – get an aggregation in
         their chip that you can change: <code>SUM</code>, <code>AVG</code>, <code>COUNT</code>, <code>MIN</code>,
         <code>MAX</code> – exactly the choice Power BI makes for you with an implicit measure. And you do not choose
         the chart: it follows from the fields, like the default visual in the original – dimension on X-axis and

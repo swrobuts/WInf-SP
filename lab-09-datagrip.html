@@ -30,7 +30,7 @@
   <div class="sidebar-title"><span lang="de">Abschnitte</span><span lang="en">Sections</span></div>
   <a class="sidebar-link" href="#was"><span lang="de">Ein Werkzeug, das das Schema kennt</span><span lang="en">A tool that knows the schema</span></a>
   <a class="sidebar-link" href="#inbetrieb"><span lang="de">Inbetriebnahme und Lizenz</span><span lang="en">Setting it up, and the licence</span></a>
-  <a class="sidebar-link" href="#verbinden"><span lang="de">Datenquelle anlegen</span><span lang="en">Create a data source</span></a>
+  <a class="sidebar-link" href="#verbinden"><span lang="de">Data Source anlegen</span><span lang="en">Create a data source</span></a>
   <a class="sidebar-link" href="#sqlite"><span lang="de">Die SQLite-Datei anbinden</span><span lang="en">Connect the SQLite file</span></a>
   <a class="sidebar-link" href="#schema"><span lang="de">Sichtbare Schemata</span><span lang="en">Visible schemas</span></a>
   <a class="sidebar-link" href="#konsole"><span lang="de">Die Konsole</span><span lang="en">The console</span></a>
@@ -46,10 +46,10 @@
   <h1 class="lab-title">DataGrip</h1>
   <p class="lab-intro">
     <span lang="de">Bis hierhin haben Sie SQL im Browser geschrieben – im SQL-Editor von Supabase oder in der Konsole
-      dieser Seiten. Für ernsthafte Arbeit fehlt dort einiges: Vervollständigung aus dem Schema, ein Diagramm der
+      dieser Seiten. Für ernsthafte Arbeit fehlt dort einiges: Code Completion aus dem Schema, ein Diagramm der
       Beziehungen, eine Abfragehistorie und eine kontrollierte Ausführung. Genau das leistet ein Datenbankwerkzeug. Der
       wichtigste Schalter darin ist unscheinbar und trägt drei Buchstaben – er entscheidet, ob eine Änderung im
-      Datenraster sofort und unwiderruflich gilt.</span>
+      Data Editor sofort und unwiderruflich gilt.</span>
     <span lang="en">Up to here you have written SQL in the browser – in Supabase's SQL editor or in this site's console.
       For serious work a few things are missing there: completion from the schema, a diagram of the relationships, a query
       history and controlled execution. That is exactly what a database tool provides. The most important switch in it is
@@ -57,7 +57,7 @@
       irreversibly.</span>
   </p>
   <div class="lernziele">
-    <span class="lernziel-chip"><span lang="de">Datenquelle und Treiber</span><span lang="en">Data source and driver</span></span>
+    <span class="lernziel-chip"><span lang="de">Data Source und Treiber</span><span lang="en">Data source and driver</span></span>
     <span class="lernziel-chip"><span lang="de">Sichtbare Schemata</span><span lang="en">Visible schemas</span></span>
     <span class="lernziel-chip">Tx:Auto vs. Tx:Manual</span>
     <span class="lernziel-chip">Read-only</span>
@@ -73,7 +73,7 @@
     <p>
       <span lang="de">DataGrip ist die auf Datenbanken ausgerichtete Entwicklungsumgebung von JetBrains. Sie liest das
         Schema der verbundenen Datenbank ein – man nennt das <strong>Introspektion</strong> – und nutzt es für
-        Vervollständigung, Sprungmarken zwischen Tabellen und Warnungen, bevor eine Abfrage überhaupt läuft. Wer einen
+        Code Completion, Sprungmarken zwischen Tabellen und Warnungen, bevor eine Abfrage überhaupt läuft. Wer einen
         Spaltennamen falsch schreibt, sieht es hier vor dem Ausführen und nicht danach in einer Fehlermeldung.</span>
       <span lang="en">DataGrip is JetBrains' database-oriented development environment. It reads the connected database's
         schema – this is called <strong>introspection</strong> – and uses it for completion, jumping between tables and
@@ -83,7 +83,7 @@
     <div class="info-box">
       <p><span lang="de">Das erklärt auch die wichtigste Bedienhürde, die weiter unten kommt: Introspiziert wird nur,
         was als <em>sichtbar</em> geschaltet ist. Eine Tabelle, die existiert, aber nicht ausgewählt wurde, taucht im
-        Baum nicht auf und ist der Vervollständigung unbekannt – und dann sucht man den Fehler in der Abfrage, statt in
+        Baum nicht auf und ist der Code Completion unbekannt – und dann sucht man den Fehler in der Abfrage, statt in
         einer Anzeigeeinstellung.</span>
       <span lang="en">That also explains the most important operating hurdle, which comes further down: only what is set
         to <em>visible</em> gets introspected. A table that exists but was not selected does not appear in the tree and
@@ -168,9 +168,9 @@
   </section>
 
   <section class="section-block" id="verbinden">
-    <h2><span lang="de">Datenquelle anlegen</span><span lang="en">Create a data source</span></h2>
+    <h2><span lang="de">Data Source anlegen</span><span lang="en">Create a data source</span></h2>
     <p>
-      <span lang="de">Eine <strong>Datenquelle</strong> ist eine gespeicherte Verbindung: System, Adresse, Zugangsdaten,
+      <span lang="de">Eine <strong>Data Source</strong> ist eine gespeicherte Verbindung: System, Adresse, Zugangsdaten,
         Treiber. Seit Version 2026.2 sind fünf Treiber mitgeliefert – darunter PostgreSQL –, sodass der frühere
         Zwischenschritt „fehlende Treiberdateien herunterladen“ für diesen Kurs entfällt.</span>
       <span lang="en">A <strong>data source</strong> is a stored connection: system, address, credentials, driver. Since
@@ -182,7 +182,7 @@
     <div class="warn-box">
       <h3><span lang="de">Das Passwort gehört nicht in das URL-Feld</span><span lang="en">The password does not belong in the URL field</span></h3>
       <p><span lang="de">Der Dialog hat ein Feld <code>URL</code> und ein Feld <code>Password</code>. Wer die
-        vollständige Verbindungszeichenkette samt Passwort in das URL-Feld einträgt – naheliegend, weil Supabase sie
+        vollständige Connection String samt Passwort in das URL-Feld einträgt – naheliegend, weil Supabase sie
         genau so anzeigt –, hat das Passwort danach im Klartext in den Protokolldateien und Konfigurationsdateien der
         Umgebung. Passwort ins Passwortfeld, und in der URL steht es nicht.</span>
       <span lang="en">The dialogue has a <code>URL</code> field and a <code>Password</code> field. Whoever enters the full
@@ -231,16 +231,16 @@
     </div>
     <p class="shot-hinweis"><span lang="de">Nachbildung der Oberfläche, Stand 09/2026 – Beschriftungen wie im Original.</span><span lang="en">Rendering of the interface, as of 09/2026 – labels as in the original.</span></p>
     <ol class="shot-legende">
-      <li><span class="callout">1</span><span><span lang="de">Zwei Datenquellen nebeneinander: der Server aus Lab 08 und die Datei aus Lab 06. Beide erscheinen im Database Explorer, beide bekommen eine Konsole.</span><span lang="en">Two data sources side by side: the server from lab 08 and the file from lab 06. Both appear in the Database Explorer, both get a console.</span></span></li>
+      <li><span class="callout">1</span><span><span lang="de">Zwei Data Sources nebeneinander: der Server aus Lab 08 und die Datei aus Lab 06. Beide erscheinen im Database Explorer, beide bekommen eine Konsole.</span><span lang="en">Two data sources side by side: the server from lab 08 and the file from lab 06. Both appear in the Database Explorer, both get a console.</span></span></li>
       <li><span class="callout">2</span><span><span lang="de">Das Feld <code>File</code> zeigt auf die Datei. Ein Pfad zu einer Datei, die es noch nicht gibt, legt sie beim Verbinden an – ein Tippfehler erzeugt also still eine leere Datenbank, genau wie <code>sqlite3.connect()</code> in Lab 06.</span><span lang="en">The <code>File</code> field points to the file. A path to a file that does not exist yet creates it on connecting – so a typo silently produces an empty database, exactly like <code>sqlite3.connect()</code> in lab 06.</span></span></li>
       <li><span class="callout">3</span><span><span lang="de">Der Treiber (Xerial sqlite-jdbc) wird einmalig geladen und im Konfigurationsordner abgelegt. Ohne Netz beim ersten Versuch bleibt der Verweis stehen.</span><span lang="en">The driver (Xerial sqlite-jdbc) is loaded once and stored in the configuration folder. Without network on the first attempt the link stays.</span></span></li>
       <li><span class="callout">4</span><span><span lang="de">Erst testen, dann OK. Ein grüner Haken heißt: Datei gefunden, Treiber geladen. Kein Passwort, keine Schemata – SQLite kennt beides nicht.</span><span lang="en">Test first, then OK. A green tick means: file found, driver loaded. No password, no schemas – SQLite knows neither.</span></span></li>
     </ol>
     <div class="info-box">
-      <p><span lang="de">Was in der Datei-Datenquelle anders ist: Es gibt kein Schema-Register (Lab 06: eine Datei ist
+      <p><span lang="de">Was in der Data Source für die Datei anders ist: Es gibt kein Schema-Register (Lab 06: eine Datei ist
         ein Schema), <code>Tx:Manual</code> funktioniert wie bei Postgres – nur dass eine zweite Verbindung auf dieselbe
         Datei mit <code>database is locked</code> antwortet, solange die erste eine offene Transaktion hält. Genau
-        deshalb steht <code>Read-only</code> bei der zweiten Datenquelle nicht nur zur Zierde.</span>
+        deshalb steht <code>Read-only</code> bei der zweiten Data Source nicht nur zur Zierde.</span>
       <span lang="en">What differs in the file data source: there is no schema register (lab 06: one file is one
         schema), <code>Tx:Manual</code> works as with Postgres – except that a second connection to the same file answers
         <code>database is locked</code> as long as the first holds an open transaction. That is precisely why
@@ -251,11 +251,11 @@
   <section class="section-block" id="schema">
     <h2><span lang="de">Sichtbare Schemata</span><span lang="en">Visible schemas</span></h2>
     <p>
-      <span lang="de">Der Klassiker unter den Bedienhürden. Neben dem Namen der Datenquelle steht ein Verweis wie
+      <span lang="de">Neben dem Namen der Data Source steht ein Verweis wie
         <code>1 of 5</code> – er sagt, wie viele Schemata von wie vielen eingelesen werden. Was nicht ausgewählt ist,
-        erscheint nicht im Baum und ist der Vervollständigung unbekannt. Die Tabelle existiert, das Werkzeug sieht sie
+        erscheint nicht im Baum und ist der Code Completion unbekannt. Die Tabelle existiert, das Werkzeug sieht sie
         nur nicht an.</span>
-      <span lang="en">The classic among operating hurdles. Beside the data source's name stands a link like
+      <span lang="en">Beside the data source's name stands a link like
         <code>1 of 5</code> – it says how many schemas of how many are being read. What is not selected does not appear in
         the tree and is unknown to the completion. The table exists, the tool merely does not look at it.</span>
     </p>
@@ -263,7 +263,7 @@
     <p>
       <span lang="de">Bei Supabase ist das besonders auffällig: Neben <code>public</code> gibt es Schemata für
         Authentifizierung, Dateiablage und interne Verwaltung. Sinnvoll ist, <code>public</code> sichtbar zu schalten
-        und die übrigen weggeschaltet zu lassen – dann bleibt der Baum lesbar und die Vervollständigung schlägt keine
+        und die übrigen weggeschaltet zu lassen – dann bleibt der Baum lesbar und die Code Completion schlägt keine
         internen Tabellen vor.</span>
       <span lang="en">With Supabase this is particularly noticeable: besides <code>public</code> there are schemas for
         authentication, file storage and internal administration. It makes sense to set <code>public</code> visible and
@@ -275,8 +275,8 @@
   <section class="section-block" id="konsole">
     <h2><span lang="de">Die Konsole</span><span lang="en">The console</span></h2>
     <p>
-      <span lang="de">Eine <strong>Abfragekonsole</strong> ist ein Editor, der an eine Datenquelle gebunden ist.
-        <code>F4</code> auf der markierten Datenquelle öffnet die Standardkonsole, <code>Strg+Shift+Q</code> eine neue.
+      <span lang="de">Eine <strong>Query Console</strong> ist ein Editor, der an eine Data Source gebunden ist.
+        <code>F4</code> auf der markierten Data Source öffnet die Standardkonsole, <code>Strg+Shift+Q</code> eine neue.
         Der entscheidende Handgriff ist die Ausführung – und die verhält sich anders, als man erwartet.</span>
       <span lang="en">A <strong>query console</strong> is an editor bound to a data source. <code>F4</code> on the
         selected data source opens the default console, <code>Strg+Shift+Q</code> a new one. The decisive action is
@@ -309,9 +309,9 @@
   <section class="section-block" id="transaktion">
     <h2><span lang="de">Der Schalter, auf den es ankommt</span><span lang="en">The switch that matters</span></h2>
     <p>
-      <span lang="de">In der Werkzeugleiste der Konsole und des Datenrasters steht ein Auswahlfeld mit zwei Buchstaben
+      <span lang="de">In der Werkzeugleiste der Konsole und des Data Editors steht ein Auswahlfeld mit zwei Buchstaben
         und einem Doppelpunkt: <code>Tx:</code>. Es entscheidet, was mit einer Änderung passiert, die Sie im
-        Datenraster vornehmen – und es ist der Grund, warum ein unbeabsichtigter Klick in einer Zelle eine
+        Data Editor vornehmen – und es ist der Grund, warum ein unbeabsichtigter Klick in einer Zelle eine
         Produktionsdatenbank ändern kann.</span>
       <span lang="en">In the toolbar of the console and the data grid sits a dropdown with two letters and a colon:
         <code>Tx:</code>. It decides what happens to a change you make in the data grid – and it is the reason an
@@ -330,7 +330,7 @@
           <tr>
             <td><span lang="de">Nach dem Abschicken einer Änderung</span><span lang="en">After submitting a change</span></td>
             <td><span lang="de">sofort dauerhaft</span><span lang="en">immediately permanent</span></td>
-            <td><span lang="de">vorgemerkt, noch nicht festgeschrieben</span><span lang="en">pending, not yet committed</span></td>
+            <td><span lang="de">abgeschickt (Submit), noch nicht committet (Commit)</span><span lang="en">pending, not yet committed</span></td>
           </tr>
           <tr>
             <td><span lang="de">Rückgängig möglich</span><span lang="en">Undo possible</span></td>
@@ -354,10 +354,10 @@
     <div class="challenge-box">
       <h3><span lang="de">Drei Gewohnheiten, die eine Datenbank retten</span><span lang="en">Three habits that save a database</span></h3>
       <ol>
-        <li><span lang="de"><strong><code>Tx:Manual</code> als Voreinstellung</strong> – je Datenquelle im Reiter
-          <code>Options</code>. Dann ist jede Änderung im Raster zunächst nur vorgemerkt.</span>
+        <li><span lang="de"><strong><code>Tx:Manual</code> als Voreinstellung</strong> – je Data Source im Reiter
+          <code>Options</code>. Dann ist jede Änderung im Data Editor zunächst nur abgeschickt, nicht committet.</span>
         <span lang="en"><strong><code>Tx:Manual</code> as the default</strong> – per data source in the
-          <code>Options</code> tab. Then every change in the grid is initially only pending.</span></li>
+          <code>Options</code> tab. Then every change in the data editor is initially only submitted, not committed.</span></li>
         <li><span lang="de"><strong><code>Preview Pending Changes</code> vor jedem <code>Submit</code></strong> – es
           zeigt das <code>UPDATE</code>, das DataGrip erzeugen würde. Zwei Sekunden Lesen, und ein fehlendes
           <code>WHERE</code> fällt auf, bevor es wirkt.</span>
@@ -365,7 +365,7 @@
           the <code>UPDATE</code> DataGrip would generate. Two seconds of reading, and a missing <code>WHERE</code> is
           noticed before it takes effect.</span></li>
         <li><span lang="de"><strong><code>Read-only</code> für alles, was Sie nicht ändern dürfen</strong> – im Reiter
-          <code>Options</code> der Datenquelle. Für eine Produktionsdatenbank ist das keine Vorsicht, sondern
+          <code>Options</code> der Data Source. Für eine Produktionsdatenbank ist das keine Vorsicht, sondern
           Pflicht: Ein Haken verhindert die ganze Klasse von Unfällen.</span>
         <span lang="en"><strong><code>Read-only</code> for everything you may not change</strong> – in the data source's
           <code>Options</code> tab. For a production database that is not caution but duty: one checkbox prevents the
@@ -400,10 +400,9 @@
     <h2><span lang="de">Finden und verstehen</span><span lang="en">Finding and understanding</span></h2>
     <p>
       <span lang="de">Vor einer Auswertung steht die Frage, wie die Daten zusammenhängen. Ein Schemadiagramm beantwortet
-        sie in zehn Sekunden – und ist die Brücke zu dem, was in DABA als Entity-Relationship-Modell behandelt
-        wird.</span>
+        sie in zehn Sekunden – und entspricht dem, was DABA als Entity-Relationship-Modell behandelt.</span>
       <span lang="en">Before an analysis comes the question of how the data hangs together. A schema diagram answers it in
-        ten seconds – and is the bridge to what DABA treats as the entity-relationship model.</span>
+        ten seconds – and corresponds to what DABA treats as the entity-relationship model.</span>
     </p>
     <div data-befehl="B08"></div>
     <div data-befehl="B09"></div>
@@ -421,7 +420,7 @@
       <div class="karte">
         <div class="kopfzeile">SSL</div>
         <p><span lang="de">Im Reiter <code>SSH/SSL</code>: <code>Use SSL</code> einschalten, Verifikationsmodus wählen.
-          Bei Supabase ist Verschlüsselung Pflicht und in der Verbindungszeichenkette enthalten. Bei einer
+          Bei Supabase ist Verschlüsselung Pflicht und im Connection String enthalten. Bei einer
           Hochschul-Datenbank lohnt der Modus <code>Verify CA</code> mit hinterlegtem Zertifikat – und ein SSH-Tunnel
           statt eines offenen Ports.</span>
         <span lang="en">In the <code>SSH/SSL</code> tab: enable <code>Use SSL</code>, choose a verification mode. With
@@ -442,7 +441,7 @@
       <div class="karte">
         <div class="kopfzeile"><span lang="de">Einstellungen in der Cloud</span><span lang="en">Settings in the cloud</span></div>
         <p><span lang="de">Settings Sync synchronisiert Einstellungen über das JetBrains-Konto, seit 2026.1 auch
-          Vorlagen für Datenquellen. Prüfen, welche Verbindungsangaben dadurch die Maschine verlassen – für dienstliche
+          Vorlagen für Data Sources. Prüfen, welche Verbindungsangaben dadurch die Maschine verlassen – für dienstliche
           Datenbanken besser abschalten. Dieselbe Frage wie bei <code>settings.json</code> in Lab 03.</span>
         <span lang="en">Settings Sync synchronises settings through the JetBrains account, and since 2026.1 data source
           templates too. Check which connection details leave the machine as a result – for work databases better switch
@@ -472,10 +471,10 @@
   <section class="section-block" id="zusammenfassung">
     <h2><span lang="de">Zusammenfassung</span><span lang="en">Summary</span></h2>
     <ul>
-      <li><span lang="de">DataGrip liest das Schema ein und nutzt es für Vervollständigung und Warnungen. Eingelesen wird nur, was als sichtbar geschaltet ist – der Verweis <code>N of M</code> neben der Datenquelle sagt, wie viel das ist.</span><span lang="en">DataGrip reads the schema and uses it for completion and warnings. Only what is set visible is read – the <code>N of M</code> link beside the data source says how much that is.</span></li>
+      <li><span lang="de">DataGrip liest das Schema ein und nutzt es für Code Completion und Warnungen. Eingelesen wird nur, was als sichtbar geschaltet ist – der Verweis <code>N of M</code> neben der Data Source sagt, wie viel das ist.</span><span lang="en">DataGrip reads the schema and uses it for completion and warnings. Only what is set visible is read – the <code>N of M</code> link beside the data source says how much that is.</span></li>
       <li><span lang="de">Das Passwort gehört in das Passwortfeld, nicht in die URL. Auf Poolrechnern <code>Do not save</code>.</span><span lang="en">The password belongs in the password field, not in the URL. On pool machines, <code>Do not save</code>.</span></li>
       <li><span lang="de"><code>Tx:Auto</code> macht jede Rasteränderung sofort dauerhaft, <code>Tx:Manual</code> merkt sie vor. Mit <code>Preview Pending Changes</code> sehen Sie das erzeugte <code>UPDATE</code>, bevor es läuft.</span><span lang="en"><code>Tx:Auto</code> makes every grid change immediately permanent, <code>Tx:Manual</code> holds it pending. With <code>Preview Pending Changes</code> you see the generated <code>UPDATE</code> before it runs.</span></li>
-      <li><span lang="de">Ein <code>UPDATE</code> wird zuerst als <code>SELECT</code> mit demselben <code>WHERE</code> geschrieben. Datenquellen, die Sie nicht ändern dürfen, werden auf <code>Read-only</code> gestellt.</span><span lang="en">An <code>UPDATE</code> is first written as a <code>SELECT</code> with the same <code>WHERE</code>. Data sources you may not change are set to <code>Read-only</code>.</span></li>
+      <li><span lang="de">Ein <code>UPDATE</code> wird zuerst als <code>SELECT</code> mit demselben <code>WHERE</code> geschrieben. Data Sources, die Sie nicht ändern dürfen, werden auf <code>Read-only</code> gestellt.</span><span lang="en">An <code>UPDATE</code> is first written as a <code>SELECT</code> with the same <code>WHERE</code>. Data sources you may not change are set to <code>Read-only</code>.</span></li>
       <li><span lang="de">Bei mehreren Anweisungen fragt <code>Strg+Enter</code>, welche laufen soll. Wer die Frage wegklickt, führt das ganze Skript aus. Markieren heißt: genau das läuft.</span><span lang="en">With several statements <code>Strg+Enter</code> asks which one should run. Whoever clicks the question away runs the whole script. Selecting means: exactly that runs.</span></li>
       <li><span lang="de">Die Bildungslizenz ist der bessere der beiden kostenfreien Wege – nicht wegen des Preises, sondern weil die Free-Non-Commercial-Lizenz Telemetrie zur Bedingung macht.</span><span lang="en">The educational licence is the better of the two free routes – not because of the price but because the free non-commercial licence makes telemetry a condition.</span></li>
     </ul>

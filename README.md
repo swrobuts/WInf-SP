@@ -10,7 +10,7 @@ PyCharm und WebStorm, Google Colab, JSON, SQLite, Docker, Supabase, DataGrip, ET
 Power BI und Tableau. **74 Übungen** in neun Formen, jede mit sofortiger Rückmeldung; eine
 **nachgebildete Kommandozeile** mit drei Shells, `git` und `docker`; **zwei echte Datenbanken im
 Browser** – PostgreSQL (PGlite) und SQLite (sql.js) – auf den Daten der Fallstudie Velo City;
-ein **Deploy-Simulator** nach dem Vorbild von Render und ein **Regal-Simulator** nach dem Vorbild
+ein **Deploy-Simulator** nach dem Vorbild von Render und ein **Shelf-Simulator** nach dem Vorbild
 von Power BI und Tableau.
 
 Die Umgebung ist zweisprachig (Deutsch / Englisch), englische Fachbegriffe bleiben englisch. Sie
@@ -32,7 +32,7 @@ teilen sich WInf-SP und PITM wörtlich.
 ```
 index.html                    Übersicht mit den dreizehn Lab-Kacheln und dem Gesamtfortschritt
 lab-01-terminal.html          zsh, PowerShell, cmd.exe: bewegen, anlegen, lesen, verschieben        (6 Übungen)
-lab-02-github.html            Drei Bereiche, clone/add/commit/push, Zweige, .gitignore, Secrets     (6)
+lab-02-github.html            Drei Bereiche, clone/add/commit/push, Branches, .gitignore, Secrets     (6)
 lab-03-ide.html               PyCharm und WebStorm: Projekt, Interpreter, Run Configuration, Lizenz (5)
 lab-04-colab.html             Notebook, Runtime, Kernel, Ausführungsreihenfolge, Secrets            (5)
 lab-05-json.html              Sechs Werttypen, Verschachtelung, JSON Lines, json_normalize          (6)
@@ -43,7 +43,7 @@ lab-09-datagrip.html          Datenquelle (SQLite und Postgres), Schemata, Tx:Au
 lab-10-etl.html               ETL vs. ELT, Staging, Sternschema, Upsert, Idempotenz, dbt            (6)
 lab-11-render.html            Web Service, Build/Start Command, $PORT, Free Tier, Blueprint         (5)
 lab-12-powerbi.html           Power Query, Modell, DAX-Measures, Bericht, Veröffentlichen           (6)
-lab-13-tableau.html           Dimension/Measure, diskret/stetig, Regale, LOD, Dashboard             (6)
+lab-13-tableau.html           Dimension/Measure, diskret/stetig, Shelves, LOD, Dashboard             (6)
 
 assets/
   winf.css                    Gemeinsames Stylesheet: Bordeaux #7A1F2E, Gold #E0B44C
@@ -51,7 +51,7 @@ assets/
   terminal.js                 Nachgebildete Shell: zsh, PowerShell, cmd.exe, git, docker
   pruefung.js                 Wann ein Terminalschritt erledigt ist — Browser UND Testlauf
   jsonpruefung.js             Prüfung von JSON-Übungen (JSON Pointer, Regeln, Ursachenhinweise)
-  regal.js                    Aggregation und Zielprüfung des Regal-Simulators
+  regal.js                    Aggregation und Zielprüfung des Shelf-Simulators
   deploy.js                   Protokoll und Zielprüfung des Deploy-Simulators
   pglite/                     PostgreSQL als WebAssembly (PGlite), lokal statt vom CDN
   sqljs/                      SQLite als WebAssembly (sql.js 1.14.2, SQLite 3.49.1), lokal
@@ -62,7 +62,7 @@ data/
   velocity.json               Derselbe Bestand als verschachtelter JSON-Export (erzeugt)
   velocity-kostprobe.json     Kleiner Ausschnitt des Exports für Lab 05
   fahrten.jsonl               Die Fahrten als JSON Lines (erzeugt)
-  regal-fahrten.json          Flache Fahrtentabelle für den Regal-Simulator (erzeugt)
+  regal-fahrten.json          Flache Fahrtentabelle für den Shelf-Simulator (erzeugt)
   uebungen/lab-XX.json        Befehlskarten, Übungen, Repositories und Felder je Lab
 
 vorlagen/                     Kopiervorlagen: requirements.txt, main.py, render.yaml, Dockerfile,
@@ -72,7 +72,7 @@ tools/
   verify.mjs                  Abnahmelauf ohne Browser (siehe unten)
   sql.mjs                     SQL gegen beide Datenbanken auf der Kommandozeile ausprobieren
   gen_daten.mjs               Erzeugt SQLite-, JSON- und JSON-Lines-Fassung aus velocity.sql
-  gen_regal.mjs               Erzeugt die flache Fahrtentabelle für den Regal-Simulator
+  gen_regal.mjs               Erzeugt die flache Fahrtentabelle für den Shelf-Simulator
   AUTORENLEITFADEN.md         Konventionen für neue Labs
 ```
 
@@ -89,7 +89,7 @@ tools/
 | `sql` | Eine Abfrage gegen echtes PostgreSQL oder SQLite schreiben | Abfrage und Referenzlösung laufen; Zeilenmengen werden verglichen; bei verändernden Anweisungen über eine Kontrollabfrage |
 | `json` | JSON schreiben oder reparieren | Parser des Browsers, dann Regeln je JSON Pointer oder Vergleich mit dem erwarteten Dokument |
 | `reihenfolge` | Schritte in die richtige Ordnung bringen | Positionsvergleich; erste falsche Position wird genannt |
-| `regal` | Felder auf Regale legen (Columns/Rows/Color bzw. X-axis/Y-axis/Legend) | Belegung gegen das Ziel: Felder, Aggregation, Farbe, Filter |
+| `regal` | Felder auf Shelves legen (Columns/Rows/Color bzw. X-axis/Y-axis/Legend) | Belegung gegen das Ziel: Felder, Aggregation, Farbe, Filter |
 | `deploy` | Das Formular „New Web Service“ ausfüllen und deployen | Simuliertes Protokoll; Erfolg und Sollbedingungen (Build, Start, Variablen) |
 
 Die HTML-Seite enthält je Übung nur `<div data-uebung="W05-01"></div>`, je Befehlskarte
@@ -128,8 +128,8 @@ Zeichenkette in eine INTEGER-Spalte, ohne zu murren; Postgres nicht.
   Protokoll ist dem echten nachempfunden und kennt die Fehler, an denen Deploys im Kurs scheitern:
   fehlende `requirements.txt`, Skript ohne Server, Bindung an 127.0.0.1 („No open ports detected“),
   fester Port ohne `$PORT`, fehlende Umgebungsvariable (`KeyError`), Docker ohne Dockerfile.
-- **Regal-Simulator** (`assets/regal.js`): Felder in zwei Farbsprachen (Tableau: blau diskret,
-  grün stetig; Power BI: Σ), Regale Columns/Rows/Color bzw. X-axis/Y-axis/Legend, Filter,
+- **Shelf-Simulator** (`assets/regal.js`): Felder in zwei Farbsprachen (Tableau: blau diskret,
+  grün stetig; Power BI: Σ), Shelves Columns/Rows/Color bzw. X-axis/Y-axis/Legend, Filter,
   Aggregation je Kennzahl. Das Diagramm folgt aus der Belegung wie im Werkzeug: Dimension auf
   Columns ergibt senkrechte Balken, auf Rows waagerechte, eine geordnete Dimension eine Linie, nur
   Dimensionen eine Tabelle. Die Σ-Falle („Sum of fahrt_id“) ist absichtlich eingebaut.
@@ -148,7 +148,7 @@ Der Lauf braucht keinen Browser und prüft: dass Platzhalter und JSON deckungsgl
 Text in beiden Sprachen vorliegt und die Übungszahlen in `LABS` stimmen; dass jede Terminalübung
 in jedem passenden Dialekt lösbar ist; dass jede JSON-Übung mit ihrer Musterlösung besteht und mit
 ihrem Starttext nicht; dass jede Reihenfolge-Übung nicht schon gelöst beginnt; dass jede
-Regal-Übung mit ihrer Lösungsbelegung das Ziel erfüllt und die leere Belegung nicht; dass jede
+Shelf-Übung mit ihrer Lösungsbelegung das Ziel erfüllt und die leere Belegung nicht; dass jede
 Deploy-Übung mit ihren Lösungseingaben online geht; und dass die bekannten Stolperstellen der
 Shell-Nachbildung behoben bleiben.
 

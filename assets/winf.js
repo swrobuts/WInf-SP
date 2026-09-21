@@ -159,7 +159,7 @@ const T = {
   feldHinzu:    { de: 'Feld hinzufügen …', en: 'add field …' },
   entfernen:    { de: 'entfernen', en: 'remove' },
   filterWerte:  { de: 'Werte', en: 'values' },
-  keineDaten:   { de: 'Legen Sie ein Feld auf ein Regal.', en: 'Put a field on a shelf.' },
+  keineDaten:   { de: 'Legen Sie ein Feld auf ein Shelf.', en: 'Put a field on a shelf.' },
   deployStart:  { de: 'Deploy Web Service', en: 'Deploy Web Service' },
   deployLaeuft: { de: 'Deploy läuft …', en: 'Deploying …' },
   deployOk:     { de: 'Der Dienst ist online.', en: 'The service is live.' },
@@ -175,7 +175,7 @@ const T = {
     sql:         { de: 'SQL schreiben', en: 'Writing SQL' },
     json:        { de: 'JSON schreiben', en: 'Writing JSON' },
     reihenfolge: { de: 'In Reihenfolge bringen', en: 'Put in order' },
-    regal:       { de: 'Am Regal', en: 'On the shelf' },
+    regal:       { de: 'Am Shelf', en: 'On the shelf' },
     deploy:      { de: 'Deployment', en: 'Deployment' }
   }
 }
@@ -201,7 +201,7 @@ const DEPLOY_HINWEISE = {
   lokalPort:      { de: 'Der Server hört nur auf 127.0.0.1, also nur innerhalb seines eigenen Containers. Render erreicht ihn nicht. Er muss an 0.0.0.0 binden.', en: 'The server listens on 127.0.0.1 only, i.e. only inside its own container. Render cannot reach it. It has to bind to 0.0.0.0.' },
   festerPort:     { de: 'Es lief – aber nur, weil Render den festen Port zufällig gefunden hat. Render setzt die Variable PORT; ein Dienst, der sie ausliest, läuft auch nach der nächsten Plattformänderung.', en: 'It worked – but only because Render happened to find the fixed port. Render sets the variable PORT; a service that reads it keeps working after the next platform change.' },
   keinServer:     { de: 'Der Befehl läuft durch und endet. Ein Web Service muss einen Port öffnen und laufen bleiben; ein Skript, das einmal durchläuft, ist ein Background Worker oder ein Cron Job.', en: 'The command runs through and ends. A web service must open a port and keep running; a script that runs once is a background worker or a cron job.' },
-  umgebung:       { de: 'Der Code liest eine Umgebungsvariable, die nicht gesetzt ist. Auf Ihrem Rechner stand sie in .env – Render kennt diese Datei nicht. Sie gehört unter Environment Variables.', en: 'The code reads an environment variable that is not set. On your machine it sat in .env – Render does not know that file. It belongs under environment variables.' }
+  umgebung:       { de: 'Der Code liest eine Environment Variable, die nicht gesetzt ist. Auf Ihrem Rechner stand sie in .env – Render kennt diese Datei nicht. Sie gehört unter Environment Variables.', en: 'The code reads an environment variable that is not set. On your machine it sat in .env – Render does not know that file. It belongs under environment variables.' }
 }
 
 /** Hinweise der Umgebung zu Terminaleingaben. Erscheinen gedimmt unter der Ausgabe. */
@@ -221,23 +221,23 @@ const TERMINAL_HINWEISE = {
   keinRepo:       { de: 'Ohne "git init" oder "git clone" gibt es kein Repository – Git verwaltet einen Ordner erst, wenn er darum gebeten wurde.', en: 'Without "git init" or "git clone" there is no repository – Git manages a folder only once it has been asked to.' },
   commitOhneAdd:  { de: 'Zwischen Arbeitsverzeichnis und Repository liegt die Stufe "Staging". Was nicht mit "git add" vorgemerkt ist, wandert auch nicht in den Commit.', en: 'Between working directory and repository sits the staging area. What is not marked with "git add" does not go into the commit.' },
   commitOhneText: { de: 'Ein Commit ohne Nachricht ist ein Commit ohne Begründung. Verwenden Sie "git commit -m \\"…\\"".', en: 'A commit without a message is a commit without a reason. Use "git commit -m \\"…\\"".' },
-  zweigFehlt:     { de: 'Der Zweig existiert nicht. Neu anlegen und wechseln in einem Schritt: "git switch -c <name>".', en: 'The branch does not exist. Create and switch in one step: "git switch -c <name>".' },
+  zweigFehlt:     { de: 'Der Branch existiert nicht. Neu anlegen und wechseln in einem Schritt: "git switch -c <name>".', en: 'The branch does not exist. Create and switch in one step: "git switch -c <name>".' },
   pushOhneRemote: { de: 'Ein lokales Repository kennt von sich aus keinen Server. "git remote add origin <url>" stellt die Verbindung her.', en: 'A local repository knows no server by itself. "git remote add origin <url>" establishes the link.' },
   psParameter:    { de: 'PowerShell prüft Parameter, statt sie zu übergehen. Unix-Kurzoptionen wie -la gibt es hier nicht: Get-ChildItem kennt -Force für versteckte Dateien und -Recurse für Unterordner.', en: 'PowerShell checks parameters instead of ignoring them. Unix short options such as -la do not exist here: Get-ChildItem has -Force for hidden files and -Recurse for subfolders.' },
   psMehrdeutig:   { de: 'Abkürzungen sind in PowerShell erlaubt, solange sie eindeutig bleiben. Schreiben Sie den Parameter aus – etwa -Force statt -f.', en: 'Abbreviations are allowed in PowerShell as long as they stay unambiguous. Write the parameter out – e.g. -Force instead of -f.' },
   renameNurName:  { de: 'Umbenennen ist nicht Verschieben: Der zweite Wert ist ein Name, kein Pfad. Für einen anderen Ordner nehmen Sie Move-Item bzw. move.', en: 'Renaming is not moving: the second value is a name, not a path. For a different folder use Move-Item or move.' },
   rdNichtLeer:    { de: 'rd entfernt nur leere Verzeichnisse. Mit  rd /s /q <name>  geht auch ein gefüllter Ordner – dann aber ohne Rückfrage.', en: 'rd only removes empty directories. With  rd /s /q <name>  a filled folder goes too – but then without asking.' },
-  bandInBenutzung:{ de: 'Ein eingehängtes Band lässt sich nicht entfernen. Erst den Container weg (docker rm), dann das Band – genau diese Reihenfolge schützt vor Datenverlust.', en: 'A mounted volume cannot be removed. First the container (docker rm), then the volume – that order is precisely what protects you from data loss.' },
-  abbildUnbekannt:{ de: 'Diese Nachbildung kennt nur wenige Abbilder: hello-world, postgres, nginx, python, adminer, ubuntu, n8nio/n8n.', en: 'This model knows only a few images: hello-world, postgres, nginx, python, adminer, ubuntu, n8nio/n8n.' },
+  bandInBenutzung:{ de: 'Ein eingehängtes Volume lässt sich nicht entfernen. Erst den Container weg (docker rm), dann das Volume – genau diese Reihenfolge schützt vor Datenverlust.', en: 'A mounted volume cannot be removed. First the container (docker rm), then the volume – that order is precisely what protects you from data loss.' },
+  abbildUnbekannt:{ de: 'Diese Nachbildung kennt nur wenige Images: hello-world, postgres, nginx, python, adminer, ubuntu, n8nio/n8n.', en: 'This model knows only a few images: hello-world, postgres, nginx, python, adminer, ubuntu, n8nio/n8n.' },
   portBelegt:     { de: 'Ein Host-Port lässt sich nur einmal vergeben. Weichen Sie aus: "-p 15432:5432" bindet denselben Container-Port an einen anderen Port des Rechners.', en: 'A host port can only be assigned once. Move aside: "-p 15432:5432" binds the same container port to a different port on the machine.' },
   nameBelegt:     { de: 'Containernamen sind eindeutig. Entfernen Sie den alten mit "docker rm -f <name>" oder wählen Sie einen anderen Namen.', en: 'Container names are unique. Remove the old one with "docker rm -f <name>" or choose a different name.' },
   containerFehlt: { de: 'Diesen Container gibt es nicht. "docker ps -a" listet auch die gestoppten.', en: 'No such container. "docker ps -a" also lists the stopped ones.' },
   containerAus:   { de: 'In einen gestoppten Container lässt sich nicht hineingehen. Erst "docker start <name>".', en: 'You cannot step into a stopped container. Start it first with "docker start <name>".' },
   rmLaeuft:       { de: 'Ein laufender Container wird nicht einfach entfernt. Erst "docker stop", oder "docker rm -f".', en: 'A running container is not simply removed. Use "docker stop" first, or "docker rm -f".' },
-  abbildInBenutzung: { de: 'Solange ein Container auf dem Abbild beruht, bleibt das Abbild. Erst den Container entfernen.', en: 'As long as a container is based on the image, the image stays. Remove the container first.' },
+  abbildInBenutzung: { de: 'Solange ein Container auf dem Image beruht, bleibt das Image. Erst den Container entfernen.', en: 'As long as a container is based on the image, the image stays. Remove the container first.' },
   keinDockerfile: { de: 'Ein Bau braucht eine Datei namens Dockerfile im aktuellen Ordner – der Punkt am Ende des Befehls ist der Bau-Kontext.', en: 'A build needs a file called Dockerfile in the current folder – the dot at the end of the command is the build context.' },
   keinCompose:    { de: 'Compose sucht im aktuellen Ordner nach compose.yaml. Ohne diese Datei gibt es nichts zu starten.', en: 'Compose looks for compose.yaml in the current folder. Without that file there is nothing to start.' },
-  composeDownV:   { de: 'Achtung: "-v" hat die Bänder mitgelöscht. Die Datenbank ist jetzt leer – genau das ist der häufigste Datenverlust im Kurs.', en: 'Careful: "-v" deleted the volumes too. The database is empty now – that is the most common data loss in the course.' }
+  composeDownV:   { de: 'Achtung: "-v" hat die Volumes mitgelöscht. Die Datenbank ist jetzt leer – genau das ist der häufigste Datenverlust im Kurs.', en: 'Careful: "-v" deleted the volumes too. The database is empty now – that is the most common data loss in the course.' }
 }
 
 /* --------------------------------------------------------------------- Labs */
